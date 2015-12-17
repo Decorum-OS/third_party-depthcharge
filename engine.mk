@@ -30,7 +30,6 @@ endif
 
 $(if $(wildcard $(obj)/.xcompile),,$(eval $(shell $(src)/util/xcompile/xcompile $(XGCCPATH) > $(obj)/.xcompile)))
 
-CONFIG_LP_COMPILER_GCC=y
 include $(obj)/.xcompile
 LZMA := lzma
 

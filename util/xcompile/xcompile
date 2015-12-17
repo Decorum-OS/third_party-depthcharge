@@ -191,20 +191,10 @@ report_arch_toolchain() {
 # elf${TWIDTH}-${TBFDARCH} toolchain (${GCC})
 ARCH_SUPPORTED+=${TARCH}
 SUBARCH_SUPPORTED+=${TSUPP-${TARCH}}
-ifeq (\$(CONFIG_COMPILER_GCC)\$(CONFIG_LP_COMPILER_GCC),y)
 CC_${TARCH}:=${GCC}
 CFLAGS_${TARCH}:=${CFLAGS_GCC}
 COMPILER_RT_${TARCH}:=${CC_RT_GCC}
 COMPILER_RT_FLAGS_${TARCH}:=${CC_RT_EXTRA_GCC}
-else
-CC_${TARCH}:=${CLANG}
-CFLAGS_${TARCH}:=${CFLAGS_CLANG}
-CFLAGS_${TARCH}+=-no-integrated-as -Qunused-arguments -m${TWIDTH}
-# tone down compiler warnings
-CFLAGS_${TARCH}+=-Wno-unused-variable -Wno-unused-function -Wno-tautological-compare -Wno-shift-overflow
-COMPILER_RT_${TARCH}:=${CC_RT_CLANG}
-COMPILER_RT_FLAGS_${TARCH}:=${CC_RT_EXTRA_CLANG}
-endif
 CPP_${TARCH}:=${GCCPREFIX}cpp
 AS_${TARCH}:=${GCCPREFIX}as ${ASFLAGS}
 LD_${TARCH}:=${GCCPREFIX}ld${LINKER_SUFFIX} ${LDFLAGS}
