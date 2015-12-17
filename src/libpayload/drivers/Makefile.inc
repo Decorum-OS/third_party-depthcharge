@@ -31,8 +31,6 @@
 
 libc-$(CONFIG_PCI) += pci.c
 
-libc-$(CONFIG_SPEAKER) += speaker.c
-
 libc-$(CONFIG_PC_KEYBOARD) += keyboard.c
 
 libc-$(CONFIG_CBMEM_CONSOLE) += cbmem_console.c

@@ -144,11 +144,6 @@ config NVRAM
 	depends on ARCH_X86 # for now
 	default y
 
-config SPEAKER
-	bool "Support for PC speaker"
-	depends on ARCH_X86
-	default y
-
 config TIMER_RDTSC
 	bool
 	default y
