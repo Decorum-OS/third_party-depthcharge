@@ -49,7 +49,6 @@ libc-$(CONFIG_TIMER_RK) += timer/rktimer.c
 
 # Video console drivers
 libc-$(CONFIG_VIDEO_CONSOLE) += video/video.c
-libc-$(CONFIG_VGA_VIDEO_CONSOLE) += video/vga.c
 
 # coreboot generic framebuffer driver
 libc-$(CONFIG_COREBOOT_VIDEO_CONSOLE) += video/corebootfb.c

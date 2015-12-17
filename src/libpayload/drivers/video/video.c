@@ -34,17 +34,10 @@
 extern struct video_console coreboot_video_console;
 #endif
 
-#if CONFIG_VGA_VIDEO_CONSOLE
-extern struct video_console vga_video_console;
-#endif
-
 static struct video_console *console_list[] =
 {
 #if CONFIG_COREBOOT_VIDEO_CONSOLE
 	&coreboot_video_console,
-#endif
-#if CONFIG_VGA_VIDEO_CONSOLE
-	&vga_video_console,
 #endif
 };
 

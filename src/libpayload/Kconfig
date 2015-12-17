@@ -113,11 +113,6 @@ config VIDEO_CONSOLE
 	bool "See output on a video console"
 	default y
 
-config VGA_VIDEO_CONSOLE
-	bool "VGA video console driver"
-	depends on ARCH_X86 && VIDEO_CONSOLE
-	default y
-
 config COREBOOT_VIDEO_CONSOLE
 	bool "coreboot video console driver"
 	depends on VIDEO_CONSOLE
