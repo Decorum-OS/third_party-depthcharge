@@ -27,7 +27,8 @@
 
 #include <libpayload.h>
 
-static uint32_t * const tegra_tmrus = (void *)CONFIG_TIMER_TEGRA_1US_ADDRESS;
+static uint32_t * const tegra_tmrus =
+	(void *)CONFIG_DRIVER_TIMER_TEGRA_1US_ADDRESS;
 
 uint64_t timer_hz(void)
 {

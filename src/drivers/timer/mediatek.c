@@ -20,11 +20,11 @@
 #include <libpayload.h>
 #include <stdint.h>
 
-static uint32_t *const mtk_tmrus = (void*)CONFIG_TIMER_MTK_ADDRESS;
+static uint32_t *const mtk_tmrus = (void*)CONFIG_DRIVER_TIMER_MEDIATEK_ADDRESS;
 
 uint64_t timer_hz(void)
 {
-	return CONFIG_TIMER_MTK_HZ;
+	return CONFIG_DRIVER_TIMER_MEDIATEK_HZ;
 }
 
 uint64_t timer_raw_value(void)

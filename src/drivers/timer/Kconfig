@@ -1,0 +1,78 @@
+##
+## Copyright 2013 Google Inc.  All rights reserved.
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; version 2 of the License.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+
+config DRIVER_TIMER_DUMMY
+	bool "Dummy timer driver"
+	default n
+
+
+config DRIVER_TIMER_RDTSC
+	bool "X86's TSC based timer"
+	default n
+	depends on ARCH_X86
+
+
+config DRIVER_TIMER_MCT
+	bool "Exynos MCT (multi-core timer) driver"
+	depends on ARCH_ARM
+	default n
+
+config DRIVER_TIMER_MCT_HZ
+	int "Exynos MCT frequency"
+	depends on DRIVER_TIMER_MCT
+	default 24000000
+
+config DRIVER_TIMER_MCT_ADDRESS
+	hex "Exynos MCT base address"
+	depends on DRIVER_TIMER_MCT
+	default 0x101c0000
+
+
+config DRIVER_TIMER_TEGRA_1US
+	bool "Tegra 1us timer driver"
+	default n
+
+config DRIVER_TIMER_TEGRA_1US_ADDRESS
+	hex "Tegra 1us timer base address"
+	depends on DRIVER_TIMER_TEGRA_1US
+	default 0x60005010
+
+
+config DRIVER_TIMER_ROCKCHIP
+	bool "Rockchip timer driver"
+	default n
+
+config DRIVER_TIMER_ROCKCHIP_ADDRESS
+	hex "Rockchip timer base address"
+	depends on DRIVER_TIMER_ROCKCHIP
+	default 0xff810020
+
+
+config DRIVER_TIMER_MEDIATEK
+	bool "MediaTek MT8173 timer driver"
+	default n
+
+config DRIVER_TIMER_MEDIATEK_HZ
+	int "MediaTek general purpose timer frequency"
+	depends on DRIVER_TIMER_MEDIATEK
+	default 13000000
+
+config DRIVER_TIMER_MEDIATEK_ADDRESS
+	hex "MTK general purpose timer register address"
+	depends on DRIVER_TIMER_MEDIATEK
+	default 0x10008048
+	help
+	  Address of the register to read the FREERUN-mode timer value.

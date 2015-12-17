@@ -1,5 +1,5 @@
 ##
-## Copyright 2012 Google Inc.
+## Copyright 2013 Google Inc.
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -15,17 +15,9 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-subdirs-y += bus
-subdirs-y += dma
-subdirs-y += ec
-subdirs-y += flash
-subdirs-y += gpio
-subdirs-y += input
-subdirs-y += net
-subdirs-y += power
-subdirs-y += serial
-subdirs-y += sound
-subdirs-y += storage
-subdirs-y += timer
-subdirs-y += tpm
-subdirs-y += video
+depthcharge-$(CONFIG_DRIVER_TIMER_DUMMY) += dummy.c
+depthcharge-$(CONFIG_DRIVER_TIMER_MCT) += mct.c
+depthcharge-$(CONFIG_DRIVER_TIMER_MEDIATEK) += mediatek.c
+depthcharge-$(CONFIG_DRIVER_TIMER_RDTSC) += rdtsc.c
+depthcharge-$(CONFIG_DRIVER_TIMER_ROCKCHIP) += rockchip.c
+depthcharge-$(CONFIG_DRIVER_TIMER_TEGRA_1US) += tegra_1us.c

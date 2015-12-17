@@ -1,4 +1,3 @@
-
 /*
  * This file is part of the coreboot project.
  *
@@ -39,8 +38,8 @@ uint64_t timer_raw_value(void)
 	uint64_t upper;
 	uint64_t lower;
 	struct rk_timer *rk_timer;
-	rk_timer = (struct rk_timer *) CONFIG_TIMER_RK_ADDRESS;
-	lower = (uint64_t) rk_timer->timer_curr_value0;
-	upper = (uint64_t) rk_timer->timer_curr_value1;
+	rk_timer = (struct rk_timer *)CONFIG_DRIVER_TIMER_ROCKCHIP_ADDRESS;
+	lower = (uint64_t)rk_timer->timer_curr_value0;
+	upper = (uint64_t)rk_timer->timer_curr_value1;
 	return (upper << 32) | lower;
 }
