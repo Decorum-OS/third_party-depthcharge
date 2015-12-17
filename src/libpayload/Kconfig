@@ -30,10 +30,6 @@
 
 menu "Standard Libraries"
 
-config LIBC
-	bool "Enable C library support"
-	default y
-
 config CBFS
 	bool "CBFS support"
 	default y
