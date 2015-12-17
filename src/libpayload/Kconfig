@@ -48,12 +48,6 @@ config COMPILER_LLVM_CLANG
 
 endchoice
 
-config CHROMEOS
-	bool "ChromeOS specific features"
-	default n
-	help
-	  Enable ChromeOS specific features.
-
 endmenu
 
 menu "Standard Libraries"
