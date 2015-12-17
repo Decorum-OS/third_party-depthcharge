@@ -59,11 +59,7 @@
  * doesn't try to do this on its own.
  */
 #define RTC_PORT_STANDARD      0x70
-#if CONFIG_RTC_PORT_EXTENDED_VIA
-#define RTC_PORT_EXTENDED      0x74
-#else
 #define RTC_PORT_EXTENDED      0x72
-#endif
 
 /**
  * Read a byte from the specified NVRAM address.
