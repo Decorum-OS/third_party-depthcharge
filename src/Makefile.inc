@@ -15,5 +15,5 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-subdirs-y += arch base board boot debug drivers image libpayload libc module
+subdirs-y += arch base board boot debug drivers image libpayload module
 subdirs-y += net netboot vboot

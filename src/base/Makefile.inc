@@ -15,6 +15,8 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
+subdirs-y += libc
+
 depthcharge-y += cleanup_funcs.c
 depthcharge-y += console.c
 depthcharge-y += coreboot.c
