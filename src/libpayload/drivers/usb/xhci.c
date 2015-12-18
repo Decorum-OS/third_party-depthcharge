@@ -31,7 +31,6 @@
 //#define XHCI_SPEW_DEBUG
 
 #include <inttypes.h>
-#include <arch/virtual.h>
 #include "xhci_private.h"
 #include "xhci.h"
 
@@ -81,7 +80,7 @@ xhci_init_cycle_ring(transfer_ring_t *const tr, const size_t ring_size)
 	TRB_SET(TT, &tr->ring[ring_size - 1], TRB_LINK);
 	TRB_SET(TC, &tr->ring[ring_size - 1], 1);
 	/* only one segment that points to itself */
-	tr->ring[ring_size - 1].ptr_low = virt_to_phys(tr->ring);
+	tr->ring[ring_size - 1].ptr_low = (uintptr_t)tr->ring;
 
 	tr->pcs = 1;
 	tr->cur = tr->ring;
@@ -185,7 +184,7 @@ xhci_init (unsigned long physical_bar)
 		goto _free_xhci;
 	}
 
-	xhci->capreg	= phys_to_virt(physical_bar);
+	xhci->capreg	= (void *)(uintptr_t)physical_bar;
 	xhci->opreg	= ((void *)xhci->capreg) + xhci->capreg->caplength;
 	xhci->hcrreg	= ((void *)xhci->capreg) + xhci->capreg->rtsoff;
 	xhci->dbreg	= ((void *)xhci->capreg) + xhci->capreg->dboff;
@@ -246,9 +245,9 @@ xhci_init (unsigned long physical_bar)
 				xhci_debug("Out of memory\n");
 				goto _free_xhci_structs;
 			}
-			xhci->sp_ptrs[i] = virt_to_phys(page);
+			xhci->sp_ptrs[i] = (uintptr_t)page;
 		}
-		xhci->dcbaa[0] = virt_to_phys(xhci->sp_ptrs);
+		xhci->dcbaa[0] = (uintptr_t)xhci->sp_ptrs;
 	}
 
 	if (dma_initialized()) {
@@ -279,7 +278,7 @@ _free_xhci_structs:
 	if (xhci->sp_ptrs) {
 		for (i = 0; i < max_sp_bufs; ++i) {
 			if (xhci->sp_ptrs[i])
-				free(phys_to_virt(xhci->sp_ptrs[i]));
+				free((void *)(uintptr_t)xhci->sp_ptrs[i]);
 		}
 	}
 	free(xhci->sp_ptrs);
@@ -358,14 +357,14 @@ xhci_reinit (hci_t *controller)
 	xhci->opreg->config = xhci->max_slots_en;
 
 	/* Set DCBAA */
-	xhci->opreg->dcbaap_lo = virt_to_phys(xhci->dcbaa);
+	xhci->opreg->dcbaap_lo = (uintptr_t)xhci->dcbaa;
 	xhci->opreg->dcbaap_hi = 0;
 
 	/* Initialize command ring */
 	xhci_init_cycle_ring(&xhci->cr, COMMAND_RING_SIZE);
 	xhci_debug("command ring @%p (0x%08x)\n",
-		   xhci->cr.ring, virt_to_phys(xhci->cr.ring));
-	xhci->opreg->crcr_lo = virt_to_phys(xhci->cr.ring) | CRCR_RCS;
+		   xhci->cr.ring, (uintptr_t)xhci->cr.ring);
+	xhci->opreg->crcr_lo = (uintptr_t)xhci->cr.ring | CRCR_RCS;
 	xhci->opreg->crcr_hi = 0;
 
 	/* Make sure interrupts are disabled */
@@ -374,11 +373,11 @@ xhci_reinit (hci_t *controller)
 	/* Initialize event ring */
 	xhci_reset_event_ring(&xhci->er);
 	xhci_debug("event ring @%p (0x%08x)\n",
-		   xhci->er.ring, virt_to_phys(xhci->er.ring));
+		   xhci->er.ring, (uintptr_t)xhci->er.ring);
 	xhci_debug("ERST Max: 0x%lx ->  0x%lx entries\n",
 		   xhci->capreg->ERST_Max, 1 << xhci->capreg->ERST_Max);
 	memset((void*)xhci->ev_ring_table, 0x00, sizeof(erst_entry_t));
-	xhci->ev_ring_table[0].seg_base_lo = virt_to_phys(xhci->er.ring);
+	xhci->ev_ring_table[0].seg_base_lo = (uintptr_t)xhci->er.ring;
 	xhci->ev_ring_table[0].seg_base_hi = 0;
 	xhci->ev_ring_table[0].seg_size = EVENT_RING_SIZE;
 
@@ -388,7 +387,7 @@ xhci_reinit (hci_t *controller)
 	xhci->hcrreg->intrrs[0].erstsz = 1;
 	xhci_update_event_dq(xhci);
 	/* erstba has to be written at last */
-	xhci->hcrreg->intrrs[0].erstba_lo = virt_to_phys(xhci->ev_ring_table);
+	xhci->hcrreg->intrrs[0].erstba_lo = (uintptr_t)xhci->ev_ring_table;
 	xhci->hcrreg->intrrs[0].erstba_hi = 0;
 
 	xhci_start(controller);
@@ -433,7 +432,7 @@ xhci_shutdown(hci_t *const controller)
 				     xhci->capreg->Max_Scratchpad_Bufs_Lo;
 		for (i = 0; i < max_sp_bufs; ++i) {
 			if (xhci->sp_ptrs[i])
-				free(phys_to_virt(xhci->sp_ptrs[i]));
+				free((void *)(uintptr_t)xhci->sp_ptrs[i]);
 		}
 	}
 	free(xhci->sp_ptrs);
@@ -527,7 +526,7 @@ xhci_enqueue_trb(transfer_ring_t *const tr)
 		TRB_SET(CH, tr->cur, chain);
 		wmb();
 		TRB_SET(C, tr->cur, tr->pcs);
-		tr->cur = phys_to_virt(tr->cur->ptr_low);
+		tr->cur = (void *)(uintptr_t)tr->cur->ptr_low;
 		if (tc)
 			tr->pcs ^= 1;
 	}
@@ -559,7 +558,7 @@ xhci_enqueue_td(transfer_ring_t *const tr, const int ep, const size_t mps,
 
 		trb = tr->cur;
 		xhci_clear_trb(trb, tr->pcs);
-		trb->ptr_low = virt_to_phys(cur_start);
+		trb->ptr_low = (uintptr_t)cur_start;
 		TRB_SET(TL, trb, cur_length);
 		TRB_SET(TDS, trb, MIN(TRB_MAX_TD_SIZE, packets));
 		TRB_SET(CH, trb, 1);
@@ -600,7 +599,7 @@ xhci_enqueue_td(transfer_ring_t *const tr, const int ep, const size_t mps,
 
 	trb = tr->cur;
 	xhci_clear_trb(trb, tr->pcs);
-	trb->ptr_low = virt_to_phys(trb);	/* for easier debugging only */
+	trb->ptr_low = (uintptr_t)trb;	/* for easier debugging only */
 	TRB_SET(TT, trb, TRB_EVENT_DATA);
 	TRB_SET(IOC, trb, 1);
 
@@ -776,7 +775,7 @@ xhci_next_trb(trb_t *cur, int *const pcs)
 	while (TRB_GET(TT, cur) == TRB_LINK) {
 		if (pcs && TRB_GET(TC, cur))
 			*pcs ^= 1;
-		cur = phys_to_virt(cur->ptr_low);
+		cur = (void *)(uintptr_t)cur->ptr_low;
 	}
 	return cur;
 }
@@ -831,7 +830,7 @@ xhci_create_intr_queue(endpoint_t *const ep,
 			goto _free_return;
 		}
 		xhci_clear_trb(cur, pcs);
-		cur->ptr_low = virt_to_phys(reqdata);
+		cur->ptr_low = (uintptr_t)reqdata;
 		cur->ptr_high = 0;
 		TRB_SET(TL,	cur, reqsize);
 		TRB_SET(TT,	cur, TRB_NORMAL);
@@ -859,7 +858,7 @@ xhci_create_intr_queue(endpoint_t *const ep,
 _free_return:
 	cur = tr->cur;
 	for (--i; i >= 0; --i) {
-		free(phys_to_virt(cur->ptr_low));
+		free((void *)(uintptr_t)cur->ptr_low);
 		cur = xhci_next_trb(cur, NULL);
 	}
 	free(intrq);
@@ -890,7 +889,7 @@ xhci_destroy_intr_queue(endpoint_t *const ep, void *const q)
 	/* Free all pending transfers and the interrupt queue structure */
 	int i;
 	for (i = 0; i < intrq->count; ++i) {
-		free(phys_to_virt(intrq->next->ptr_low));
+		free((void *)(uintptr_t)intrq->next->ptr_low);
 		intrq->next = xhci_next_trb(intrq->next, NULL);
 	}
 	xhci->dev[slot_id].interrupt_queues[ep_id] = NULL;
@@ -926,7 +925,7 @@ xhci_poll_intr_queue(void *const q)
 			xhci->dev[ep->dev->address].transfer_rings[ep_id];
 
 		/* Fetch the request's buffer */
-		reqdata = phys_to_virt(intrq->next->ptr_low);
+		reqdata = (void *)(uintptr_t)intrq->next->ptr_low;
 
 		/* Enqueue the last (spare) TRB and ring doorbell */
 		xhci_enqueue_trb(tr);
@@ -934,7 +933,7 @@ xhci_poll_intr_queue(void *const q)
 
 		/* Reuse the current buffer for the next spare TRB */
 		xhci_clear_trb(tr->cur, tr->pcs);
-		tr->cur->ptr_low = virt_to_phys(reqdata);
+		tr->cur->ptr_low = (uintptr_t)reqdata;
 		tr->cur->ptr_high = 0;
 		TRB_SET(TL,	tr->cur, intrq->size);
 		TRB_SET(TT,	tr->cur, TRB_NORMAL);

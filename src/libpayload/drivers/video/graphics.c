@@ -122,7 +122,7 @@ static int cbgfx_init(void)
 	if (!fbinfo)
 		return -1;
 
-	fbaddr = phys_to_virt((uint8_t *)(uintptr_t)(fbinfo->physical_address));
+	fbaddr = (uint8_t *)(uintptr_t)fbinfo->physical_address;
 	if (!fbaddr)
 		return -1;
 

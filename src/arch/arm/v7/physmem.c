@@ -26,7 +26,8 @@
 #include <string.h>
 
 #include <arch/cache.h>
-#include "base/physmem.h"
+#include <arch/virtual.h>
+#include <base/physmem.h>
 
 // arch_phys_memset but with the guarantee that the range doesn't wrap around
 // the end of the address space.

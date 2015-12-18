@@ -29,7 +29,6 @@
 
 //#define USB_DEBUG
 
-#include <arch/virtual.h>
 #include <usb/usb.h>
 #include "ohci_private.h"
 #include "ohci.h"
@@ -59,7 +58,7 @@ dump_td (td_t *cur)
 		usb_debug("|..[OUT]............................................|\n");
 	else
 		usb_debug("|..[]...............................................|\n");
-	usb_debug("|:|============ OHCI TD at [0x%08lx] ==========|:|\n", virt_to_phys(cur));
+	usb_debug("|:|============ OHCI TD at [0x%08lx] ==========|:|\n", (uintptr_t)cur);
 	usb_debug("|:| ERRORS = [%ld] | CONFIG = [0x%08lx] |        |:|\n",
 		3 - ((cur->config & (3UL << 26)) >> 26), cur->config);
 	usb_debug("|:+-----------------------------------------------+:|\n");
@@ -85,7 +84,7 @@ dump_ed (ed_t *cur)
 {
 	td_t *tmp_td = NULL;
 	usb_debug("+===================================================+\n");
-	usb_debug("| ############# OHCI ED at [0x%08lx] ########### |\n", virt_to_phys(cur));
+	usb_debug("| ############# OHCI ED at [0x%08lx] ########### |\n", (uintptr_t)cur);
 	usb_debug("+---------------------------------------------------+\n");
 	usb_debug("| Next Endpoint Descriptor       [0x%08lx]       |\n", cur->next_ed & ~0xFUL);
 	usb_debug("+---------------------------------------------------+\n");
@@ -103,13 +102,13 @@ dump_ed (ed_t *cur)
 	usb_debug("| TD Queue Head Pointer          [0x%08lx]       |\n", cur->head_pointer & ~0xFUL);
 	usb_debug("| CarryToggleBit    [%d]          Halted   [%d]         |\n", (u16)(cur->head_pointer & 0x2UL)>>1, (u16)(cur->head_pointer & 0x1UL));
 
-	tmp_td = (td_t *)phys_to_virt((cur->head_pointer & ~0xFUL));
+	tmp_td = (td_t *)(uintptr_t)((cur->head_pointer & ~0xFUL));
 	if ((cur->head_pointer & ~0xFUL) != (cur->tail_pointer & ~0xFUL)) {
 		usb_debug("|:::::::::::::::::: OHCI TD CHAIN ::::::::::::::::::|\n");
-		while (virt_to_phys(tmp_td) != (cur->tail_pointer & ~0xFUL))
+		while ((uintptr_t)tmp_td != (cur->tail_pointer & ~0xFUL))
 		{
 			dump_td(tmp_td);
-			tmp_td = (td_t *)phys_to_virt((tmp_td->next_td & ~0xFUL));
+			tmp_td = (td_t *)(uintptr_t)((tmp_td->next_td & ~0xFUL));
 		}
 		usb_debug("|:::::::::::::::: EOF OHCI TD CHAIN ::::::::::::::::|\n");
 		usb_debug("+---------------------------------------------------+\n");
@@ -190,7 +189,7 @@ ohci_init (unsigned long physical_bar)
 	init_device_entry (controller, 0);
 	OHCI_INST (controller)->roothub = controller->devices[0];
 
-	OHCI_INST (controller)->opreg = (opreg_t*)phys_to_virt(physical_bar);
+	OHCI_INST (controller)->opreg = (opreg_t*)(uintptr_t)physical_bar;
 	usb_debug("OHCI Version %x.%x\n", (OHCI_INST (controller)->opreg->HcRevision >> 4) & 0xf, OHCI_INST (controller)->opreg->HcRevision & 0xf);
 
 	if ((OHCI_INST (controller)->opreg->HcControl & HostControllerFunctionalStateMask) == USBReset) {
@@ -224,10 +223,10 @@ ohci_init (unsigned long physical_bar)
 	ed_t *const periodic_ed = dma_memalign(sizeof(ed_t), sizeof(ed_t));
 	memset((void *)periodic_ed, 0, sizeof(*periodic_ed));
 	for (i = 0; i < 32; ++i)
-		intr_table[i] = virt_to_phys(periodic_ed);
+		intr_table[i] = (uintptr_t)periodic_ed;
 	OHCI_INST (controller)->periodic_ed = periodic_ed;
 
-	OHCI_INST (controller)->opreg->HcHCCA = virt_to_phys(OHCI_INST (controller)->hcca);
+	OHCI_INST (controller)->opreg->HcHCCA = (uintptr_t)(OHCI_INST(controller)->hcca);
 	/* Make sure periodic schedule is enabled. */
 	OHCI_INST (controller)->opreg->HcControl |= PeriodicListEnable;
 	OHCI_INST (controller)->opreg->HcControl &= ~IsochronousEnable; // unused by this driver
@@ -296,7 +295,7 @@ wait_for_ed(usbdev_t *dev, ed_t *head, int pages)
 	int timeout = pages*1000 + 2000;
 	while (((head->head_pointer & ~3) != head->tail_pointer) &&
 		!(head->head_pointer & 1) &&
-		((((td_t*)phys_to_virt(head->head_pointer & ~3))->config
+		((((td_t*)(uintptr_t)(head->head_pointer & ~3))->config
 				& TD_CC_MASK) >= TD_CC_NOACCESS) &&
 		timeout--) {
 		/* don't log every ms */
@@ -306,9 +305,9 @@ wait_for_ed(usbdev_t *dev, ed_t *head, int pages)
 			OHCI_INST(dev->controller)->opreg->HcControl,
 			OHCI_INST(dev->controller)->opreg->HcCommandStatus,
 			head->head_pointer,
-			((td_t*)phys_to_virt(head->head_pointer & ~3))->next_td,
+			((td_t*)(uintptr_t)(head->head_pointer & ~3))->next_td,
 			head->tail_pointer,
-			(((td_t*)phys_to_virt(head->head_pointer & ~3))->config & TD_CC_MASK) >> TD_CC_SHIFT);
+			(((td_t*)(uintptr_t)(head->head_pointer & ~3))->config & TD_CC_MASK) >> TD_CC_SHIFT);
 		mdelay(1);
 	}
 	if (timeout < 0)
@@ -331,7 +330,7 @@ ohci_free_ed (ed_t *const head)
 	while ((head->head_pointer & ~0x3) != head->tail_pointer) {
 		/* Save current TD pointer. */
 		td_t *const cur_td =
-			(td_t*)phys_to_virt(head->head_pointer & ~0x3);
+			(td_t*)(uintptr_t)(head->head_pointer & ~0x3);
 		/* Advance head pointer. */
 		head->head_pointer = cur_td->next_td;
 		/* Free current TD. */
@@ -340,7 +339,7 @@ ohci_free_ed (ed_t *const head)
 
 	/* Always free the dummy TD */
 	if ((head->head_pointer & ~0x3) == head->tail_pointer)
-		free(phys_to_virt(head->head_pointer & ~0x3));
+		free((void *)(uintptr_t)(head->head_pointer & ~0x3));
 	/* and the ED. */
 	free((void *)head);
 }
@@ -384,15 +383,15 @@ ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup, int dalen,
 		TD_TOGGLE_FROM_TD |
 		TD_TOGGLE_DATA0 |
 		TD_CC_NOACCESS;
-	cur->current_buffer_pointer = virt_to_phys(devreq);
-	cur->buffer_end = virt_to_phys(devreq + drlen - 1);
+	cur->current_buffer_pointer = (uintptr_t)devreq;
+	cur->buffer_end = (uintptr_t)(devreq + drlen - 1);
 
 	while (pages > 0) {
 		/* One more TD. */
 		td_t *const next = (td_t *)dma_memalign(sizeof(td_t), sizeof(td_t));
 		memset((void *)next, 0, sizeof(*next));
 		/* Linked to the previous. */
-		cur->next_td = virt_to_phys(next);
+		cur->next_td = (uintptr_t)next;
 		/* Advance to the new TD. */
 		cur = next;
 
@@ -400,12 +399,12 @@ ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup, int dalen,
 			TD_DELAY_INTERRUPT_NOINTR |
 			TD_TOGGLE_FROM_ED |
 			TD_CC_NOACCESS;
-		cur->current_buffer_pointer = virt_to_phys(data);
+		cur->current_buffer_pointer = (uintptr_t)data;
 		pages--;
 		int consumed = (4096 - ((unsigned long)data % 4096));
 		if (consumed >= remaining) {
 			// end of data is within same page
-			cur->buffer_end = virt_to_phys(data + remaining - 1);
+			cur->buffer_end = (uintptr_t)(data + remaining - 1);
 			remaining = 0;
 			/* assert(pages == 0); */
 		} else {
@@ -416,7 +415,7 @@ ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup, int dalen,
 			if (remaining > 4096) {
 				second_page_size = 4096;
 			}
-			cur->buffer_end = virt_to_phys(data + second_page_size - 1);
+			cur->buffer_end = (uintptr_t)(data + second_page_size - 1);
 			remaining -= second_page_size;
 			data += second_page_size;
 		}
@@ -426,7 +425,7 @@ ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup, int dalen,
 	td_t *const next_td = (td_t *)dma_memalign(sizeof(td_t), sizeof(td_t));
 	memset((void *)next_td, 0, sizeof(*next_td));
 	/* Linked to the previous. */
-	cur->next_td = virt_to_phys(next_td);
+	cur->next_td = (uintptr_t)next_td;
 	/* Advance to the new TD. */
 	cur = next_td;
 	cur->config = (dir == IN ? TD_DIRECTION_OUT : TD_DIRECTION_IN) |
@@ -441,7 +440,7 @@ ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup, int dalen,
 	td_t *const final_td = (td_t *)dma_memalign(sizeof(td_t), sizeof(td_t));
 	memset((void *)final_td, 0, sizeof(*final_td));
 	/* Linked to the previous. */
-	cur->next_td = virt_to_phys(final_td);
+	cur->next_td = (uintptr_t)final_td;
 
 	/* Data structures */
 	ed_t *head = dma_memalign(sizeof(ed_t), sizeof(ed_t));
@@ -451,17 +450,17 @@ ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup, int dalen,
 		(OHCI_FROM_TD << ED_DIR_SHIFT) |
 		(dev->speed?ED_LOWSPEED:0) |
 		(dev->endpoints[0].maxpacketsize << ED_MPS_SHIFT);
-	head->tail_pointer = virt_to_phys(final_td);
-	head->head_pointer = virt_to_phys(first_td);
+	head->tail_pointer = (uintptr_t)final_td;
+	head->head_pointer = (uintptr_t)first_td;
 
 	usb_debug("ohci_control(): doing transfer with %x. first_td at %x\n",
-		head->config & ED_FUNC_MASK, virt_to_phys(first_td));
+		head->config & ED_FUNC_MASK, (uintptr_t)first_td);
 #ifdef USB_DEBUG
 	dump_ed(head);
 #endif
 
 	/* activate schedule */
-	OHCI_INST(dev->controller)->opreg->HcControlHeadED = virt_to_phys(head);
+	OHCI_INST(dev->controller)->opreg->HcControlHeadED = (uintptr_t)head;
 	OHCI_INST(dev->controller)->opreg->HcControl |= ControlListEnable;
 	OHCI_INST(dev->controller)->opreg->HcCommandStatus = ControlListFilled;
 
@@ -527,7 +526,7 @@ ohci_bulk (endpoint_t *ep, int dalen, u8 *src, int finalize)
                         TD_DELAY_INTERRUPT_NOINTR |
                         TD_TOGGLE_FROM_ED |
                         TD_CC_NOACCESS;
-		cur->current_buffer_pointer = virt_to_phys(data);
+		cur->current_buffer_pointer = (uintptr_t)data;
 		pages--;
 		if (remaining == 0) {
 			/* magic TD for empty packet transfer */
@@ -538,7 +537,7 @@ ohci_bulk (endpoint_t *ep, int dalen, u8 *src, int finalize)
 		int consumed = (4096 - ((unsigned long)data % 4096));
 		if (consumed >= remaining) {
 			// end of data is within same page
-			cur->buffer_end = virt_to_phys(data + remaining - 1);
+			cur->buffer_end = (uintptr_t)(data + remaining - 1);
 			remaining = 0;
 			/* assert(pages == finalize); */
 		} else {
@@ -549,7 +548,7 @@ ohci_bulk (endpoint_t *ep, int dalen, u8 *src, int finalize)
 			if (remaining > 4096) {
 				second_page_size = 4096;
 			}
-			cur->buffer_end = virt_to_phys(data + second_page_size - 1);
+			cur->buffer_end = (uintptr_t)(data + second_page_size - 1);
 			remaining -= second_page_size;
 			data += second_page_size;
 		}
@@ -557,7 +556,7 @@ ohci_bulk (endpoint_t *ep, int dalen, u8 *src, int finalize)
 		next = (td_t *)dma_memalign(sizeof(td_t), sizeof(td_t));
 		memset((void *)next, 0, sizeof(*next));
 		/* Linked to the previous. */
-		cur->next_td = virt_to_phys(next);
+		cur->next_td = (uintptr_t)next;
 	}
 
 	/* Write done head after last TD. */
@@ -573,16 +572,16 @@ ohci_bulk (endpoint_t *ep, int dalen, u8 *src, int finalize)
 		(((ep->direction==IN)?OHCI_IN:OHCI_OUT) << ED_DIR_SHIFT) |
 		(ep->dev->speed?ED_LOWSPEED:0) |
 		(ep->maxpacketsize << ED_MPS_SHIFT);
-	head->tail_pointer = virt_to_phys(cur);
-	head->head_pointer = virt_to_phys(first_td) | (ep->toggle?ED_TOGGLE:0);
+	head->tail_pointer = (uintptr_t)cur;
+	head->head_pointer = (uintptr_t)first_td | (ep->toggle?ED_TOGGLE:0);
 
 	usb_debug("doing bulk transfer with %x(%x). first_td at %x, last %x\n",
 		head->config & ED_FUNC_MASK,
 		(head->config & ED_EP_MASK) >> ED_EP_SHIFT,
-		virt_to_phys(first_td), virt_to_phys(cur));
+		(uintptr_t)first_td, (uintptr_t)cur);
 
 	/* activate schedule */
-	OHCI_INST(ep->dev->controller)->opreg->HcBulkHeadED = virt_to_phys(head);
+	OHCI_INST(ep->dev->controller)->opreg->HcBulkHeadED = (uintptr_t)head;
 	OHCI_INST(ep->dev->controller)->opreg->HcControl |= BulkListEnable;
 	OHCI_INST(ep->dev->controller)->opreg->HcCommandStatus = BulkListFilled;
 
@@ -644,7 +643,7 @@ ohci_fill_intrq_td(intrq_td_t *const td, intr_queue_t *const intrq,
 		TD_DELAY_INTERRUPT_ZERO |
 		TD_TOGGLE_FROM_ED |
 		TD_CC_NOACCESS;
-	td->td.current_buffer_pointer = virt_to_phys(data);
+	td->td.current_buffer_pointer = (uintptr_t)data;
 	td->td.buffer_end = td->td.current_buffer_pointer + intrq->reqsize - 1;
 	td->intrq = intrq;
 	td->data = data;
@@ -678,7 +677,7 @@ ohci_create_intr_queue(endpoint_t *const ep, const int reqsize,
 		if (!first_td)
 			first_td = td;
 		else
-			last_td->td.next_td = virt_to_phys(&td->td);
+			last_td->td.next_td = (uintptr_t)&td->td;
 		last_td = td;
 	}
 
@@ -687,7 +686,7 @@ ohci_create_intr_queue(endpoint_t *const ep, const int reqsize,
 	memset(dummy_td, 0, sizeof(*dummy_td));
 	dummy_td->intrq = intrq;
 	if (last_td)
-		last_td->td.next_td = virt_to_phys(&dummy_td->td);
+		last_td->td.next_td = (uintptr_t)&dummy_td->td;
 	last_td = dummy_td;
 
 	/* Initialize ED. */
@@ -696,20 +695,20 @@ ohci_create_intr_queue(endpoint_t *const ep, const int reqsize,
 		(((ep->direction == IN) ? OHCI_IN : OHCI_OUT) << ED_DIR_SHIFT) |
 		(ep->dev->speed ? ED_LOWSPEED : 0) |
 		(ep->maxpacketsize << ED_MPS_SHIFT);
-	intrq->ed.tail_pointer = virt_to_phys(last_td);
-	intrq->ed.head_pointer = virt_to_phys(first_td) |
+	intrq->ed.tail_pointer = (uintptr_t)last_td;
+	intrq->ed.head_pointer = (uintptr_t)first_td |
 		(ep->toggle ? ED_TOGGLE : 0);
 
 	/* Insert ED into periodic table. */
 	int nothing_placed	= 1;
 	ohci_t *const ohci	= OHCI_INST(ep->dev->controller);
 	u32 *const intr_table	= ohci->hcca->HccaInterruptTable;
-	const u32 dummy_ptr	= virt_to_phys(ohci->periodic_ed);
+	const u32 dummy_ptr	= (uintptr_t)ohci->periodic_ed;
 	for (i = 0; i < 32; i += reqtiming) {
 		/* Advance to the next free position. */
 		while ((i < 32) && (intr_table[i] != dummy_ptr)) ++i;
 		if (i < 32) {
-			intr_table[i] = virt_to_phys(&intrq->ed);
+			intr_table[i] = (uintptr_t)&intrq->ed;
 			nothing_placed = 0;
 		}
 	}
@@ -735,8 +734,8 @@ ohci_destroy_intr_queue(endpoint_t *const ep, void *const q_)
 	ohci_t *const ohci	= OHCI_INST(ep->dev->controller);
 	u32 *const intr_table	= ohci->hcca->HccaInterruptTable;
 	for (i=0; i < 32; ++i) {
-		if (intr_table[i] == virt_to_phys(intrq))
-			intr_table[i] = virt_to_phys(ohci->periodic_ed);
+		if (intr_table[i] == (uintptr_t)intrq)
+			intr_table[i] = (uintptr_t)ohci->periodic_ed;
 	}
 	/* Wait for frame to finish. */
 	mdelay(1);
@@ -744,13 +743,13 @@ ohci_destroy_intr_queue(endpoint_t *const ep, void *const q_)
 	/* Free unprocessed TDs. */
 	while ((intrq->ed.head_pointer & ~0x3) != intrq->ed.tail_pointer) {
 		td_t *const cur_td =
-			(td_t *)phys_to_virt(intrq->ed.head_pointer & ~0x3);
+			(td_t *)(uintptr_t)(intrq->ed.head_pointer & ~0x3);
 		intrq->ed.head_pointer = cur_td->next_td;
 		free(INTRQ_TD_FROM_TD(cur_td));
 		--intrq->remaining_tds;
 	}
 	/* Free final, dummy TD. */
-	free(phys_to_virt(intrq->ed.head_pointer & ~0x3));
+	free((void *)(uintptr_t)(intrq->ed.head_pointer & ~0x3));
 	/* Free data buffer. */
 	free(intrq->data);
 
@@ -796,14 +795,14 @@ ohci_poll_intr_queue(void *const q_)
 
 		/* Requeue this TD (i.e. copy to dummy and requeue as dummy). */
 		intrq_td_t *const dummy_td =
-			INTRQ_TD_FROM_TD(phys_to_virt(intrq->ed.tail_pointer));
+			INTRQ_TD_FROM_TD((void *)(uintptr_t)intrq->ed.tail_pointer);
 		ohci_fill_intrq_td(dummy_td, intrq, cur_td->data);
 		/* Reset all but intrq pointer (i.e. init as dummy). */
 		memset(cur_td, 0, sizeof(*cur_td));
 		cur_td->intrq = intrq;
 		/* Insert into interrupt queue as dummy. */
-		dummy_td->td.next_td = virt_to_phys(&cur_td->td);
-		intrq->ed.tail_pointer = virt_to_phys(&cur_td->td);
+		dummy_td->td.next_td = (uintptr_t)&cur_td->td;
+		intrq->ed.tail_pointer = (uintptr_t)&cur_td->td;
 	}
 
 	return data;
@@ -831,7 +830,7 @@ ohci_process_done_queue(ohci_t *const ohci, const int spew_debug)
 	i = 0;
 	/* Process done queue (it's in reversed order). */
 	while (phys_done_queue) {
-		td_t *const done_td = (td_t *)phys_to_virt(phys_done_queue);
+		td_t *const done_td = (td_t *)(uintptr_t)phys_done_queue;
 
 		/* Advance pointer to next TD. */
 		phys_done_queue = done_td->next_td;

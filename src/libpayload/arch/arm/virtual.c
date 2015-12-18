@@ -36,7 +36,6 @@
 #include <arch/virtual.h>
 #include <arch/io.h>
 
-unsigned long virtual_offset = 0;
 extern char _end[];
 
 /*

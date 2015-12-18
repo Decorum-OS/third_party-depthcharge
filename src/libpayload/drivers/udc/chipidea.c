@@ -76,7 +76,7 @@ static int chipidea_hw_init(struct usbdev_ctrl *this, void *_opreg,
 	struct chipidea_opreg *opreg = _opreg;
 	struct chipidea_pdata *p = CI_PDATA(this);
 
-	p->opreg = phys_to_virt(opreg);
+	p->opreg = opreg;
 	p->qhlist = dma_memalign(4096, sizeof(struct qh) * CI_QHELEMENTS);
 	memcpy(&this->device_descriptor, dd, sizeof(*dd));
 
@@ -115,7 +115,7 @@ static int chipidea_hw_init(struct usbdev_ctrl *this, void *_opreg,
 
 	dcache_clean_by_mva(p->qhlist, sizeof(struct qh) * CI_QHELEMENTS);
 
-	writel(virt_to_phys(p->qhlist), &p->opreg->epbase);
+	writel((uintptr_t)p->qhlist, &p->opreg->epbase);
 	writel(0xffffffff, &p->opreg->epflush);
 
 	/* enable EP0 */
@@ -204,7 +204,7 @@ static void advance_endpoint(struct chipidea_pdata *p, int endpoint, int in_dir)
 		int datacount = min(maxsize, remaining);
 
 		debug("td %d, %d bytes\n", i, datacount);
-		tds[i].next = (uint32_t)virt_to_phys(&tds[i+1]);
+		tds[i].next = (uint32_t)(uintptr_t)&tds[i+1];
 		tds[i].info = TD_INFO_LEN(datacount) | TD_INFO_ACTIVE;
 		tds[i].page0 = start;
 		tds[i].page1 = (start & 0xfffff000) + 0x1000;
@@ -217,7 +217,7 @@ static void advance_endpoint(struct chipidea_pdata *p, int endpoint, int in_dir)
 	tds[td_count - 1].next = TD_TERMINATE;
 	tds[td_count - 1].info |= TD_INFO_IOC;
 
-	qh->td.next = (uint32_t)virt_to_phys(tds);
+	qh->td.next = (uint32_t)(uintptr_t)tds;
 	qh->td.info = 0;
 
 	job->tds = tds;

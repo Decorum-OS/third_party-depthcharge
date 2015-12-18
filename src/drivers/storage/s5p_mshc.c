@@ -136,7 +136,7 @@ static int mshci_prepare_data(MshciHost *host, MmcData *data)
 	data_len = data->blocks * data->blocksize;
 	dcache_clean_invalidate_by_mva(data_start, data_len);
 
-	writel((uintptr_t)virt_to_phys(idmac_desc), &host->regs->dbaddr);
+	writel((uintptr_t)idmac_desc, &host->regs->dbaddr);
 
 	// Enable the Internal DMA Controller.
 	setbits32(&host->regs->ctrl, ENABLE_IDMAC | DMA_ENABLE);

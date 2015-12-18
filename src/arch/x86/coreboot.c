@@ -50,7 +50,7 @@ static void cb_parse_x86_rom_var_mtrr(void *ptr, struct sysinfo_t *info)
 static void cb_parse_mrc_cache(void *ptr, struct sysinfo_t *info)
 {
 	struct cb_cbmem_tab *const cbmem = (struct cb_cbmem_tab *)ptr;
-	info->mrc_cache = phys_to_virt(cbmem->cbmem_tab);
+	info->mrc_cache = (void *)(uintptr_t)cbmem->cbmem_tab;
 }
 
 int cb_parse_arch_specific(struct cb_record *rec, struct sysinfo_t *info)
@@ -76,10 +76,10 @@ int get_coreboot_info(struct sysinfo_t *info)
 	 * an invalid value. */
 	info->x86_rom_var_mtrr_index = -1;
 
-	ret = cb_parse_header(phys_to_virt(0x00000000), 0x1000, info);
+	ret = cb_parse_header((void *)0, 0x1000, info);
 
 	if (ret)
-		ret = cb_parse_header(phys_to_virt(0x000f0000), 0x1000, info);
+		ret = cb_parse_header((void *)0x000f0000, 0x1000, info);
 
 	return ret;
 }

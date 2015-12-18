@@ -29,7 +29,6 @@
 
 //#define XHCI_SPEW_DEBUG
 
-#include <arch/virtual.h>
 #include <usb/usb.h>
 #include "xhci_private.h"
 
@@ -181,7 +180,7 @@ xhci_set_address (hci_t *controller, usb_speed speed, int hubport, int hubaddr)
 	di->transfer_rings[1] = tr;
 	xhci_init_cycle_ring(tr, TRANSFER_RING_SIZE);
 
-	ic->dev.ep0->tr_dq_low	= virt_to_phys(tr->ring);
+	ic->dev.ep0->tr_dq_low	= (uintptr_t)tr->ring;
 	ic->dev.ep0->tr_dq_high	= 0;
 	EC_SET(TYPE,	ic->dev.ep0, EP_CONTROL);
 	EC_SET(AVRTRB,	ic->dev.ep0, 8);
@@ -189,7 +188,7 @@ xhci_set_address (hci_t *controller, usb_speed speed, int hubport, int hubaddr)
 	EC_SET(CERR,	ic->dev.ep0, 3);
 	EC_SET(DCS,	ic->dev.ep0, 1);
 
-	xhci->dcbaa[slot_id] = virt_to_phys(di->ctx.raw);
+	xhci->dcbaa[slot_id] = (uintptr_t)di->ctx.raw;
 
 	cc = xhci_cmd_address_device(xhci, slot_id, ic);
 	if (cc == CC_RESOURCE_ERROR) {
@@ -337,7 +336,7 @@ xhci_finish_ep_config(const endpoint_t *const ep, inputctx_t *const ic)
 
 	epctx_t *const epctx = ic->dev.ep[ep_id];
 	xhci_debug("Filling epctx (@%p)\n", epctx);
-	epctx->tr_dq_low	= virt_to_phys(tr->ring);
+	epctx->tr_dq_low	= (uintptr_t)tr->ring;
 	epctx->tr_dq_high	= 0;
 	EC_SET(INTVAL,	epctx, xhci_bound_interval(ep));
 	EC_SET(CERR,	epctx, 3);

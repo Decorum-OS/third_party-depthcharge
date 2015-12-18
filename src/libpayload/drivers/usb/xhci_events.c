@@ -30,7 +30,6 @@
 //#define XHCI_SPEW_DEBUG
 
 #include <inttypes.h>
-#include <arch/virtual.h>
 #include "xhci_private.h"
 
 void
@@ -56,9 +55,9 @@ xhci_update_event_dq(xhci_t *const xhci)
 {
 	if (xhci->er.adv) {
 		xhci_spew("Updating dq ptr: @%p(0x%08"PRIx32") -> %p\n",
-			  phys_to_virt(xhci->hcrreg->intrrs[0].erdp_lo),
+			  (void *)(uintptr_t)xhci->hcrreg->intrrs[0].erdp_lo,
 			  xhci->hcrreg->intrrs[0].erdp_lo, xhci->er.cur);
-		xhci->hcrreg->intrrs[0].erdp_lo = virt_to_phys(xhci->er.cur);
+		xhci->hcrreg->intrrs[0].erdp_lo = (uintptr_t)xhci->er.cur;
 		xhci->hcrreg->intrrs[0].erdp_hi = 0;
 		xhci->er.adv = 0;
 	}
@@ -91,7 +90,7 @@ xhci_handle_transfer_event(xhci_t *const xhci)
 	if (id && id <= xhci->max_slots_en &&
 			(intrq = xhci->dev[id].interrupt_queues[ep])) {
 		/* It's a running interrupt endpoint */
-		intrq->ready = phys_to_virt(ev->ptr_low);
+		intrq->ready = (void *)(uintptr_t)ev->ptr_low;
 		if (cc == CC_SUCCESS || cc == CC_SHORT_PACKET) {
 			TRB_SET(TL, intrq->ready,
 				intrq->size - TRB_GET(EVTL, ev));
@@ -244,7 +243,7 @@ xhci_wait_for_command_aborted(xhci_t *const xhci, const trb_t *const address)
 	 * the second with CC == COMMAND_RING_STOPPED should point to new dq.
 	 */
 	while (xhci_wait_for_event_type(xhci, TRB_EV_CMD_CMPL, &timeout_us)) {
-		if ((xhci->er.cur->ptr_low == virt_to_phys(address)) &&
+		if ((xhci->er.cur->ptr_low == (uintptr_t)address) &&
 				(xhci->er.cur->ptr_high == 0)) {
 			cc = TRB_GET(CC, xhci->er.cur);
 			xhci_advance_event_ring(xhci);
@@ -257,7 +256,7 @@ xhci_wait_for_command_aborted(xhci_t *const xhci, const trb_t *const address)
 		xhci_debug("Warning: Timed out waiting for COMMAND_ABORTED.\n");
 	while (xhci_wait_for_event_type(xhci, TRB_EV_CMD_CMPL, &timeout_us)) {
 		if (TRB_GET(CC, xhci->er.cur) == CC_COMMAND_RING_STOPPED) {
-			xhci->cr.cur = phys_to_virt(xhci->er.cur->ptr_low);
+			xhci->cr.cur = (void *)(uintptr_t)xhci->er.cur->ptr_low;
 			xhci_advance_event_ring(xhci);
 			break;
 		}
@@ -289,7 +288,7 @@ xhci_wait_for_command_done(xhci_t *const xhci,
 	unsigned long timeout_us = 100 * 1000; /* 100ms */
 	int cc = TIMEOUT;
 	while (xhci_wait_for_event_type(xhci, TRB_EV_CMD_CMPL, &timeout_us)) {
-		if ((xhci->er.cur->ptr_low == virt_to_phys(address)) &&
+		if ((xhci->er.cur->ptr_low == (uintptr_t)address) &&
 				(xhci->er.cur->ptr_high == 0)) {
 			cc = TRB_GET(CC, xhci->er.cur);
 			break;

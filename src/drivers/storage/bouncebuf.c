@@ -27,7 +27,8 @@
 #include <libpayload.h>
 #include <malloc.h>
 
-#include "bouncebuf.h"
+#include "arch/cache.h"
+#include "drivers/storage/bouncebuf.h"
 
 // TODO(hungte) Deprecate this file after we've shown the drivers using this
 // file work, and get migrated into better code to handle non-cached and aligned

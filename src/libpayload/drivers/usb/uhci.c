@@ -29,7 +29,6 @@
 
 //#define USB_DEBUG
 
-#include <arch/virtual.h>
 #include <usb/usb.h>
 #include "uhci.h"
 #include "uhci_private.h"
@@ -45,22 +44,6 @@ static void* uhci_create_intr_queue (endpoint_t *ep, int reqsize, int reqcount, 
 static void uhci_destroy_intr_queue (endpoint_t *ep, void *queue);
 static u8* uhci_poll_intr_queue (void *queue);
 
-#if 0
-/* dump uhci */
-static void
-uhci_dump (hci_t *controller)
-{
-	usb_debug ("dump:\nUSBCMD: %x\n", uhci_reg_read16 (controller, USBCMD));
-	usb_debug ("USBSTS: %x\n", uhci_reg_read16 (controller, USBSTS));
-	usb_debug ("USBINTR: %x\n", uhci_reg_read16 (controller, USBINTR));
-	usb_debug ("FRNUM: %x\n", uhci_reg_read16 (controller, FRNUM));
-	usb_debug ("FLBASEADD: %x\n", uhci_reg_read32 (controller, FLBASEADD));
-	usb_debug ("SOFMOD: %x\n", uhci_reg_read8 (controller, SOFMOD));
-	usb_debug ("PORTSC1: %x\n", uhci_reg_read16 (controller, PORTSC1));
-	usb_debug ("PORTSC2: %x\n", uhci_reg_read16 (controller, PORTSC2));
-}
-#endif
-
 static void td_dump(td_t *td)
 {
 	usb_debug("+---------------------------------------------------+\n");
@@ -72,7 +55,7 @@ static void td_dump(td_t *td)
 		usb_debug("|..[OUT]............................................|\n");
 	else
 		usb_debug("|..[]...............................................|\n");
-	usb_debug("|:|============ UHCI TD at [0x%08lx] ==========|:|\n", virt_to_phys(td));
+	usb_debug("|:|============ UHCI TD at [0x%08lx] ==========|:|\n", (uintptr_t)td);
 	usb_debug("|:+-----------------------------------------------+:|\n");
 	usb_debug("|:| Next  TD/QH     [0x%08lx]                  |:|\n", td->ptr & ~0xFUL);
 	usb_debug("|:+-----------------------------------------------+:|\n");
@@ -129,10 +112,8 @@ uhci_reset (hci_t *controller)
 static void
 uhci_reinit (hci_t *controller)
 {
-	uhci_reg_write32 (controller, FLBASEADD,
-			  (u32) virt_to_phys (UHCI_INST (controller)->
-					      framelistptr));
-	//usb_debug ("framelist at %p\n",UHCI_INST(controller)->framelistptr);
+	uhci_reg_write32(controller, FLBASEADD,
+			 (u32)(uintptr_t)UHCI_INST(controller)->framelistptr);
 
 	/* disable irqs */
 	uhci_reg_write16 (controller, USBINTR, 0);
@@ -214,23 +195,23 @@ uhci_pci_init (pcidev_t addr)
 		fatal("Not enough memory for USB controller queues.\n");
 
 	UHCI_INST (controller)->qh_prei->headlinkptr =
-		virt_to_phys (UHCI_INST (controller)->qh_intr) | FLISTP_QH;
+		(uintptr_t)UHCI_INST (controller)->qh_intr | FLISTP_QH;
 	UHCI_INST (controller)->qh_prei->elementlinkptr = 0 | FLISTP_TERMINATE;
 
 	UHCI_INST (controller)->qh_intr->headlinkptr =
-		virt_to_phys (UHCI_INST (controller)->qh_data) | FLISTP_QH;
+		(uintptr_t)UHCI_INST (controller)->qh_data | FLISTP_QH;
 	UHCI_INST (controller)->qh_intr->elementlinkptr = 0 | FLISTP_TERMINATE;
 
 	UHCI_INST (controller)->qh_data->headlinkptr =
-		virt_to_phys (UHCI_INST (controller)->qh_last) | FLISTP_QH;
+		(uintptr_t)UHCI_INST (controller)->qh_last | FLISTP_QH;
 	UHCI_INST (controller)->qh_data->elementlinkptr = 0 | FLISTP_TERMINATE;
 
-	UHCI_INST (controller)->qh_last->headlinkptr = virt_to_phys (UHCI_INST (controller)->qh_data) | FLISTP_TERMINATE;
-	UHCI_INST (controller)->qh_last->elementlinkptr = virt_to_phys (antiberserk) | FLISTP_TERMINATE;
+	UHCI_INST (controller)->qh_last->headlinkptr = (uintptr_t)UHCI_INST (controller)->qh_data | FLISTP_TERMINATE;
+	UHCI_INST (controller)->qh_last->elementlinkptr = (uintptr_t)antiberserk | FLISTP_TERMINATE;
 
 	for (i = 0; i < 1024; i++) {
 		UHCI_INST (controller)->framelistptr[i] =
-			virt_to_phys (UHCI_INST (controller)->qh_prei) | FLISTP_QH;
+			(uintptr_t)UHCI_INST (controller)->qh_prei | FLISTP_QH;
 	}
 	controller->devices[0]->controller = controller;
 	controller->devices[0]->init = uhci_rh_init;
@@ -288,7 +269,7 @@ wait_for_completed_qh (hci_t *controller, qh_t *qh)
 		udelay (30);
 	}
 	return (GET_TD (qh->elementlinkptr) ==
-		0) ? 0 : GET_TD (phys_to_virt (qh->elementlinkptr));
+		0) ? 0 : GET_TD ((void *)(uintptr_t)qh->elementlinkptr);
 }
 
 static int
@@ -319,7 +300,7 @@ uhci_control (usbdev_t *dev, direction_t dir, int drlen, void *devreq, int dalen
 	memset (tds, 0, sizeof (td_t) * count);
 	count--;		/* to compensate for 0-indexed array */
 	for (i = 0; i < count; i++) {
-		tds[i].ptr = virt_to_phys (&tds[i + 1]) | TD_DEPTH_FIRST;
+		tds[i].ptr = (uintptr_t)&tds[i + 1] | TD_DEPTH_FIRST;
 	}
 	tds[count].ptr = 0 | TD_DEPTH_FIRST | TD_TERMINATE;
 
@@ -328,7 +309,7 @@ uhci_control (usbdev_t *dev, direction_t dir, int drlen, void *devreq, int dalen
 		endp << TD_EP_SHIFT |
 		TD_TOGGLE_DATA0 |
 		maxlen(drlen) << TD_MAXLEN_SHIFT;
-	tds[0].bufptr = virt_to_phys (devreq);
+	tds[0].bufptr = (uintptr_t)devreq;
 	tds[0].ctrlsts = (3 << TD_COUNTER_SHIFT) |
 		(dev->speed?TD_LOWSPEED:0) |
 		TD_STATUS_ACTIVE;
@@ -344,7 +325,7 @@ uhci_control (usbdev_t *dev, direction_t dir, int drlen, void *devreq, int dalen
 			endp << TD_EP_SHIFT |
 			maxlen (min (mlen, dalen)) << TD_MAXLEN_SHIFT |
 			toggle << TD_TOGGLE_SHIFT;
-		tds[i].bufptr = virt_to_phys (data);
+		tds[i].bufptr = (uintptr_t)data;
 		tds[i].ctrlsts = (3 << TD_COUNTER_SHIFT) |
 			(dev->speed?TD_LOWSPEED:0) |
 			TD_STATUS_ACTIVE;
@@ -363,7 +344,7 @@ uhci_control (usbdev_t *dev, direction_t dir, int drlen, void *devreq, int dalen
 		(dev->speed?TD_LOWSPEED:0) |
 		TD_STATUS_ACTIVE;
 	UHCI_INST (dev->controller)->qh_data->elementlinkptr =
-		virt_to_phys (tds) & ~(FLISTP_QH | FLISTP_TERMINATE);
+		(uintptr_t)tds & ~(FLISTP_QH | FLISTP_TERMINATE);
 	td_t *td = wait_for_completed_qh (dev->controller,
 					  UHCI_INST (dev->controller)->
 					  qh_data);
@@ -388,7 +369,7 @@ create_schedule (int numpackets)
 	memset (tds, 0, sizeof (td_t) * numpackets);
 	int i;
 	for (i = 0; i < numpackets; i++) {
-		tds[i].ptr = virt_to_phys (&tds[i + 1]) | TD_DEPTH_FIRST;
+		tds[i].ptr = (uintptr_t)&tds[i + 1] | TD_DEPTH_FIRST;
 	}
 	tds[numpackets - 1].ptr = 0 | TD_TERMINATE;
 	return tds;
@@ -407,7 +388,7 @@ fill_schedule (td_t *td, endpoint_t *ep, int length, unsigned char *data,
 		(ep->endpoint & 0xf) << TD_EP_SHIFT |
 		maxlen (length) << TD_MAXLEN_SHIFT |
 		(*toggle & 1) << TD_TOGGLE_SHIFT;
-	td->bufptr = virt_to_phys (data);
+	td->bufptr = (uintptr_t)data;
 	td->ctrlsts = ((ep->direction == SETUP?3:0) << TD_COUNTER_SHIFT) |
 		(ep->dev->speed?TD_LOWSPEED:0) |
 		TD_STATUS_ACTIVE;
@@ -418,7 +399,7 @@ static int
 run_schedule (usbdev_t *dev, td_t *td)
 {
 	UHCI_INST (dev->controller)->qh_data->elementlinkptr =
-		virt_to_phys (td) & ~(FLISTP_QH | FLISTP_TERMINATE);
+		(uintptr_t)td & ~(FLISTP_QH | FLISTP_TERMINATE);
 	td = wait_for_completed_qh (dev->controller,
 				    UHCI_INST (dev->controller)->qh_data);
 	if (td == 0) {
@@ -481,7 +462,7 @@ uhci_create_intr_queue (endpoint_t *ep, int reqsize, int reqcount, int reqtiming
 	if (!data || !tds || !qh)
 		fatal("Not enough memory to create USB intr queue prerequisites.\n");
 
-	qh->elementlinkptr = virt_to_phys(tds);
+	qh->elementlinkptr = (uintptr_t)tds;
 
 	intr_q *q = malloc(sizeof(intr_q));
 	if (!q)
@@ -497,7 +478,7 @@ uhci_create_intr_queue (endpoint_t *ep, int reqsize, int reqcount, int reqtiming
 	memset (tds, 0, sizeof (td_t) * reqcount);
 	int i;
 	for (i = 0; i < reqcount; i++) {
-		tds[i].ptr = virt_to_phys (&tds[i + 1]);
+		tds[i].ptr = (uintptr_t)&tds[i + 1];
 
 		switch (ep->direction) {
 			case IN: tds[i].token = UHCI_IN; break;
@@ -508,7 +489,7 @@ uhci_create_intr_queue (endpoint_t *ep, int reqsize, int reqcount, int reqtiming
 			(ep->endpoint & 0xf) << TD_EP_SHIFT |
 			maxlen (reqsize) << TD_MAXLEN_SHIFT |
 			(ep->toggle & 1) << TD_TOGGLE_SHIFT;
-		tds[i].bufptr = virt_to_phys (data);
+		tds[i].bufptr = (uintptr_t)data;
 		tds[i].ctrlsts = (0 << TD_COUNTER_SHIFT) |
 			(ep->dev->speed?TD_LOWSPEED:0) |
 			TD_STATUS_ACTIVE;
@@ -519,14 +500,14 @@ uhci_create_intr_queue (endpoint_t *ep, int reqsize, int reqcount, int reqtiming
 
 	/* insert QH into framelist */
 	uhci_t *const uhcic = UHCI_INST(ep->dev->controller);
-	const u32 def_ptr = virt_to_phys(uhcic->qh_prei) | FLISTP_QH;
+	const u32 def_ptr = (uintptr_t)uhcic->qh_prei | FLISTP_QH;
 	int nothing_placed = 1;
 	qh->headlinkptr = def_ptr;
 	for (i = 0; i < 1024; i += reqtiming) {
 		/* advance to the next free position */
 		while ((i < 1024) && (uhcic->framelistptr[i] != def_ptr)) ++i;
 		if (i < 1024) {
-			uhcic->framelistptr[i] = virt_to_phys(qh) | FLISTP_QH;
+			uhcic->framelistptr[i] = (uintptr_t)qh | FLISTP_QH;
 			nothing_placed = 0;
 		}
 	}
@@ -548,8 +529,8 @@ uhci_destroy_intr_queue (endpoint_t *ep, void *q_)
 
 	/* remove QH from framelist */
 	uhci_t *const uhcic = UHCI_INST(ep->dev->controller);
-	const u32 qh_ptr = virt_to_phys(q->qh) | FLISTP_QH;
-	const u32 def_ptr = virt_to_phys(uhcic->qh_prei) | FLISTP_QH;
+	const u32 qh_ptr = (uintptr_t)q->qh | FLISTP_QH;
+	const u32 def_ptr = (uintptr_t)uhcic->qh_prei | FLISTP_QH;
 	int i;
 	for (i = 0; i < 1024; ++i) {
 		if (uhcic->framelistptr[i] == qh_ptr)
@@ -581,7 +562,7 @@ uhci_poll_intr_queue (void *q_)
 		q->tds[previous].ctrlsts &= ~TD_STATUS_MASK;
 		q->tds[previous].ptr = 0 | TD_TERMINATE;
 		if (q->last_td != &q->tds[previous]) {
-			q->last_td->ptr = virt_to_phys(&q->tds[previous]) & ~TD_TERMINATE;
+			q->last_td->ptr = (uintptr_t)&q->tds[previous] & ~TD_TERMINATE;
 			q->last_td = &q->tds[previous];
 		}
 		q->tds[previous].ctrlsts |= TD_STATUS_ACTIVE;
@@ -592,7 +573,7 @@ uhci_poll_intr_queue (void *q_)
 	/* reset queue if we fully processed it after underrun */
 	else if (q->qh->elementlinkptr & FLISTP_TERMINATE) {
 		usb_debug("resetting underrun uhci interrupt queue.\n");
-		q->qh->elementlinkptr = virt_to_phys(q->tds + q->lastread);
+		q->qh->elementlinkptr = (uintptr_t)(q->tds + q->lastread);
 	}
 	return NULL;
 }

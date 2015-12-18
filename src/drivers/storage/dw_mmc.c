@@ -25,6 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "arch/cache.h"
 #include "drivers/storage/dw_mmc.h"
 
 enum {

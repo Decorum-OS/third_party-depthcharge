@@ -31,7 +31,7 @@
 #include <libpayload.h>
 
 #define IOBASE lib_sysinfo.serial->baseaddr
-#define MEMBASE (phys_to_virt(IOBASE))
+#define MEMBASE ((void *)(uintptr_t)IOBASE)
 
 static int serial_hardware_is_present = 0;
 static int serial_is_mem_mapped = 0;

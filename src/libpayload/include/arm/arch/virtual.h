@@ -32,14 +32,6 @@
 
 #include <arch/cache.h>
 
-extern unsigned long virtual_offset;
-
-#define virt_to_phys(virt) ((unsigned long) (virt) + virtual_offset)
-#define phys_to_virt(phys) ((void *) ((unsigned long) (phys) - virtual_offset))
-
-#define virt_to_bus(addr) virt_to_phys(addr)
-#define bus_to_virt(addr) phys_to_virt(addr)
-
 void *lpae_map_phys_addr(unsigned long pa_mb, enum dcache_policy policy);
 void lpae_restore_map(void);
 

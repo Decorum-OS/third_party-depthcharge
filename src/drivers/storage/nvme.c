@@ -336,7 +336,7 @@ static NVME_STATUS nvme_create_cq(NvmeCtrlr *ctrlr, uint16_t qid, uint16_t qsize
 	sq->cid = ctrlr->cid[NVME_ADMIN_QUEUE_INDEX]++;
 
 	/* Only physically contiguous address supported */
-	sq->prp[0] = (uintptr_t)virt_to_phys(ctrlr->cq_buffer[qid]);
+	sq->prp[0] = (uintptr_t)ctrlr->cq_buffer[qid];
 	/* Set physically contiguous (PC) bit */
 	sq->cdw11 = 1;
 
@@ -367,7 +367,7 @@ static NVME_STATUS nvme_create_sq(NvmeCtrlr *ctrlr, uint16_t qid, uint16_t qsize
 	sq->cid = ctrlr->cid[NVME_ADMIN_QUEUE_INDEX]++;
 
 	/* Only physically contiguous address supported */
-	sq->prp[0] = (uintptr_t)virt_to_phys(ctrlr->sq_buffer[qid]);
+	sq->prp[0] = (uintptr_t)ctrlr->sq_buffer[qid];
 	/* Set physically contiguous (PC) bit */
 	sq->cdw11 = 1;
 	sq->cdw11 |= NVME_ADMIN_CRIOSQ_CQID(qid);
@@ -394,7 +394,7 @@ static NVME_STATUS nvme_fill_prp(PrpList *prp_list, uint64_t *prp, void *buffer,
 {
 	uint64_t offset = (uintptr_t)buffer & (NVME_PAGE_SIZE - 1);
 	uint64_t xfer_pages;
-	uintptr_t buffer_phys = virt_to_phys(buffer);
+	uintptr_t buffer_phys = (uintptr_t)buffer;
 
 	/* PRP0 is always the (potentially unaligned) start of the buffer */
 	prp[0] = buffer_phys;
@@ -419,7 +419,7 @@ static NVME_STATUS nvme_fill_prp(PrpList *prp_list, uint64_t *prp, void *buffer,
 		return NVME_INVALID_PARAMETER;
 
 	/* Fill the PRP List */
-	prp[1] = (uintptr_t)virt_to_phys(prp_list);
+	prp[1] = (uintptr_t)prp_list;
 	for (uint32_t entry_index = 0; entry_index < xfer_pages; entry_index++) {
 		prp_list->prp_entry[entry_index] = buffer_phys;
 		buffer_phys += NVME_PAGE_SIZE;
@@ -655,7 +655,7 @@ static NVME_STATUS nvme_identify(NvmeCtrlr *ctrlr) {
 	sq->cid = ctrlr->cid[NVME_ADMIN_QUEUE_INDEX]++;
 
 	/* Identify structure is 4Kb in size. Fits in aligned 1 PAGE */
-	sq->prp[0] = (uintptr_t)virt_to_phys(ctrlr->controller_data);
+	sq->prp[0] = (uintptr_t)ctrlr->controller_data;
 	/* Set bit 0 (Cns bit) to 1 to identify a controller */
 	sq->cdw10 = 1;
 
@@ -712,7 +712,7 @@ static NVME_STATUS nvme_identify_namespaces(NvmeCtrlr *ctrlr) {
 		sq->nsid = index;
 
 		/* Identify structure is 4Kb in size. Fits in 1 aligned PAGE */
-		sq->prp[0] = (uintptr_t)virt_to_phys(namespace_data);
+		sq->prp[0] = (uintptr_t)namespace_data;
 		/* Clear bit 0 (Cns bit) to identify a namespace */
 
 		status = nvme_do_one_cmd_synchronous(ctrlr,
@@ -855,10 +855,10 @@ static int nvme_ctrlr_init(BlockDevCtrlrOps *me)
 	aqa |= NVME_AQA_ASQS(NVME_ASQ_SIZE);
 	aqa |= NVME_AQA_ACQS(NVME_ACQ_SIZE);
 	/* Address of Admin submission queue. */
-	asq  = (uintptr_t)virt_to_phys(ctrlr->buffer);
+	asq  = (uintptr_t)ctrlr->buffer;
 	ctrlr->sq_buffer[NVME_ADMIN_QUEUE_INDEX] = (NVME_SQ *)ctrlr->buffer;
 	/* Address of Admin completion queue. */
-	acq  = (uintptr_t)virt_to_phys(ctrlr->buffer + NVME_PAGE_SIZE);
+	acq  = (uintptr_t)(ctrlr->buffer + NVME_PAGE_SIZE);
 	ctrlr->cq_buffer[NVME_ADMIN_QUEUE_INDEX] = (NVME_CQ *)(ctrlr->buffer + NVME_PAGE_SIZE);
 	/* Address of I/O submission & completion queues */
 	ctrlr->sq_buffer[NVME_IO_QUEUE_INDEX] =
@@ -866,12 +866,12 @@ static int nvme_ctrlr_init(BlockDevCtrlrOps *me)
 	ctrlr->cq_buffer[NVME_IO_QUEUE_INDEX] =
 		(NVME_CQ *)(ctrlr->buffer + 3 * NVME_PAGE_SIZE);
 
-	DEBUG(printf("Private->Buffer = [%p]\n", (void *)virt_to_phys(ctrlr->buffer));)
+	DEBUG(printf("Private->Buffer = [%p]\n", (void *)ctrlr->buffer);)
 	DEBUG(printf("Admin Queue Attributes = [%X]\n", aqa);)
-	DEBUG(printf("Admin Submission Queue (sq_buffer[ADMIN]) = [%p]\n", (void *)virt_to_phys(ctrlr->sq_buffer[NVME_ADMIN_QUEUE_INDEX]));)
-	DEBUG(printf("Admin Completion Queue (cq_buffer[ADMIN]) = [%p]\n", (void *)virt_to_phys(ctrlr->cq_buffer[NVME_ADMIN_QUEUE_INDEX]));)
-	DEBUG(printf("I/O   Submission Queue (sq_buffer[NVME_IO_QUEUE]) = [%p]\n", (void *)virt_to_phys(ctrlr->sq_buffer[NVME_IO_QUEUE_INDEX]));)
-	DEBUG(printf("I/O   Completion Queue (cq_buffer[NVME_IO_QUEUE]) = [%p]\n", (void *)virt_to_phys(ctrlr->cq_buffer[NVME_IO_QUEUE_INDEX]));)
+	DEBUG(printf("Admin Submission Queue (sq_buffer[ADMIN]) = [%p]\n", (void *)ctrlr->sq_buffer[NVME_ADMIN_QUEUE_INDEX]);)
+	DEBUG(printf("Admin Completion Queue (cq_buffer[ADMIN]) = [%p]\n", (void *)ctrlr->cq_buffer[NVME_ADMIN_QUEUE_INDEX]);)
+	DEBUG(printf("I/O   Submission Queue (sq_buffer[NVME_IO_QUEUE]) = [%p]\n", (void *)ctrlr->sq_buffer[NVME_IO_QUEUE_INDEX]);)
+	DEBUG(printf("I/O   Completion Queue (cq_buffer[NVME_IO_QUEUE]) = [%p]\n", (void *)ctrlr->cq_buffer[NVME_IO_QUEUE_INDEX]);)
 
 	/* Write AQA */
 	writel(aqa, ctrlr->ctrlr_regs + NVME_AQA_OFFSET);

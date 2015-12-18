@@ -78,13 +78,12 @@ unsigned int dcache_line_bytes(void)
 static void dcache_op_mva(void const *vaddr, size_t len, enum dcache_op op)
 {
 	unsigned long line, linesize;
-	unsigned long paddr = virt_to_phys(vaddr);
 
 	linesize = dcache_line_bytes();
-	line = paddr & ~(linesize - 1);
+	line = (uintptr_t)vaddr & ~(linesize - 1);
 
 	dsb();
-	while (line < paddr + len) {
+	while (line < (uintptr_t)vaddr + len) {
 		switch(op) {
 		case OP_DCCIMVAC:
 			dccimvac(line);

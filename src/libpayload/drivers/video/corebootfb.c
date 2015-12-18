@@ -66,9 +66,9 @@ static unsigned long fbinfo;
 static unsigned long fbaddr;
 static unsigned long chars;
 
-#define FI ((struct cb_framebuffer *) phys_to_virt(fbinfo))
-#define FB ((unsigned char *) phys_to_virt(fbaddr))
-#define CHARS ((unsigned short *) phys_to_virt(chars))
+#define FI ((struct cb_framebuffer *)(uintptr_t)fbinfo)
+#define FB ((unsigned char *)(uintptr_t)fbaddr)
+#define CHARS ((unsigned short *)(uintptr_t)chars)
 
 static void corebootfb_scroll_up(void)
 {
@@ -234,7 +234,7 @@ static int corebootfb_init(void)
 
 	/* We might have been called before relocation (like FILO does). So
 	   just keep the physical address which won't break on relocation. */
-	fbinfo = virt_to_phys(lib_sysinfo.framebuffer);
+	fbinfo = (uintptr_t)lib_sysinfo.framebuffer;
 
 	fbaddr = FI->physical_address;
 
@@ -242,8 +242,8 @@ static int corebootfb_init(void)
 	coreboot_video_console.rows = FI->y_resolution / FONT_HEIGHT;
 
 	/* See setting of fbinfo above. */
-	chars = virt_to_phys(malloc(coreboot_video_console.rows *
-				    coreboot_video_console.columns * 2));
+	chars = (uintptr_t)malloc(coreboot_video_console.rows *
+				  coreboot_video_console.columns * 2);
 
 	// clear boot splash screen if there is one.
 	corebootfb_clear();

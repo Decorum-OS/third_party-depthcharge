@@ -117,7 +117,7 @@ static const trb_t *
 xhci_next_trb(const trb_t *const cur)
 {
 	if (TRB_GET(TT, cur) == TRB_LINK)
-		return (!cur->ptr_low) ? NULL : phys_to_virt(cur->ptr_low);
+		return (!cur->ptr_low) ? NULL : (void *)(uintptr_t)cur->ptr_low;
 	else
 		return cur + 1;
 }

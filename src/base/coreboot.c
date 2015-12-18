@@ -104,7 +104,7 @@ static void cb_parse_vdat(unsigned char *ptr, struct sysinfo_t *info)
 {
 	struct lb_range *vdat = (struct lb_range *) ptr;
 
-	info->vdat_addr = phys_to_virt(vdat->range_start);
+	info->vdat_addr = (void *)(uintptr_t)vdat->range_start;
 	info->vdat_size = vdat->range_size;
 }
 
@@ -124,19 +124,19 @@ static void cb_parse_mac_addresses(unsigned char *ptr,
 static void cb_parse_tstamp(unsigned char *ptr, struct sysinfo_t *info)
 {
 	struct cb_cbmem_tab *const cbmem = (struct cb_cbmem_tab *)ptr;
-	info->tstamp_table = phys_to_virt(cbmem->cbmem_tab);
+	info->tstamp_table = (void *)(uintptr_t)cbmem->cbmem_tab;
 }
 
 static void cb_parse_cbmem_cons(unsigned char *ptr, struct sysinfo_t *info)
 {
 	struct cb_cbmem_tab *const cbmem = (struct cb_cbmem_tab *)ptr;
-	info->cbmem_cons = phys_to_virt(cbmem->cbmem_tab);
+	info->cbmem_cons = (void *)(uintptr_t)cbmem->cbmem_tab;
 }
 
 static void cb_parse_acpi_gnvs(unsigned char *ptr, struct sysinfo_t *info)
 {
 	struct cb_cbmem_tab *const cbmem = (struct cb_cbmem_tab *)ptr;
-	info->acpi_gnvs = phys_to_virt(cbmem->cbmem_tab);
+	info->acpi_gnvs = (void *)(uintptr_t)cbmem->cbmem_tab;
 }
 
 static void cb_parse_board_id(unsigned char *ptr, struct sysinfo_t *info)
@@ -183,7 +183,7 @@ static void cb_parse_string(unsigned char *ptr, char **info)
 static void cb_parse_wifi_calibration(void *ptr, struct sysinfo_t *info)
 {
 	struct cb_cbmem_tab *const cbmem = (struct cb_cbmem_tab *)ptr;
-	info->wifi_calibration = phys_to_virt(cbmem->cbmem_tab);
+	info->wifi_calibration = (void *)(uintptr_t)cbmem->cbmem_tab;
 }
 
 static void cb_parse_ramoops(void *ptr, struct sysinfo_t *info)
@@ -269,8 +269,8 @@ int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 		/* We only care about a few tags here (maybe more later). */
 		switch (rec->tag) {
 		case CB_TAG_FORWARD:
-			forward = phys_to_virt((void *)(unsigned long)
-					       ((struct cb_forward *)rec)->forward);
+			forward = (void *)(uintptr_t)
+				((struct cb_forward *)rec)->forward;
 			return cb_parse_header(forward, len, info);
 			continue;
 		case CB_TAG_MEMORY:

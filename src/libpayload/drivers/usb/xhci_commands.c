@@ -28,7 +28,6 @@
  */
 
 #include <inttypes.h>
-#include <arch/virtual.h>
 #include "xhci_private.h"
 
 trb_t *
@@ -56,7 +55,7 @@ xhci_post_command(xhci_t *const xhci)
 		xhci_debug("Handling LINK pointer (@%p)\n", xhci->cr.cur);
 		const int tc = TRB_GET(TC, xhci->cr.cur);
 		TRB_SET(C, xhci->cr.cur, xhci->cr.pcs);
-		xhci->cr.cur = phys_to_virt(xhci->cr.cur->ptr_low);
+		xhci->cr.cur = (void *)(uintptr_t)xhci->cr.cur->ptr_low;
 		if (tc)
 			xhci->cr.pcs ^= 1;
 	}
@@ -130,7 +129,7 @@ xhci_cmd_address_device(xhci_t *const xhci,
 	trb_t *const cmd = xhci_next_command_trb(xhci);
 	TRB_SET(TT, cmd, TRB_CMD_ADDRESS_DEV);
 	TRB_SET(ID, cmd, slot_id);
-	cmd->ptr_low = virt_to_phys(ic->raw);
+	cmd->ptr_low = (uintptr_t)ic->raw;
 	xhci_post_command(xhci);
 
 	return xhci_wait_for_command(xhci, cmd, 1);
@@ -145,7 +144,7 @@ xhci_cmd_configure_endpoint(xhci_t *const xhci,
 	trb_t *const cmd = xhci_next_command_trb(xhci);
 	TRB_SET(TT, cmd, TRB_CMD_CONFIGURE_EP);
 	TRB_SET(ID, cmd, slot_id);
-	cmd->ptr_low = virt_to_phys(ic->raw);
+	cmd->ptr_low = (uintptr_t)ic->raw;
 	if (config_id == 0)
 		TRB_SET(DC, cmd, 1);
 	xhci_post_command(xhci);
@@ -161,7 +160,7 @@ xhci_cmd_evaluate_context(xhci_t *const xhci,
 	trb_t *const cmd = xhci_next_command_trb(xhci);
 	TRB_SET(TT, cmd, TRB_CMD_EVAL_CTX);
 	TRB_SET(ID, cmd, slot_id);
-	cmd->ptr_low = virt_to_phys(ic->raw);
+	cmd->ptr_low = (uintptr_t)ic->raw;
 	xhci_post_command(xhci);
 
 	return xhci_wait_for_command(xhci, cmd, 1);
@@ -199,7 +198,7 @@ xhci_cmd_set_tr_dq(xhci_t *const xhci, const int slot_id, const int ep,
 	TRB_SET(TT, cmd, TRB_CMD_SET_TR_DQ);
 	TRB_SET(ID, cmd, slot_id);
 	TRB_SET(EP, cmd, ep);
-	cmd->ptr_low = virt_to_phys(dq_trb) | dcs;
+	cmd->ptr_low = (uintptr_t)dq_trb | dcs;
 	xhci_post_command(xhci);
 
 	return xhci_wait_for_command(xhci, cmd, 1);
