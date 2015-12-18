@@ -361,7 +361,6 @@ void lib_sysinfo_get_memranges(struct memrange **ranges,
 
 /* Timer functions. */
 /* Defined by each architecture. */
-unsigned int get_cpu_speed(void);
 uint64_t timer_hz(void);
 uint64_t timer_raw_value(void);
 uint64_t timer_us(uint64_t base);

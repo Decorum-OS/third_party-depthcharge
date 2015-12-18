@@ -35,20 +35,13 @@
  * up initially with some dummy values - hopefully they will be overridden.
  */
 struct sysinfo_t lib_sysinfo = {
-	.cpu_khz = 200,
+	.cpu_khz = 0,
 };
 
 int lib_get_sysinfo(void)
 {
-	int ret;
-
-	/* Get the CPU speed (for delays). */
-	lib_sysinfo.cpu_khz = get_cpu_speed();
-
-	/* Get information from the coreboot tables,
-	 * if they exist */
-
-	ret = get_coreboot_info(&lib_sysinfo);
+	/* Get information from the coreboot tables if they exist. */
+	int ret = get_coreboot_info(&lib_sysinfo);
 
 	if (!lib_sysinfo.n_memranges) {
 		/* If we can't get a good memory range, use the default. */

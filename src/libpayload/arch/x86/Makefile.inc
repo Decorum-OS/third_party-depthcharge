@@ -31,7 +31,6 @@ CFLAGS += -mpreferred-stack-boundary=2
 
 head.o-y += head.S
 libc-y += main.c sysinfo.c
-libc-y += timer.c
 libc-y += virtual.c
 libc-y += selfboot.c
 libc-y += exception_asm.S exception.c
