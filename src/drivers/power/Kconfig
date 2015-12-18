@@ -23,7 +23,6 @@ config DRIVER_POWER_AS3722
 config DRIVER_POWER_EXYNOS
 	bool "Exynos SOC power management"
 	default n
-	depends on ARCH_ARM
 	help
 	  Reboot or power off using registers in an Exynos SOC.
 
