@@ -35,7 +35,6 @@ subdirs-y += lib/
 head.o-y += head.S
 libc-y += main.c sysinfo.c
 libc-y += virtual.c
-libc-y += exception_asm.S exception.c
 libc-y += cache.c cpu.S
 libc-y += selfboot.c
 libc-y += mmu.c
