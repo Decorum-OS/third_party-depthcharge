@@ -332,25 +332,6 @@ static inline int __ffs(u32 x) { return log2(x & (u32)(-(s32)x)); }
 
 
 /**
- * @defgroup hash Hashing functions
- * @{
- */
-#define SHA1_BLOCK_LENGTH	64
-#define SHA1_DIGEST_LENGTH	20
-typedef struct {
-	u32 state[5];
-	u64 count;
-	u8 buffer[SHA1_BLOCK_LENGTH];
-} SHA1_CTX;
-void SHA1Init(SHA1_CTX *context);
-void SHA1Transform(u32 state[5], const u8 buffer[SHA1_BLOCK_LENGTH]);
-void SHA1Update(SHA1_CTX *context, const u8 *data, size_t len);
-void SHA1Pad(SHA1_CTX *context);
-void SHA1Final(u8 digest[SHA1_DIGEST_LENGTH], SHA1_CTX *context);
-u8 *sha1(const u8 *data, size_t len, u8 *buf);
-/** @} */
-
-/**
  * @defgroup time Time functions
  * @{
  */

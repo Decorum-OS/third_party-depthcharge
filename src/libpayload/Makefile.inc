@@ -36,4 +36,4 @@ classes-$(CONFIG_LZ4) += liblz4
 classes-$(CONFIG_LZMA) += liblzma
 classes-$(CONFIG_PCI) += libpci
 
-subdirs-y := arch/$(ARCH) crypto drivers libc libcbfs liblz4 liblzma libpci
+subdirs-y := arch/$(ARCH) drivers libc libcbfs liblz4 liblzma libpci
