@@ -37,8 +37,6 @@ libc-y += exception_asm.S exception.c
 libc-y += cache.c cpu.S
 libc-y += selfboot.c
 
-libcbfs-$(CONFIG_CBFS) += dummy_media.c
-
 # Add other classes here when you put assembly files into them!
 head.o-S-ccopts += $(arm_asm_flags)
 libc-S-ccopts += $(arm_asm_flags)

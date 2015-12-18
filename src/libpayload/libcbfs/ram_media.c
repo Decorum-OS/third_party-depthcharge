@@ -99,7 +99,13 @@ int setup_cbfs_from_ram(void *start, uint32_t size) {
 	return result;
 }
 
-extern int libpayload_init_default_cbfs_media(struct cbfs_media *media);
+int libpayload_init_default_cbfs_media(struct cbfs_media *media)
+	__attribute__((weak));
+int libpayload_init_default_cbfs_media(struct cbfs_media *media)
+{
+	return -1;
+}
+
 int setup_cbfs_from_flash(void) {
 	int result = libpayload_init_default_cbfs_media(&default_cbfs_media);
 	if (result == 0)

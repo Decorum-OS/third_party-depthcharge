@@ -26,21 +26,11 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-#define LIBPAYLOAD
 
 #include <cbfs.h>
 #include <string.h>
 
-#ifdef LIBPAYLOAD
-# define printk(x...)
-# define init_default_cbfs_media libpayload_init_default_cbfs_media
-  extern int libpayload_init_default_cbfs_media(struct cbfs_media *media);
-#else
-# include <console/console.h>
-#endif
-
 // Implementation of memory-mapped ROM media source on X86.
-
 static int x86_rom_open(struct cbfs_media *media) {
 	return 0;
 }
@@ -74,8 +64,7 @@ static int x86_rom_close(struct cbfs_media *media) {
 	return 0;
 }
 
-int init_x86rom_cbfs_media(struct cbfs_media *media);
-int init_x86rom_cbfs_media(struct cbfs_media *media) {
+int libpayload_init_default_cbfs_media(struct cbfs_media *media) {
 	// On X86, we always keep a reference of pointer to CBFS header in
 	// 0xfffffffc, and the pointer is still a memory-mapped address.
 	// Since the CBFS core always use ROM offset, we need to figure out
@@ -94,8 +83,4 @@ int init_x86rom_cbfs_media(struct cbfs_media *media) {
 	media->unmap = x86_rom_unmap;
 	media->read = x86_rom_read;
 	return 0;
-}
-
-int init_default_cbfs_media(struct cbfs_media *media) {
-	return init_x86rom_cbfs_media(media);
 }
