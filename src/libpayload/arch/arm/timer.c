@@ -35,12 +35,6 @@
 #include <libpayload.h>
 
 /**
- * @ingroup arch
- * Global variable containing the speed of the processor in KHz.
- */
-u32 cpu_khz;
-
-/**
  * Calculate the speed of the processor for use in delays.
  *
  * @return The CPU speed in kHz.
@@ -48,7 +42,5 @@ u32 cpu_khz;
 unsigned int get_cpu_speed(void)
 {
 	/* FIXME */
-	cpu_khz = 1000000U;
-
-	return cpu_khz;
+	return 1000000U;
 }

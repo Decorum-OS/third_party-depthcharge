@@ -37,8 +37,6 @@
 #include <arch/rdtsc.h>
 #endif
 
-extern u32 cpu_khz;
-
 static struct {
 	u64 ticks;
 	time_t secs;

@@ -36,12 +36,6 @@
 #include <arch/rdtsc.h>
 
 /**
- * @ingroup arch
- * Global variable containing the speed of the processor in KHz.
- */
-uint32_t cpu_khz;
-
-/**
  * Calculate the speed of the processor for use in delays.
  *
  * @return The CPU speed in kHz.
@@ -72,7 +66,5 @@ unsigned int get_cpu_speed(void)
 	 * clock_rate / (interval * 1000). Multiply that by the number of
 	 * measured clocks to get the kHz value.
 	 */
-	cpu_khz = (end - start) * clock_rate / (1000 * interval);
-
-	return cpu_khz;
+	return (end - start) * clock_rate / (1000 * interval);
 }
