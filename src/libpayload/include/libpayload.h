@@ -142,9 +142,6 @@ int usbhid_getchar(void);
  * @{ @}
  */
 
-extern void (*reset_handler)(void);
-int add_reset_handler(void (*new_handler)(void));
-
 /**
  * @defgroup keyboard Keyboard functions
  * @ingroup input

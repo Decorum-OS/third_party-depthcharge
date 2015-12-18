@@ -275,13 +275,6 @@ usb_hid_process_keyboard_event(usbhid_inst_t *const inst,
 	if (current->modifiers & 0x40) /* Right-AltGr */ modifiers |= MOD_ALT;
 	if (current->modifiers & 0x80) /* Right-GUI */   ;
 
-	if ((current->modifiers & 0x05) && ((current->keys[0] == 0x4c) ||
-				(current->keys[0]==0x63))) {
-		/* vulcan nerve pinch */
-		if (reset_handler)
-			reset_handler();
-	}
-
 	/* Did the event change at all? */
 	if (inst->lastkeypress &&
 			!memcmp(current, previous, sizeof(*current))) {

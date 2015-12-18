@@ -185,10 +185,6 @@ int keyboard_getchar(void)
 			case 'a' ... 'z':
 				ret &= 0x1f;
 				break;
-			case KEY_DC:
-				/* vulcan nerve pinch */
-				if ((modifier & MOD_ALT) && reset_handler)
-					reset_handler();
 			default:
 				ret = 0;
 			}
