@@ -15,10 +15,13 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-subdirs-$(CONFIG_ARCH_ARM_V7) += v7
-subdirs-$(CONFIG_ARCH_ARM_V8) += v8
+depthcharge-y += boot.c
+depthcharge-y += boot_asm.S
+libc-y += eabi_compat.c
+depthcharge-y += enter_trampoline.c
+libc-y += memcpy.S
+libc-y += memmove.S
+libc-y += memset.S
+depthcharge-y += physmem.c
 
-depthcharge-y += coreboot.c
-depthcharge-$(CONFIG_KERNEL_FIT) += fit.c
-depthcharge-y += gcc.c
-depthcharge-y += util.S
+gdb-y += gdb.c
