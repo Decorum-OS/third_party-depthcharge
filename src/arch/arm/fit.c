@@ -26,7 +26,6 @@
 #include "base/cleanup_funcs.h"
 #include "base/device_tree.h"
 #include "boot/fit.h"
-#include "config.h"
 #include "vboot/boot.h"
 
 int boot(void *image, char *cmd_line, void *params, void *loader)

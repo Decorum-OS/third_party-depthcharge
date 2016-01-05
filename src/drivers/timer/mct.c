@@ -29,8 +29,6 @@
 #include <libpayload.h>
 #include <stdint.h>
 
-#include "config.h"
-
 struct __attribute__((packed)) mct_regs
 {
 	uint32_t mct_cfg;

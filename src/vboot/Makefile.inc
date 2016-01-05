@@ -28,13 +28,16 @@ TRAMP_PREFIX = tramp
 TRAMP_ENTRY = load_elf
 TRAMPOLINE = $(obj)/trampoline.o
 
+VB_FIRMWARE_ARCH-$(CONFIG_ARCH_ARM) = arm
+VB_FIRMWARE_ARCH-$(CONFIG_ARCH_X86) = x86
+
 # The vboot library source is external to depthcharge.
 $(VB_LIB):
 ifndef VB_SOURCE
 	$(error Set VB_SOURCE to point to the vboot source directory)
 else
 	@printf "    MAKE       $(subst $(obj)/,,$(@))\n"
-	$(Q)FIRMWARE_ARCH=$(VB_FIRMWARE_ARCH) \
+	$(Q)FIRMWARE_ARCH=$(VB_FIRMWARE_ARCH-y) \
 		CC="$(CC)" \
 		CFLAGS="$(CFLAGS) -DVBOOT_DEBUG" \
 		$(MAKE) -C $(VB_SOURCE) \

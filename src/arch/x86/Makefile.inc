@@ -29,3 +29,7 @@ depthcharge-$(CONFIG_KERNEL_ZIMAGE) += zimage.c
 gdb-y += gdb.c
 
 libc-y += string.c
+
+ARCH_ABI_FLAGS += -mpreferred-stack-boundary=2 -m32
+
+TC_ARCH = x86_32

@@ -30,7 +30,6 @@
 #include <libpayload.h>
 #include <stdint.h>
 
-#include "config.h"
 #include "drivers/storage/mmc.h"
 
 /* Set block count limit because of 16 bit register limit on some hardware*/

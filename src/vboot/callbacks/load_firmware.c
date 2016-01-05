@@ -24,7 +24,6 @@
 #include <libpayload.h>
 #include <vboot_api.h>
 
-#include "config.h"
 #include "drivers/flash/flash.h"
 #include "image/fmap.h"
 #include "image/index.h"

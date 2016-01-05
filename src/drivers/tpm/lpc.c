@@ -30,7 +30,6 @@
  */
 
 #include <arch/io.h>
-#include <config.h>
 #include <endian.h>
 #include <libpayload.h>
 #include <stdint.h>

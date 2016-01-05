@@ -15,6 +15,10 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-ifdef ARCH_DIR
-subdirs-y := $(ARCH_DIR)
+DC_ARCH-$(CONFIG_ARCH_X86) = x86
+DC_ARCH-$(CONFIG_ARCH_ARM) = arm
+
+ifdef DC_ARCH-y
+subdirs-y = $(DC_ARCH-y)
+src-includes-y = $(DC_ARCH-y)/includes/
 endif

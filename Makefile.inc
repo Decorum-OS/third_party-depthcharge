@@ -15,7 +15,19 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
+src-includes-handler = $(eval INCLUDE_DIRS += -I"$(abspath $(1)/$(2))")
+abs-includes-handler = $(eval INCLUDE_DIRS += -I"$(2)")
+
+# Class for adding include directories relative to "src".
+$(call add-special-class,src-includes)
+# Class for adding include directories with an absolute path.
+$(call add-special-class,abs-includes)
+
+
 classes-y := depthcharge trampoline readwrite readonly unified \
 	     uip net netboot dev
 
-subdirs-y := src/
+subdirs-y := src
+
+src-includes-y += src
+abs-includes-y += $(VB_SOURCE)/firmware/include

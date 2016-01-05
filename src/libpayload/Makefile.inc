@@ -36,4 +36,10 @@ classes-$(CONFIG_LZ4) += liblz4
 classes-$(CONFIG_LZMA) += liblzma
 classes-$(CONFIG_PCI) += libpci
 
-subdirs-y := arch/$(ARCH) drivers libc libcbfs liblz4 liblzma libpci
+subdirs-y += drivers libc libcbfs liblz4 liblzma libpci
+
+src-includes-y += include
+
+subdirs-$(CONFIG_ARCH_X86) += arch/x86
+subdirs-$(CONFIG_ARCH_ARM_V7) += arch/arm
+subdirs-$(CONFIG_ARCH_ARM_V8) += arch/arm64

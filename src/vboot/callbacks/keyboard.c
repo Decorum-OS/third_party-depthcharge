@@ -21,7 +21,6 @@
  */
 
 #include <libpayload.h>
-#include <config.h>
 #include <vboot_api.h>
 #include <vboot/util/flag.h>
 

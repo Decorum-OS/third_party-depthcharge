@@ -49,11 +49,15 @@ $(module_obj)/%.bin: $(module_obj)/%.elf
 	@printf "    LZMA       $(subst $(obj)/,,$@)\n"
 	$(Q)$(LZMA) --stdout $@.tmp > $@
 
+CBFS_ARCH-$(CONFIG_ARCH_X86) = x86
+CBFS_ARCH-$(CONFIG_ARCH_ARM_V7) = arm
+CBFS_ARCH-$(CONFIG_ARCH_ARM_V8) = arm64
+
 $(module_obj)/%.payload: $(module_obj)/%.elf
 	@printf "    PAYLOAD    $(subst $(obj)/,,$@)\n"
 	$(Q)-rm -f $*.rom $*.bb
 	$(Q)dd if=/dev/zero of=$*.bb bs=512 count=1
-	$(Q)cbfstool $*.rom create -m $(ARCH) -s 1024K -B $*.bb
+	$(Q)cbfstool $*.rom create -m $(CBFS_ARCH-y) -s 1024K -B $*.bb
 	$(Q)cbfstool $*.rom add-payload -f $< -n dc.elf -c lzma
 	$(Q)cbfstool $*.rom extract -n dc.elf -f $@
 	$(Q)rm -f $*.rom $*.bb

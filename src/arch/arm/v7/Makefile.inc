@@ -27,3 +27,9 @@ libc-y += memset.S
 depthcharge-y += physmem.c
 
 gdb-y += gdb.c
+
+src-includes-y += includes
+
+ARCH_ABI_FLAGS += -mthumb
+
+TC_ARCH = arm

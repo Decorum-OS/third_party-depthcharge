@@ -24,7 +24,6 @@
 #include <libpayload.h>
 
 #include "base/init_funcs.h"
-#include "config.h"
 #include "drivers/flash/flash.h"
 #include "image/fmap.h"
 

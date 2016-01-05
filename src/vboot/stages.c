@@ -28,7 +28,6 @@
 
 #include "base/timestamp.h"
 #include "boot/commandline.h"
-#include "config.h"
 #include "drivers/flash/flash.h"
 #include "drivers/input/input.h"
 #include "drivers/power/power.h"

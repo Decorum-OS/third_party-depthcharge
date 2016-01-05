@@ -22,7 +22,6 @@
 
 #include <libpayload.h>
 
-#include "config.h"
 #include "drivers/net/net.h"
 #include "net/uip.h"
 #include "net/uip_arp.h"

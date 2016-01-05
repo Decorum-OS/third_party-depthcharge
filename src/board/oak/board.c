@@ -26,7 +26,6 @@
 #include "base/init_funcs.h"
 #include "boot/fit.h"
 #include "boot/ramoops.h"
-#include "config.h"
 #include "drivers/bus/i2c/mtk_i2c.h"
 #include "drivers/bus/usb/usb.h"
 #include "drivers/flash/spi.h"

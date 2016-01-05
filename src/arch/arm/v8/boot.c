@@ -27,11 +27,10 @@
 #include <stdlib.h>
 
 #include "arch/arm/boot.h"
-#include "base/timestamp.h"
-#include "config.h"
-#include "vboot/boot.h"
-#include "base/ranges.h"
 #include "base/physmem.h"
+#include "base/ranges.h"
+#include "base/timestamp.h"
+#include "vboot/boot.h"
 
 static const size_t MaxKernelSize = 64 * MiB;
 

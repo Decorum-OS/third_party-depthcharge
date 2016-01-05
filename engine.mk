@@ -31,7 +31,6 @@ endif
 $(if $(wildcard $(obj)/.xcompile),,$(eval $(shell $(src)/util/xcompile/xcompile $(XGCCPATH) > $(obj)/.xcompile)))
 
 include $(obj)/.xcompile
-LZMA := lzma
 
 # The default target placeholder. Default targets that do something should be
 # made dependencies of this.
@@ -40,39 +39,11 @@ all:
 
 include $(obj)/.config
 
-ifeq ($(CONFIG_ARCH_X86),y)
-ARCH = x86
-endif
-ifeq ($(CONFIG_ARCH_ARM),y)
-ARCH = arm
-endif
-ifeq ($(CONFIG_ARCH_ARM_V8),y)
-ARCH = arm64
-ARCH_DIR = arm
-else
-ARCH_DIR = $(ARCH)
-endif
-
-LDSCRIPT := $(src)/src/image/depthcharge.ldscript
-
-ARCH_TO_TOOLCHAIN_x86    := i386
-ARCH_TO_TOOLCHAIN_arm    := arm
-ARCH_TO_TOOLCHAIN_arm64  := arm64
-
-toolchain := $(ARCH_TO_TOOLCHAIN_$(ARCH))
-
-# libpayload's xcompile adapted the coreboot naming scheme, which is different
-# in some places. If the names above don't work, use another set.
-ifeq ($(CC_$(toolchain)),)
-new_toolchain_name_i386 := x86_32
-
-toolchain := $(new_toolchain_name_$(toolchain))
-endif
-
-CC:=$(firstword $(CC_$(toolchain)))
-OBJCOPY ?= $(OBJCOPY_$(toolchain))
-STRIP ?= $(STRIP_$(toolchain))
+CC = $(firstword $(CC_$(TC_ARCH)))
+OBJCOPY ?= $(OBJCOPY_$(TC_ARCH))
+STRIP ?= $(STRIP_$(TC_ARCH))
 LIBGCC ?= $(shell $(CC) -print-libgcc-file-name)
+LZMA ?= lzma
 GCC_INCLUDE = $(word 2,$(shell $(CC) -print-search-dirs))\include
 
 tryccoption = \
@@ -80,21 +51,19 @@ tryccoption = \
 tryldoption = \
 	$(shell $(CC) $(1) -static -nostdlib -fuse-ld=bfd -xc /dev/null -o /dev/null &> /dev/null; echo $$?)
 
-include $(src)/src/arch/$(ARCH_DIR)/build_vars
-
-INCLUDES = -I$(obj) -I$(obj)/libpayload/ -I$(src)/src/ \
-	-I$(src)/src/arch/$(ARCH_DIR)/includes/ \
-	-I$(src)/src/libpayload/include/ \
-	-I$(VB_SOURCE)/firmware/include -I$(GCC_INCLUDE) \
-	-include config.h
-ABI_FLAGS := $(ARCH_ABI_FLAGS) -ffreestanding -fno-builtin \
+# There are (almost) no include dirs to start with, these will be filled in by
+# included Makefiles. The one exception is GCC_INCLUDE, but since we want to
+# supercede some files in there that needs to be last. To ensure that it is,
+# it's handled separately.
+INCLUDE_DIRS =
+ABI_FLAGS = $(ARCH_ABI_FLAGS) -ffreestanding -fno-builtin \
 	-fno-stack-protector -fomit-frame-pointer
 LINK_FLAGS = $(ARCH_LINK_FLAGS) $(ABI_FLAGS) -fuse-ld=bfd -nostdlib \
-	-Wl,-T,$(LDSCRIPT) -Wl,--gc-sections -Wl,-Map=$@.map -static \
-	-L$(obj)/libpayload/
-CFLAGS := $(ARCH_CFLAGS) -Wall -Werror $(INCLUDES) -std=gnu99 \
-	$(ABI_FLAGS) -ffunction-sections -fdata-sections -ggdb3 \
-	-nostdinc -nostdlib -fno-stack-protector
+	-Wl,-T,$(LDSCRIPT) -Wl,--gc-sections -Wl,-Map=$@.map -static
+CFLAGS = $(ARCH_CFLAGS) -Wall -Werror \
+	$(INCLUDE_DIRS) -I$(GCC_INCLUDE) -include $(obj)/config.h \
+	-std=gnu99 $(ABI_FLAGS) -ffunction-sections -fdata-sections \
+	-ggdb3 -nostdinc -nostdlib -fno-stack-protector
 
 ifneq ($(SOURCE_DEBUG),)
 CFLAGS += -O0 -g
