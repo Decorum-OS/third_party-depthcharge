@@ -35,8 +35,6 @@ extern uint8_t _heap;
 extern uint8_t _eheap;
 extern uint8_t _estack;
 extern uint8_t _stack;
-extern uint8_t _exc_estack;
-extern uint8_t _exc_stack;
 extern uint8_t _end;
 extern uint8_t _tramp_start;
 extern uint8_t _tramp_end;

@@ -31,6 +31,7 @@
 #include <libpayload.h>
 #include <stdint.h>
 
+uint8_t exception_stack[0x4000] __attribute__((aligned(8)));
 extern unsigned int test_exc;
 
 struct exception_handler_info
@@ -101,6 +102,14 @@ void exception_dispatch(struct exception_state *state, int idx)
 
 void exception_init(void)
 {
+	__asm__ __volatile__(
+		"msr SPSel, #1\n"	// Switch to the exception stack.
+		"isb\n"
+		"mov sp, %0\n"		// Set the stack pointer.
+		"msr SPSel, #0\n"	// Switch back to the regular stack.
+		:: "r"(exception_stack)
+	);
+
 	extern void* exception_table;
 	set_vbar(&exception_table);
 }
