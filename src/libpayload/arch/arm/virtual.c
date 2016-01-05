@@ -31,7 +31,6 @@
 #include <assert.h>
 #include <die.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <arch/cache.h>
 #include <arch/virtual.h>
 #include <arch/io.h>
@@ -76,11 +75,6 @@ typedef uint64_t pgd_t;
 static pmd_t *ttb_buff = 0;
 static uintptr_t work_block;
 static pmd_t original_map;
-
-int getpagesize(void)
-{
-	return 1 << PAGE_SHIFT;
-}
 
 static void lpae_map_init(void)
 {

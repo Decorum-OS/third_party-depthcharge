@@ -367,7 +367,7 @@ ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup, int dalen,
 			memcpy(data, src, dalen);
 	}
 
-	// pages are specified as 4K in OHCI, so don't use getpagesize()
+	// pages are specified as 4K in OHCI
 	int first_page = (unsigned long)data / 4096;
 	int last_page = (unsigned long)(data+dalen-1)/4096;
 	if (last_page < first_page) last_page = first_page;
@@ -503,7 +503,7 @@ ohci_bulk (endpoint_t *ep, int dalen, u8 *src, int finalize)
 			memcpy(data, src, dalen);
 	}
 
-	// pages are specified as 4K in OHCI, so don't use getpagesize()
+	// pages are specified as 4K in OHCI
 	int first_page = (unsigned long)data / 4096;
 	int last_page = (unsigned long)(data+dalen-1)/4096;
 	if (last_page < first_page) last_page = first_page;

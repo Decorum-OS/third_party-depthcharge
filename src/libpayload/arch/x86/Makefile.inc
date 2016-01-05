@@ -31,7 +31,6 @@ CFLAGS += -mpreferred-stack-boundary=2
 
 head.o-y += head.S
 libc-y += main.c sysinfo.c
-libc-y += virtual.c
 libc-y += selfboot.c
 
 libcbfs-$(CONFIG_CBFS) += rom_media.c
