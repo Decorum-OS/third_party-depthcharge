@@ -63,6 +63,18 @@
  *   st          store-store
  */
 
+/* Memory barrier */
+/* data memory barrier */
+#define dmb_opt(opt)  asm volatile ("dmb " #opt : : : "memory")
+/* data sync barrier */
+#define dsb_opt(opt)  asm volatile ("dsb " #opt : : : "memory")
+/* instruction sync barrier */
+#define isb_opt(opt)  asm volatile ("isb " #opt : : : "memory")
+
+#define dmb() dmb_opt(sy)
+#define dsb() dsb_opt(sy)
+#define isb() isb_opt()
+
 #define mb()       dmb_opt(sy)
 #define rmb()      dmb_opt(ld)
 #define wmb()      dmb_opt(st)

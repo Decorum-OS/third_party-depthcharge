@@ -33,6 +33,7 @@
 
 #include <stdint.h>
 
+#include <arch/barrier.h>
 #include <arch/cache.h>
 #include <arch/virtual.h>
 

@@ -387,18 +387,6 @@ void tlbiallis_current(void);
 void tlbiallis(uint32_t el);
 void tlbivaa_el1(uint64_t va);
 
-/* Memory barrier */
-/* data memory barrier */
-#define dmb_opt(opt)  asm volatile ("dmb " #opt : : : "memory")
-/* data sync barrier */
-#define dsb_opt(opt)  asm volatile ("dsb " #opt : : : "memory")
-/* instruction sync barrier */
-#define isb_opt(opt)  asm volatile ("isb " #opt : : : "memory")
-
-#define dmb() dmb_opt(sy)
-#define dsb() dsb_opt(sy)
-#define isb() isb_opt()
-
 /* Clock */
 void set_cntfrq(uint32_t freq);
 

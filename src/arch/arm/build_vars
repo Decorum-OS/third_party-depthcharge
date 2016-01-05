@@ -19,10 +19,12 @@ VB_FIRMWARE_ARCH=arm
 
 ifeq ($(CONFIG_ARCH_ARM_V7),y)
 ARCH_ABI_FLAGS += -mthumb
+ARCH_CFLAGS += -I$(src)/src/arch/arm/v7/includes/
 endif
 
 ifeq ($(CONFIG_ARCH_ARM_V8),y)
 ARCH_CFLAGS += -mgeneral-regs-only
+ARCH_CFLAGS += -I$(src)/src/arch/arm/v8/includes/
 ifeq ($(CONFIG_ARM64_A53_ERRATUM_843419),y)
 ifeq ($(call tryldoption,-Wl,--fix-cortex-a53-843419),0)
 ARCH_LINK_FLAGS += -Wl,--fix-cortex-a53-843419

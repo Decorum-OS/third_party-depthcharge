@@ -22,6 +22,7 @@
 
 #include <libpayload.h>
 
+#include "arch/cache.h"
 #include "arch/arm/boot.h"
 #include "base/timestamp.h"
 

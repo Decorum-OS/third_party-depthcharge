@@ -35,6 +35,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "arch/barrier.h"
+
 /* SCTLR bits */
 #define SCTLR_M		(1 << 0)	/* MMU enable			*/
 #define SCTLR_A		(1 << 1)	/* Alignment check enable	*/
@@ -66,16 +68,6 @@
 #define SCTLR_AFE	(1 << 29)	/* Access flag enable		*/
 #define SCTLR_TE	(1 << 30)	/* Thumb exception enable	*/
 /* Bit 31 is reserved */
-
-/*
- * Sync primitives
- */
-/* data memory barrier */
-#define dmb() asm volatile ("dmb" : : : "memory")
-/* data sync barrier */
-#define dsb() asm volatile ("dsb" : : : "memory")
-/* instruction sync barrier */
-#define isb() asm volatile ("isb" : : : "memory")
 
 /*
  * Low-level TLB maintenance operations

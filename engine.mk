@@ -85,7 +85,6 @@ include $(src)/src/arch/$(ARCH_DIR)/build_vars
 INCLUDES = -I$(obj) -I$(obj)/libpayload/ -I$(src)/src/ \
 	-I$(src)/src/arch/$(ARCH_DIR)/includes/ \
 	-I$(src)/src/libpayload/include/ \
-	-I$(src)/src/libpayload/include/$(ARCH)/ \
 	-I$(VB_SOURCE)/firmware/include -I$(GCC_INCLUDE) \
 	-include config.h
 ABI_FLAGS := $(ARCH_ABI_FLAGS) -ffreestanding -fno-builtin \

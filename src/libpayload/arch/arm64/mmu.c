@@ -34,6 +34,7 @@
 
 #include <arch/mmu.h>
 #include <arch/lib_helpers.h>
+#include <arch/barrier.h>
 #include <arch/cache.h>
 
 /* Maximum number of XLAT Tables available based on ttb buffer size */

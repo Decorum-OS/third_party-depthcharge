@@ -37,8 +37,6 @@
 #ifndef __ARCH_BARRIER_H_
 #define __ARCH_BARRIER_H__
 
-#include <arch/cache.h>
-
 /*
  * Description of different memory barriers introduced:
  *
@@ -53,6 +51,16 @@
  * specified before the barrier will happen before all write memory accesses
  *  specified after the barrier
  */
+
+/*
+ * Sync primitives
+ */
+/* data memory barrier */
+#define dmb() asm volatile ("dmb" : : : "memory")
+/* data sync barrier */
+#define dsb() asm volatile ("dsb" : : : "memory")
+/* instruction sync barrier */
+#define isb() asm volatile ("isb" : : : "memory")
 
 /*
  * According to ARM Reference Manual (ARMv7-A), by default dmb ensures:
