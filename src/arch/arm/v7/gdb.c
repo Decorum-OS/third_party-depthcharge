@@ -22,16 +22,16 @@
 
 struct gdb_regs
 {
-	u32 r[16];
+	uint32_t r[16];
 	struct fp_reg
 	{
-		u8 byte[12];
+		uint8_t byte[12];
 	} __attribute__((packed)) f[8];
-	u32 fps;
-	u32 cpsr;
+	uint32_t fps;
+	uint32_t cpsr;
 } __attribute__((packed));
 
-static const u8 type_to_signal[] = {
+static const uint8_t type_to_signal[] = {
 	[EXC_UNDEF]  = GDB_SIGILL,
 	[EXC_SWI]    = GDB_SIGTRAP,
 	[EXC_PABORT] = GDB_SIGSEGV,
@@ -41,7 +41,7 @@ static const u8 type_to_signal[] = {
 /* Scratch value to write reentrant exception states to. We never read it. */
 static struct exception_state sentinel_exception_state;
 
-static int gdb_exception_hook(u32 type)
+static int gdb_exception_hook(uint32_t type)
 {
 	/*
 	 * If we were not resumed we are in deep trouble here. GDB probably told
@@ -53,7 +53,7 @@ static int gdb_exception_hook(u32 type)
 	if (gdb_state.connected && !gdb_state.resumed) {
 		static const char error_code[] = "E22";	/* EINVAL? */
 		static const struct gdb_message tmp_reply = {
-			.buf = (u8 *)error_code,
+			.buf = (uint8_t *)error_code,
 			.used = sizeof(error_code),
 			.size = sizeof(error_code),
 		};
@@ -77,7 +77,7 @@ void gdb_arch_init(void)
 
 void gdb_arch_enter(void)
 {
-	u32 *sp;
+	uint32_t *sp;
 
 	asm volatile ("mov %0, %%sp" : "=r"(sp) );
 

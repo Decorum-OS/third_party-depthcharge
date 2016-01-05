@@ -34,10 +34,10 @@ typedef struct {
 	unsigned int numblocks;
 	endpoint_t *bulk_in;
 	endpoint_t *bulk_out;
-	u8 usbdisk_created;
-	s8 ready;
-	u8 lun;
-	u8 num_luns;
+	uint8_t usbdisk_created;
+	int8_t ready;
+	uint8_t lun;
+	uint8_t num_luns;
 	void *data; /* For use by consumers of libpayload. */
 } usbmsc_inst_t;
 
@@ -53,7 +53,7 @@ enum {
 typedef enum { cbw_direction_data_in = 0x80, cbw_direction_data_out = 0
 } cbw_direction;
 
-int readwrite_blocks_512 (usbdev_t *dev, int start, int n, cbw_direction dir, u8 *buf);
-int readwrite_blocks (usbdev_t *dev, int start, int n, cbw_direction dir, u8 *buf);
+int readwrite_blocks_512 (usbdev_t *dev, int start, int n, cbw_direction dir, uint8_t *buf);
+int readwrite_blocks (usbdev_t *dev, int start, int n, cbw_direction dir, uint8_t *buf);
 
 #endif

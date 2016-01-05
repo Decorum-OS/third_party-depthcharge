@@ -32,7 +32,7 @@
 #include <libpayload.h>
 #include <stdint.h>
 
-u32 exception_stack[0x400] __attribute__((aligned(8)));
+uint32_t exception_stack[0x400] __attribute__((aligned(8)));
 
 static exception_hook hook;
 static const char *names[EXC_COUNT] = {
@@ -57,7 +57,7 @@ static const char *names[EXC_COUNT] = {
 	[EXC_SX]  = "Security",
 };
 
-static void print_segment_error_code(u32 code)
+static void print_segment_error_code(uint32_t code)
 {
 	printf("%#x - descriptor %#x in the ", code, (code >> 3) & 0x1f);
 	if (code & (0x1 << 1)) {
@@ -74,7 +74,7 @@ static void print_segment_error_code(u32 code)
 		printf(", internal to the CPU");
 }
 
-static void print_page_fault_error_code(u32 code)
+static void print_page_fault_error_code(uint32_t code)
 {
 	printf("%#x -", code);
 	if (code & (0x1 << 0))
@@ -95,7 +95,7 @@ static void print_page_fault_error_code(u32 code)
 		printf(", instruction fetch");
 }
 
-static void print_raw_error_code(u32 code)
+static void print_raw_error_code(uint32_t code)
 {
 	printf("%#x", code);
 }
@@ -160,7 +160,7 @@ static void dump_exception_state(void)
 
 void exception_dispatch(void)
 {
-	u32 vec = exception_state->vector;
+	uint32_t vec = exception_state->vector;
 	die_if(vec >= EXC_COUNT || !names[vec], "Bad exception vector %u", vec);
 
 	if (hook && hook(vec))

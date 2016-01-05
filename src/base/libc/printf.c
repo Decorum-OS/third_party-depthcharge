@@ -673,7 +673,7 @@ next_char:
 
 	if (i > j) {
 		if ((retval = printf_putnchars(&fmt[j],
-		    (u64) (i - j), ps)) < 0)
+		    (uint64_t)(i - j), ps)) < 0)
 		    	return retval;
 		counter += retval;
 	}

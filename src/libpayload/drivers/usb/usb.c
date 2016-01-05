@@ -240,7 +240,7 @@ get_free_address (hci_t *controller)
 }
 
 int
-usb_decode_mps0(usb_speed speed, u8 bMaxPacketSize0)
+usb_decode_mps0(usb_speed speed, uint8_t bMaxPacketSize0)
 {
 	switch (speed) {
 	case LOW_SPEED:
@@ -354,7 +354,7 @@ generic_set_address (hci_t *controller, usb_speed speed,
 	}
 	mdelay (SET_ADDRESS_MDELAY);
 
-	u8 buf[8];
+	uint8_t buf[8];
 	dev->address = adr;
 	if (get_descriptor (dev, DR_DESC, DT_DEV, 0, buf, sizeof(buf))
 			!= sizeof(buf)) {
@@ -402,7 +402,7 @@ set_address (hci_t *controller, usb_speed speed, int hubport, int hubaddr)
 		return -1;
 	}
 
-	u16 buf[2];
+	uint16_t buf[2];
 	if (get_descriptor (dev, DR_DESC, DT_CFG, 0, buf, sizeof(buf))
 			!= sizeof(buf)) {
 		usb_debug ("first get_descriptor(DT_CFG) failed\n");
@@ -449,9 +449,9 @@ set_address (hci_t *controller, usb_speed speed, int hubport, int hubaddr)
 			   "coreboot@coreboot.org to have the device added to\n"
 			   "the list of well-known quirks.\n");
 
-	u8 *end = (void *)dev->configuration + cd->wTotalLength;
+	uint8_t *end = (void *)dev->configuration + cd->wTotalLength;
 	interface_descriptor_t *intf;
-	u8 *ptr;
+	uint8_t *ptr;
 
 	/* Find our interface (or the first good one if we don't know) */
 	for (ptr = (void *)dev->configuration + sizeof(*cd); ; ptr += ptr[0]) {

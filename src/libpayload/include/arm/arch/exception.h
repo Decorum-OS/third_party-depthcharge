@@ -32,18 +32,18 @@
 
 #include <stdint.h>
 
-void exception_dispatch(u32 idx);
+void exception_dispatch(uint32_t idx);
 void set_vbar(uint32_t vbar);
 
 struct exception_state
 {
-	u32 regs[16];
-	u32 cpsr;
+	uint32_t regs[16];
+	uint32_t cpsr;
 } __attribute__((packed));
 extern struct exception_state exception_state;
 
-extern u32 exception_stack[];
-extern u32 *exception_stack_end;
+extern uint32_t exception_stack[];
+extern uint32_t *exception_stack_end;
 extern struct exception_state *exception_state_ptr;
 
 enum {

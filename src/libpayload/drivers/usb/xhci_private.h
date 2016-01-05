@@ -141,10 +141,10 @@ enum { TRB_DIR_OUT = 0, TRB_DIR_IN = 1 };
 
 #define TRB_CYCLE		(1 << 0)
 typedef volatile struct trb {
-	u32 ptr_low;
-	u32 ptr_high;
-	u32 status;
-	u32 control;
+	uint32_t ptr_low;
+	uint32_t ptr_high;
+	uint32_t status;
+	uint32_t control;
 } trb_t;
 
 #define TRB_MAX_TD_SIZE	0x1F			/* bits 21:17 of TD Size in TRB */
@@ -154,8 +154,8 @@ typedef struct {
 	trb_t *ring;
 	trb_t *cur;
 	trb_t *last;
-	u8 ccs;
-	u8 adv;
+	uint8_t ccs;
+	uint8_t adv;
 } event_ring_t;
 
 /* Never raise this above 256 to prevent transfer event length overflow! */
@@ -163,7 +163,7 @@ typedef struct {
 typedef struct {
 	trb_t *ring;
 	trb_t *cur;
-	u8 pcs;
+	uint8_t pcs;
 } __attribute__ ((packed)) transfer_ring_t;
 
 #define COMMAND_RING_SIZE 4
@@ -213,11 +213,11 @@ typedef transfer_ring_t command_ring_t;
 				 (((to) << SC_##tok##_START) & SC_MASK(tok)))
 #define SC_DUMP(tok, sc)	usb_debug(" "#tok"\t0x%04"PRIx32"\n", SC_GET(tok, sc))
 typedef volatile struct slotctx {
-	u32 f1;
-	u32 f2;
-	u32 f3;
-	u32 f4;
-	u32 rsvd[4];
+	uint32_t f1;
+	uint32_t f2;
+	uint32_t f3;
+	uint32_t f4;
+	uint32_t rsvd[4];
 } slotctx_t;
 
 #define EC_STATE_FIELD		f1		/* STATE - Endpoint State */
@@ -264,12 +264,12 @@ typedef volatile struct slotctx {
 enum { EP_ISOC_OUT = 1, EP_BULK_OUT = 2, EP_INTR_OUT = 3,
 	EP_CONTROL = 4, EP_ISOC_IN = 5, EP_BULK_IN = 6, EP_INTR_IN = 7 };
 typedef volatile struct epctx {
-	u32 f1;
-	u32 f2;
-	u32 tr_dq_low;
-	u32 tr_dq_high;
-	u32 f5;
-	u32 rsvd[3];
+	uint32_t f1;
+	uint32_t f2;
+	uint32_t tr_dq_low;
+	uint32_t tr_dq_high;
+	uint32_t f5;
+	uint32_t rsvd[3];
 } epctx_t;
 
 #define NUM_EPS 32
@@ -292,10 +292,10 @@ typedef union devctx {
 
 typedef struct inputctx {
 	union {		    /* The drop flags are located at the start of the */
-		u32 *drop;  /* structure, so a pointer to them is equivalent */
+		uint32_t *drop;  /* structure, so a pointer to them is equivalent */
 		void *raw;  /* to a pointer to the whole (raw) input context. */
 	};
-	u32 *add;
+	uint32_t *add;
 	devctx_t dev;
 } inputctx_t;
 
@@ -314,27 +314,27 @@ typedef struct devinfo {
 } devinfo_t;
 
 typedef struct erst_entry {
-	u32 seg_base_lo;
-	u32 seg_base_hi;
-	u32 seg_size;
-	u32 rsvd;
+	uint32_t seg_base_lo;
+	uint32_t seg_base_hi;
+	uint32_t seg_size;
+	uint32_t rsvd;
 } erst_entry_t;
 
 typedef struct xhci {
 	/* capreg is read-only, so no need for volatile,
 	   and thus 32bit accesses can be assumed. */
 	struct capreg {
-		u8 caplength;
-		u8 res1;
+		uint8_t caplength;
+		uint8_t res1;
 		union {
-			u16 hciversion;
+			uint16_t hciversion;
 			struct {
-				u8 hciver_lo;
-				u8 hciver_hi;
+				uint8_t hciver_lo;
+				uint8_t hciver_hi;
 			} __attribute__ ((packed));
 		} __attribute__ ((packed));
 		union {
-			u32 hcsparams1;
+			uint32_t hcsparams1;
 			struct {
 				unsigned long MaxSlots:7;
 				unsigned long MaxIntrs:11;
@@ -343,7 +343,7 @@ typedef struct xhci {
 			} __attribute__ ((packed));
 		} __attribute__ ((packed));
 		union {
-			u32 hcsparams2;
+			uint32_t hcsparams2;
 			struct {
 				unsigned long IST:4;
 				unsigned long ERST_Max:4;
@@ -354,7 +354,7 @@ typedef struct xhci {
 			} __attribute__ ((packed));
 		} __attribute__ ((packed));
 		union {
-			u32 hcsparams3;
+			uint32_t hcsparams3;
 			struct {
 				unsigned long u1latency:8;
 				unsigned long:8;
@@ -362,7 +362,7 @@ typedef struct xhci {
 			} __attribute__ ((packed));
 		} __attribute__ ((packed));
 		union {
-			u32 hccparams;
+			uint32_t hccparams;
 			struct {
 				unsigned long ac64:1;
 				unsigned long bnc:1;
@@ -377,42 +377,42 @@ typedef struct xhci {
 				unsigned long xECP:16;
 			} __attribute__ ((packed));
 		} __attribute__ ((packed));
-		u32 dboff;
-		u32 rtsoff;
+		uint32_t dboff;
+		uint32_t rtsoff;
 	} __attribute__ ((packed)) *capreg;
 
 	/* opreg is R/W is most places, so volatile access is necessary.
 	   volatile means that the compiler seeks byte writes if possible,
 	   making bitfields unusable for MMIO register blocks. Yay C :-( */
 	volatile struct opreg {
-		u32 usbcmd;
+		uint32_t usbcmd;
 #define USBCMD_RS 1<<0
 #define USBCMD_HCRST 1<<1
 #define USBCMD_INTE 1<<2
-		u32 usbsts;
+		uint32_t usbsts;
 #define USBSTS_HCH 1<<0
 #define USBSTS_HSE 1<<2
 #define USBSTS_EINT 1<<3
 #define USBSTS_PCD 1<<4
 #define USBSTS_CNR 1<<11
 #define USBSTS_PRSRV_MASK ((1 << 1) | 0xffffe000)
-		u32 pagesize;
-		u8 res1[0x13-0x0c+1];
-		u32 dnctrl;
-		u32 crcr_lo;
-		u32 crcr_hi;
+		uint32_t pagesize;
+		uint8_t res1[0x13-0x0c+1];
+		uint32_t dnctrl;
+		uint32_t crcr_lo;
+		uint32_t crcr_hi;
 #define CRCR_RCS 1<<0
 #define CRCR_CS 1<<1
 #define CRCR_CA 1<<2
 #define CRCR_CRR 1<<3
-		u8 res2[0x2f-0x20+1];
-		u32 dcbaap_lo;
-		u32 dcbaap_hi;
-		u32 config;
+		uint8_t res2[0x2f-0x20+1];
+		uint32_t dcbaap_lo;
+		uint32_t dcbaap_hi;
+		uint32_t config;
 #define CONFIG_MASK_MaxSlotsEn 0xff
-		u8 res3[0x3ff-0x3c+1];
+		uint8_t res3[0x3ff-0x3c+1];
 		struct {
-			u32 portsc;
+			uint32_t portsc;
 #define PORTSC_CCS (1<<0)
 #define PORTSC_PED (1<<1)
 	// BIT 2 rsvdZ
@@ -442,34 +442,34 @@ typedef struct xhci {
 #define PORTSC_DR (1<<30)
 #define PORTSC_WPR (1<<31)
 #define PORTSC_RW_MASK (PORTSC_PR | PORTSC_PLS_MASK | PORTSC_PP | PORTSC_PIC_MASK | PORTSC_LWS | PORTSC_WCE | PORTSC_WDE | PORTSC_WOE)
-			u32 portpmsc;
-			u32 portli;
-			u32 res;
+			uint32_t portpmsc;
+			uint32_t portli;
+			uint32_t res;
 		} __attribute__ ((packed)) prs[];
 	} __attribute__ ((packed)) *opreg;
 
 	/* R/W, volatile, MMIO -> no bitfields */
 	volatile struct hcrreg {
-		u32 mfindex;
-		u8 res1[0x20-0x4];
+		uint32_t mfindex;
+		uint8_t res1[0x20-0x4];
 		struct {
-			u32 iman;
-			u32 imod;
-			u32 erstsz;
-			u32 res;
-			u32 erstba_lo;
-			u32 erstba_hi;
-			u32 erdp_lo;
-			u32 erdp_hi;
+			uint32_t iman;
+			uint32_t imod;
+			uint32_t erstsz;
+			uint32_t res;
+			uint32_t erstba_lo;
+			uint32_t erstba_hi;
+			uint32_t erdp_lo;
+			uint32_t erdp_hi;
 		} __attribute__ ((packed)) intrrs[]; // up to 1024, but maximum host specific, given in capreg->MaxIntrs
 	} __attribute__ ((packed)) *hcrreg;
 
 	/* R/W, volatile, MMIO -> no bitfields */
-	volatile u32 *dbreg;
+	volatile uint32_t *dbreg;
 
 	/* R/W, volatile, Memory -> bitfields allowed */
-	u64 *dcbaa;	/* pointers to sp_ptrs and output (device) contexts */
-	u64 *sp_ptrs;	/* pointers to scratchpad buffers */
+	uint64_t *dcbaa;	/* pointers to sp_ptrs and output (device) contexts */
+	uint64_t *sp_ptrs;	/* pointers to scratchpad buffers */
 
 	command_ring_t cr;
 	event_ring_t er;
@@ -477,7 +477,7 @@ typedef struct xhci {
 
 	usbdev_t *roothub;
 
-	u8 max_slots_en;
+	uint8_t max_slots_en;
 	devinfo_t *dev;	/* array of devinfos by slot_id */
 
 #define DMA_SIZE (64 * 1024)
@@ -521,7 +521,7 @@ static inline int xhci_ep_id(const endpoint_t *const ep) {
 #ifdef XHCI_DUMPS
 void xhci_dump_slotctx(const slotctx_t *);
 void xhci_dump_epctx(const epctx_t *);
-void xhci_dump_devctx(const devctx_t *, const u32 ctx_mask);
+void xhci_dump_devctx(const devctx_t *, const uint32_t ctx_mask);
 void xhci_dump_inputctx(const inputctx_t *);
 void xhci_dump_transfer_trb(const trb_t *);
 void xhci_dump_transfer_trbs(const trb_t *first, const trb_t *last);

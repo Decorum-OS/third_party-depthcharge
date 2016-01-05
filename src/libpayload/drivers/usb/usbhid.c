@@ -44,11 +44,11 @@ enum { GET_REPORT = 0x1, GET_IDLE = 0x2, GET_PROTOCOL = 0x3, SET_REPORT =
 
 typedef union {
 	struct {
-		u8 modifiers;
-		u8 repeats;
-		u8 keys[6];
+		uint8_t modifiers;
+		uint8_t repeats;
+		uint8_t keys[6];
 	};
-	u8 buffer[8];
+	uint8_t buffer[8];
 } usb_hid_keyboard_event_t;
 
 typedef struct {
@@ -345,7 +345,7 @@ static void
 usb_hid_poll (usbdev_t *dev)
 {
 	usb_hid_keyboard_event_t current;
-	const u8 *buf;
+	const uint8_t *buf;
 
 	while ((buf=dev->controller->poll_intr_queue (HID_INST(dev)->queue))) {
 		memcpy(&current.buffer, buf, 8);
@@ -355,7 +355,7 @@ usb_hid_poll (usbdev_t *dev)
 }
 
 static void
-usb_hid_set_idle (usbdev_t *dev, interface_descriptor_t *interface, u16 duration)
+usb_hid_set_idle (usbdev_t *dev, interface_descriptor_t *interface, uint16_t duration)
 {
 	dev_req_t dr;
 	dr.data_dir = host_to_device;
@@ -426,7 +426,7 @@ usb_hid_init (usbdev_t *dev)
 	interface_descriptor_t *interface = (interface_descriptor_t*)(((char *) cd) + cd->bLength);
 
 	if (interface->bInterfaceSubClass == hid_subclass_boot) {
-		u8 countrycode;
+		uint8_t countrycode;
 		usb_debug ("  supports boot interface..\n");
 		usb_debug ("  it's a %s\n",
 			boot_protos[interface->bInterfaceProtocol]);

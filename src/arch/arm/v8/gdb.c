@@ -22,17 +22,17 @@
 
 struct gdb_regs
 {
-	u64 x[32];
+	uint64_t x[32];
 	struct fp_reg
 	{
-		u64 quad[2];
+		uint64_t quad[2];
 	} __attribute__((packed)) f[32];
-	u32 fpcr;
-	u32 fpsr;
-	u32 spsr;
+	uint32_t fpcr;
+	uint32_t fpsr;
+	uint32_t spsr;
 } __attribute__((packed));
 
-static const u8 type_to_signal[] = {
+static const uint8_t type_to_signal[] = {
 	[EXC_SYNC_SP0] = GDB_SIGTRAP,
 	[EXC_IRQ_SP0] = GDB_SIGSEGV,
 	[EXC_FIQ_SP0] = GDB_SIGSEGV,
@@ -51,7 +51,7 @@ static const u8 type_to_signal[] = {
 	[EXC_SERROR_ELX_32] = GDB_SIGSEGV
 };
 
-static int gdb_exception_hook(u32 type)
+static int gdb_exception_hook(uint32_t type)
 {
 	return -1;
 }

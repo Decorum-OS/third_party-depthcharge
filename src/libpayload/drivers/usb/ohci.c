@@ -37,12 +37,12 @@ static void ohci_start (hci_t *controller);
 static void ohci_stop (hci_t *controller);
 static void ohci_reset (hci_t *controller);
 static void ohci_shutdown (hci_t *controller);
-static int ohci_bulk (endpoint_t *ep, int size, u8 *data, int finalize);
+static int ohci_bulk (endpoint_t *ep, int size, uint8_t *data, int finalize);
 static int ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *devreq,
-			 int dalen, u8 *data);
+			 int dalen, uint8_t *data);
 static void* ohci_create_intr_queue (endpoint_t *ep, int reqsize, int reqcount, int reqtiming);
 static void ohci_destroy_intr_queue (endpoint_t *ep, void *queue);
-static u8* ohci_poll_intr_queue (void *queue);
+static uint8_t* ohci_poll_intr_queue (void *queue);
 static int ohci_process_done_queue(ohci_t *ohci, int spew_debug);
 
 #ifdef USB_DEBUG
@@ -100,7 +100,7 @@ dump_ed (ed_t *cur)
 	usb_debug("| TD Queue Tail Pointer          [0x%08lx]       |\n", cur->tail_pointer & ~0xFUL);
 	usb_debug("+---------------------------------------------------+\n");
 	usb_debug("| TD Queue Head Pointer          [0x%08lx]       |\n", cur->head_pointer & ~0xFUL);
-	usb_debug("| CarryToggleBit    [%d]          Halted   [%d]         |\n", (u16)(cur->head_pointer & 0x2UL)>>1, (u16)(cur->head_pointer & 0x1UL));
+	usb_debug("| CarryToggleBit    [%d]          Halted   [%d]         |\n", (uint16_t)(cur->head_pointer & 0x2UL)>>1, (uint16_t)(cur->head_pointer & 0x1UL));
 
 	tmp_td = (td_t *)(uintptr_t)((cur->head_pointer & ~0xFUL));
 	if ((cur->head_pointer & ~0xFUL) != (cur->tail_pointer & ~0xFUL)) {
@@ -219,7 +219,7 @@ ohci_init (unsigned long physical_bar)
 	}
 
 	/* Initialize interrupt table. */
-	u32 *const intr_table = OHCI_INST(controller)->hcca->HccaInterruptTable;
+	uint32_t *const intr_table = OHCI_INST(controller)->hcca->HccaInterruptTable;
 	ed_t *const periodic_ed = dma_memalign(sizeof(ed_t), sizeof(ed_t));
 	memset((void *)periodic_ed, 0, sizeof(*periodic_ed));
 	for (i = 0; i < 32; ++i)
@@ -249,7 +249,7 @@ ohci_init (unsigned long physical_bar)
 hci_t *
 ohci_pci_init (pcidev_t addr)
 {
-	u32 reg_base;
+	uint32_t reg_base;
 
 	/* regarding OHCI spec, Appendix A, BAR_OHCI register description, Table A-4
 	 * BASE ADDRESS only [31-12] bits. All other usually 0, but not all.
@@ -348,8 +348,8 @@ static int
 ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup, int dalen,
 	      unsigned char *src)
 {
-	u8 *data = src;
-	u8 *devreq = setup;
+	uint8_t *data = src;
+	uint8_t *devreq = setup;
 	int remaining = dalen;
 	td_t *cur;
 
@@ -485,12 +485,12 @@ ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup, int dalen,
 
 /* finalize == 1: if data is of packet aligned size, add a zero length packet */
 static int
-ohci_bulk (endpoint_t *ep, int dalen, u8 *src, int finalize)
+ohci_bulk (endpoint_t *ep, int dalen, uint8_t *src, int finalize)
 {
 	int i;
 	td_t *cur, *next;
 	int remaining = dalen;
-	u8 *data = src;
+	uint8_t *data = src;
 	usb_debug("bulk: %x bytes from %x, finalize: %x, maxpacketsize: %x\n", dalen, src, finalize, ep->maxpacketsize);
 
 	if (!dma_coherent(src)) {
@@ -611,7 +611,7 @@ struct _intr_queue;
 
 struct _intrq_td {
 	volatile td_t		td;
-	u8			*data;
+	uint8_t			*data;
 	struct _intrq_td	*next;
 	struct _intr_queue	*intrq;
 };
@@ -620,7 +620,7 @@ struct _intr_queue {
 	volatile ed_t		ed;
 	struct _intrq_td	*head;
 	struct _intrq_td	*tail;
-	u8			*data;
+	uint8_t			*data;
 	int			reqsize;
 	endpoint_t		*endp;
 	unsigned int		remaining_tds;
@@ -634,7 +634,7 @@ typedef struct _intr_queue intr_queue_t;
 
 static void
 ohci_fill_intrq_td(intrq_td_t *const td, intr_queue_t *const intrq,
-		   u8 *const data)
+		   uint8_t *const data)
 {
 	memset(td, 0, sizeof(*td));
 	td->td.config = TD_QUEUETYPE_INTR |
@@ -663,12 +663,12 @@ ohci_create_intr_queue(endpoint_t *const ep, const int reqsize,
 	intr_queue_t *const intrq =
 		(intr_queue_t *)dma_memalign(sizeof(intrq->ed), sizeof(*intrq));
 	memset(intrq, 0, sizeof(*intrq));
-	intrq->data = (u8 *)dma_malloc(reqcount * reqsize);
+	intrq->data = (uint8_t *)dma_malloc(reqcount * reqsize);
 	intrq->reqsize = reqsize;
 	intrq->endp = ep;
 
 	/* Create #reqcount TDs. */
-	u8 *cur_data = intrq->data;
+	uint8_t *cur_data = intrq->data;
 	for (i = 0; i < reqcount; ++i) {
 		intrq_td_t *const td = dma_memalign(sizeof(td->td), sizeof(*td));
 		++intrq->remaining_tds;
@@ -702,8 +702,8 @@ ohci_create_intr_queue(endpoint_t *const ep, const int reqsize,
 	/* Insert ED into periodic table. */
 	int nothing_placed	= 1;
 	ohci_t *const ohci	= OHCI_INST(ep->dev->controller);
-	u32 *const intr_table	= ohci->hcca->HccaInterruptTable;
-	const u32 dummy_ptr	= (uintptr_t)ohci->periodic_ed;
+	uint32_t *const intr_table	= ohci->hcca->HccaInterruptTable;
+	const uint32_t dummy_ptr	= (uintptr_t)ohci->periodic_ed;
 	for (i = 0; i < 32; i += reqtiming) {
 		/* Advance to the next free position. */
 		while ((i < 32) && (intr_table[i] != dummy_ptr)) ++i;
@@ -732,7 +732,7 @@ ohci_destroy_intr_queue(endpoint_t *const ep, void *const q_)
 
 	/* Remove interrupt queue from periodic table. */
 	ohci_t *const ohci	= OHCI_INST(ep->dev->controller);
-	u32 *const intr_table	= ohci->hcca->HccaInterruptTable;
+	uint32_t *const intr_table	= ohci->hcca->HccaInterruptTable;
 	for (i=0; i < 32; ++i) {
 		if (intr_table[i] == (uintptr_t)intrq)
 			intr_table[i] = (uintptr_t)ohci->periodic_ed;
@@ -775,12 +775,12 @@ ohci_destroy_intr_queue(endpoint_t *const ep, void *const q_)
    return NULL if nothing new available.
    Recommended use: while (data=poll_intr_queue(q)) process(data);
  */
-static u8 *
+static uint8_t *
 ohci_poll_intr_queue(void *const q_)
 {
 	intr_queue_t *const intrq = (intr_queue_t *)q_;
 
-	u8 *data = NULL;
+	uint8_t *data = NULL;
 
 	/* Process done queue first, then check if we have work to do. */
 	ohci_process_done_queue(OHCI_INST(intrq->endp->dev->controller), 0);
@@ -823,7 +823,7 @@ ohci_process_done_queue(ohci_t *const ohci, const int spew_debug)
 		return 0;
 	/* Fetch current done head.
 	   Lsb is only interesting for hw interrupts. */
-	u32 phys_done_queue = ohci->hcca->HccaDoneHead & ~1;
+	uint32_t phys_done_queue = ohci->hcca->HccaDoneHead & ~1;
 	/* Tell host controller, he may overwrite the done head pointer. */
 	ohci->opreg->HcInterruptStatus = WritebackDoneHead;
 

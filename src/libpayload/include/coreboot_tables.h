@@ -34,22 +34,22 @@
 #include <ipchksum.h>
 
 struct cbuint64 {
-	u32 lo;
-	u32 hi;
+	uint32_t lo;
+	uint32_t hi;
 };
 
 struct cb_header {
-	u8 signature[4];
-	u32 header_bytes;
-	u32 header_checksum;
-	u32 table_bytes;
-	u32 table_checksum;
-	u32 table_entries;
+	uint8_t signature[4];
+	uint32_t header_bytes;
+	uint32_t header_checksum;
+	uint32_t table_bytes;
+	uint32_t table_checksum;
+	uint32_t table_entries;
 };
 
 struct cb_record {
-	u32 tag;
-	u32 size;
+	uint32_t tag;
+	uint32_t size;
 };
 
 #define CB_TAG_UNUSED     0x0000
@@ -58,7 +58,7 @@ struct cb_record {
 struct cb_memory_range {
 	struct cbuint64 start;
 	struct cbuint64 size;
-	u32 type;
+	uint32_t type;
 };
 
 #define CB_MEM_RAM          1
@@ -70,27 +70,27 @@ struct cb_memory_range {
 #define CB_MEM_TABLE       16
 
 struct cb_memory {
-	u32 tag;
-	u32 size;
+	uint32_t tag;
+	uint32_t size;
 	struct cb_memory_range map[0];
 };
 
 #define CB_TAG_HWRPB      0x0002
 
 struct cb_hwrpb {
-	u32 tag;
-	u32 size;
-	u64 hwrpb;
+	uint32_t tag;
+	uint32_t size;
+	uint64_t hwrpb;
 };
 
 #define CB_TAG_MAINBOARD  0x0003
 
 struct cb_mainboard {
-	u32 tag;
-	u32 size;
-	u8 vendor_idx;
-	u8 part_number_idx;
-	u8 strings[0];
+	uint32_t tag;
+	uint32_t size;
+	uint8_t vendor_idx;
+	uint8_t part_number_idx;
+	uint8_t strings[0];
 };
 
 #define CB_TAG_VERSION        0x0004
@@ -105,30 +105,30 @@ struct cb_mainboard {
 #define CB_TAG_ASSEMBLER      0x000d
 
 struct cb_string {
-	u32 tag;
-	u32 size;
-	u8 string[0];
+	uint32_t tag;
+	uint32_t size;
+	uint8_t string[0];
 };
 
 #define CB_TAG_SERIAL         0x000f
 
 struct cb_serial {
-	u32 tag;
-	u32 size;
+	uint32_t tag;
+	uint32_t size;
 #define CB_SERIAL_TYPE_IO_MAPPED     1
 #define CB_SERIAL_TYPE_MEMORY_MAPPED 2
-	u32 type;
-	u32 baseaddr;
-	u32 baud;
-	u32 regwidth;
+	uint32_t type;
+	uint32_t baseaddr;
+	uint32_t baud;
+	uint32_t regwidth;
 };
 
 #define CB_TAG_CONSOLE       0x00010
 
 struct cb_console {
-	u32 tag;
-	u32 size;
-	u16 type;
+	uint32_t tag;
+	uint32_t size;
+	uint16_t type;
 };
 
 #define CB_TAG_CONSOLE_SERIAL8250 0
@@ -141,29 +141,29 @@ struct cb_console {
 #define CB_TAG_FORWARD       0x00011
 
 struct cb_forward {
-	u32 tag;
-	u32 size;
-	u64 forward;
+	uint32_t tag;
+	uint32_t size;
+	uint64_t forward;
 };
 
 #define CB_TAG_FRAMEBUFFER      0x0012
 struct cb_framebuffer {
-	u32 tag;
-	u32 size;
+	uint32_t tag;
+	uint32_t size;
 
-	u64 physical_address;
-	u32 x_resolution;
-	u32 y_resolution;
-	u32 bytes_per_line;
-	u8 bits_per_pixel;
-	u8 red_mask_pos;
-	u8 red_mask_size;
-	u8 green_mask_pos;
-	u8 green_mask_size;
-	u8 blue_mask_pos;
-	u8 blue_mask_size;
-	u8 reserved_mask_pos;
-	u8 reserved_mask_size;
+	uint64_t physical_address;
+	uint32_t x_resolution;
+	uint32_t y_resolution;
+	uint32_t bytes_per_line;
+	uint8_t bits_per_pixel;
+	uint8_t red_mask_pos;
+	uint8_t red_mask_size;
+	uint8_t green_mask_pos;
+	uint8_t green_mask_size;
+	uint8_t blue_mask_pos;
+	uint8_t blue_mask_size;
+	uint8_t reserved_mask_pos;
+	uint8_t reserved_mask_size;
 };
 
 #define CB_TAG_GPIO 0x0013
@@ -171,17 +171,17 @@ struct cb_framebuffer {
 #define CB_GPIO_ACTIVE_HIGH 1
 #define CB_GPIO_MAX_NAME_LENGTH 16
 struct cb_gpio {
-	u32 port;
-	u32 polarity;
-	u32 value;
-	u8 name[CB_GPIO_MAX_NAME_LENGTH];
+	uint32_t port;
+	uint32_t polarity;
+	uint32_t value;
+	uint8_t name[CB_GPIO_MAX_NAME_LENGTH];
 };
 
 struct cb_gpios {
-	u32 tag;
-	u32 size;
+	uint32_t tag;
+	uint32_t size;
 
-	u32 count;
+	uint32_t count;
 	struct cb_gpio gpios[0];
 };
 
@@ -273,64 +273,64 @@ struct cb_boot_media_params {
 
 #define CB_TAG_CMOS_OPTION_TABLE 0x00c8
 struct cb_cmos_option_table {
-	u32 tag;
-	u32 size;
-	u32 header_length;
+	uint32_t tag;
+	uint32_t size;
+	uint32_t header_length;
 };
 
 #define CB_TAG_OPTION         0x00c9
 #define CB_CMOS_MAX_NAME_LENGTH    32
 struct cb_cmos_entries {
-	u32 tag;
-	u32 size;
-	u32 bit;
-	u32 length;
-	u32 config;
-	u32 config_id;
-	u8 name[CB_CMOS_MAX_NAME_LENGTH];
+	uint32_t tag;
+	uint32_t size;
+	uint32_t bit;
+	uint32_t length;
+	uint32_t config;
+	uint32_t config_id;
+	uint8_t name[CB_CMOS_MAX_NAME_LENGTH];
 };
 
 
 #define CB_TAG_OPTION_ENUM    0x00ca
 #define CB_CMOS_MAX_TEXT_LENGTH 32
 struct cb_cmos_enums {
-	u32 tag;
-	u32 size;
-	u32 config_id;
-	u32 value;
-	u8 text[CB_CMOS_MAX_TEXT_LENGTH];
+	uint32_t tag;
+	uint32_t size;
+	uint32_t config_id;
+	uint32_t value;
+	uint8_t text[CB_CMOS_MAX_TEXT_LENGTH];
 };
 
 #define CB_TAG_OPTION_DEFAULTS 0x00cb
 #define CB_CMOS_IMAGE_BUFFER_SIZE 128
 struct cb_cmos_defaults {
-	u32 tag;
-	u32 size;
-	u32 name_length;
-	u8 name[CB_CMOS_MAX_NAME_LENGTH];
-	u8 default_set[CB_CMOS_IMAGE_BUFFER_SIZE];
+	uint32_t tag;
+	uint32_t size;
+	uint32_t name_length;
+	uint8_t name[CB_CMOS_MAX_NAME_LENGTH];
+	uint8_t default_set[CB_CMOS_IMAGE_BUFFER_SIZE];
 };
 
 #define CB_TAG_OPTION_CHECKSUM 0x00cc
 #define CB_CHECKSUM_NONE	0
 #define CB_CHECKSUM_PCBIOS	1
 struct	cb_cmos_checksum {
-	u32 tag;
-	u32 size;
-	u32 range_start;
-	u32 range_end;
-	u32 location;
-	u32 type;
+	uint32_t tag;
+	uint32_t size;
+	uint32_t range_start;
+	uint32_t range_end;
+	uint32_t location;
+	uint32_t type;
 };
 
 /* Helpful inlines */
 
-static inline u64 cb_unpack64(struct cbuint64 val)
+static inline uint64_t cb_unpack64(struct cbuint64 val)
 {
-	return (((u64) val.hi) << 32) | val.lo;
+	return (((uint64_t) val.hi) << 32) | val.lo;
 }
 
-static inline u16 cb_checksum(const void *ptr, unsigned len)
+static inline uint16_t cb_checksum(const void *ptr, unsigned len)
 {
 	return ipchksum(ptr, len);
 }
@@ -351,7 +351,7 @@ static inline const char *cb_mb_part_string(const struct cb_mainboard *cbm)
 	(((_rec)->size - sizeof(*(_rec))) / sizeof((_rec)->map[0]))
 
 #define MEM_RANGE_PTR(_rec, _idx) \
-	(void *)(((u8 *) (_rec)) + sizeof(*(_rec)) \
+	(void *)(((uint8_t *) (_rec)) + sizeof(*(_rec)) \
 		+ (sizeof((_rec)->map[0]) * (_idx)))
 
 #endif

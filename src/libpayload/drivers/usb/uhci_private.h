@@ -32,17 +32,17 @@
 
 typedef enum { UHCI_SETUP = 0x2d, UHCI_IN = 0x69, UHCI_OUT = 0xe1 } uhci_pid_t;
 
-typedef u32 flistp_t;
+typedef uint32_t flistp_t;
 #define FLISTP_TERMINATE 1
 #define FLISTP_QH 2
 
 typedef struct {
-	u32 ptr;
+	uint32_t ptr;
 #define TD_TERMINATE 1
 #define TD_QH 2
 #define TD_DEPTH_FIRST 4
 
-	u32 ctrlsts;
+	uint32_t ctrlsts;
 #define TD_STATUS_MASK (0xff << 16)
 #define TD_STATUS_BITSTUFF_ERR (1 << 17)
 #define TD_STATUS_CRC_ERR (1 << 18)
@@ -54,7 +54,7 @@ typedef struct {
 #define TD_LOWSPEED (1 << 26)
 #define TD_COUNTER_SHIFT 27
 
-	u32 token;
+	uint32_t token;
 #define TD_PID_MASK 0xff
 #define TD_DEVADDR_SHIFT 8
 #define TD_DEVADDR_MASK (((1<<7)-1) << TD_DEVADDR_SHIFT)
@@ -65,7 +65,7 @@ typedef struct {
 #define TD_TOGGLE_DATA0 0
 #define TD_TOGGLE_DATA1 (1 << TD_TOGGLE_SHIFT)
 
-	u32 bufptr;
+	uint32_t bufptr;
 
 } __attribute__ ((packed))
      td_t;
@@ -81,12 +81,12 @@ typedef struct {
 		     0x12
      } usbreg;
 
-     void uhci_reg_write32 (hci_t *ctrl, usbreg reg, u32 value);
-     u32 uhci_reg_read32 (hci_t *ctrl, usbreg reg);
-     void uhci_reg_write16 (hci_t *ctrl, usbreg reg, u16 value);
-     u16 uhci_reg_read16 (hci_t *ctrl, usbreg reg);
-     void uhci_reg_write8 (hci_t *ctrl, usbreg reg, u8 value);
-     u8 uhci_reg_read8 (hci_t *ctrl, usbreg reg);
+     void uhci_reg_write32 (hci_t *ctrl, usbreg reg, uint32_t value);
+     uint32_t uhci_reg_read32 (hci_t *ctrl, usbreg reg);
+     void uhci_reg_write16 (hci_t *ctrl, usbreg reg, uint16_t value);
+     uint16_t uhci_reg_read16 (hci_t *ctrl, usbreg reg);
+     void uhci_reg_write8 (hci_t *ctrl, usbreg reg, uint8_t value);
+     uint8_t uhci_reg_read8 (hci_t *ctrl, usbreg reg);
 
      typedef struct uhci {
 	     flistp_t *framelistptr;

@@ -31,37 +31,37 @@
 #include <libpayload.h>
 #include <pci.h>
 
-u8 pci_read_config8(pcidev_t device, u16 reg)
+uint8_t pci_read_config8(pcidev_t device, uint16_t reg)
 {
 	outl(device | (reg & ~3), 0xCF8);
 	return inb(0xCFC + (reg & 3));
 }
 
-u16 pci_read_config16(pcidev_t device, u16 reg)
+uint16_t pci_read_config16(pcidev_t device, uint16_t reg)
 {
 	outl(device | (reg & ~3), 0xCF8);
 	return inw(0xCFC + (reg & 3));
 }
 
-u32 pci_read_config32(pcidev_t device, u16 reg)
+uint32_t pci_read_config32(pcidev_t device, uint16_t reg)
 {
 	outl(device | (reg & ~3), 0xCF8);
 	return inl(0xCFC + (reg & 3));
 }
 
-void pci_write_config8(pcidev_t device, u16 reg, u8 val)
+void pci_write_config8(pcidev_t device, uint16_t reg, uint8_t val)
 {
 	outl(device | (reg & ~3), 0xCF8);
 	outb(val, 0xCFC + (reg & 3));
 }
 
-void pci_write_config16(pcidev_t device, u16 reg, u16 val)
+void pci_write_config16(pcidev_t device, uint16_t reg, uint16_t val)
 {
 	outl(device | (reg & ~3), 0xCF8);
 	outw(val, 0xCFC + (reg & 3));
 }
 
-void pci_write_config32(pcidev_t device, u16 reg, u32 val)
+void pci_write_config32(pcidev_t device, uint16_t reg, uint32_t val)
 {
 	outl(device | (reg & ~3), 0xCF8);
 	outl(val, 0xCFC + (reg & 3));
@@ -71,7 +71,7 @@ static int find_on_bus(int bus, unsigned short vid, unsigned short did,
 		       pcidev_t * dev)
 {
 	int devfn;
-	u32 val;
+	uint32_t val;
 	unsigned char hdr;
 
 	for (devfn = 0; devfn < 0x100; devfn++) {
@@ -112,19 +112,19 @@ static int find_on_bus(int bus, unsigned short vid, unsigned short did,
 	return 0;
 }
 
-int pci_find_device(u16 vid, u16 did, pcidev_t * dev)
+int pci_find_device(uint16_t vid, uint16_t did, pcidev_t * dev)
 {
 	return find_on_bus(0, vid, did, dev);
 }
 
-u32 pci_read_resource(pcidev_t dev, int bar)
+uint32_t pci_read_resource(pcidev_t dev, int bar)
 {
 	return pci_read_config32(dev, 0x10 + (bar * 4));
 }
 
 void pci_set_bus_master(pcidev_t dev)
 {
-	u16 val = pci_read_config16(dev, REG_COMMAND);
+	uint16_t val = pci_read_config16(dev, REG_COMMAND);
 	val |= REG_COMMAND_BM;
 	pci_write_config16(dev, REG_COMMAND, val);
 }

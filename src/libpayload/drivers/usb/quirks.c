@@ -32,8 +32,8 @@
 #include <usb/usb.h>
 
 typedef struct {
-	u16 vendor, device;
-	u32 quirks;
+	uint16_t vendor, device;
+	uint32_t quirks;
 	int interface;
 } usb_quirks_t;
 
@@ -58,7 +58,7 @@ usb_quirks_t usb_quirks[] = {
 	 */
 };
 
-u32 usb_quirk_check(u16 vendor, u16 device)
+uint32_t usb_quirk_check(uint16_t vendor, uint16_t device)
 {
 	int i;
 	for (i = 0; i < ARRAY_SIZE(usb_quirks); i++) {
@@ -73,7 +73,7 @@ u32 usb_quirk_check(u16 vendor, u16 device)
 	return USB_QUIRK_NONE;
 }
 
-int usb_interface_check(u16 vendor, u16 device)
+int usb_interface_check(uint16_t vendor, uint16_t device)
 {
 	int i;
 	for (i = 0; i < ARRAY_SIZE(usb_quirks); i++) {

@@ -41,7 +41,7 @@ static unsigned int cursor_x = 0, cursor_y = 0, cursor_en = 0;
 /* color definitions for the 16 standard colors */
 
 #define VGA_COLOR_DEFAULT 7
-static const u32 vga_colors[] = {
+static const uint32_t vga_colors[] = {
 	// BLUE      | GREEN       | RED
 	(0x00 << 16) | (0x00 << 8) | 0x00,
 	(0xAA << 16) | (0x00 << 8) | 0x00,
@@ -121,16 +121,16 @@ static void corebootfb_clear(void)
 			CHARS[row * coreboot_video_console.columns + column] = (VGA_COLOR_DEFAULT << 8);
 }
 
-static void corebootfb_putchar(u8 row, u8 col, unsigned int ch)
+static void corebootfb_putchar(uint8_t row, uint8_t col, unsigned int ch)
 {
 	unsigned char *dst;
 	unsigned char *glyph = font8x16 + ((ch & 0xFF) * FONT_HEIGHT);
 
 	unsigned char bg = (ch >> 12) & 0xF;
 	unsigned char fg = (ch >> 8) & 0xF;
-	u32 fgval = 0, bgval = 0;
-	u16 *dst16;
-	u32 *dst32;
+	uint32_t fgval = 0, bgval = 0;
+	uint16_t *dst16;
+	uint32_t *dst32;
 
 	int x, y;
 
@@ -155,7 +155,7 @@ static void corebootfb_putchar(u8 row, u8 col, unsigned int ch)
 				dst[(FONT_WIDTH - x) * (FI->bits_per_pixel >> 3)] = (*glyph & (1 << x)) ?  fg : bg;
 				break;
 			case 16: /* 16 bpp */
-				dst16 = (u16 *)(dst + (FONT_WIDTH - x) * (FI->bits_per_pixel >> 3));
+				dst16 = (uint16_t *)(dst + (FONT_WIDTH - x) * (FI->bits_per_pixel >> 3));
 				*dst16 = (*glyph & (1 << x)) ? fgval : bgval;
 				break;
 			case 24: /* 24 bpp */
@@ -170,7 +170,7 @@ static void corebootfb_putchar(u8 row, u8 col, unsigned int ch)
 				}
 				break;
 			case 32: /* 32 bpp */
-				dst32 = (u32 *)(dst + (FONT_WIDTH - x) * (FI->bits_per_pixel >> 3));
+				dst32 = (uint32_t *)(dst + (FONT_WIDTH - x) * (FI->bits_per_pixel >> 3));
 				*dst32 = (*glyph & (1 << x)) ? fgval : bgval;
 				break;
 			}
@@ -181,7 +181,7 @@ static void corebootfb_putchar(u8 row, u8 col, unsigned int ch)
 	}
 }
 
-static void corebootfb_putc(u8 row, u8 col, unsigned int ch)
+static void corebootfb_putc(uint8_t row, uint8_t col, unsigned int ch)
 {
 	CHARS[row * coreboot_video_console.columns + col] = ch;
 	corebootfb_putchar(row, col, ch);

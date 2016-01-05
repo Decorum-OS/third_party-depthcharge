@@ -67,9 +67,9 @@
  * @param addr The NVRAM address to read a byte from.
  * @return The byte at the given NVRAM address.
  */
-u8 nvram_read(u8 addr)
+uint8_t nvram_read(uint8_t addr)
 {
-	u16 rtc_port = addr < 128 ? RTC_PORT_STANDARD : RTC_PORT_EXTENDED;
+	uint16_t rtc_port = addr < 128 ? RTC_PORT_STANDARD : RTC_PORT_EXTENDED;
 
 	outb(addr, rtc_port);
 	return inb(rtc_port + 1);
@@ -81,9 +81,9 @@ u8 nvram_read(u8 addr)
  * @param val The byte to write to NVRAM.
  * @param addr The NVRAM address to write to.
  */
-void nvram_write(u8 val, u8 addr)
+void nvram_write(uint8_t val, uint8_t addr)
 {
-	u16 rtc_port = addr < 128 ? RTC_PORT_STANDARD : RTC_PORT_EXTENDED;
+	uint16_t rtc_port = addr < 128 ? RTC_PORT_STANDARD : RTC_PORT_EXTENDED;
 
 	outb(addr, rtc_port);
 	outb(val, rtc_port + 1);

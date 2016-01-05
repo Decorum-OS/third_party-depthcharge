@@ -21,7 +21,7 @@
 #include <libpayload.h>
 
 /* MMIO word size is not standardized, but *usually* 32 (even on ARM64) */
-typedef u32 mmio_word_t;
+typedef uint32_t mmio_word_t;
 
 static const int timeout_us = 100 * 1000;
 static const char output_overrun[] = "GDB output buffer overrun (try "
@@ -31,14 +31,14 @@ static const char input_underrun[] = "GDB input message truncated (bug or "
 
 /* Serial-specific glue code... add more transport layers here when desired. */
 
-static void gdb_raw_putchar(u8 c)
+static void gdb_raw_putchar(uint8_t c)
 {
 	serial_putchar(c);
 }
 
 static int gdb_raw_getchar(void)
 {
-	u64 start = timer_us(0);
+	uint64_t start = timer_us(0);
 
 	while (!serial_havechar())
 		if (timer_us(start) > timeout_us)
@@ -59,9 +59,9 @@ void gdb_transport_teardown(void)
 
 /* Hex digit character <-> number conversion (illegal chars undefined!). */
 
-static u8 from_hex(unsigned char c)
+static uint8_t from_hex(unsigned char c)
 {
-	static const s8 values[] = {
+	static const int8_t values[] = {
 		-1, 10, 11, 12, 13, 14, 15, -1,
 		-1, -1, -1, -1, -1, -1, -1, -1,
 		 0,  1,  2,  3,  4,  5,  6,  7,
@@ -71,7 +71,7 @@ static u8 from_hex(unsigned char c)
 	return values[c & 0x1f];
 }
 
-static char to_hex(u8 v)
+static char to_hex(uint8_t v)
 {
 	static const char digits[] = "0123456789abcdef";
 
@@ -88,7 +88,7 @@ void gdb_message_encode_bytes(struct gdb_message *message, const void *data,
 		(mmio_word_t *)ALIGN_DOWN((uintptr_t)data, sizeof(*aligned));
 	mmio_word_t word = be32toh(readl(aligned++));
 	while (length--) {
-		u8 byte = (word >> ((((void *)aligned - data) - 1) * 8));
+		uint8_t byte = (word >> ((((void *)aligned - data) - 1) * 8));
 		message->buf[message->used++] = to_hex(byte >> 4);
 		message->buf[message->used++] = to_hex(byte & 0xf);
 		if (length && ++data == (void *)aligned)
@@ -181,8 +181,8 @@ void gdb_get_command(struct gdb_message *command)
 		STATE_CHECKSUM1,
 	};
 
-	u8 checksum = 0;
-	u8 running_checksum = 0;
+	uint8_t checksum = 0;
+	uint8_t running_checksum = 0;
 	enum command_state state = STATE_WAITING;
 
 	while (1) {
@@ -236,7 +236,7 @@ void gdb_send_reply(const struct gdb_message *reply)
 {
 	int i;
 	int retries = 1 * 1000 * 1000 / timeout_us;
-	u8 checksum = 0;
+	uint8_t checksum = 0;
 
 	for (i = 0; i < reply->used; i++)
 		checksum += reply->buf[i];

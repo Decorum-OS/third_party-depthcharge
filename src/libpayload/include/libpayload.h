@@ -63,7 +63,10 @@
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
-static inline u32 div_round_up(u32 n, u32 d) { return (n + d - 1) / d; }
+static inline uint32_t div_round_up(uint32_t n, uint32_t d)
+{
+	return (n + d - 1) / d;
+}
 
 #define LITTLE_ENDIAN	1234
 #define BIG_ENDIAN	4321
@@ -114,8 +117,8 @@ struct tm {
 	int tm_isdst; /**< A flag indicating daylight savings time */
 };
 
-u8 nvram_read(u8 addr);
-void nvram_write(u8 val, u8 addr);
+uint8_t nvram_read(uint8_t addr);
+void nvram_write(uint8_t val, uint8_t addr);
 int nvram_updating(void);
 void rtc_read_clock(struct tm *tm);
 /** @} */
@@ -182,9 +185,9 @@ void serial_set_cursor(int y, int x);
  * @ingroup input
  * @{
  */
-void speaker_enable(u16 freq);
+void speaker_enable(uint16_t freq);
 void speaker_disable(void);
-void speaker_tone(u16 freq, unsigned int duration);
+void speaker_tone(uint16_t freq, unsigned int duration);
 /** @} */
 
 /**
@@ -196,7 +199,7 @@ int video_init(void);
 int video_console_init(void);
 void video_get_rows_cols(unsigned int *rows, unsigned int *cols);
 void video_console_putchar(unsigned int ch);
-void video_console_putc(u8 row, u8 col, unsigned int ch);
+void video_console_putc(uint8_t row, uint8_t col, unsigned int ch);
 void video_console_clear(void);
 void video_console_cursor_enable(int state);
 void video_console_get_cursor(unsigned int *x, unsigned int *y, unsigned int *en);
@@ -226,11 +229,11 @@ void cbmem_console_write(const void *buffer, size_t count);
 
 /* drivers/option.c */
 struct nvram_accessor {
-	u8 (*read)(u8 reg);
-	void (*write)(u8 val, u8 reg);
+	uint8_t (*read)(uint8_t reg);
+	void (*write)(uint8_t val, uint8_t reg);
 };
 
-extern u8 *mem_accessor_base;
+extern uint8_t *mem_accessor_base;
 extern struct nvram_accessor *use_nvram, *use_mem;
 
 struct cb_cmos_option_table *get_system_option_table(void);
@@ -313,17 +316,26 @@ int dec2bcd(int d);
 int abs(int j);
 long int labs(long int j);
 long long int llabs(long long int j);
-u8 bin2hex(u8 b);
-u8 hex2bin(u8 h);
+uint8_t bin2hex(uint8_t b);
+uint8_t hex2bin(uint8_t h);
 void hexdump(const void *memory, size_t length);
 void fatal(const char *msg) __attribute__ ((noreturn));
 
 /* Count Leading Zeroes: clz(0) == 32, clz(0xf) == 28, clz(1 << 31) == 0 */
-static inline int clz(u32 x) { return x ? __builtin_clz(x) : sizeof(x) * 8; }
+static inline int clz(uint32_t x)
+{
+	return x ? __builtin_clz(x) : sizeof(x) * 8;
+}
 /* Integer binary logarithm (rounding down): log2(0) == -1, log2(5) == 2 */
-static inline int log2(u32 x) { return sizeof(x) * 8 - clz(x) - 1; }
+static inline int log2(uint32_t x)
+{
+	return sizeof(x) * 8 - clz(x) - 1;
+}
 /* Find First Set: __ffs(0xf) == 0, __ffs(0) == -1, __ffs(1 << 31) == 31 */
-static inline int __ffs(u32 x) { return log2(x & (u32)(-(s32)x)); }
+static inline int __ffs(uint32_t x)
+{
+	return log2(x & (uint32_t)(-(int32_t)x));
+}
 /** @} */
 
 
@@ -372,6 +384,6 @@ void selfboot(void *entry);
 /* Enter remote GDB mode. Will initialize connection if not already up. */
 void gdb_enter(void);
 /* Disconnect existing GDB connection if one exists. */
-void gdb_exit(s8 exit_status);
+void gdb_exit(int8_t exit_status);
 
 #endif

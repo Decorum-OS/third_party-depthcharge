@@ -32,9 +32,9 @@
 
 #include <stdint.h>
 
-static u64 rdtsc(void)
+static uint64_t rdtsc(void)
 {
-	u64 val;
+	uint64_t val;
 	__asm__ __volatile__ ("rdtsc" : "=A" (val));
 	return val;
 }

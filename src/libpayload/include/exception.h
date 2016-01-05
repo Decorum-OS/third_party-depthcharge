@@ -33,7 +33,7 @@
 #include <arch/exception.h>
 
 /* Return 1 if the exception was handled, 0 to proceed to the next handler. */
-typedef int (*exception_hook)(u32 type);
+typedef int (*exception_hook)(uint32_t type);
 
 void exception_init(void);
 void exception_install_hook(exception_hook h);

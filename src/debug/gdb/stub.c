@@ -21,8 +21,8 @@
 
 struct gdb_state gdb_state;
 
-static u8 reply_buf[2048];
-static u8 command_buf[2048];
+static uint8_t reply_buf[2048];
+static uint8_t command_buf[2048];
 
 static struct gdb_message command = {
 	.buf = command_buf,
@@ -35,7 +35,7 @@ static struct gdb_message reply = {
 	.size = sizeof(reply_buf),
 };
 
-void gdb_command_loop(u8 signal)
+void gdb_command_loop(uint8_t signal)
 {
 	if (gdb_state.resumed) {
 		/* We were just running. Send a stop reply. */
@@ -107,7 +107,7 @@ void gdb_enter(void)
 	gdb_arch_enter();
 }
 
-void gdb_exit(s8 exit_status)
+void gdb_exit(int8_t exit_status)
 {
 	if (!gdb_state.connected)
 		return;

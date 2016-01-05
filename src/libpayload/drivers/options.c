@@ -30,14 +30,14 @@
 #include <libpayload.h>
 #include <coreboot_tables.h>
 
-u8 *mem_accessor_base;
+uint8_t *mem_accessor_base;
 
-static u8 mem_read(u8 reg)
+static uint8_t mem_read(uint8_t reg)
 {
 	return mem_accessor_base[reg];
 }
 
-static void mem_write(u8 val, u8 reg)
+static void mem_write(uint8_t val, uint8_t reg)
 {
 	mem_accessor_base[reg] = val;
 }
@@ -63,7 +63,7 @@ int options_checksum_valid(const struct nvram_accessor *nvram)
 	int range_start = lib_sysinfo.cmos_range_start / 8;
 	int range_end = lib_sysinfo.cmos_range_end / 8;
 	int checksum_location = lib_sysinfo.cmos_checksum_location / 8;
-	u16 checksum = 0, checksum_old;
+	uint16_t checksum = 0, checksum_old;
 
 	for(i = range_start; i <= range_end; i++) {
 		checksum += nvram->read(i);
@@ -80,7 +80,7 @@ void fix_options_checksum_with(const struct nvram_accessor *nvram)
 	int range_start = lib_sysinfo.cmos_range_start / 8;
 	int range_end = lib_sysinfo.cmos_range_end / 8;
 	int checksum_location = lib_sysinfo.cmos_checksum_location / 8;
-	u16 checksum = 0;
+	uint16_t checksum = 0;
 
 	for(i = range_start; i <= range_end; i++) {
 		checksum += nvram->read(i);
@@ -95,12 +95,12 @@ void fix_options_checksum(void)
 	fix_options_checksum_with(use_nvram);
 }
 
-static int get_cmos_value(const struct nvram_accessor *nvram, u32 bitnum, u32 len, void *valptr)
+static int get_cmos_value(const struct nvram_accessor *nvram, uint32_t bitnum, uint32_t len, void *valptr)
 {
-	u8 *value = valptr;
+	uint8_t *value = valptr;
 	int offs = 0;
-	u32 addr, bit;
-	u8 reg8;
+	uint32_t addr, bit;
+	uint8_t reg8;
 
 	/* Convert to byte borders */
 	addr=(bitnum / 8);
@@ -123,12 +123,12 @@ static int get_cmos_value(const struct nvram_accessor *nvram, u32 bitnum, u32 le
 	return 0;
 }
 
-static int set_cmos_value(const struct nvram_accessor *nvram, u32 bitnum, u32 len, const void *valptr)
+static int set_cmos_value(const struct nvram_accessor *nvram, uint32_t bitnum, uint32_t len, const void *valptr)
 {
-	const u8 *value = valptr;
+	const uint8_t *value = valptr;
 	int offs = 0;
-	u32 addr, bit;
-	u8 reg8;
+	uint32_t addr, bit;
+	uint8_t reg8;
 
 	/* Convert to byte borders */
 	addr=(bitnum / 8);
@@ -233,7 +233,7 @@ struct cb_cmos_enums *first_cmos_enum_of_id(struct cb_cmos_option_table *option_
 }
 
 /* Either value or text must be NULL. Returns the field that matches "the other" for a given config_id */
-static struct cb_cmos_enums *lookup_cmos_enum_core(struct cb_cmos_option_table *option_table, int config_id, const u8 *value, const char *text)
+static struct cb_cmos_enums *lookup_cmos_enum_core(struct cb_cmos_option_table *option_table, int config_id, const uint8_t *value, const char *text)
 {
 	int len = strnlen(text, CB_CMOS_MAX_TEXT_LENGTH);
 
@@ -251,7 +251,7 @@ static struct cb_cmos_enums *lookup_cmos_enum_core(struct cb_cmos_option_table *
 	return NULL;
 }
 
-static struct cb_cmos_enums *lookup_cmos_enum_by_value(struct cb_cmos_option_table *option_table, int config_id, const u8 *value)
+static struct cb_cmos_enums *lookup_cmos_enum_by_value(struct cb_cmos_option_table *option_table, int config_id, const uint8_t *value)
 {
 	return lookup_cmos_enum_core(option_table, config_id, value, NULL);
 }
@@ -310,7 +310,7 @@ int get_option_as_string(const struct nvram_accessor *nvram, struct cb_cmos_opti
 		return 1;
 	int cmos_length = (cmos_entry->length+7)/8;
 
-	/* ensure we have enough space for u64 */
+	/* ensure we have enough space for uint64_t */
 	if (cmos_length < 8)
 		cmos_length = 8;
 
@@ -326,13 +326,13 @@ int get_option_as_string(const struct nvram_accessor *nvram, struct cb_cmos_opti
 			/* only works on little endian.
 			   26 bytes is enough for a 64bit value in decimal */
 			*dest = malloc(26);
-			sprintf(*dest, "%llu", *(u64*)raw);
+			sprintf(*dest, "%llu", *(uint64_t*)raw);
 			break;
 		case 's':
 			*dest = strdup(raw);
 			break;
 		case 'e':
-			cmos_enum = lookup_cmos_enum_by_value(option_table, cmos_entry->config_id, (u8*)raw);
+			cmos_enum = lookup_cmos_enum_by_value(option_table, cmos_entry->config_id, (uint8_t*)raw);
 			*dest = strdup((const char*)cmos_enum->text);
 			break;
 		default: /* fail */
@@ -353,16 +353,16 @@ int set_option_from_string(const struct nvram_accessor *nvram, struct cb_cmos_op
 	switch (cmos_entry->config) {
 		case 'h':
 			/* only works on little endian */
-			raw = malloc(sizeof(u64));
-			*(u64*)raw = strtoull(value, NULL, 0);
+			raw = malloc(sizeof(uint64_t));
+			*(uint64_t*)raw = strtoull(value, NULL, 0);
 			break;
 		case 's':
 			raw = strdup(value);
 			break;
 		case 'e':
 			cmos_enum = lookup_cmos_enum_by_label(option_table, cmos_entry->config_id, value);
-			raw = malloc(sizeof(u32));
-			*(u32*)raw = cmos_enum->value;
+			raw = malloc(sizeof(uint32_t));
+			*(uint32_t*)raw = cmos_enum->value;
 			break;
 		default: /* fail */
 			return 1;

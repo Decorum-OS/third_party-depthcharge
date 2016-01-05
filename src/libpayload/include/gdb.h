@@ -23,16 +23,16 @@
 
 struct gdb_message
 {
-	u8 *buf;
+	uint8_t *buf;
 	int used;
 	const int size;
 };
 
 struct gdb_state
 {
-	u8 signal;
-	u8 resumed	: 1;
-	u8 connected	: 1;
+	uint8_t signal;
+	uint8_t resumed : 1;
+	uint8_t connected : 1;
 };
 extern struct gdb_state gdb_state;
 

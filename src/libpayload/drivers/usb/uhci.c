@@ -37,12 +37,12 @@ static void uhci_start (hci_t *controller);
 static void uhci_stop (hci_t *controller);
 static void uhci_reset (hci_t *controller);
 static void uhci_shutdown (hci_t *controller);
-static int uhci_bulk (endpoint_t *ep, int size, u8 *data, int finalize);
+static int uhci_bulk (endpoint_t *ep, int size, uint8_t *data, int finalize);
 static int uhci_control (usbdev_t *dev, direction_t dir, int drlen, void *devreq,
-			 int dalen, u8 *data);
+			 int dalen, uint8_t *data);
 static void* uhci_create_intr_queue (endpoint_t *ep, int reqsize, int reqcount, int reqtiming);
 static void uhci_destroy_intr_queue (endpoint_t *ep, void *queue);
-static u8* uhci_poll_intr_queue (void *queue);
+static uint8_t* uhci_poll_intr_queue (void *queue);
 
 static void td_dump(td_t *td)
 {
@@ -113,7 +113,7 @@ static void
 uhci_reinit (hci_t *controller)
 {
 	uhci_reg_write32(controller, FLBASEADD,
-			 (u32)(uintptr_t)UHCI_INST(controller)->framelistptr);
+			 (uint32_t)(uintptr_t)UHCI_INST(controller)->framelistptr);
 
 	/* disable irqs */
 	uhci_reg_write16 (controller, USBINTR, 0);
@@ -131,7 +131,7 @@ hci_t *
 uhci_pci_init (pcidev_t addr)
 {
 	int i;
-	u16 reg16;
+	uint16_t reg16;
 
 	hci_t *controller = new_controller ();
 	controller->instance = xzalloc(sizeof (uhci_t));
@@ -412,7 +412,7 @@ run_schedule (usbdev_t *dev, td_t *td)
 
 /* finalize == 1: if data is of packet aligned size, add a zero length packet */
 static int
-uhci_bulk (endpoint_t *ep, int size, u8 *data, int finalize)
+uhci_bulk (endpoint_t *ep, int size, uint8_t *data, int finalize)
 {
 	int maxpsize = ep->maxpacketsize;
 	if (maxpsize == 0)
@@ -445,7 +445,7 @@ typedef struct {
 	qh_t *qh;
 	td_t *tds;
 	td_t *last_td;
-	u8 *data;
+	uint8_t *data;
 	int lastread;
 	int total;
 	int reqsize;
@@ -455,7 +455,7 @@ typedef struct {
 static void*
 uhci_create_intr_queue (endpoint_t *ep, int reqsize, int reqcount, int reqtiming)
 {
-	u8 *data = malloc(reqsize*reqcount);
+	uint8_t *data = malloc(reqsize*reqcount);
 	td_t *tds = memalign(16, sizeof(td_t) * reqcount);
 	qh_t *qh = memalign(16, sizeof(qh_t));
 
@@ -500,7 +500,7 @@ uhci_create_intr_queue (endpoint_t *ep, int reqsize, int reqcount, int reqtiming
 
 	/* insert QH into framelist */
 	uhci_t *const uhcic = UHCI_INST(ep->dev->controller);
-	const u32 def_ptr = (uintptr_t)uhcic->qh_prei | FLISTP_QH;
+	const uint32_t def_ptr = (uintptr_t)uhcic->qh_prei | FLISTP_QH;
 	int nothing_placed = 1;
 	qh->headlinkptr = def_ptr;
 	for (i = 0; i < 1024; i += reqtiming) {
@@ -529,8 +529,8 @@ uhci_destroy_intr_queue (endpoint_t *ep, void *q_)
 
 	/* remove QH from framelist */
 	uhci_t *const uhcic = UHCI_INST(ep->dev->controller);
-	const u32 qh_ptr = (uintptr_t)q->qh | FLISTP_QH;
-	const u32 def_ptr = (uintptr_t)uhcic->qh_prei | FLISTP_QH;
+	const uint32_t qh_ptr = (uintptr_t)q->qh | FLISTP_QH;
+	const uint32_t def_ptr = (uintptr_t)uhcic->qh_prei | FLISTP_QH;
 	int i;
 	for (i = 0; i < 1024; ++i) {
 		if (uhcic->framelistptr[i] == qh_ptr)
@@ -547,7 +547,7 @@ uhci_destroy_intr_queue (endpoint_t *ep, void *q_)
    return NULL if nothing new available.
    Recommended use: while (data=poll_intr_queue(q)) process(data);
  */
-static u8*
+static uint8_t*
 uhci_poll_intr_queue (void *q_)
 {
 	intr_q *q = (intr_q*)q_;
@@ -579,36 +579,36 @@ uhci_poll_intr_queue (void *q_)
 }
 
 void
-uhci_reg_write32 (hci_t *ctrl, usbreg reg, u32 value)
+uhci_reg_write32 (hci_t *ctrl, usbreg reg, uint32_t value)
 {
 	outl (value, ctrl->reg_base + reg);
 }
 
-u32
+uint32_t
 uhci_reg_read32 (hci_t *ctrl, usbreg reg)
 {
 	return inl (ctrl->reg_base + reg);
 }
 
 void
-uhci_reg_write16 (hci_t *ctrl, usbreg reg, u16 value)
+uhci_reg_write16 (hci_t *ctrl, usbreg reg, uint16_t value)
 {
 	outw (value, ctrl->reg_base + reg);
 }
 
-u16
+uint16_t
 uhci_reg_read16 (hci_t *ctrl, usbreg reg)
 {
 	return inw (ctrl->reg_base + reg);
 }
 
 void
-uhci_reg_write8 (hci_t *ctrl, usbreg reg, u8 value)
+uhci_reg_write8 (hci_t *ctrl, usbreg reg, uint8_t value)
 {
 	outb (value, ctrl->reg_base + reg);
 }
 
-u8
+uint8_t
 uhci_reg_read8 (hci_t *ctrl, usbreg reg)
 {
 	return inb (ctrl->reg_base + reg);

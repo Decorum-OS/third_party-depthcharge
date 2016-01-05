@@ -49,7 +49,7 @@ static int
 xhci_rh_port_status_changed(usbdev_t *const dev, const int port)
 {
 	xhci_t *const xhci = XHCI_INST(dev->controller);
-	volatile u32 *const portsc = &xhci->opreg->prs[port - 1].portsc;
+	volatile uint32_t *const portsc = &xhci->opreg->prs[port - 1].portsc;
 
 	const int changed = !!(*portsc & (PORTSC_CSC | PORTSC_PRC));
 	/* always clear all the status change bits */
@@ -61,7 +61,7 @@ static int
 xhci_rh_port_connected(usbdev_t *const dev, const int port)
 {
 	xhci_t *const xhci = XHCI_INST(dev->controller);
-	volatile u32 *const portsc = &xhci->opreg->prs[port - 1].portsc;
+	volatile uint32_t *const portsc = &xhci->opreg->prs[port - 1].portsc;
 
 	return *portsc & PORTSC_CCS;
 }
@@ -70,7 +70,7 @@ static int
 xhci_rh_port_in_reset(usbdev_t *const dev, const int port)
 {
 	xhci_t *const xhci = XHCI_INST(dev->controller);
-	volatile u32 *const portsc = &xhci->opreg->prs[port - 1].portsc;
+	volatile uint32_t *const portsc = &xhci->opreg->prs[port - 1].portsc;
 
 	return !!(*portsc & PORTSC_PR);
 }
@@ -79,7 +79,7 @@ static int
 xhci_rh_port_enabled(usbdev_t *const dev, const int port)
 {
 	xhci_t *const xhci = XHCI_INST(dev->controller);
-	volatile u32 *const portsc = &xhci->opreg->prs[port - 1].portsc;
+	volatile uint32_t *const portsc = &xhci->opreg->prs[port - 1].portsc;
 
 	return !!(*portsc & PORTSC_PED);
 }
@@ -88,7 +88,7 @@ static usb_speed
 xhci_rh_port_speed(usbdev_t *const dev, const int port)
 {
 	xhci_t *const xhci = XHCI_INST(dev->controller);
-	volatile u32 *const portsc = &xhci->opreg->prs[port - 1].portsc;
+	volatile uint32_t *const portsc = &xhci->opreg->prs[port - 1].portsc;
 
 	if (*portsc & PORTSC_PED) {
 		return ((*portsc & PORTSC_PORT_SPEED_MASK)
@@ -103,7 +103,7 @@ static int
 xhci_rh_reset_port(usbdev_t *const dev, const int port)
 {
 	xhci_t *const xhci = XHCI_INST(dev->controller);
-	volatile u32 *const portsc = &xhci->opreg->prs[port - 1].portsc;
+	volatile uint32_t *const portsc = &xhci->opreg->prs[port - 1].portsc;
 
 	/* Trigger port reset. */
 	*portsc = (*portsc & PORTSC_RW_MASK) | PORTSC_PR;
@@ -124,7 +124,7 @@ xhci_rh_enable_port(usbdev_t *const dev, int port)
 {
 	if (CONFIG_USB_XHCI_MTK_QUIRK) {
 		xhci_t *const xhci = XHCI_INST(dev->controller);
-		volatile u32 *const portsc =
+		volatile uint32_t *const portsc =
 			&xhci->opreg->prs[port - 1].portsc;
 
 		/*

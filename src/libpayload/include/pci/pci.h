@@ -70,9 +70,9 @@
 #define PCI_VENDOR_ID_INTEL 0x8086
 
 struct pci_dev {
-	u16 domain;
-	u8 bus, dev, func;
-	u16 vendor_id, device_id;
+	uint16_t domain;
+	uint8_t bus, dev, func;
+	uint16_t vendor_id, device_id;
 	struct pci_dev *next;
 };
 
@@ -90,13 +90,13 @@ struct pci_access {
 	struct pci_dev *devices;
 };
 
-u8 pci_read_byte(struct pci_dev *dev, int pos);
-u16 pci_read_word(struct pci_dev *dev, int pos);
-u32 pci_read_long(struct pci_dev *dev, int pos);
+uint8_t pci_read_byte(struct pci_dev *dev, int pos);
+uint16_t pci_read_word(struct pci_dev *dev, int pos);
+uint32_t pci_read_long(struct pci_dev *dev, int pos);
 
-int pci_write_byte(struct pci_dev *dev, int pos, u8 data);
-int pci_write_word(struct pci_dev *dev, int pos, u16 data);
-int pci_write_long(struct pci_dev *dev, int pos, u32 data);
+int pci_write_byte(struct pci_dev *dev, int pos, uint8_t data);
+int pci_write_word(struct pci_dev *dev, int pos, uint16_t data);
+int pci_write_long(struct pci_dev *dev, int pos, uint32_t data);
 
 struct pci_access *pci_alloc(void);
 void pci_init(struct pci_access*);
@@ -105,6 +105,7 @@ char *pci_filter_parse_slot(struct pci_filter*, const char*);
 int pci_filter_match(struct pci_filter*, struct pci_dev*);
 void pci_filter_init(struct pci_access*, struct pci_filter*);
 void pci_scan_bus(struct pci_access*);
-struct pci_dev *pci_get_dev(struct pci_access*, u16, u8, u8, u8);
+struct pci_dev *pci_get_dev(struct pci_access*, uint16_t,
+			    uint8_t, uint8_t, uint8_t);
 
 #endif

@@ -36,7 +36,7 @@
 #define FLADJ 0x61
 #define FLADJ_framelength(x) (((x)-59488)/16)
 
-typedef volatile u32 portsc_t;
+typedef volatile uint32_t portsc_t;
 #define P_CURR_CONN_STATUS (1 << 0)
 #define P_CONN_STATUS_CHANGE (1 << 1)
 #define P_PORT_ENABLE (1 << 2)
@@ -49,48 +49,48 @@ typedef volatile u32 portsc_t;
 typedef volatile struct {
 #define HCS_NPORTS_MASK 0xf
 #define HCS_PORT_POWER_CONTROL 0x10
-	u8 caplength;
-	u8 res1;
-	u16 hciversion;
-	u32 hcsparams;
-	u32 hccparams;
-	u64 hcsp_portroute;
+	uint8_t caplength;
+	uint8_t res1;
+	uint16_t hciversion;
+	uint32_t hcsparams;
+	uint32_t hccparams;
+	uint64_t hcsp_portroute;
 } __attribute__ ((packed)) hc_cap_t;
 
 typedef volatile struct {
-	u32 usbcmd;
+	uint32_t usbcmd;
 #define HC_OP_RS 1
 #define HC_OP_HC_RESET (1 << 1)
 #define HC_OP_PERIODIC_SCHED_EN_SHIFT 4
 #define HC_OP_PERIODIC_SCHED_EN (1 << HC_OP_PERIODIC_SCHED_EN_SHIFT)
 #define HC_OP_ASYNC_SCHED_EN_SHIFT 5
 #define HC_OP_ASYNC_SCHED_EN (1 << HC_OP_ASYNC_SCHED_EN_SHIFT)
-	u32 usbsts;
+	uint32_t usbsts;
 #define HC_OP_PERIODIC_SCHED_STAT_SHIFT 14
 #define HC_OP_PERIODIC_SCHED_STAT (1 << HC_OP_PERIODIC_SCHED_STAT_SHIFT)
 #define HC_OP_ASYNC_SCHED_STAT_SHIFT 15
 #define HC_OP_ASYNC_SCHED_STAT (1 << HC_OP_ASYNC_SCHED_STAT_SHIFT)
 #define HC_OP_HC_HALTED_SHIFT 12
 #define HC_OP_HC_HALTED (1 << HC_OP_HC_HALTED_SHIFT)
-	u32 usbintr;
-	u32 frindex;
-	u32 ctrldssegment;
-	u32 periodiclistbase;
-	u32 asynclistaddr;
-	u8 res1[0x40-0x1c];
-	u32 configflag;
+	uint32_t usbintr;
+	uint32_t frindex;
+	uint32_t ctrldssegment;
+	uint32_t periodiclistbase;
+	uint32_t asynclistaddr;
+	uint8_t res1[0x40-0x1c];
+	uint32_t configflag;
 	portsc_t portsc[0];
-	u8 res2[0x40];
-	u32 hostpc;
+	uint8_t res2[0x40];
+	uint32_t hostpc;
 	/* hostpc register is used for CONFIG_USB_EHCI_HOSTPC_ROOT_HUB_TT */
 } __attribute__ ((packed)) hc_op_t;
 
 typedef volatile struct {
 #define QTD_TERMINATE 1
 #define QTD_PTR_MASK ~0x1f
-	u32 next_qtd;
-	u32 alt_next_qtd;
-	u32 token;
+	uint32_t next_qtd;
+	uint32_t alt_next_qtd;
+	uint32_t token;
 #define QTD_STATUS_MASK 0xff
 #define QTD_HALTED (1 << 6)
 #define QTD_ACTIVE (1 << 7)
@@ -106,18 +106,18 @@ typedef volatile struct {
 #define QTD_TOGGLE_MASK (1 << 31)
 #define QTD_TOGGLE_DATA0 0
 #define QTD_TOGGLE_DATA1 (1 << QTD_TOGGLE_SHIFT)
-	u32 bufptrs[5];
-	u32 bufptrs64[5];
+	uint32_t bufptrs[5];
+	uint32_t bufptrs64[5];
 } __attribute__ ((packed)) qtd_t;
 
 typedef volatile struct {
-	u32 horiz_link_ptr;
+	uint32_t horiz_link_ptr;
 #define QH_TERMINATE 1
 #define QH_iTD (0<<1)
 #define QH_QH (1<<1)
 #define QH_siTD (2<<1)
 #define QH_FSTN (3<<1)
-	u32 epchar;
+	uint32_t epchar;
 #define QH_EP_SHIFT 8
 #define QH_EPS_SHIFT 12
 #define QH_DTC_SHIFT 14
@@ -125,12 +125,12 @@ typedef volatile struct {
 #define QH_MPS_SHIFT 16
 #define QH_NON_HS_CTRL_EP_SHIFT 27
 #define QH_NAK_CNT_SHIFT 28
-	u32 epcaps;
+	uint32_t epcaps;
 #define QH_UFRAME_CMASK_SHIFT 8
 #define QH_HUB_ADDRESS_SHIFT 16
 #define QH_PORT_NUMBER_SHIFT 23
 #define QH_PIPE_MULTIPLIER_SHIFT 30
-	volatile u32 current_td_ptr;
+	volatile uint32_t current_td_ptr;
 	volatile qtd_t td;
 } __attribute__ ((packed)) ehci_qh_t;
 

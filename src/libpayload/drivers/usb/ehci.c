@@ -35,7 +35,7 @@
 #include "ehci.h"
 #include "ehci_private.h"
 
-static void dump_td(u32 addr)
+static void dump_td(uint32_t addr)
 {
 	qtd_t *td = (void *)(uintptr_t)addr;
 	usb_debug("+---------------------------------------------------+\n");
@@ -149,13 +149,13 @@ enum { EHCI_OUT=0, EHCI_IN=1, EHCI_SETUP=2 };
 /* returns handled bytes. assumes that the fields it writes are empty on entry */
 static int fill_td(qtd_t *td, void* data, int datalen)
 {
-	u32 total_len = 0;
-	u32 page_no = 0;
+	uint32_t total_len = 0;
+	uint32_t page_no = 0;
 
-	u32 start = (uintptr_t)data;
-	u32 page = start & ~4095;
-	u32 offset = start & 4095;
-	u32 page_len = 4096 - offset;
+	uint32_t start = (uintptr_t)data;
+	uint32_t page = start & ~4095;
+	uint32_t offset = start & 4095;
+	uint32_t page_len = 4096 - offset;
 
 	td->token |= 0 << QTD_CPAGE_SHIFT;
 	td->bufptrs[page_no++] = start;
@@ -297,10 +297,10 @@ static int ehci_process_async_schedule(
 	return result;
 }
 
-static int ehci_bulk (endpoint_t *ep, int size, u8 *src, int finalize)
+static int ehci_bulk (endpoint_t *ep, int size, uint8_t *src, int finalize)
 {
 	int result = 0;
-	u8 *end = src + size;
+	uint8_t *end = src + size;
 	int remaining = size;
 	int endp = ep->endpoint & 0xf;
 	int pid = (ep->direction==IN)?EHCI_IN:EHCI_OUT;
@@ -388,10 +388,10 @@ oom:
 
 /* FIXME: Handle control transfers as 3 QHs, so the 2nd stage can be >0x4000 bytes */
 static int ehci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup,
-			 int dalen, u8 *src)
+			 int dalen, uint8_t *src)
 {
-	u8 *data = src;
-	u8 *devreq = setup;
+	uint8_t *data = src;
+	uint8_t *devreq = setup;
 	int endp = 0; // this is control. always 0 (for now)
 	int toggle = 0;
 	int mlen = dev->endpoints[0].maxpacketsize;
@@ -508,7 +508,7 @@ typedef struct _intr_qtd_t intr_qtd_t;
 
 struct _intr_qtd_t {
 	volatile qtd_t	td;
-	u8		*data;
+	uint8_t		*data;
 	intr_qtd_t	*next;
 };
 
@@ -517,7 +517,7 @@ typedef struct {
 	intr_qtd_t		*head;
 	intr_qtd_t		*tail;
 	intr_qtd_t		*spare;
-	u8			*data;
+	uint8_t			*data;
 	endpoint_t		*endp;
 	int			reqsize;
 } intr_queue_t;
@@ -525,7 +525,7 @@ typedef struct {
 static void fill_intr_queue_td(
 		intr_queue_t *const intrq,
 		intr_qtd_t *const intr_qtd,
-		u8 *const data)
+		uint8_t *const data)
 {
 	const int pid = (intrq->endp->direction == IN) ? EHCI_IN
 		: (intrq->endp->direction == OUT) ? EHCI_OUT
@@ -577,7 +577,7 @@ static void *ehci_create_intr_queue(
 	 * reqcount data chunks
 	 * plus one more spare, which we'll leave out of queue
 	 */
-	u8 *data = (u8 *)dma_malloc(reqsize * (reqcount + 1));
+	uint8_t *data = (uint8_t *)dma_malloc(reqsize * (reqcount + 1));
 	if (!intrq || !data)
 		fatal("Not enough memory to create USB interrupt queue.\n");
 	intrq->data = data;
@@ -625,9 +625,10 @@ static void *ehci_create_intr_queue(
 
 	/* insert QH into periodic schedule */
 	int nothing_placed = 1;
-	u32 *const ps = (u32 *)(uintptr_t)EHCI_INST(ep->dev->controller)
+	uint32_t *const ps =
+		(uint32_t *)(uintptr_t)EHCI_INST(ep->dev->controller)
 						->operation->periodiclistbase;
-	const u32 dummy_ptr = (uintptr_t)EHCI_INST(
+	const uint32_t dummy_ptr = (uintptr_t)EHCI_INST(
 				ep->dev->controller)->dummy_qh | PS_TYPE_QH;
 	for (i = 0; i < 1024; i += reqtiming) {
 		/* advance to the next free position */
@@ -653,9 +654,9 @@ static void ehci_destroy_intr_queue(endpoint_t *const ep, void *const queue)
 
 	/* remove QH from periodic schedule */
 	int i;
-	u32 *const ps = (u32 *)(uintptr_t)EHCI_INST(
+	uint32_t *const ps = (uint32_t *)(uintptr_t)EHCI_INST(
 			ep->dev->controller)->operation->periodiclistbase;
-	const u32 dummy_ptr = (uintptr_t)EHCI_INST(
+	const uint32_t dummy_ptr = (uintptr_t)EHCI_INST(
 				ep->dev->controller)->dummy_qh | PS_TYPE_QH;
 	for (i = 0; i < 1024; ++i) {
 		if ((ps[i] & PS_PTR_MASK) == (uintptr_t)&intrq->qh)
@@ -682,11 +683,11 @@ static void ehci_destroy_intr_queue(endpoint_t *const ep, void *const queue)
 	free(intrq);
 }
 
-static u8 *ehci_poll_intr_queue(void *const queue)
+static uint8_t *ehci_poll_intr_queue(void *const queue)
 {
 	intr_queue_t *const intrq = (intr_queue_t *)queue;
 
-	u8 *ret = NULL;
+	uint8_t *ret = NULL;
 
 	/* process if head qTD is inactive AND QH has been moved forward */
 	if (!(intrq->head->td.token & QTD_ACTIVE)) {
@@ -759,7 +760,8 @@ ehci_init (unsigned long physical_bar)
 
 	/* Initialize periodic frame list */
 	/* 1024 32-bit pointers, 4kb aligned */
-	u32 *const periodic_list = (u32 *)dma_memalign(4096, 1024 * sizeof(u32));
+	uint32_t *const periodic_list =
+		(uint32_t *)dma_memalign(4096, 1024 * sizeof(uint32_t));
 	if (!periodic_list)
 		fatal("Not enough memory creating EHCI periodic frame list.\n");
 
@@ -806,9 +808,9 @@ hci_t *
 ehci_pci_init (pcidev_t addr)
 {
 	hci_t *controller;
-	u32 reg_base;
+	uint32_t reg_base;
 
-	u32 pci_command = pci_read_config32(addr, PCI_COMMAND);
+	uint32_t pci_command = pci_read_config32(addr, PCI_COMMAND);
 	pci_command = (pci_command | PCI_COMMAND_MEMORY) & ~PCI_COMMAND_IO ;
 	pci_write_config32(addr, PCI_COMMAND, pci_command);
 

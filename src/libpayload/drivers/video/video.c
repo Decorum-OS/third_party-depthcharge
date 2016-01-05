@@ -99,7 +99,7 @@ void video_console_clear(void)
 		console->set_cursor(cursorx, cursory);
 }
 
-void video_console_putc(u8 row, u8 col, unsigned int ch)
+void video_console_putc(uint8_t row, uint8_t col, unsigned int ch)
 {
 	if (console)
 		console->putc(row, col, ch);

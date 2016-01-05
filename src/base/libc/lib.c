@@ -79,7 +79,7 @@ long long int llabs(long long int j)
  * @return The ASCII hex representation of the specified 4-bit value.
  *         Returned hex-characters will always be lower-case (a-f, not A-F).
  */
-u8 bin2hex(u8 b)
+uint8_t bin2hex(uint8_t b)
 {
 	return (b < 10) ? '0' + b : 'a' + (b - 10);
 }
@@ -95,7 +95,7 @@ u8 bin2hex(u8 b)
  * @param h The input byte in ASCII hex format.
  * @return The integer value of the specified ASCII hex byte.
  */
-u8 hex2bin(u8 h)
+uint8_t hex2bin(uint8_t h)
 {
 	return (('0' <= h && h <= '9') ? (h - '0') : \
 	        ('A' <= h && h <= 'F') ? (h - 'A' + 10) : \

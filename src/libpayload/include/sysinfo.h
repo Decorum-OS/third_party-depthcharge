@@ -63,11 +63,11 @@ struct sysinfo_t {
 	} memrange[SYSINFO_MAX_MEM_RANGES];
 
 	struct cb_cmos_option_table *option_table;
-	u32 cmos_range_start;
-	u32 cmos_range_end;
-	u32 cmos_checksum_location;
-	u32 vbnv_start;
-	u32 vbnv_size;
+	uint32_t cmos_range_start;
+	uint32_t cmos_range_end;
+	uint32_t cmos_checksum_location;
+	uint32_t vbnv_start;
+	uint32_t vbnv_size;
 
 	char *version;
 	char *extra_version;
@@ -95,10 +95,10 @@ struct sysinfo_t {
 	struct cb_header *header;
 	struct cb_mainboard *mainboard;
 
-	void	*vboot_handoff;
-	u32	vboot_handoff_size;
-	void	*vdat_addr;
-	u32	vdat_size;
+	void		*vboot_handoff;
+	uint32_t	vboot_handoff_size;
+	void		*vdat_addr;
+	uint32_t	vdat_size;
 
 #if CONFIG_ARCH_X86
 	int x86_rom_var_mtrr_index;
@@ -108,8 +108,8 @@ struct sysinfo_t {
 	void		*cbmem_cons;
 	void		*mrc_cache;
 	void		*acpi_gnvs;
-	u32		board_id;
-	u32		ram_code;
+	uint32_t	board_id;
+	uint32_t	ram_code;
 	void		*wifi_calibration;
 	uint64_t	ramoops_buffer;
 	uint32_t	ramoops_buffer_size;

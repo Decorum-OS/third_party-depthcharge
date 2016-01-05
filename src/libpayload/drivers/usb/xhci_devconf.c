@@ -32,12 +32,12 @@
 #include <usb/usb.h>
 #include "xhci_private.h"
 
-static u32
+static uint32_t
 xhci_gen_route(xhci_t *const xhci, const int hubport, const int hubaddr)
 {
 	if (!hubaddr)
 		return 0;
-	u32 route_string = SC_GET(ROUTE, xhci->dev[hubaddr].ctx.slot);
+	uint32_t route_string = SC_GET(ROUTE, xhci->dev[hubaddr].ctx.slot);
 	int i;
 	for (i = 0; i < 20; i += 4) {
 		if (!(route_string & (0xf << i))) {
@@ -218,7 +218,7 @@ xhci_set_address (hci_t *controller, usb_speed speed, int hubport, int hubaddr)
 	dev->endpoints[0].direction = SETUP;
 	dev->endpoints[0].type = CONTROL;
 
-	u8 buf[8];
+	uint8_t buf[8];
 	if (get_descriptor(dev, gen_bmRequestType(device_to_host, standard_type,
 		dev_recp), DT_DEV, 0, buf, sizeof(buf)) != sizeof(buf)) {
 		usb_debug("first get_descriptor(DT_DEV) failed\n");

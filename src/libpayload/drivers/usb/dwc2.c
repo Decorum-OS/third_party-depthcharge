@@ -219,7 +219,7 @@ wait_for_complete(endpoint_t *ep, uint32_t ch_num)
 
 static int
 dwc2_do_xfer(endpoint_t *ep, int size, int pid, ep_dir_t dir,
-	     uint32_t ch_num, u8 *data_buf, int *short_pkt)
+	     uint32_t ch_num, uint8_t *data_buf, int *short_pkt)
 {
 	uint32_t do_copy;
 	int ret;
@@ -309,7 +309,7 @@ dwc2_do_xfer(endpoint_t *ep, int size, int pid, ep_dir_t dir,
 
 static int
 dwc2_split_transfer(endpoint_t *ep, int size, int pid, ep_dir_t dir,
-		    uint32_t ch_num, u8 *data_buf, split_info_t *split,
+		    uint32_t ch_num, uint8_t *data_buf, split_info_t *split,
 		    int *short_pkt)
 {
 	dwc2_reg_t *reg = DWC2_REG(ep->dev->controller);
@@ -380,7 +380,7 @@ static int dwc2_need_split(usbdev_t *dev, split_info_t *split)
 
 static int
 dwc2_transfer(endpoint_t *ep, int size, int pid, ep_dir_t dir, uint32_t ch_num,
-	      u8 *src, uint8_t skip_nak)
+	      uint8_t *src, uint8_t skip_nak)
 {
 	split_info_t split;
 	int ret, short_pkt, transferred = 0, timeout = 3000;
@@ -422,7 +422,7 @@ nak_retry:
 }
 
 static int
-dwc2_bulk(endpoint_t *ep, int size, u8 *src, int finalize)
+dwc2_bulk(endpoint_t *ep, int size, uint8_t *src, int finalize)
 {
 	ep_dir_t data_dir;
 
@@ -438,7 +438,7 @@ dwc2_bulk(endpoint_t *ep, int size, u8 *src, int finalize)
 
 static int
 dwc2_control(usbdev_t *dev, direction_t dir, int drlen, void *setup,
-		   int dalen, u8 *src)
+		   int dalen, uint8_t *src)
 {
 	int ret = 0;
 	ep_dir_t data_dir;
@@ -471,7 +471,7 @@ dwc2_control(usbdev_t *dev, direction_t dir, int drlen, void *setup,
 }
 
 static int
-dwc2_intr(endpoint_t *ep, int size, u8 *src)
+dwc2_intr(endpoint_t *ep, int size, uint8_t *src)
 {
 	ep_dir_t data_dir;
 
@@ -485,7 +485,7 @@ dwc2_intr(endpoint_t *ep, int size, u8 *src)
 	return dwc2_transfer(ep, size, ep->toggle, data_dir, 0, src, 1);
 }
 
-static u32 dwc2_intr_get_timestamp(intr_queue_t *q)
+static uint32_t dwc2_intr_get_timestamp(intr_queue_t *q)
 {
 	hprt_t hprt;
 	hfnum_t hfnum;
@@ -541,12 +541,12 @@ dwc2_destroy_intr_queue(endpoint_t *ep, void *_q)
  * new input. Return NULL if nothing new available.
  * Recommended use: while (data=poll_intr_queue(q)) process(data);
  */
-static u8 *
+static uint8_t *
 dwc2_poll_intr_queue(void *_q)
 {
 	intr_queue_t *q = (intr_queue_t *)_q;
 	int ret = 0;
-	u32 timestamp = dwc2_intr_get_timestamp(q);
+	uint32_t timestamp = dwc2_intr_get_timestamp(q);
 
 	/*
 	 * If hfnum.frnum run overflow it will schedule

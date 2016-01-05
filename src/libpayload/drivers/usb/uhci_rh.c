@@ -42,7 +42,7 @@ typedef struct {
 static void
 uhci_rh_enable_port (usbdev_t *dev, int port)
 {
-	u16 value;
+	uint16_t value;
 	hci_t *controller = dev->controller;
 	if (port == 1)
 		port = PORTSC1;
@@ -91,7 +91,7 @@ uhci_rh_disable_port (usbdev_t *dev, int port)
 	}
 	uhci_reg_write16(controller, port,
 			 uhci_reg_read16(controller, port) & ~4);
-	u16 value;
+	uint16_t value;
 	/* wait for controller to disable port */
 	/* TOTEST: how long to wait? 100ms for now */
 	int timeout = 200; /* time out after 200 * 500us == 100ms */
@@ -142,7 +142,7 @@ uhci_rh_scanport (usbdev_t *dev, int port)
 static int
 uhci_rh_report_port_changes (usbdev_t *dev)
 {
-	u16 stored, real;
+	uint16_t stored, real;
 
 	stored = (RH_INST (dev)->port[0] == -1);
 	real = ((uhci_reg_read16 (dev->controller, PORTSC1) & 1) == 0);

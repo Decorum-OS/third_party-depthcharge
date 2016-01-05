@@ -39,12 +39,12 @@ static void xhci_stop (hci_t *controller);
 static void xhci_reset (hci_t *controller);
 static void xhci_reinit (hci_t *controller);
 static void xhci_shutdown (hci_t *controller);
-static int xhci_bulk (endpoint_t *ep, int size, u8 *data, int finalize);
+static int xhci_bulk (endpoint_t *ep, int size, uint8_t *data, int finalize);
 static int xhci_control (usbdev_t *dev, direction_t dir, int drlen, void *devreq,
-			 int dalen, u8 *data);
+			 int dalen, uint8_t *data);
 static void* xhci_create_intr_queue (endpoint_t *ep, int reqsize, int reqcount, int reqtiming);
 static void xhci_destroy_intr_queue (endpoint_t *ep, void *queue);
-static u8* xhci_poll_intr_queue (void *queue);
+static uint8_t* xhci_poll_intr_queue (void *queue);
 
 /*
  * Some structures must not cross page boundaries. To get this,
@@ -92,7 +92,7 @@ static void
 xhci_switch_ppt_ports(pcidev_t addr)
 {
 	if (pci_read_config32(addr, 0x00) == 0x1e318086) {
-		u32 reg32 = pci_read_config32(addr, 0xdc) & 0xf;
+		uint32_t reg32 = pci_read_config32(addr, 0xdc) & 0xf;
 		xhci_debug("Ports capable of SuperSpeed: 0x%"PRIx32"\n", reg32);
 
 		/* For now, do not enable SuperSpeed on any ports */
@@ -117,7 +117,7 @@ static void
 xhci_switchback_ppt_ports(pcidev_t addr)
 {
 	if (pci_read_config32(addr, 0x00) == 0x1e318086) {
-		u32 reg32 = pci_read_config32(addr, 0xd0) & 0xf;
+		uint32_t reg32 = pci_read_config32(addr, 0xd0) & 0xf;
 		xhci_debug("Switching ports back:   0x%"PRIx32"\n", reg32);
 		pci_write_config32(addr, 0xd0, 0x00000000);
 		reg32 = pci_read_config32(addr, 0xd0) & 0xf;
@@ -127,7 +127,7 @@ xhci_switchback_ppt_ports(pcidev_t addr)
 #endif
 
 static long
-xhci_handshake(volatile u32 *const reg, u32 mask, u32 wait_for, long timeout_us)
+xhci_handshake(volatile uint32_t *const reg, uint32_t mask, uint32_t wait_for, long timeout_us)
 {
 	while ((*reg & mask) != wait_for && timeout_us--) udelay(1);
 	return timeout_us;
@@ -213,13 +213,13 @@ xhci_init (unsigned long physical_bar)
 	 * of memory.
 	 */
 	xhci->max_slots_en = xhci->capreg->MaxSlots & CONFIG_MASK_MaxSlotsEn;
-	xhci->dcbaa = xhci_align(64, (xhci->max_slots_en + 1) * sizeof(u64));
+	xhci->dcbaa = xhci_align(64, (xhci->max_slots_en + 1) * sizeof(uint64_t));
 	xhci->dev = malloc((xhci->max_slots_en + 1) * sizeof(*xhci->dev));
 	if (!xhci->dcbaa || !xhci->dev) {
 		xhci_debug("Out of memory\n");
 		goto _free_xhci;
 	}
-	memset(xhci->dcbaa, 0x00, (xhci->max_slots_en + 1) * sizeof(u64));
+	memset(xhci->dcbaa, 0x00, (xhci->max_slots_en + 1) * sizeof(uint64_t));
 	memset(xhci->dev, 0x00, (xhci->max_slots_en + 1) * sizeof(*xhci->dev));
 
 	/*
@@ -230,7 +230,7 @@ xhci_init (unsigned long physical_bar)
 				   xhci->capreg->Max_Scratchpad_Bufs_Lo;
 	xhci_debug("max scratchpad bufs: 0x%zx\n", max_sp_bufs);
 	if (max_sp_bufs) {
-		const size_t sp_ptrs_size = max_sp_bufs * sizeof(u64);
+		const size_t sp_ptrs_size = max_sp_bufs * sizeof(uint64_t);
 		xhci->sp_ptrs = xhci_align(64, sp_ptrs_size);
 		if (!xhci->sp_ptrs) {
 			xhci_debug("Out of memory\n");
@@ -300,7 +300,7 @@ _free_xhci:
 hci_t *
 xhci_pci_init (pcidev_t addr)
 {
-	u32 reg_addr;
+	uint32_t reg_addr;
 	hci_t *controller;
 
 	reg_addr = pci_read_config32 (addr, 0x10) & ~0xf;
@@ -537,7 +537,7 @@ xhci_enqueue_td(transfer_ring_t *const tr, const int ep, const size_t mps,
 		const int dalen, void *const data, const int dir)
 {
 	trb_t *trb = NULL;				/* cur TRB */
-	u8 *cur_start = data;				/* cur data pointer */
+	uint8_t *cur_start = data;				/* cur data pointer */
 	size_t length = dalen;				/* remaining bytes */
 	size_t packets = (length + mps - 1) / mps;	/* remaining packets */
 	size_t residue = 0;				/* residue from last TRB */
@@ -642,8 +642,8 @@ xhci_control(usbdev_t *const dev, const direction_t dir,
 	/* Fill and enqueue setup TRB */
 	trb_t *const setup = tr->cur;
 	xhci_clear_trb(setup, tr->pcs);
-	setup->ptr_low = ((u32 *)devreq)[0];
-	setup->ptr_high = ((u32 *)devreq)[1];
+	setup->ptr_low = ((uint32_t *)devreq)[0];
+	setup->ptr_high = ((uint32_t *)devreq)[1];
 	TRB_SET(TL, setup, 8);
 	TRB_SET(TRT, setup, (dalen)
 			? ((dir == OUT) ? TRB_TRT_OUT_DATA : TRB_TRT_IN_DATA)
@@ -704,13 +704,13 @@ xhci_control(usbdev_t *const dev, const direction_t dir,
 
 /* finalize == 1: if data is of packet aligned size, add a zero length packet */
 static int
-xhci_bulk(endpoint_t *const ep, const int size, u8 *const src,
+xhci_bulk(endpoint_t *const ep, const int size, uint8_t *const src,
 	  const int finalize)
 {
 	/* finalize: Hopefully the xHCI controller always does this.
 		     We have no control over the packets. */
 
-	u8 *data = src;
+	uint8_t *data = src;
 	xhci_t *const xhci = XHCI_INST(ep->dev->controller);
 	const int slot_id = ep->dev->address;
 	const int ep_id = xhci_ep_id(ep);
@@ -904,7 +904,7 @@ xhci_destroy_intr_queue(endpoint_t *const ep, void *const q)
    return NULL if nothing new available.
    Recommended use: while (data=poll_intr_queue(q)) process(data);
  */
-static u8 *
+static uint8_t *
 xhci_poll_intr_queue(void *const q)
 {
 	if (!q)
@@ -918,7 +918,7 @@ xhci_poll_intr_queue(void *const q)
 
 	xhci_handle_events(xhci);
 
-	u8 *reqdata = NULL;
+	uint8_t *reqdata = NULL;
 	while (!reqdata && intrq->ready) {
 		const int ep_id = xhci_ep_id(ep);
 		transfer_ring_t *const tr =

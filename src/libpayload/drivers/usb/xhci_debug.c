@@ -75,7 +75,7 @@ xhci_dump_epctx(const epctx_t *const ec)
 }
 
 void
-xhci_dump_devctx(const devctx_t *const dc, const u32 ctx_mask)
+xhci_dump_devctx(const devctx_t *const dc, const uint32_t ctx_mask)
 {
 	int i;
 	if (ctx_mask & 1)

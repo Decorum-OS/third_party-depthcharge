@@ -65,7 +65,7 @@ static struct memory_type default_type =
 static struct memory_type *const heap = &default_type;
 static struct memory_type *dma = &default_type;
 
-typedef u64 hdrtype_t;
+typedef uint64_t hdrtype_t;
 #define HDRSIZE (sizeof(hdrtype_t))
 
 #define SIZE_BITS ((HDRSIZE << 3) - 7)
@@ -86,7 +86,7 @@ typedef u64 hdrtype_t;
 static int free_aligned(void* addr, struct memory_type *type);
 void print_malloc_map(void);
 
-void init_dma_memory(void *start, u32 size)
+void init_dma_memory(void *start, uint32_t size)
 {
 	if (dma_initialized()) {
 		printf("ERROR: %s called twice!\n", __func__);
@@ -438,7 +438,7 @@ static int free_aligned(void* addr, struct memory_type *type)
 		}
 
 		int i = (addr-(*prev_link)->start_data)/(*prev_link)->alignment;
-		u8 *meta = (*prev_link)->start;
+		uint8_t *meta = (*prev_link)->start;
 		while (meta[i] == 2)
 		{
 			meta[i++] = 0;
@@ -505,16 +505,16 @@ look_further:
 	int i, count = 0, target = (size+align-1)/align;
 	for (i = 0; i < (reg->size/align); i++)
 	{
-		if (((u8*)reg->start)[i] == 0)
+		if (((uint8_t *)reg->start)[i] == 0)
 		{
 			count++;
 			if (count == target) {
 				count = i+1-count;
 				for (i=0; i<target-1; i++)
 				{
-					((u8*)reg->start)[count+i]=2;
+					((uint8_t *)reg->start)[count + i] = 2;
 				}
-				((u8*)reg->start)[count+target-1]=1;
+				((uint8_t *)reg->start)[count + target - 1] = 1;
 				reg->free -= target;
 				return reg->start_data+(align*count);
 			}

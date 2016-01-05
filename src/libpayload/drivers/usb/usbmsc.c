@@ -195,8 +195,8 @@ initialize_luns (usbdev_t *dev)
 unsigned int tag;
 
 static void
-wrap_cbw (cbw_t *cbw, int datalen, cbw_direction dir, const u8 *cmd,
-	  int cmdlen, u8 lun)
+wrap_cbw (cbw_t *cbw, int datalen, cbw_direction dir, const uint8_t *cmd,
+	  int cmdlen, uint8_t lun)
 {
 	memset (cbw, 0, sizeof (cbw_t));
 
@@ -218,10 +218,10 @@ wrap_cbw (cbw_t *cbw, int datalen, cbw_direction dir, const u8 *cmd,
 static int
 get_csw (endpoint_t *ep, csw_t *csw)
 {
-	if (ep->dev->controller->bulk (ep, sizeof (csw_t), (u8 *) csw, 1) < 0) {
+	if (ep->dev->controller->bulk (ep, sizeof (csw_t), (uint8_t *) csw, 1) < 0) {
 		clear_stall (ep);
 		if (ep->dev->controller->bulk
-				(ep, sizeof (csw_t), (u8 *) csw, 1) < 0) {
+				(ep, sizeof (csw_t), (uint8_t *) csw, 1) < 0) {
 			return reset_transport (ep->dev);
 		}
 	}
@@ -232,8 +232,8 @@ get_csw (endpoint_t *ep, csw_t *csw)
 }
 
 static int
-execute_command (usbdev_t *dev, cbw_direction dir, const u8 *cb, int cblen,
-		 u8 *buf, int buflen, int residue_ok)
+execute_command (usbdev_t *dev, cbw_direction dir, const uint8_t *cb, int cblen,
+		 uint8_t *buf, int buflen, int residue_ok)
 {
 	cbw_t cbw;
 	csw_t csw;
@@ -244,7 +244,7 @@ execute_command (usbdev_t *dev, cbw_direction dir, const u8 *cb, int cblen,
 	}
 	wrap_cbw (&cbw, buflen, dir, cb, cblen, MSC_INST (dev)->lun);
 	if (dev->controller->
-	    bulk (MSC_INST (dev)->bulk_out, sizeof (cbw), (u8 *) &cbw, 0) < 0) {
+	    bulk (MSC_INST (dev)->bulk_out, sizeof (cbw), (uint8_t *) &cbw, 0) < 0) {
 		return reset_transport (dev);
 	}
 	if (buflen > 0) {
@@ -329,7 +329,7 @@ typedef struct {
  */
 int
 readwrite_blocks_512 (usbdev_t *dev, int start, int n,
-	cbw_direction dir, u8 *buf)
+	cbw_direction dir, uint8_t *buf)
 {
 	int blocksize_divider = MSC_INST(dev)->blocksize / 512;
 	return readwrite_blocks (dev, start / blocksize_divider,
@@ -349,7 +349,7 @@ readwrite_blocks_512 (usbdev_t *dev, int start, int n,
  * @return 0 on success, 1 on failure
  */
 static int
-readwrite_chunk (usbdev_t *dev, int start, int n, cbw_direction dir, u8 *buf)
+readwrite_chunk (usbdev_t *dev, int start, int n, cbw_direction dir, uint8_t *buf)
 {
 	cmdblock_t cb;
 	memset (&cb, 0, sizeof (cb));
@@ -363,7 +363,7 @@ readwrite_chunk (usbdev_t *dev, int start, int n, cbw_direction dir, u8 *buf)
 	cb.block = htonl (start);
 	cb.numblocks = htonw (n);
 
-	return execute_command (dev, dir, (u8 *) &cb, sizeof (cb), buf,
+	return execute_command (dev, dir, (uint8_t *) &cb, sizeof (cb), buf,
 				n * MSC_INST(dev)->blocksize, 0)
 		!= MSC_COMMAND_OK ? 1 : 0;
 }
@@ -385,7 +385,7 @@ readwrite_chunk (usbdev_t *dev, int start, int n, cbw_direction dir, u8 *buf)
  * @return 0 on success, 1 on failure
  */
 int
-readwrite_blocks (usbdev_t *dev, int start, int n, cbw_direction dir, u8 *buf)
+readwrite_blocks (usbdev_t *dev, int start, int n, cbw_direction dir, uint8_t *buf)
 {
 	int chunk_size = MAX_CHUNK_BYTES / MSC_INST(dev)->blocksize;
 	int chunk;
@@ -417,26 +417,26 @@ readwrite_blocks (usbdev_t *dev, int start, int n, cbw_direction dir, u8 *buf)
 static int
 request_sense (usbdev_t *dev)
 {
-	u8 buf[19];
+	uint8_t buf[19];
 	cmdblock6_t cb;
 	memset (&cb, 0, sizeof (cb));
 	cb.command = 0x3;
 	cb.length = sizeof (buf);
 
-	return execute_command (dev, cbw_direction_data_in, (u8 *) &cb,
+	return execute_command (dev, cbw_direction_data_in, (uint8_t *) &cb,
 				sizeof (cb), buf, sizeof (buf), 1);
 }
 
 static int request_sense_no_media (usbdev_t *dev)
 {
-	u8 buf[19];
+	uint8_t buf[19];
 	int ret;
 	cmdblock6_t cb;
 	memset (&cb, 0, sizeof (cb));
 	cb.command = 0x3;
 	cb.length = sizeof (buf);
 
-	ret = execute_command (dev, cbw_direction_data_in, (u8 *) &cb,
+	ret = execute_command (dev, cbw_direction_data_in, (uint8_t *) &cb,
 				sizeof (cb), buf, sizeof (buf), 1);
 
 	if (ret)
@@ -462,7 +462,7 @@ test_unit_ready (usbdev_t *dev)
 {
 	cmdblock6_t cb;
 	memset (&cb, 0, sizeof (cb));	// full initialization for T-U-R
-	return execute_command (dev, cbw_direction_data_out, (u8 *) &cb,
+	return execute_command (dev, cbw_direction_data_out, (uint8_t *) &cb,
 				sizeof (cb), 0, 0, 0);
 }
 
@@ -473,7 +473,7 @@ spin_up (usbdev_t *dev)
 	memset (&cb, 0, sizeof (cb));
 	cb.command = 0x1b;
 	cb.start = 1;
-	return execute_command (dev, cbw_direction_data_out, (u8 *) &cb,
+	return execute_command (dev, cbw_direction_data_out, (uint8_t *) &cb,
 				sizeof (cb), 0, 0, 0);
 }
 
@@ -483,14 +483,14 @@ read_capacity (usbdev_t *dev)
 	cmdblock_t cb;
 	memset (&cb, 0, sizeof (cb));
 	cb.command = 0x25;	// read capacity
-	u32 buf[2];
+	uint32_t buf[2];
 
 	usb_debug ("Reading capacity of mass storage device.\n");
 	int count = 0, ret;
 	while (count++ < 20) {
 		switch (ret = execute_command
-				(dev, cbw_direction_data_in, (u8 *) &cb,
-				 sizeof (cb), (u8 *)buf, 8, 0)) {
+				(dev, cbw_direction_data_in, (uint8_t *) &cb,
+				 sizeof (cb), (uint8_t *)buf, 8, 0)) {
 		case MSC_COMMAND_OK:
 			break;
 		case MSC_COMMAND_FAIL:
@@ -690,7 +690,7 @@ usb_msc_poll (usbdev_t *dev)
 		usb_debug ("usb msc: ready -> not ready (lun %d)\n", msc->lun);
 		usb_msc_remove_disk (dev);
 	} else if (!prev_ready && !msc->ready) {
-		u8 new_lun = (msc->lun + 1) % msc->num_luns;
+		uint8_t new_lun = (msc->lun + 1) % msc->num_luns;
 		usb_debug("usb msc: not ready (lun %d) -> lun %d\n", msc->lun,
 			  new_lun);
 		msc->lun = new_lun;

@@ -24,16 +24,16 @@
 typedef struct dwc_ctrl {
 #define DMA_SIZE (64 * 1024)
 	void *dma_buffer;
-	u32 *hprt0;
-	u32 frame;
+	uint32_t *hprt0;
+	uint32_t frame;
 } dwc_ctrl_t;
 
 typedef struct {
-	u8 *data;
+	uint8_t *data;
 	endpoint_t *endp;
 	int reqsize;
-	u32 reqtiming;
-	u32 timestamp;
+	uint32_t reqtiming;
+	uint32_t timestamp;
 } intr_queue_t;
 
 typedef struct {

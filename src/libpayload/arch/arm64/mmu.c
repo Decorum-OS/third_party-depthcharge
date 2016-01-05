@@ -128,8 +128,9 @@ static uint64_t *setup_new_table(uint64_t desc, size_t xlat_size)
 		if (xlat_size == L3_XLAT_SIZE)
 			desc |= PAGE_DESC;
 
-		for (entry = new; (u8 *)entry < (u8 *)new + GRANULE_SIZE;
-		     entry++, desc += xlat_size)
+		for (entry = new; (uint8_t *)entry <
+			(uint8_t *)new + GRANULE_SIZE;
+			entry++, desc += xlat_size)
 			*entry = desc;
 	}
 

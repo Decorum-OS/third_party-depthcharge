@@ -20,7 +20,7 @@
 #include <gdb.h>
 #include <libpayload.h>
 
-static const u8 type_to_signal[] = {
+static const uint8_t type_to_signal[] = {
 	[EXC_DE]  = GDB_SIGFPE,
 	[EXC_DB]  = GDB_SIGTRAP,
 	[EXC_NMI] = GDB_SIGKILL,
@@ -42,7 +42,7 @@ static const u8 type_to_signal[] = {
 	[EXC_SX]  = GDB_SIGFPE,
 };
 
-static int gdb_exception_hook(u32 type)
+static int gdb_exception_hook(uint32_t type)
 {
 	if (type >= ARRAY_SIZE(type_to_signal) || !type_to_signal[type])
 		return 0;
@@ -57,7 +57,7 @@ void gdb_arch_init(void)
 
 void gdb_arch_enter(void)
 {
-	u32 *esp;
+	uint32_t *esp;
 
 	asm volatile ("mov %%esp, %0" : "=r"(esp) );
 
@@ -70,7 +70,7 @@ void gdb_arch_enter(void)
 
 int gdb_arch_set_single_step(int on)
 {
-	const u32 tf_bit = 1 << 8;
+	const uint32_t tf_bit = 1 << 8;
 
 	if (on)
 		exception_state->regs.eflags |= tf_bit;

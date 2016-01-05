@@ -155,53 +155,53 @@
 
      typedef struct {
 	// Control and Status Partition
-	volatile u32 HcRevision;
-	volatile u32 HcControl;
-	volatile u32 HcCommandStatus;
-	volatile u32 HcInterruptStatus;
-	volatile u32 HcInterruptEnable;
-	volatile u32 HcInterruptDisable;
+	volatile uint32_t HcRevision;
+	volatile uint32_t HcControl;
+	volatile uint32_t HcCommandStatus;
+	volatile uint32_t HcInterruptStatus;
+	volatile uint32_t HcInterruptEnable;
+	volatile uint32_t HcInterruptDisable;
 
 	// Memory Pointer Partition
-	volatile u32 HcHCCA;
-	volatile u32 HcPeriodCurrentED;
-	volatile u32 HcControlHeadED;
-	volatile u32 HcControlCurrentED;
-	volatile u32 HcBulkHeadED;
-	volatile u32 HcBulkCurrentED;
-	volatile u32 HcDoneHead;
+	volatile uint32_t HcHCCA;
+	volatile uint32_t HcPeriodCurrentED;
+	volatile uint32_t HcControlHeadED;
+	volatile uint32_t HcControlCurrentED;
+	volatile uint32_t HcBulkHeadED;
+	volatile uint32_t HcBulkCurrentED;
+	volatile uint32_t HcDoneHead;
 
 	// Frame Counter Partition
-	volatile u32 HcFmInterval;
-	volatile u32 HcFmRemaining;
-	volatile u32 HcFmNumber;
-	volatile u32 HcPeriodicStart;
-	volatile u32 HcLSThreshold;
+	volatile uint32_t HcFmInterval;
+	volatile uint32_t HcFmRemaining;
+	volatile uint32_t HcFmNumber;
+	volatile uint32_t HcPeriodicStart;
+	volatile uint32_t HcLSThreshold;
 
 	// Root Hub Partition
-	volatile u32 HcRhDescriptorA;
-	volatile u32 HcRhDescriptorB;
-	volatile u32 HcRhStatus;
+	volatile uint32_t HcRhDescriptorA;
+	volatile uint32_t HcRhDescriptorB;
+	volatile uint32_t HcRhStatus;
 	/* all bits in HcRhPortStatus registers are R/WC, so
 	   _DO NOT_ use |= to set the bits,
 	   this clears the entire state */
-	volatile u32 HcRhPortStatus[];
+	volatile uint32_t HcRhPortStatus[];
      } __attribute__ ((packed)) opreg_t;
 
 	typedef struct { /* should be 256 bytes according to spec */
-		u32 HccaInterruptTable[32];
-		volatile u16 HccaFrameNumber;
-		volatile u16 HccaPad1;
-		volatile u32 HccaDoneHead;
-		u8 reserved[116]; /* pad according to spec */
-		u8 what[4]; /* really pad to 256 as spec only covers 252 */
+		uint32_t HccaInterruptTable[32];
+		volatile uint16_t HccaFrameNumber;
+		volatile uint16_t HccaPad1;
+		volatile uint32_t HccaDoneHead;
+		uint8_t reserved[116]; /* pad according to spec */
+		uint8_t what[4]; /* really pad to 256 as spec only covers 252 */
 	} __attribute__ ((packed)) hcca_t;
 
 	typedef volatile struct {
-		u32 config;
-		u32 tail_pointer;
-		u32 head_pointer;
-		u32 next_ed;
+		uint32_t config;
+		uint32_t tail_pointer;
+		uint32_t head_pointer;
+		uint32_t next_ed;
 	} __attribute__ ((packed)) ed_t;
 #define ED_HALTED 1
 #define ED_TOGGLE 2
@@ -216,10 +216,10 @@
 #define ED_MPS_SHIFT 16
 
 	typedef volatile struct {
-		u32 config;
-		u32 current_buffer_pointer;
-		u32 next_td;
-		u32 buffer_end;
+		uint32_t config;
+		uint32_t current_buffer_pointer;
+		uint32_t next_td;
+		uint32_t buffer_end;
 	} __attribute__ ((packed)) td_t;
 /*
  * Bits 0 through 17 of .config won't be interpreted by the host controller

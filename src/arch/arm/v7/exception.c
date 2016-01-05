@@ -33,7 +33,7 @@
 #include <libpayload.h>
 #include <stdint.h>
 
-u32 exception_stack[0x400] __attribute__((aligned(8)));
+uint32_t exception_stack[0x400] __attribute__((aligned(8)));
 struct exception_state exception_state;
 
 static exception_hook hook;
@@ -81,7 +81,7 @@ static void print_regs(void)
 	printf("CPSR = 0x%08x\n", exception_state.cpsr);
 }
 
-void exception_dispatch(u32 idx)
+void exception_dispatch(uint32_t idx)
 {
 	die_if(idx >= EXC_COUNT || !names[idx], "Bad exception index %u!", idx);
 

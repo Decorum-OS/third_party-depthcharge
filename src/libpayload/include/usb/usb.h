@@ -198,7 +198,7 @@ struct usbdev {
 	int hub;		// hub, device is attached to
 	int port;		// port where device is attached
 	usb_speed speed;
-	u32 quirks;		// quirks field. got to love usb
+	uint32_t quirks;	// quirks field. got to love usb
 	void *data;
 	device_descriptor_t *descriptor;
 	configuration_descriptor_t *configuration;
@@ -232,12 +232,12 @@ struct usbdev_hc {
 			other usage of this hci_t* is invalid. */
 	void (*shutdown) (hci_t *controller);
 
-	int (*bulk) (endpoint_t *ep, int size, u8 *data, int finalize);
+	int (*bulk) (endpoint_t *ep, int size, uint8_t *data, int finalize);
 	int (*control) (usbdev_t *dev, direction_t pid, int dr_length,
-			void *devreq, int data_length, u8 *data);
+			void *devreq, int data_length, uint8_t *data);
 	void* (*create_intr_queue) (endpoint_t *ep, int reqsize, int reqcount, int reqtiming);
 	void (*destroy_intr_queue) (endpoint_t *ep, void *queue);
-	u8* (*poll_intr_queue) (void *queue);
+	uint8_t* (*poll_intr_queue) (void *queue);
 	void *instance;
 
 	/* set_address():		Tell the usb device its address (xHCI
@@ -262,7 +262,7 @@ void detach_controller (hci_t *controller);
 void usb_poll (void);
 usbdev_t *init_device_entry (hci_t *controller, int num);
 
-int usb_decode_mps0 (usb_speed speed, u8 bMaxPacketSize0);
+int usb_decode_mps0 (usb_speed speed, uint8_t bMaxPacketSize0);
 int set_feature (usbdev_t *dev, int endp, int feature, int rtype);
 int get_status (usbdev_t *dev, int endp, int rtype, int len, void *data);
 int get_descriptor (usbdev_t *dev, int rtype, int descType, int descIdx,
@@ -293,8 +293,8 @@ void usb_detach_device(hci_t *controller, int devno);
 int usb_attach_device(hci_t *controller, int hubaddress, int port,
 		      usb_speed speed);
 
-u32 usb_quirk_check(u16 vendor, u16 device);
-int usb_interface_check(u16 vendor, u16 device);
+uint32_t usb_quirk_check(uint16_t vendor, uint16_t device);
+int usb_interface_check(uint16_t vendor, uint16_t device);
 
 #define USB_QUIRK_MSC_FORCE_PROTO_SCSI		(1 <<  0)
 #define USB_QUIRK_MSC_FORCE_PROTO_ATAPI		(1 <<  1)

@@ -38,10 +38,10 @@
  * <libpayload.h> in case GCC does not have an assembly version for this arch.
  */
 
-int __clzsi2(u32 a);
-int __clzsi2(u32 a)
+int __clzsi2(uint32_t a);
+int __clzsi2(uint32_t a)
 {
-	static const u8 four_bit_table[] = {
+	static const uint8_t four_bit_table[] = {
 		[0x0] = 4, [0x1] = 3, [0x2] = 2, [0x3] = 2,
 		[0x4] = 1, [0x5] = 1, [0x6] = 1, [0x7] = 1,
 		[0x8] = 0, [0x9] = 0, [0xa] = 0, [0xb] = 0,

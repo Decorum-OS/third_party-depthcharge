@@ -48,7 +48,7 @@ static void *default_memset(void *s, int c, size_t n)
 	s += i * sizeof(unsigned long);
 
 	for (i = 0; i < n % sizeof(unsigned long); i++)
-		((u8 *)s)[i] = (u8)c;
+		((uint8_t *)s)[i] = (uint8_t)c;
 
 	return ret;
 }
@@ -68,7 +68,7 @@ static void *default_memcpy(void *dst, const void *src, size_t n)
 	dst += i * sizeof(unsigned long);
 
 	for(i = 0; i < n % sizeof(unsigned long); i++)
-		((u8 *)dst)[i] = ((u8 *)src)[i];
+		((uint8_t *)dst)[i] = ((uint8_t *)src)[i];
 
 	return ret;
 }
@@ -86,7 +86,7 @@ static void *default_memmove(void *dst, const void *src, size_t n)
 	offs = n - (n % sizeof(unsigned long));
 
 	for (i = (n % sizeof(unsigned long)) - 1; i >= 0; i--)
-		((u8 *)dst)[i + offs] = ((u8 *)src)[i + offs];
+		((uint8_t *)dst)[i + offs] = ((uint8_t *)src)[i + offs];
 
 	for (i = n / sizeof(unsigned long) - 1; i >= 0; i--)
 		((unsigned long *)dst)[i] = ((unsigned long *)src)[i];
@@ -117,8 +117,8 @@ static int default_memcmp(const void *s1, const void *s2, size_t n)
 			break;	/* fall through to find differing byte */
 
 	for (i *= sizeof(unsigned long); i < n; i++)
-		if (((u8 *)s1)[i] != ((u8 *)s2)[i])
-			return ((u8 *)s1)[i] - ((u8 *)s2)[i];
+		if (((uint8_t *)s1)[i] != ((uint8_t *)s2)[i])
+			return ((uint8_t *)s1)[i] - ((uint8_t *)s2)[i];
 
 	return 0;
 }

@@ -32,7 +32,7 @@
 #define _PCI_H
 
 #include <arch/types.h>
-typedef u32 pcidev_t;
+typedef uint32_t pcidev_t;
 
 /* Device config space registers. */
 #define REG_VENDOR_ID           0x00
@@ -101,16 +101,16 @@ typedef u32 pcidev_t;
 #define PCI_SLOT(_d) ((_d >> 11) & 0x1f)
 #define PCI_FUNC(_d) ((_d >> 8) & 0x7)
 
-u8 pci_read_config8(u32 device, u16 reg);
-u16 pci_read_config16(u32 device, u16 reg);
-u32 pci_read_config32(u32 device, u16 reg);
+uint8_t pci_read_config8(uint32_t device, uint16_t reg);
+uint16_t pci_read_config16(uint32_t device, uint16_t reg);
+uint32_t pci_read_config32(uint32_t device, uint16_t reg);
 
-void pci_write_config8(u32 device, u16 reg, u8 val);
-void pci_write_config16(u32 device, u16 reg, u16 val);
-void pci_write_config32(u32 device, u16 reg, u32 val);
+void pci_write_config8(uint32_t device, uint16_t reg, uint8_t val);
+void pci_write_config16(uint32_t device, uint16_t reg, uint16_t val);
+void pci_write_config32(uint32_t device, uint16_t reg, uint32_t val);
 
-int pci_find_device(u16 vid, u16 did, pcidev_t *dev);
-u32 pci_read_resource(pcidev_t dev, int bar);
+int pci_find_device(uint16_t vid, uint16_t did, pcidev_t *dev);
+uint32_t pci_read_resource(pcidev_t dev, int bar);
 
 void pci_set_bus_master(pcidev_t dev);
 

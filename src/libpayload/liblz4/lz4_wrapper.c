@@ -38,9 +38,18 @@
  * seem to be very inefficient in practice (at least on ARM64). Since libpayload
  * knows about endinaness and allows some basic assumptions (such as unaligned
  * access support), we can easily write the ones we need ourselves. */
-static u16 LZ4_readLE16(const void *src) { return le16toh(*(u16 *)src); }
-static void LZ4_copy4(void *dst, const void *src) { *(u32 *)dst = *(u32 *)src; }
-static void LZ4_copy8(void *dst, const void *src) { *(u64 *)dst = *(u64 *)src; }
+static uint16_t LZ4_readLE16(const void *src)
+{
+	return le16toh(*(uint16_t *)src);
+}
+static void LZ4_copy4(void *dst, const void *src)
+{
+	*(uint32_t *)dst = *(uint32_t *)src;
+}
+static void LZ4_copy8(void *dst, const void *src)
+{
+	*(uint64_t *)dst = *(uint64_t *)src;
+}
 
 typedef  uint8_t BYTE;
 typedef uint16_t U16;
@@ -58,40 +67,40 @@ typedef uint64_t U64;
 #define LZ4F_MAGICNUMBER 0x184D2204
 
 struct lz4_frame_header {
-	u32 magic;
+	uint32_t magic;
 	union {
-		u8 flags;
+		uint8_t flags;
 		struct {
-			u8 reserved0		: 2;
-			u8 has_content_checksum	: 1;
-			u8 has_content_size	: 1;
-			u8 has_block_checksum	: 1;
-			u8 independent_blocks	: 1;
-			u8 version		: 2;
+			uint8_t reserved0		: 2;
+			uint8_t has_content_checksum	: 1;
+			uint8_t has_content_size	: 1;
+			uint8_t has_block_checksum	: 1;
+			uint8_t independent_blocks	: 1;
+			uint8_t version		: 2;
 		};
 	};
 	union {
-		u8 block_descriptor;
+		uint8_t block_descriptor;
 		struct {
-			u8 reserved1		: 4;
-			u8 max_block_size	: 3;
-			u8 reserved2		: 1;
+			uint8_t reserved1		: 4;
+			uint8_t max_block_size	: 3;
+			uint8_t reserved2		: 1;
 		};
 	};
-	/* + u64 content_size iff has_content_size is set */
-	/* + u8 header_checksum */
+	/* + uint64_t content_size iff has_content_size is set */
+	/* + uint8_t header_checksum */
 } __attribute__((packed));
 
 struct lz4_block_header {
 	union {
-		u32 raw;
+		uint32_t raw;
 		struct {
-			u32 size		: 31;
-			u32 not_compressed	: 1;
+			uint32_t size		: 31;
+			uint32_t not_compressed	: 1;
 		};
 	};
 	/* + size bytes of data */
-	/* + u32 block_checksum iff has_block_checksum is set */
+	/* + uint32_t block_checksum iff has_block_checksum is set */
 } __attribute__((packed));
 
 size_t ulz4fn(const void *src, size_t srcn, void *dst, size_t dstn)
@@ -103,7 +112,7 @@ size_t ulz4fn(const void *src, size_t srcn, void *dst, size_t dstn)
 	{ /* With in-place decompression the header may become invalid later. */
 		const struct lz4_frame_header *h = in;
 
-		if (srcn < sizeof(*h) + sizeof(u64) + sizeof(u8))
+		if (srcn < sizeof(*h) + sizeof(uint64_t) + sizeof(uint8_t))
 			return 0;	/* input overrun */
 
 		/* We assume there's always only a single, standard frame. */
@@ -117,12 +126,13 @@ size_t ulz4fn(const void *src, size_t srcn, void *dst, size_t dstn)
 
 		in += sizeof(*h);
 		if (h->has_content_size)
-			in += sizeof(u64);
-		in += sizeof(u8);
+			in += sizeof(uint64_t);
+		in += sizeof(uint8_t);
 	}
 
 	while (1) {
-		struct lz4_block_header b = { .raw = le32toh(*(u32 *)in) };
+		struct lz4_block_header b =
+			{ .raw = le32toh(*(uint32_t *)in) };
 		in += sizeof(struct lz4_block_header);
 
 		if (in - src + b.size > srcn)
@@ -132,7 +142,7 @@ size_t ulz4fn(const void *src, size_t srcn, void *dst, size_t dstn)
 			return out - dst;	/* decompression successful */
 
 		if (b.not_compressed) {
-			size_t size = MIN((u32)b.size, dst + dstn - out);
+			size_t size = MIN((uint32_t)b.size, dst + dstn - out);
 			memcpy(out, in, size);
 			if (size < b.size)
 				return 0;	/* output overrun */
@@ -151,12 +161,13 @@ size_t ulz4fn(const void *src, size_t srcn, void *dst, size_t dstn)
 
 		in += b.size;
 		if (has_block_checksum)
-			in += sizeof(u32);
+			in += sizeof(uint32_t);
 	}
 }
 
 size_t ulz4f(const void *src, void *dst)
 {
-	/* LZ4 uses signed size parameters, so can't just use ((u32)-1) here. */
+	/* LZ4 uses signed size parameters, so can't just use
+	   ((uint32_t) - 1) here. */
 	return ulz4fn(src, 1*GiB, dst, 1*GiB);
 }

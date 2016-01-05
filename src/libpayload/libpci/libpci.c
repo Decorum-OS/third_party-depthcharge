@@ -38,34 +38,34 @@ static pcidev_t libpci_to_lb(struct pci_dev *dev)
 }
 
 /* libpci interface */
-u8 pci_read_byte(struct pci_dev *dev, int pos)
+uint8_t pci_read_byte(struct pci_dev *dev, int pos)
 {
 	return pci_read_config8(libpci_to_lb(dev), pos);
 }
 
-u16 pci_read_word(struct pci_dev *dev, int pos)
+uint16_t pci_read_word(struct pci_dev *dev, int pos)
 {
 	return pci_read_config16(libpci_to_lb(dev), pos);
 }
 
-u32 pci_read_long(struct pci_dev *dev, int pos)
+uint32_t pci_read_long(struct pci_dev *dev, int pos)
 {
 	return pci_read_config32(libpci_to_lb(dev), pos);
 }
 
-int pci_write_byte(struct pci_dev *dev, int pos, u8 data)
+int pci_write_byte(struct pci_dev *dev, int pos, uint8_t data)
 {
 	pci_write_config8(libpci_to_lb(dev), pos, data);
 	return 1; /* success */
 }
 
-int pci_write_word(struct pci_dev *dev, int pos, u16 data)
+int pci_write_word(struct pci_dev *dev, int pos, uint16_t data)
 {
 	pci_write_config16(libpci_to_lb(dev), pos, data);
 	return 1; /* success */
 }
 
-int pci_write_long(struct pci_dev *dev, int pos, u32 data)
+int pci_write_long(struct pci_dev *dev, int pos, uint32_t data)
 {
 	pci_write_config32(libpci_to_lb(dev), pos, data);
 	return 1; /* success */
@@ -158,7 +158,7 @@ int pci_filter_match(struct pci_filter* pf, struct pci_dev* dev)
 static struct pci_dev *pci_scan_single_bus(struct pci_dev *dev, int bus)
 {
 	int devfn;
-	u32 val;
+	uint32_t val;
 	unsigned char hdr;
 
 	for (devfn = 0; devfn < 0x100; devfn++) {
@@ -210,7 +210,7 @@ void pci_scan_bus(struct pci_access* pacc)
 	pacc->devices = rootdev.next;
 }
 
-struct pci_dev *pci_get_dev(struct pci_access* pacc, u16 domain, u8 bus, u8 dev, u8 func)
+struct pci_dev *pci_get_dev(struct pci_access* pacc, uint16_t domain, uint8_t bus, uint8_t dev, uint8_t func)
 {
 	struct pci_dev *cur = malloc(sizeof(*cur));
 	cur->domain = domain;

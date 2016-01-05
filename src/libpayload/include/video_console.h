@@ -32,7 +32,7 @@
 
 struct video_console {
 	int (*init)(void);
-	void (*putc)(u8, u8, unsigned int);
+	void (*putc)(uint8_t, uint8_t, unsigned int);
 	void (*clear)(void);
 	void (*scroll_up)(void);
 

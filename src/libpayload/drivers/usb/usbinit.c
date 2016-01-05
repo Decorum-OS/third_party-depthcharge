@@ -46,11 +46,11 @@
  */
 static int usb_controller_initialize(int bus, int dev, int func)
 {
-	u32 class;
-	u32 devclass;
-	u32 prog_if;
+	uint32_t class;
+	uint32_t devclass;
+	uint32_t prog_if;
 	pcidev_t pci_device;
-	u32 pciid;
+	uint32_t pciid;
 
 	pci_device = PCI_DEV (bus, dev, func);
 	class = pci_read_config32(pci_device, 8);
@@ -61,7 +61,7 @@ static int usb_controller_initialize(int bus, int dev, int func)
 
 	/* enable busmaster */
 	if (devclass == 0xc03) {
-		u32 pci_command;
+		uint32_t pci_command;
 
 		pci_command = pci_read_config32(pci_device, PCI_COMMAND);
 		pci_command |= PCI_COMMAND_MASTER;
@@ -120,7 +120,7 @@ static void usb_scan_pci_bus(int bus)
 {
 	int dev, func;
 	for (dev = 0; dev < 32; dev++) {
-		u8 header_type;
+		uint8_t header_type;
 		pcidev_t pci_device = PCI_DEV(bus, dev, 0);
 
 		/* Check if there's a device here at all. */

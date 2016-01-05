@@ -38,14 +38,14 @@
 #endif
 
 static struct {
-	u64 ticks;
+	uint64_t ticks;
 	time_t secs;
 	suseconds_t usecs;
 } clock;
 
 static void update_clock(void)
 {
-	u64 delta = timer_raw_value() - clock.ticks;
+	uint64_t delta = timer_raw_value() - clock.ticks;
 	int secs;
 	static uint64_t ticks_per_sec = 0;
 	static uint64_t ticks_per_usec = 0;
@@ -71,8 +71,8 @@ static void update_clock(void)
 
 static unsigned int day_of_year(int mon, int day, int year)
 {
-	static u8 mdays[12] = { 31, 28, 31, 30, 31, 30,
-				31, 31, 30, 31, 30, 31 };
+	static uint8_t mdays[12] = { 31, 28, 31, 30, 31, 30,
+				     31, 31, 30, 31, 30, 31 };
 
 	int i, ret = 0;
 
@@ -187,9 +187,9 @@ void delay(unsigned int s)
 	_delay((uint64_t)s * timer_hz());
 }
 
-u64 timer_us(u64 base)
+uint64_t timer_us(uint64_t base)
 {
-	static u64 hz;
+	static uint64_t hz;
 
 	// Only check timer_hz once. Assume it doesn't change.
 	if (hz == 0) {
