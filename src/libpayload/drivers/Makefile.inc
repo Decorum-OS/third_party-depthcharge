@@ -53,10 +53,6 @@ libc-$(CONFIG_TIMER_CYGNUS) += timer/cygnus.c
 libc-$(CONFIG_VIDEO_CONSOLE) += video/video.c
 libc-$(CONFIG_VGA_VIDEO_CONSOLE) += video/vga.c
 
-# Geode LX console drivers
-libc-$(CONFIG_GEODELX_VIDEO_CONSOLE) += video/geodelx.c
-libc-$(CONFIG_GEODELX_VIDEO_CONSOLE) += video/font8x16.c
-
 # coreboot generic framebuffer driver
 libc-$(CONFIG_COREBOOT_VIDEO_CONSOLE) += video/corebootfb.c
 libc-$(CONFIG_COREBOOT_VIDEO_CONSOLE) += video/font8x16.c

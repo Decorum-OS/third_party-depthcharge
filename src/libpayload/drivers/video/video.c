@@ -30,10 +30,6 @@
 #include <libpayload.h>
 #include <video_console.h>
 
-#if CONFIG_GEODELX_VIDEO_CONSOLE
-extern struct video_console geodelx_video_console;
-#endif
-
 #if CONFIG_COREBOOT_VIDEO_CONSOLE
 extern struct video_console coreboot_video_console;
 #endif
@@ -44,9 +40,6 @@ extern struct video_console vga_video_console;
 
 static struct video_console *console_list[] =
 {
-#if CONFIG_GEODELX_VIDEO_CONSOLE
-	&geodelx_video_console,
-#endif
 #if CONFIG_COREBOOT_VIDEO_CONSOLE
 	&coreboot_video_console,
 #endif

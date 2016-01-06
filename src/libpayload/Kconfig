@@ -140,14 +140,9 @@ config VGA_VIDEO_CONSOLE
 	depends on ARCH_X86 && VIDEO_CONSOLE
 	default y
 
-config GEODELX_VIDEO_CONSOLE
-	bool "Geode LX video console driver"
-	depends on ARCH_X86 && VIDEO_CONSOLE
-	default n
-
 config COREBOOT_VIDEO_CONSOLE
 	bool "coreboot video console driver"
-	depends on VIDEO_CONSOLE && !GEODELX_VIDEO_CONSOLE
+	depends on VIDEO_CONSOLE
 	default n
 	help
 	  Say Y here if coreboot switched to a graphics mode and
