@@ -45,7 +45,6 @@ libc-$(CONFIG_TIMER_MTK) += timer/mtk_timer.c
 libc-$(CONFIG_TIMER_MCT) += timer/mct.c
 libc-$(CONFIG_TIMER_RDTSC) += timer/rdtsc.c
 libc-$(CONFIG_TIMER_TEGRA_1US) += timer/tegra_1us.c
-libc-$(CONFIG_TIMER_IPQ806X) += timer/ipq806x.c
 libc-$(CONFIG_TIMER_RK) += timer/rktimer.c
 libc-$(CONFIG_TIMER_IMG_PISTACHIO) += timer/img_pistachio.c
 libc-$(CONFIG_TIMER_CYGNUS) += timer/cygnus.c

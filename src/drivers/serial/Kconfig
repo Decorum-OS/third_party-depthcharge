@@ -26,7 +26,3 @@ config DRIVER_SERIAL_S5P
 config DRIVER_SERIAL_8250_MMIO32
 	bool "Memory-mapped 8250-compatible serial port driver with 32-bit regs"
 	default n
-
-config DRIVER_SERIAL_IPQ806X
-	bool "IPQ806x SOC compatible serial port driver"
-	default n

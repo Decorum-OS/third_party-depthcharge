@@ -17,5 +17,4 @@
 
 depthcharge-$(CONFIG_DRIVER_SERIAL_8250) += 8250.c
 depthcharge-$(CONFIG_DRIVER_SERIAL_8250_MMIO32) += 8250_mmio32.c
-depthcharge-$(CONFIG_DRIVER_SERIAL_IPQ806X) += ipq806x.c
 depthcharge-$(CONFIG_DRIVER_SERIAL_S5P) += s5p.c
