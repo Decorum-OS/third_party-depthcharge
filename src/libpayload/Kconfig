@@ -30,29 +30,6 @@
 
 menu "Generic Options"
 
-config GPL
-	bool "GPLv2-licensed Options"
-	default n
-	help
-	  Prompt for options that will build code licensed under the GNU General
-	  Public License (version 2). This will subject the whole payload to the
-	  terms of this license (including its provision to release all sources,
-	  please see the LICENSE_GPL file for details).
-
-config EXPERIMENTAL
-	bool "Experimental Options"
-	default n
-	help
-	  Prompt for experimental functionality. Attention: This is not likely
-	  to work without problems
-
-config DEVELOPER
-	bool "Developer Options"
-	default n
-	help
-	  Prompt for developer options. These options are only interesting for
-	  libpayload developers.
-
 choice
 	prompt "Compiler to use"
 	default COMPILER_GCC
@@ -525,7 +502,6 @@ config UDC_DWC2
 endmenu
 
 menu "Debugging"
-	depends on DEVELOPER
 
 config DEBUG_MALLOC
 	bool "Debug memory allocator"
