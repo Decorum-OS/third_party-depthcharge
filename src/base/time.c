@@ -33,7 +33,7 @@
  */
 
 #include <libpayload.h>
-#if IS_ENABLED(CONFIG_ARCH_X86)
+#if CONFIG_ARCH_X86
 #include <arch/rdtsc.h>
 #endif
 
@@ -69,7 +69,7 @@ static void update_clock(void)
 	}
 }
 
-#if IS_ENABLED(CONFIG_NVRAM)
+#if CONFIG_NVRAM
 
 static unsigned int day_of_year(int mon, int day, int year)
 {

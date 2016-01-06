@@ -118,20 +118,21 @@ static int get_cbfs_range(uint32_t *offset, uint32_t *cbfs_end,
 	// Logical offset (for source media) of first file.
 	*offset = ntohl(header->offset);
 	*cbfs_end = ntohl(header->romsize);
-#if IS_ENABLED(CONFIG_ARCH_X86)
-	// resolve actual length of ROM used for CBFS components
-	// the bootblock size was not taken into account
-	*cbfs_end -= ntohl(header->bootblocksize);
+	if (CONFIG_ARCH_X86) {
+		// resolve actual length of ROM used for CBFS components
+		// the bootblock size was not taken into account
+		*cbfs_end -= ntohl(header->bootblocksize);
 
-	// fine tune the length to handle alignment positioning.
-	// using (bootblock size) % align, to derive the
-	// number of bytes the bootblock is off from the alignment size.
-	if ((ntohl(header->bootblocksize) % CBFS_ALIGNMENT))
-		*cbfs_end -= (CBFS_ALIGNMENT -
-			(ntohl(header->bootblocksize) % CBFS_ALIGNMENT));
-	else
-		*cbfs_end -= 1;
-#endif
+		// fine tune the length to handle alignment positioning.
+		// using (bootblock size) % align, to derive the
+		// number of bytes the bootblock is off from the alignment size.
+		if ((ntohl(header->bootblocksize) % CBFS_ALIGNMENT))
+			*cbfs_end -= (CBFS_ALIGNMENT -
+				(ntohl(header->bootblocksize) %
+				 CBFS_ALIGNMENT));
+		else
+			*cbfs_end -= 1;
+	}
 	return 0;
 }
 

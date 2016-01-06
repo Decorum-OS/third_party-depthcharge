@@ -88,7 +88,7 @@ INCLUDES = -I$(obj) -I$(obj)/libpayload/ -I$(src)/src/ \
 	-I$(src)/src/libpayload/include/ \
 	-I$(src)/src/libpayload/include/$(ARCH)/ \
 	-I$(VB_SOURCE)/firmware/include -I$(GCC_INCLUDE) \
-	-include config.h -include kconfig.h
+	-include config.h
 ABI_FLAGS := $(ARCH_ABI_FLAGS) -ffreestanding -fno-builtin \
 	-fno-stack-protector -fomit-frame-pointer
 LINK_FLAGS = $(ARCH_LINK_FLAGS) $(ABI_FLAGS) -fuse-ld=bfd -nostdlib \

@@ -36,11 +36,7 @@
  */
 struct sysinfo_t lib_sysinfo = {
 	.cpu_khz = 200,
-#if IS_ENABLED(CONFIG_SERIAL_CONSOLE)
-	.ser_ioport = CONFIG_SERIAL_IOBASE,
-#else
-	.ser_ioport = 0x3f8,
-#endif
+	.ser_ioport = CONFIG_SERIAL_IOBASE ? CONFIG_SERIAL_IOBASE : 0x3f8,
 };
 
 int lib_get_sysinfo(void)

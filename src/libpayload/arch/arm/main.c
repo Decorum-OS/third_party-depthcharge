@@ -48,9 +48,8 @@ void start_main(void)
 	lib_get_sysinfo();
 
 	/* Optionally set up the consoles. */
-#if !IS_ENABLED(CONFIG_SKIP_CONSOLE_INIT)
-	console_init();
-#endif
+	if (!CONFIG_SKIP_CONSOLE_INIT)
+		console_init();
 
 	exception_init();
 

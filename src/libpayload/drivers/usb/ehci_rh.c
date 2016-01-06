@@ -30,7 +30,6 @@
 //#define USB_DEBUG
 
 #include <libpayload.h>
-#include <kconfig.h>
 #include "ehci.h"
 #include "ehci_private.h"
 
@@ -102,7 +101,7 @@ ehci_rh_scanport (usbdev_t *dev, int port)
 	/* device connected, handle */
 	if (RH_INST(dev)->ports[port] & P_CURR_CONN_STATUS) {
 		mdelay(100); // usb20 spec 9.1.2
-		if (!IS_ENABLED(CONFIG_USB_EHCI_HOSTPC_ROOT_HUB_TT) &&
+		if (!CONFIG_USB_EHCI_HOSTPC_ROOT_HUB_TT &&
 				(RH_INST(dev)->ports[port] & P_LINE_STATUS) ==
 				P_LINE_STATUS_LOWSPEED) {
 			ehci_rh_hand_over_port(dev, port);
@@ -138,7 +137,7 @@ ehci_rh_scanport (usbdev_t *dev, int port)
 			ehci_rh_hand_over_port(dev, port);
 			return;
 		}
-		if (IS_ENABLED(CONFIG_USB_EHCI_HOSTPC_ROOT_HUB_TT)) {
+		if (CONFIG_USB_EHCI_HOSTPC_ROOT_HUB_TT) {
 			port_speed = (usb_speed)
 				((EHCI_INST(dev->controller)->operation->hostpc
 				>> 25) & 0x03);

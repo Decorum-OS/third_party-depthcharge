@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-#if IS_ENABLED(CONFIG_LZMA)
+#if CONFIG_LZMA
 # include <lzma.h>
 # define CBFS_CORE_WITH_LZMA
 #endif

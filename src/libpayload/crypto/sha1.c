@@ -29,7 +29,7 @@ typedef unsigned int u_int;
 
 /* Moved from libpayload.h */
 
-#if IS_ENABLED(CONFIG_LITTLE_ENDIAN)
+#if CONFIG_LITTLE_ENDIAN
 #define BYTE_ORDER      LITTLE_ENDIAN
 #else
 #define BYTE_ORDER      BIG_ENDIAN

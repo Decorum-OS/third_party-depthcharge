@@ -98,18 +98,14 @@ int console_remove_output_driver(void *function)
 
 void console_init(void)
 {
-#if IS_ENABLED(CONFIG_VIDEO_CONSOLE)
-	video_console_init();
-#endif
-#if IS_ENABLED(CONFIG_SERIAL_CONSOLE)
-	serial_console_init();
-#endif
-#if IS_ENABLED(CONFIG_PC_KEYBOARD)
-	keyboard_init();
-#endif
-#if IS_ENABLED(CONFIG_CBMEM_CONSOLE)
-	cbmem_console_init();
-#endif
+	if (CONFIG_VIDEO_CONSOLE)
+		video_console_init();
+	if (CONFIG_SERIAL_CONSOLE)
+		serial_console_init();
+	if (CONFIG_PC_KEYBOARD)
+		keyboard_init();
+	if (CONFIG_CBMEM_CONSOLE)
+		cbmem_console_init();
 }
 
 void console_write(const void *buffer, size_t count)
@@ -143,9 +139,8 @@ int puts(const char *s)
 
 int havekey(void)
 {
-#if IS_ENABLED(CONFIG_USB)
-	usb_poll();
-#endif
+	if (CONFIG_USB)
+		usb_poll();
 	struct console_input_driver *in;
 	for (in = console_in; in != 0; in = in->next)
 		if (in->havekey())
@@ -160,9 +155,8 @@ int havekey(void)
 int getchar(void)
 {
 	while (1) {
-#if IS_ENABLED(CONFIG_USB)
-		usb_poll();
-#endif
+		if (CONFIG_USB)
+			usb_poll();
 		struct console_input_driver *in;
 		for (in = console_in; in != 0; in = in->next)
 			if (in->havechar()) {

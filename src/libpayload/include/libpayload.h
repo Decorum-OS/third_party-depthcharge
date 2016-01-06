@@ -49,7 +49,6 @@
 #include <endian.h>
 #include <fmap_serialized.h>
 #include <ipchksum.h>
-#include <kconfig.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdarg.h>
