@@ -90,6 +90,10 @@ savedefconfig: $(objk)/conf
 	$< --$@=$(DEFCONFIG) $(Kconfig)
 
 defconfig: $(objk)/conf
+	if [[ ! -f $(KBUILD_DEFCONFIG) ]]; then			\
+		echo "$(KBUILD_DEFCONFIG) is not a file";	\
+		exit 1; 					\
+	fi
 ifeq ($(KBUILD_DEFCONFIG),)
 	$< --defconfig $(Kconfig)
 else
