@@ -19,6 +19,6 @@ depthcharge-y += stubs.c
 
 dev-y += netboot.c
 
-classes-$(CONFIG_REMOTEGDB) += gdb
+classes-y += gdb
 
 subdirs-y += gdb
