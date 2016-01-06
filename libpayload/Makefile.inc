@@ -70,13 +70,6 @@ lib: $$(library-targets)
 
 extract_nth=$(word $(1), $(subst |, ,$(2)))
 
-#######################################################################
-# Add handler for special include files 
-$(call add-special-class,includes)
-includes-handler= \
-		$(if $(wildcard $(1)$(call extract_nth,1,$(2))), \
-			$(eval includes += $(1)$(2)))
-
 $(obj)/libpayload.a: $(foreach class,$(libraries),$$($(class)-objs))
 	printf "    AR         $(subst $(shell pwd)/,,$(@))\n"
 	$(AR) rc $@ $^
@@ -93,16 +86,6 @@ install: real-target
 	done
 	install -m 644 arch/$(ARCHDIR-y)/libpayload.ldscript $(DESTDIR)/libpayload/lib/
 	install -m 755 -d $(DESTDIR)/libpayload/lib/$(ARCHDIR-y)
-	printf "    INSTALL    $(DESTDIR)/libpayload/include\n"
-	install -m 755 -d $(DESTDIR)/libpayload/include
-	for file in `find include -name *.h -type f`; do \
-		install -m 755 -d $(DESTDIR)/libpayload/`dirname $$file`; \
-		install -m 644 $$file $(DESTDIR)/libpayload/$$file; \
-	done
-	install -m 644 $(obj)/libpayload-config.h $(DESTDIR)/libpayload/include
-	$(foreach item,$(includes), \
-		install -m 755 -d $(DESTDIR)/libpayload/include/$(call extract_nth,2,$(item)); \
-		install -m 644 $(call extract_nth,1,$(item)) $(DESTDIR)/libpayload/include/$(call extract_nth,2,$(item)); )
 	install -m 644 $(DOTCONFIG) $(DESTDIR)/libpayload/libpayload.config
 	install -m 755 .xcompile $(DESTDIR)/libpayload/libpayload.xcompile
 

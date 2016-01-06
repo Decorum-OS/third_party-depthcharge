@@ -81,8 +81,9 @@ tryldoption = \
 
 include $(src)/src/arch/$(ARCH_DIR)/build_vars
 
-INCLUDES = -I$(obj) -I$(src)/src/ -I$(src)/src/arch/$(ARCH_DIR)/includes/ \
-	-I$(LIBPAYLOAD_DIR)/include/ -I$(LIBPAYLOAD_DIR)/include/$(ARCH) \
+INCLUDES = -I$(obj) -I$(obj)/libpayload/ -I$(src)/src/ \
+	-I$(src)/src/arch/$(ARCH_DIR)/includes/ \
+	-I$(src)/libpayload/include/ -I$(src)/libpayload/include/$(ARCH)/ \
 	-I$(VB_SOURCE)/firmware/include -I$(GCC_INCLUDE) \
 	-include config.h -include kconfig.h
 ABI_FLAGS := $(ARCH_ABI_FLAGS) -ffreestanding -fno-builtin \
