@@ -16,14 +16,10 @@
 
 src ?= $(shell pwd)
 srck = $(src)/util/kconfig
-srcl = $(src)/libpayload
 obj ?= $(src)/build
 objb = $(src)/build/$(BOARD)
-objbl = $(objb)/libpayload
-lpinst = $(objb)/lpinst
 objk = $(obj)/util/kconfig
 tempconfig = $(objb)/tempconfig
-export LIBPAYLOAD_DIR=$(lpinst)/libpayload
 
 unexport CFLAGS
 
@@ -57,14 +53,6 @@ build:
 	# Install the config files into the build dir if they've changed.
 	@printf "Syncing config...\n"
 	$(Q)rsync -ac $(tempconfig)/ $(objb)
-	
-	# Build libpayload.
-	@printf "Building libpayload...\n"
-	$(Q)$(MAKE) -f $(srcl)/Makefile \
-		-C $(srcl) \
-		KCONFIG_AUTOHEADER=$(objb)/config.h \
-		obj=$(objbl) \
-		DOTCONFIG=$(objb)/.config
 	
 	# Build depthcharge using the new config.
 	@printf "Building depthcharge...\n"

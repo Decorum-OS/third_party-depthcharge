@@ -25,7 +25,8 @@ module_obj=$(obj)/module
 # the module is set up.
 $(module_obj)/%.elf.tmp:
 	@printf "    LD         $(subst $(obj)/,,$@)\n"
-	$(Q)$(CC) $(LINK_FLAGS) -o $@ $+ $(mod-$*-ldopts) -lpayload $(LIBGCC)
+	$(Q)$(CC) $(LINK_FLAGS) -o $@ $+ $(mod-$*-ldopts) $(LIBGCC)
+
 
 # The default post processing of an ELF module strips out the .cparams,
 # .gbb_copy, and .shared_data sections, and fix up linking with the trampoline
@@ -71,39 +72,41 @@ $(call add-special-class,module)
 DONT_GC_NETBOOT = -Wl,-u,netboot_entry
 
 common-objects = $(depthcharge-objs) $(VB_LIB)
+libpayload-a = $(obj)/libpayload/libpayload.a
 tramp-objects = $(TRAMPOLINE) $(TRAMP_LP)
 
 net-objects = $(netboot-objs) $(net-objs) $(uip-objs)
-dev-objects = $(net-objects) $(dev-objs)
+dev-objects = $(net-objects) $(dev-objs) $(obj)/libpayload/libgdb.a
 
 
 module-y += cb_payload
 mod-cb_payload-y += cb_payload.c
-mod-cb_payload-libs += $(common-objects) $(unified-objs)
+mod-cb_payload-libs += $(common-objects) $(unified-objs) $(libpayload-a)
 
 module-y += cb_dev
 mod-cb_dev-y += $(mod-cb_payload-y)
-mod-cb_dev-libs += $(mod-cb_payload-libs) $(dev-objects)
-mod-cb_dev-ldopts = $(DONT_GC_NETBOOT) -lgdb
+mod-cb_dev-libs += $(mod-cb_payload-libs) $(dev-objects) $(libpayload-a)
+mod-cb_dev-ldopts = $(DONT_GC_NETBOOT)
 
 module-y += cb_readonly
 mod-cb_readonly-y += cb_readonly.c
 mod-cb_readonly-libs += $(common-objects) $(readonly-objs) $(tramp-objects)
+mod-cb_readonly-libs += $(libpayload-a)
 
 module-y += cb_dev_ro
 mod-cb_dev_ro-y += $(mod-cb_readonly-y)
-mod-cb_dev_ro-libs += $(mod-cb_readonly-libs) $(dev-objects)
-mod-cb_dev_ro-ldopts = $(DONT_GC_NETBOOT) -lgdb
+mod-cb_dev_ro-libs += $(mod-cb_readonly-libs) $(dev-objects) $(libpayload-a)
+mod-cb_dev_ro-ldopts = $(DONT_GC_NETBOOT)
 
 module-y += cb_readwrite
 mod-cb_readwrite-y += cb_readwrite.c
-mod-cb_readwrite-libs += $(common-objects) $(readwrite-objs)
+mod-cb_readwrite-libs += $(common-objects) $(readwrite-objs) $(libpayload-a)
 
 module-y += cb_dev_rw
 mod-cb_dev_rw-y += $(mod-cb_readwrite-y)
-mod-cb_dev_rw-libs += $(mod-cb_readwrite-libs) $(dev-objects)
-mod-cb_dev_rw-ldopts = $(DONT_GC_NETBOOT) -lgdb
+mod-cb_dev_rw-libs += $(mod-cb_readwrite-libs) $(dev-objects) $(libpayload-a)
+mod-cb_dev_rw-ldopts = $(DONT_GC_NETBOOT)
 
 module-y += netboot
 mod-netboot-y += netboot.c
-mod-netboot-libs += $(common-objects) $(net-objects)
+mod-netboot-libs += $(common-objects) $(net-objects) $(libpayload-a)

@@ -49,7 +49,7 @@ endif
 
 # Trampoline to go from RO depthcharge to RW. Make our own libpayload where only
 # a few whitelisted symbols are linkable to avoid accidental binary bloat here.
-$(TRAMP_LP): $(LIBPAYLOAD_DIR)/lib/libpayload.a
+$(TRAMP_LP): $(obj)/libpayload/libpayload.a
 	@printf "    OBJCOPY    $(subst $(obj)/,,$(@))\n"
 	$(Q)$(OBJCOPY) --prefix-symbols=$(TRAMP_PREFIX)_ \
 		--keep-global-symbol=$(TRAMP_PREFIX)_memcpy \

@@ -28,8 +28,10 @@ Q:=@
 .SILENT:
 endif
 
+$(if $(wildcard $(obj)/.xcompile),,$(eval $(shell $(src)/util/xcompile/xcompile $(XGCCPATH) > $(obj)/.xcompile)))
+
 CONFIG_LP_COMPILER_GCC=y
-include $(obj)/libpayload/.xcompile
+include $(obj)/.xcompile
 LZMA := lzma
 
 # The default target placeholder. Default targets that do something should be
@@ -83,7 +85,8 @@ include $(src)/src/arch/$(ARCH_DIR)/build_vars
 
 INCLUDES = -I$(obj) -I$(obj)/libpayload/ -I$(src)/src/ \
 	-I$(src)/src/arch/$(ARCH_DIR)/includes/ \
-	-I$(src)/libpayload/include/ -I$(src)/libpayload/include/$(ARCH)/ \
+	-I$(src)/src/libpayload/include/ \
+	-I$(src)/src/libpayload/include/$(ARCH)/ \
 	-I$(VB_SOURCE)/firmware/include -I$(GCC_INCLUDE) \
 	-include config.h -include kconfig.h
 ABI_FLAGS := $(ARCH_ABI_FLAGS) -ffreestanding -fno-builtin \
