@@ -16,10 +16,15 @@
 
 src ?= $(shell pwd)
 srck = $(src)/util/kconfig
+srcl = $(src)/libpayload
 obj ?= $(src)/build
 objb = $(src)/build/$(BOARD)
+objbl = $(objb)/libpayload
+objblg = $(objb)/libpayload_gdb
 objk = $(obj)/util/kconfig
 tempconfig = $(objb)/tempconfig
+
+unexport CFLAGS
 
 # Make is silent per default, but 'make V=1' will show all compiler calls.
 ifneq ($(V),1)
@@ -32,6 +37,24 @@ BOARD_MESSAGE="BOARD not set. Set BOARD to select a board to build for."
 BOARD_CHECK=if [[ -z \"$(BOARD)\" ]]; then @printf \"$(BOARD_MESSAGE)\"; exit 1; fi
 
 build:
+
+build_libpayload:
+	# Make sure BOARD is set.
+	$(BOARD_CHECK)
+
+	# Build the configs.
+	@printf "Building libpayload config files...\n"
+	$(Q)cp $(srcl)/configs/config.$(BOARD) $(srcl)/.config
+	$(Q)yes "" | $(MAKE) -f $(srcl)/Makefile -C $(srcl) obj=$(objbl) DOTCONFIG=$(srcl)/.config oldconfig
+	$(Q)( cat $(srcl)/configs/config.$(BOARD); echo "CONFIG_LP_REMOTEGDB=y" ) > $(srcl)/.config.gdb
+	$(Q)yes "" | $(MAKE) -f $(srcl)/Makefile -C $(srcl) obj=$(objblg) DOTCONFIG=$(srcl)/.config.gdb oldconfig
+	
+	# Build the libpayloads.
+	@printf "Build libpayloads...\n"
+	$(Q)$(MAKE) -f $(srcl)/Makefile -C $(srcl) obj=$(objbl) DOTCONFIG=$(srcl)/.config
+	$(Q)$(MAKE) -f $(srcl)/Makefile -C $(srcl) obj=$(objblg) DOTCONFIG=$(srcl)/.config.gdb
+
+build: build_libpayload
 	# Make sure BOARD is set.
 	$(BOARD_CHECK)
 	
@@ -65,4 +88,4 @@ clean:
 cleanall:
 	$(Q)rm -rf $(obj)
 
-.PHONY: all build clean
+.PHONY: all build build_libpayload clean

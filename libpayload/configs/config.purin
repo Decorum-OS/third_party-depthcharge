@@ -1,6 +1,7 @@
 #
-# Automatically generated file; DO NOT EDIT.
-# Libpayload Configuration
+# Automatically generated make config: don't edit
+# libpayload version: 0.2.0
+# Mon Feb  9 15:43:54 2015
 #
 
 #
@@ -8,9 +9,8 @@
 #
 CONFIG_LP_GPL=y
 # CONFIG_LP_EXPERIMENTAL is not set
+# CONFIG_LP_OBSOLETE is not set
 # CONFIG_LP_DEVELOPER is not set
-CONFIG_LP_COMPILER_GCC=y
-# CONFIG_LP_COMPILER_LLVM_CLANG is not set
 # CONFIG_LP_REMOTEGDB is not set
 CONFIG_LP_CHROMEOS=y
 
@@ -60,18 +60,16 @@ CONFIG_LP_8250_MMIO32_SERIAL_CONSOLE=y
 # CONFIG_LP_TIMER_BG4CD is not set
 CONFIG_LP_TIMER_CYGNUS=y
 # CONFIG_LP_TIMER_IMG_PISTACHIO is not set
-# CONFIG_LP_TIMER_MTK is not set
-CONFIG_LP_IPROC_PERIPH_GLB_TIM_REG_BASE=0x19020200
 CONFIG_LP_USB=y
-# CONFIG_LP_USB_OHCI is not set
-# CONFIG_LP_USB_EHCI is not set
+CONFIG_LP_USB_OHCI=y
+CONFIG_LP_USB_EHCI=y
 # CONFIG_LP_USB_XHCI is not set
 # CONFIG_LP_USB_DWC2 is not set
 # CONFIG_LP_USB_HID is not set
-# CONFIG_LP_USB_HUB is not set
-# CONFIG_LP_USB_MSC is not set
-# CONFIG_LP_USB_GEN_HUB is not set
+CONFIG_LP_USB_HUB=y
+CONFIG_LP_USB_MSC=y
 # CONFIG_LP_USB_PCI is not set
+CONFIG_LP_USB_GEN_HUB=y
 # CONFIG_LP_UDC is not set
 # CONFIG_LP_BIG_ENDIAN is not set
 CONFIG_LP_LITTLE_ENDIAN=y

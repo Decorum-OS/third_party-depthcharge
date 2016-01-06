@@ -36,7 +36,7 @@ endif
 
 export top := $(CURDIR)
 export src := src
-export srck := $(abspath $(top)/../../util/kconfig)
+export srck := $(abspath $(top)/../util/kconfig)
 export obj ?= build
 export objutil ?= $(obj)/util
 export objk := $(objutil)/lp_kconfig
@@ -83,9 +83,9 @@ all: real-all
 
 # in addition to the dependency below, create the file if it doesn't exist
 # to silence stupid warnings about a file that would be generated anyway.
-$(if $(wildcard .xcompile),,$(eval $(shell $(top)/../../util/xcompile/xcompile $(XGCCPATH) > .xcompile)))
+$(if $(wildcard .xcompile),,$(eval $(shell $(top)/../util/xcompile/xcompile $(XGCCPATH) > .xcompile)))
 
-.xcompile: $(top)/../../util/xcompile/xcompile
+.xcompile: $(top)/../util/xcompile/xcompile
 	$< $(XGCCPATH) > $@.tmp
 	\mv -f $@.tmp $@ 2> /dev/null
 

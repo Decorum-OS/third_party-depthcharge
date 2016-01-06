@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # libpayload version: 0.2.0
-# Mon Feb  9 15:44:06 2015
+# Mon Feb  9 15:44:10 2015
 #
 
 #
@@ -68,7 +68,7 @@ CONFIG_LP_USB=y
 CONFIG_LP_USB_EHCI=y
 # CONFIG_LP_USB_XHCI is not set
 CONFIG_LP_USB_DWC2=y
-CONFIG_LP_USB_HID=y
+# CONFIG_LP_USB_HID is not set
 CONFIG_LP_USB_HUB=y
 # CONFIG_LP_USB_EHCI_HOSTPC_ROOT_HUB_TT is not set
 CONFIG_LP_USB_MSC=y
