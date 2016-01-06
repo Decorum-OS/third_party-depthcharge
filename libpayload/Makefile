@@ -53,7 +53,7 @@ export Kconfig := Kconfig
 TOPLEVEL := .
 
 CONFIG_SHELL := sh
-KBUILD_DEFCONFIG := configs/defconfig
+KBUILD_DEFCONFIG := $(LP_CONFIG)
 UNAME_RELEASE := $(shell uname -r)
 DOTCONFIG ?= .config
 KCONFIG_CONFIG = $(DOTCONFIG)

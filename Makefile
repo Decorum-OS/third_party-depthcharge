@@ -45,8 +45,12 @@ build_libpayload:
 
 	# Build a config.
 	@printf "Building libpayload config files...\n"
-	$(Q)cp $(srcl)/configs/config.$(BOARD) $(srcl)/.config
-	$(Q)yes "" | $(MAKE) -f $(srcl)/Makefile -C $(srcl) obj=$(objbl) DOTCONFIG=$(srcl)/.config oldconfig
+	$(Q)$(MAKE) -f $(srcl)/Makefile \
+		-C $(srcl) \
+		obj=$(objbl) \
+		DOTCONFIG=$(srcl)/.config \
+		LP_CONFIG=$(srcl)/configs/config.$(BOARD) \
+		defconfig
 	
 	# Build libpayload.
 	@printf "Build libpayload...\n"
