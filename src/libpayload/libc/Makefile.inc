@@ -30,7 +30,7 @@
 
 libc-$(CONFIG_LIBC) += malloc.c printf.c console.c string.c
 libc-$(CONFIG_LIBC) += memory.c ctype.c ipchecksum.c lib.c libgcc.c
-libc-$(CONFIG_LIBC) += rand.c time.c exec.c
+libc-$(CONFIG_LIBC) += rand.c time.c
 libc-$(CONFIG_LIBC) += readline.c getopt_long.c sysinfo.c
 libc-$(CONFIG_LIBC) += args.c
 libc-$(CONFIG_LIBC) += strlcpy.c
