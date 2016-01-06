@@ -39,4 +39,3 @@ libc-$(CONFIG_LIBC) += hexdump.c
 libc-$(CONFIG_LIBC) += die.c
 libc-$(CONFIG_LIBC) += coreboot.c
 libc-$(CONFIG_LIBC) += fmap.c
-libc-y += gdbenter.c

@@ -17,17 +17,19 @@
  * MA 02111-1307 USA
  */
 
+#include <stdint.h>
+
 /*
  * These stubs are linked for debug-related functions in non-developer builds
  * to ensure that those features do not work. Developer builds will override
  * them with the definitions from dev.c.
  */
 
-void dc_dev_gdb_enter(void) __attribute__((weak));
-void dc_dev_gdb_enter(void) { /* do nothing */ }
+void gdb_enter(void) __attribute__((weak));
+void gdb_enter(void) { /* Do nothing. */ }
 
-void dc_dev_gdb_exit(int exit_code) __attribute__((weak));
-void dc_dev_gdb_exit(int exit_code) { (void)exit_code; /* do nothing */ }
+void gdb_exit(int8_t exit_code) __attribute__((weak));
+void gdb_exit(int8_t exit_code) { /* Do nothing. */ }
 
 void dc_dev_netboot(void) __attribute__((weak));
-void dc_dev_netboot(void) { /* do nothing */ }
+void dc_dev_netboot(void) { /* Do nothing. */ }

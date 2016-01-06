@@ -23,8 +23,6 @@
 #ifndef __DEBUG_DEV_H__
 #define __DEBUG_DEV_H__
 
-void dc_dev_gdb_enter(void);
-void dc_dev_gdb_exit(int exit_code);
 void dc_dev_netboot(void);
 
 #endif /* __DEBUG_DEV_H__ */

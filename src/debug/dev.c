@@ -28,16 +28,6 @@
  * the symbols from stubs.c. They must never be linked into production images!
  */
 
-void dc_dev_gdb_enter(void)
-{
-	gdb_enter();
-}
-
-void dc_dev_gdb_exit(int exit_code)
-{
-	gdb_exit(exit_code);
-}
-
 void dc_dev_netboot(void)
 {
 	uip_ipaddr_t *tftp_ip;
