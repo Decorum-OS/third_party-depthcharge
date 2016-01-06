@@ -28,8 +28,6 @@
 ## SUCH DAMAGE.
 ##
 
-mainmenu "Libpayload Configuration"
-
 menu "Generic Options"
 
 config GPL
@@ -85,31 +83,6 @@ config CHROMEOS
 	default n
 	help
 	  Enable ChromeOS specific features.
-
-endmenu
-
-menu "Architecture Options"
-
-choice
-        prompt "Target Architecture"
-        default ARCH_X86
-
-config ARCH_ARM_V7
-        bool "ARM"
-        help
-          Support the ARM architecture
-
-config ARCH_X86
-        bool "x86"
-        help
-          Support the x86 architecture
-
-config ARCH_ARM_V8
-        bool "ARM64"
-        help
-          Support the ARM64 architecture
-
-endchoice
 
 endmenu
 
@@ -585,6 +558,6 @@ config IO_ADDRESS_SPACE
 	default n
 	bool
 
-source "arch/arm/Kconfig"
-source "arch/arm64/Kconfig"
-source "arch/x86/Kconfig"
+source "libpayload/arch/arm/Kconfig"
+source "libpayload/arch/arm64/Kconfig"
+source "libpayload/arch/x86/Kconfig"

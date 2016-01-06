@@ -38,29 +38,6 @@ BOARD_MESSAGE="BOARD not set. Set BOARD to select a board to build for."
 BOARD_CHECK=if [[ -z \"$(BOARD)\" ]]; then @printf \"$(BOARD_MESSAGE)\"; exit 1; fi
 
 build:
-
-build_libpayload:
-	# Make sure BOARD is set.
-	$(BOARD_CHECK)
-
-	# Build a config.
-	@printf "Building libpayload config files...\n"
-	$(Q)$(MAKE) -f $(srcl)/Makefile \
-		-C $(srcl) \
-		obj=$(objbl) \
-		DOTCONFIG=$(srcl)/.config \
-		LP_CONFIG=$(srcl)/configs/config.$(BOARD) \
-		defconfig
-	
-	# Build libpayload.
-	@printf "Build libpayload...\n"
-	$(Q)$(MAKE) -f $(srcl)/Makefile -C $(srcl) obj=$(objbl) DOTCONFIG=$(srcl)/.config
-
-	# "Install" libpayload.
-	@printf "Installing libpayload...\n"
-	$(Q)$(MAKE) -f $(srcl)/Makefile -C $(srcl) obj=$(objbl) DOTCONFIG=$(srcl)/.config DESTDIR="$(lpinst)" install
-
-build: build_libpayload
 	# Make sure BOARD is set.
 	$(BOARD_CHECK)
 	
@@ -74,11 +51,28 @@ build: build_libpayload
 		DC_SRC=$(src) \
 		DC_CONFIG=$(src)/board/$(BOARD)/defconfig \
 		TARGET_DIR=$(tempconfig) \
+		Kconfig=$(src)/Kconfig \
 		-f $(src)/buildconfig.mk defconfig
 	
 	# Install the config files into the build dir if they've changed.
 	@printf "Syncing config...\n"
 	$(Q)rsync -ac $(tempconfig)/ $(objb)
+	
+	# Build libpayload.
+	@printf "Building libpayload...\n"
+	$(Q)$(MAKE) -f $(srcl)/Makefile \
+		-C $(srcl) \
+		KCONFIG_AUTOHEADER=$(objb)/config.h \
+		obj=$(objbl) \
+		DOTCONFIG=$(objb)/.config
+
+	# "Install" libpayload.
+	@printf "Installing libpayload...\n"
+	$(Q)$(MAKE) -f $(srcl)/Makefile \
+		-C $(srcl) obj=$(objbl) \
+		KCONFIG_AUTOHEADER=$(objb)/config.h \
+		DOTCONFIG=$(objb)/.config \
+		DESTDIR="$(lpinst)" install
 	
 	# Build depthcharge using the new config.
 	@printf "Building depthcharge...\n"
@@ -94,4 +88,4 @@ clean:
 cleanall:
 	$(Q)rm -rf $(obj)
 
-.PHONY: all build build_libpayload clean
+.PHONY: all build clean
