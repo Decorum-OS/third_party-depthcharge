@@ -47,7 +47,7 @@ classes-$(CONFIG_LP_CBFS) += libcbfs
 classes-$(CONFIG_LP_LZMA) += liblzma
 classes-$(CONFIG_LP_LZ4) += liblz4
 classes-$(CONFIG_LP_REMOTEGDB) += libgdb
-libraries := $(classes-y)
+libraries := $(filter-out libgdb,$(classes-y))
 classes-y += head.o
 
 subdirs-y := arch/$(ARCHDIR-y)
@@ -69,7 +69,7 @@ CFLAGS += -Wstrict-aliasing -Wshadow -Werror
 $(obj)/libpayload-config.h: $(KCONFIG_AUTOHEADER)
 	cmp $@ $< 2>/dev/null || cp $< $@
 
-library-targets = $(addsuffix .a,$(addprefix $(obj)/,$(libraries))) $(obj)/libpayload.a
+library-targets = $(addsuffix .a,$(addprefix $(obj)/,$(libraries))) $(obj)/libpayload.a $(obj)/libgdb.a
 lib: $$(library-targets) $(obj)/head.o
 
 extract_nth=$(word $(1), $(subst |, ,$(2)))

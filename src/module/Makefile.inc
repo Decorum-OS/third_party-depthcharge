@@ -84,7 +84,7 @@ mod-cb_payload-libs += $(common-objects) $(unified-objs)
 module-y += cb_dev
 mod-cb_dev-y += $(mod-cb_payload-y)
 mod-cb_dev-libs += $(mod-cb_payload-libs) $(dev-objects)
-mod-cb_dev-ldopts = $(DONT_GC_NETBOOT)
+mod-cb_dev-ldopts = $(DONT_GC_NETBOOT) -lgdb
 
 module-y += cb_readonly
 mod-cb_readonly-y += cb_readonly.c
@@ -93,7 +93,7 @@ mod-cb_readonly-libs += $(common-objects) $(readonly-objs) $(tramp-objects)
 module-y += cb_dev_ro
 mod-cb_dev_ro-y += $(mod-cb_readonly-y)
 mod-cb_dev_ro-libs += $(mod-cb_readonly-libs) $(dev-objects)
-mod-cb_dev_ro-ldopts = $(DONT_GC_NETBOOT)
+mod-cb_dev_ro-ldopts = $(DONT_GC_NETBOOT) -lgdb
 
 module-y += cb_readwrite
 mod-cb_readwrite-y += cb_readwrite.c
@@ -102,7 +102,7 @@ mod-cb_readwrite-libs += $(common-objects) $(readwrite-objs)
 module-y += cb_dev_rw
 mod-cb_dev_rw-y += $(mod-cb_readwrite-y)
 mod-cb_dev_rw-libs += $(mod-cb_readwrite-libs) $(dev-objects)
-mod-cb_dev_rw-ldopts = $(DONT_GC_NETBOOT)
+mod-cb_dev_rw-ldopts = $(DONT_GC_NETBOOT) -lgdb
 
 module-y += netboot
 mod-netboot-y += netboot.c

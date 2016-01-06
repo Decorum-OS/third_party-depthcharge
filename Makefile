@@ -20,9 +20,10 @@ srcl = $(src)/libpayload
 obj ?= $(src)/build
 objb = $(src)/build/$(BOARD)
 objbl = $(objb)/libpayload
-objblg = $(objb)/libpayload_gdb
+lpinst = $(objb)/lpinst
 objk = $(obj)/util/kconfig
 tempconfig = $(objb)/tempconfig
+export LIBPAYLOAD_DIR=$(lpinst)/libpayload
 
 unexport CFLAGS
 
@@ -42,17 +43,18 @@ build_libpayload:
 	# Make sure BOARD is set.
 	$(BOARD_CHECK)
 
-	# Build the configs.
+	# Build a config.
 	@printf "Building libpayload config files...\n"
 	$(Q)cp $(srcl)/configs/config.$(BOARD) $(srcl)/.config
 	$(Q)yes "" | $(MAKE) -f $(srcl)/Makefile -C $(srcl) obj=$(objbl) DOTCONFIG=$(srcl)/.config oldconfig
-	$(Q)( cat $(srcl)/configs/config.$(BOARD); echo "CONFIG_LP_REMOTEGDB=y" ) > $(srcl)/.config.gdb
-	$(Q)yes "" | $(MAKE) -f $(srcl)/Makefile -C $(srcl) obj=$(objblg) DOTCONFIG=$(srcl)/.config.gdb oldconfig
 	
-	# Build the libpayloads.
-	@printf "Build libpayloads...\n"
+	# Build libpayload.
+	@printf "Build libpayload...\n"
 	$(Q)$(MAKE) -f $(srcl)/Makefile -C $(srcl) obj=$(objbl) DOTCONFIG=$(srcl)/.config
-	$(Q)$(MAKE) -f $(srcl)/Makefile -C $(srcl) obj=$(objblg) DOTCONFIG=$(srcl)/.config.gdb
+
+	# "Install" libpayload.
+	@printf "Installing libpayload...\n"
+	$(Q)$(MAKE) -f $(srcl)/Makefile -C $(srcl) obj=$(objbl) DOTCONFIG=$(srcl)/.config DESTDIR="$(lpinst)" install
 
 build: build_libpayload
 	# Make sure BOARD is set.

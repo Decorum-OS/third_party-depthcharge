@@ -47,22 +47,18 @@ $(call add-special-class,bootplan)
 
 
 
-ifneq ($(DEV_BUILD),)
 bootplan-$(CONFIG_BOOTPLAN_CB_SPLIT_PAYLOAD) += cb_split_payload_dev
 bp-cb_split_payload_dev-modules += cb_dev_ro.bin
 bp-cb_split_payload_dev-modules += cb_dev_rw.bin
-else
+
 bootplan-$(CONFIG_BOOTPLAN_CB_SPLIT_PAYLOAD) += cb_split_payload
 bp-cb_split_payload-modules += cb_readonly.bin
 bp-cb_split_payload-modules += cb_readwrite.bin
 bp-cb_split_payload-modules += netboot.bin
-endif
 
-ifneq ($(DEV_BUILD),)
 bootplan-$(CONFIG_BOOTPLAN_CB_PAYLOAD) += cb_payload_dev
 bp-cb_payload_dev-modules += cb_dev.payload
-else
+
 bootplan-$(CONFIG_BOOTPLAN_CB_PAYLOAD) += cb_payload
 bp-cb_payload-modules += cb_payload.payload
 bp-cb_payload-modules += netboot.payload
-endif
