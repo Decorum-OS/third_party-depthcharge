@@ -28,14 +28,9 @@
 ## SUCH DAMAGE.
 ##
 
-libc-$(CONFIG_LIBC) += malloc.c printf.c console.c string.c
-libc-$(CONFIG_LIBC) += memory.c ctype.c ipchecksum.c lib.c libgcc.c
-libc-$(CONFIG_LIBC) += rand.c time.c
-libc-$(CONFIG_LIBC) += readline.c getopt_long.c sysinfo.c
-libc-$(CONFIG_LIBC) += args.c
-libc-$(CONFIG_LIBC) += strlcpy.c
-libc-$(CONFIG_LIBC) += qsort.c
+libc-$(CONFIG_LIBC) += console.c
+libc-$(CONFIG_LIBC) += ipchecksum.c
+libc-$(CONFIG_LIBC) += time.c
 libc-$(CONFIG_LIBC) += hexdump.c
 libc-$(CONFIG_LIBC) += die.c
 libc-$(CONFIG_LIBC) += coreboot.c
-libc-$(CONFIG_LIBC) += fmap.c

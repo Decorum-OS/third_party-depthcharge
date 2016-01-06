@@ -366,15 +366,6 @@ int gettimeofday(struct timeval *tv, void *tz);
 /** @} */
 
 /**
- * @defgroup info System information functions
- * This module contains functions that return information about the system
- * @{
- */
-
-int sysinfo_have_multiboot(unsigned long *addr);
-/** @} */
-
-/**
  * @defgroup arch Architecture specific functions
  * This module contains global architecture specific functions.
  * All architectures are expected to define these functions.
@@ -400,16 +391,6 @@ void udelay(unsigned int n);
 void mdelay(unsigned int n);
 void delay(unsigned int n);
 
-/**
- * @defgroup readline Readline functions
- * This interface provides a simple implementation of the standard readline()
- * and getline() functions. They read a line of input from the console.
- * @{
- */
-char *readline(const char *prompt);
-int getline(char *buffer, int len);
-/** @} */
-
 /* Defined in arch/${ARCH}/selfboot.c */
 void selfboot(void *entry);
 
@@ -418,8 +399,4 @@ void gdb_enter(void);
 /* Disconnect existing GDB connection if one exists. */
 void gdb_exit(s8 exit_status);
 
-/* look for area "name" in "fmap", setting offset and size to describe it.
-   Returns 0 on success, < 0 on error. */
-int fmap_region_by_name(const uint32_t fmap_offset, const char * const name,
-			uint32_t * const offset, uint32_t * const size);
 #endif

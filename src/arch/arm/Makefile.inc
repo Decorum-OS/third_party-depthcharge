@@ -15,15 +15,25 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
+ifeq ($(CONFIG_ARCH_ARM_V7),y)
+depthcharge-y += boot.c
+depthcharge-y += boot_asm.S
+libc-y += eabi_compat.c
+depthcharge-y += enter_trampoline.c
+libc-y += memcpy.S
+libc-y += memmove.S
+libc-y += memset.S
+depthcharge-y += physmem.c
+endif
+
 ifeq ($(CONFIG_ARCH_ARM_V8),y)
 depthcharge-y += boot_asm64.S
 depthcharge-y += boot64.c
+libc-y += memcpy64.S
+libc-y += memmove64.S
+libc-y += memset64.S
 depthcharge-y += physmem_arm64.c
-else
-depthcharge-y += boot.c
-depthcharge-y += boot_asm.S
-depthcharge-y += enter_trampoline.c
-depthcharge-y += physmem.c
 endif
+
 depthcharge-$(CONFIG_KERNEL_FIT) += fit.c
 depthcharge-y += gcc.c

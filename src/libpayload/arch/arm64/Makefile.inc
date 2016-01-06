@@ -36,7 +36,6 @@ head.o-y += head.S
 libc-y += main.c sysinfo.c
 libc-y += timer.c coreboot.c util.S
 libc-y += virtual.c
-libc-y += memcpy.S memset.S memmove.S
 libc-y += exception_asm.S exception.c
 libc-y += cache.c cpu.S
 libc-y += selfboot.c

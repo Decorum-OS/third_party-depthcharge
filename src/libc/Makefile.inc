@@ -1,7 +1,5 @@
 ##
-## This file is part of the libpayload project.
-##
-## Copyright (C) 2008 Advanced Micro Devices, Inc.
+## Copyright 2015 Google Inc.
 ##
 ## Redistribution and use in source and binary forms, with or without
 ## modification, are permitted provided that the following conditions
@@ -27,21 +25,13 @@
 ## SUCH DAMAGE.
 ##
 
-CFLAGS += -mthumb -march=armv7-a
-arm_asm_flags = -Wa,-mthumb -Wa,-mimplicit-it=always -Wa,-mno-warn-deprecated
-
-head.o-y += head.S
-libc-y += main.c sysinfo.c
-libc-y += timer.c coreboot.c util.S
-libc-y += virtual.c
-libc-y += exception_asm.S exception.c
-libc-y += cache.c cpu.S
-libc-y += selfboot.c
-
-libgdb-y += gdb.c
-
-libcbfs-$(CONFIG_CBFS) += dummy_media.c
-
-# Add other classes here when you put assembly files into them!
-head.o-S-ccopts += $(arm_asm_flags)
-libc-S-ccopts += $(arm_asm_flags)
+libc-y += ctype.c
+libc-y += lib.c
+libc-y += libgcc.c
+libc-y += malloc.c
+libc-y += memory.c
+libc-y += printf.c
+libc-y += qsort.c
+libc-y += rand.c
+libc-y += string.c
+libc-y += strlcpy.c

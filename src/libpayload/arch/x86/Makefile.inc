@@ -36,9 +36,6 @@ libc-y += virtual.c
 libc-y += selfboot.c
 libc-y += exception_asm.S exception.c
 
-# Will fall back to default_memXXX() in libc/memory.c if GPL not allowed.
-libc-$(CONFIG_GPL) += string.c
-
 libgdb-y += gdb.c
 
 libcbfs-$(CONFIG_CBFS) += rom_media.c
