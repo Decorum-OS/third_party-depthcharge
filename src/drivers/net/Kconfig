@@ -17,7 +17,3 @@
 config DRIVER_NET_ASIX
 	bool "ASIX USB network dongle"
 	default n
-
-config DRIVER_NET_IPQ806X
-	bool "IPQ806x ethernet controller"
-	default n

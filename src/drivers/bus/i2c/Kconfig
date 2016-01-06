@@ -34,10 +34,6 @@ config DRIVER_BUS_I2C_DESIGNWARE_PCI
 	bool "Designware I2C driver for PCI device"
 	default n
 
-config DRIVER_BUS_I2C_IPQ806X
-	bool "Qualcomm IPQ806x I2C driver"
-	default n
-
 config DRIVER_BUS_I2C_ROCKCHIP
 	bool "Rockchip I2C driver"
 

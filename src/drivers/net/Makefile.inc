@@ -15,8 +15,6 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-net-$(CONFIG_DRIVER_NET_IPQ806X) += athrs17_phy.c
-net-$(CONFIG_DRIVER_NET_IPQ806X) += ipq806x.c
 net-y += asix.c
 net-y += mii.c
 net-y += net.c

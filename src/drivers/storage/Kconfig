@@ -39,11 +39,6 @@ config DRIVER_STORAGE_MMC_DW_EXYNOS
 	bool "DesignWare MMC driver for Exynos"
 	default n
 
-config DRIVER_STORAGE_IPQ_806X
-	depends on DRIVER_STORAGE_MMC
-	bool "Qualcomm MMC driver"
-	default n
-
 config DRIVER_STORAGE_MMC_MT8173
 	depends on DRIVER_STORAGE_MMC
 	bool "MTK MMC driver"
@@ -70,12 +65,6 @@ config DRIVER_STORAGE_MMC_ROCKCHIP
         bool "ROCKCHIP MMC driver"
         default n
 
-config DRIVER_STORAGE_SPI_GPT
-	bool "Look up a kernel partition from a GPT on SPI"
-	default n
-
 config DRIVER_STORAGE_NVME
 	bool "NVMe driver"
 	default n
-
-source src/drivers/storage/mtd/Kconfig

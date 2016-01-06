@@ -18,10 +18,6 @@ config DRIVER_BUS_SPI_EXYNOS5
 	bool "Exynos5 SPI driver"
 	default n
 
-config DRIVER_BUS_SPI_IPQ806X
-	bool "Ipq806x SPI driver"
-	default n
-
 config DRIVER_BUS_SPI_ROCKCHIP
 	bool "RK3288 SPI driver"
 	default n

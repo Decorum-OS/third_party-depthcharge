@@ -37,9 +37,3 @@ config DRIVER_VIDEO_TEGRA210
 config DRIVER_VIDEO_ROCKCHIP
 	bool "rockchip video settings"
 	default n
-
-config DRIVER_VIDEO_WW_RING
-	bool "Whirlwind LED ring driver"
-	default n
-
-

@@ -95,9 +95,6 @@ endif
 if BOARD = "smaug"
 source src/board/smaug/Kconfig
 endif
-if BOARD = "storm"
-source src/board/storm/Kconfig
-endif
 if BOARD = "strago"
 source src/board/strago/Kconfig
 endif
