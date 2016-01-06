@@ -40,6 +40,7 @@ static int indent = 1;
 static int tty_stdio;
 static int valid_stdin = 1;
 static int sync_kconfig;
+static int sync_autoconf;
 static int conf_cnt;
 static char line[128];
 static struct menu *rootEntry;
@@ -506,8 +507,10 @@ int main(int ac, char **av)
 		switch (opt) {
 		case silentoldconfig:
 			sync_kconfig = 1;
+			sync_autoconf = 1;
 			break;
 		case defconfig:
+			sync_autoconf = 1;
 		case savedefconfig:
 			defconfig_file = optarg;
 			break;
@@ -689,11 +692,14 @@ int main(int ac, char **av)
 			fprintf(stderr, _("\n*** Error during writing of the configuration.\n\n"));
 			exit(1);
 		}
+	}
+	if (sync_autoconf) {
 		if (conf_write_autoconf()) {
 			fprintf(stderr, _("\n*** Error during update of the configuration.\n\n"));
 			return 1;
 		}
-	} else if (input_mode == savedefconfig) {
+	}
+	if (input_mode == savedefconfig) {
 		if (conf_write_defconfig(defconfig_file)) {
 			fprintf(stderr, _("n*** Error while saving defconfig to: %s\n\n"),
 				defconfig_file);
