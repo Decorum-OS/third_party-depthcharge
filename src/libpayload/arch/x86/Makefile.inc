@@ -36,6 +36,4 @@ libc-y += virtual.c
 libc-y += selfboot.c
 libc-y += exception_asm.S exception.c
 
-libgdb-y += gdb.c
-
 libcbfs-$(CONFIG_CBFS) += rom_media.c

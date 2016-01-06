@@ -24,6 +24,7 @@ libc-y += memcpy.S
 libc-y += memmove.S
 libc-y += memset.S
 depthcharge-y += physmem.c
+gdb-y += gdb.c
 endif
 
 ifeq ($(CONFIG_ARCH_ARM_V8),y)
@@ -33,6 +34,7 @@ libc-y += memcpy64.S
 libc-y += memmove64.S
 libc-y += memset64.S
 depthcharge-y += physmem_arm64.c
+gdb-y += gdb64.c
 endif
 
 depthcharge-y += coreboot.c

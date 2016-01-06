@@ -78,7 +78,7 @@ common-objects = $(depthcharge-objs) $(VB_LIB) $(libpayload-objects)
 tramp-objects = $(TRAMPOLINE) $(tramp-libc-objs)
 
 net-objects = $(netboot-objs) $(net-objs) $(uip-objs)
-dev-objects = $(net-objects) $(dev-objs) $(libgdb-objs)
+dev-objects = $(net-objects) $(dev-objs) $(gdb-objs)
 
 
 module-y += cb_payload

@@ -35,6 +35,5 @@ classes-$(CONFIG_CBFS) += libcbfs
 classes-$(CONFIG_LZ4) += liblz4
 classes-$(CONFIG_LZMA) += liblzma
 classes-$(CONFIG_PCI) += libpci
-classes-$(CONFIG_REMOTEGDB) += libgdb
 
-subdirs-y := arch/$(ARCH) crypto drivers gdb libc libcbfs liblz4 liblzma libpci
+subdirs-y := arch/$(ARCH) crypto drivers libc libcbfs liblz4 liblzma libpci

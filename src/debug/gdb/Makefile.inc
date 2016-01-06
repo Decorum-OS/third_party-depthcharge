@@ -15,6 +15,6 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc.
 
-libgdb-y += commands.c
-libgdb-y += stub.c
-libgdb-y += transport.c
+gdb-y += commands.c
+gdb-y += stub.c
+gdb-y += transport.c

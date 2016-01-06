@@ -25,7 +25,7 @@
 #include <vboot_api.h>
 #include <vboot/util/flag.h>
 
-#include "debug/dev.h"
+#include "debug/netboot.h"
 
 #define CSI_0 0x1B
 #define CSI_1 0x5B

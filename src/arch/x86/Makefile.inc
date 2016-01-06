@@ -24,4 +24,6 @@ depthcharge-y += physmem.c
 depthcharge-y += util.S
 depthcharge-$(CONFIG_KERNEL_ZIMAGE) += zimage.c
 
+gdb-y += gdb.c
+
 libc-y += string.c
