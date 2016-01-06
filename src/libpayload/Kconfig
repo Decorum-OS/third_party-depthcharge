@@ -200,12 +200,6 @@ config TIMER_TEGRA_1US
 config TIMER_RK
 	bool "Timer for Rockchip"
 
-config TIMER_CYGNUS
-	bool "Timer for Cygnus"
-
-config TIMER_IMG_PISTACHIO
-	bool "Timer for IMG Pistachio"
-
 config TIMER_MTK
 	bool "Timer for MediaTek MT8173"
 
