@@ -93,7 +93,7 @@ struct __attribute__((packed)) mct_regs
 
 uint64_t timer_hz(void)
 {
-	return CONFIG_LP_TIMER_MCT_HZ;
+	return CONFIG_TIMER_MCT_HZ;
 }
 
 uint64_t timer_raw_value(void)
@@ -101,7 +101,7 @@ uint64_t timer_raw_value(void)
 	static int enabled = 0;
 
 	struct mct_regs * const mct =
-		(struct mct_regs *)(uintptr_t)CONFIG_LP_TIMER_MCT_ADDRESS;
+		(struct mct_regs *)(uintptr_t)CONFIG_TIMER_MCT_ADDRESS;
 
 	if (!enabled) {
 		writel(readl(&mct->g_tcon) | (0x1 << 8), &mct->g_tcon);

@@ -25,7 +25,7 @@ struct cygnus_timer {
 };
 
 static struct cygnus_timer * const timer_ptr =
-		(void *)CONFIG_LP_IPROC_PERIPH_GLB_TIM_REG_BASE;
+		(void *)CONFIG_IPROC_PERIPH_GLB_TIM_REG_BASE;
 
 uint64_t timer_hz(void)
 {

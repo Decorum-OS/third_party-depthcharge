@@ -68,19 +68,19 @@ else
 	exit 1
 fi
 
-if [ "$CONFIG_LP_ARCH_ARM_V7" = "y" ]; then
+if [ "$CONFIG_ARCH_ARM_V7" = "y" ]; then
   _ARCHINCDIR=$_INCDIR/arm
   _ARCHLIBDIR=$_LIBDIR/arm
   _ARCHEXTRA=""
   _ARCH=arm
 fi
-if [ "$CONFIG_LP_ARCH_ARM_V8" = "y" ]; then
+if [ "$CONFIG_ARCH_ARM_V8" = "y" ]; then
   _ARCHINCDIR=$_INCDIR/arm64
   _ARCHLIBDIR=$_LIBDIR/arm64
   _ARCHEXTRA=""
   _ARCH=arm64
 fi
-if [ "$CONFIG_LP_ARCH_X86" = "y" ]; then
+if [ "$CONFIG_ARCH_X86" = "y" ]; then
   _ARCHINCDIR=$_INCDIR/x86
   _ARCHLIBDIR=$_LIBDIR/x86
   _ARCHEXTRA="-m32 "

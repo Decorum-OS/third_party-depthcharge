@@ -31,27 +31,27 @@
 
 export KERNELVERSION      := 0.2.0
 
-ARCHDIR-$(CONFIG_LP_ARCH_ARM_V7)  := arm
-ARCHDIR-$(CONFIG_LP_ARCH_ARM_V8)  := arm64
-ARCHDIR-$(CONFIG_LP_ARCH_X86)     := x86
+ARCHDIR-$(CONFIG_ARCH_ARM_V7)  := arm
+ARCHDIR-$(CONFIG_ARCH_ARM_V8)  := arm64
+ARCHDIR-$(CONFIG_ARCH_X86)     := x86
 DESTDIR ?= install
 
 real-target: lib
 
-classes-$(CONFIG_LP_PCI) += libpci
-classes-$(CONFIG_LP_LIBC) += libc
-classes-$(CONFIG_LP_CBFS) += libcbfs
-classes-$(CONFIG_LP_LZMA) += liblzma
-classes-$(CONFIG_LP_LZ4) += liblz4
+classes-$(CONFIG_PCI) += libpci
+classes-$(CONFIG_LIBC) += libc
+classes-$(CONFIG_CBFS) += libcbfs
+classes-$(CONFIG_LZMA) += liblzma
+classes-$(CONFIG_LZ4) += liblz4
 classes-y += head.o
 libraries := $(classes-y)
-classes-$(CONFIG_LP_REMOTEGDB) += libgdb
+classes-$(CONFIG_REMOTEGDB) += libgdb
 
 subdirs-y := arch/$(ARCHDIR-y)
 subdirs-y += crypto libc drivers libpci gdb
-subdirs-$(CONFIG_LP_CBFS) += libcbfs
-subdirs-$(CONFIG_LP_LZMA) += liblzma
-subdirs-$(CONFIG_LP_LZ4) += liblz4
+subdirs-$(CONFIG_CBFS) += libcbfs
+subdirs-$(CONFIG_LZMA) += liblzma
+subdirs-$(CONFIG_LZ4) += liblz4
 
 INCLUDES := -Iinclude -Iinclude/$(ARCHDIR-y) -I$(obj) -include include/kconfig.h
 

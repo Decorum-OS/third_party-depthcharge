@@ -31,10 +31,10 @@
 include ../.xcompile
 include ../.config
 
-ARCH-$(CONFIG_LP_ARCH_ARM_V7)  := arm
-ARCH-$(CONFIG_LP_ARCH_ARM_V8)  := arm64
-ARCH-$(CONFIG_LP_ARCH_POWERPC) := powerpc
-ARCH-$(CONFIG_LP_ARCH_X86)     := i386
+ARCH-$(CONFIG_ARCH_ARM_V7)  := arm
+ARCH-$(CONFIG_ARCH_ARM_V8)  := arm64
+ARCH-$(CONFIG_ARCH_POWERPC) := powerpc
+ARCH-$(CONFIG_ARCH_X86)     := i386
 
 CC := $(CC_$(ARCH-y))
 AS := $(AS_$(ARCH-y))

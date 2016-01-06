@@ -82,7 +82,7 @@ typedef volatile struct {
 	portsc_t portsc[0];
 	u8 res2[0x40];
 	u32 hostpc;
-	/* hostpc register is used for CONFIG_LP_USB_EHCI_HOSTPC_ROOT_HUB_TT */
+	/* hostpc register is used for CONFIG_USB_EHCI_HOSTPC_ROOT_HUB_TT */
 } __attribute__ ((packed)) hc_op_t;
 
 typedef volatile struct {

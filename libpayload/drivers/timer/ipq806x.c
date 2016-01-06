@@ -37,13 +37,13 @@
 
 uint64_t timer_hz(void)
 {
-	return (CONFIG_LP_IPQ806X_TIMER_FREQ >= MIN_TIMER_FREQ) ?
-		CONFIG_LP_IPQ806X_TIMER_FREQ : MIN_TIMER_FREQ;
+	return (CONFIG_IPQ806X_TIMER_FREQ >= MIN_TIMER_FREQ) ?
+		CONFIG_IPQ806X_TIMER_FREQ : MIN_TIMER_FREQ;
 }
 
 uint64_t timer_raw_value(void)
 {
-	uint64_t rawv = readl((void *)CONFIG_LP_IPQ806X_TIMER_REG);
+	uint64_t rawv = readl((void *)CONFIG_IPQ806X_TIMER_REG);
 
 	/*
 	 * This is extremely crude, but it kicks in only for the case when the
@@ -51,8 +51,8 @@ uint64_t timer_raw_value(void)
 	 * on a properly configured system. The compiler will eliminate the
 	 * check as long as config value exceeds 1MHz.
 	 */
-	if (CONFIG_LP_IPQ806X_TIMER_FREQ < MIN_TIMER_FREQ)
-		rawv *= (MIN_TIMER_FREQ / CONFIG_LP_IPQ806X_TIMER_FREQ);
+	if (CONFIG_IPQ806X_TIMER_FREQ < MIN_TIMER_FREQ)
+		rawv *= (MIN_TIMER_FREQ / CONFIG_IPQ806X_TIMER_FREQ);
 
 	return rawv;
 }

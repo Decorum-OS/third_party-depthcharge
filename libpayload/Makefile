@@ -48,12 +48,11 @@ export KCONFIG_SPLITCONFIG := $(obj)/config
 export KCONFIG_TRISTATE := $(obj)/tristate.conf
 export KCONFIG_NEGATIVES := 1
 export Kconfig := Kconfig
-export CONFIG_ := CONFIG_LP_
 
 # directory containing the toplevel Makefile.inc
 TOPLEVEL := .
 
-CONFIG_LP_SHELL := sh
+CONFIG_SHELL := sh
 KBUILD_DEFCONFIG := configs/defconfig
 UNAME_RELEASE := $(shell uname -r)
 DOTCONFIG ?= .config
@@ -103,17 +102,17 @@ include $(HAVE_DOTCONFIG)
 
 include .xcompile
 
-ARCHDIR-$(CONFIG_LP_ARCH_ARM_V7)  := arm
-ARCHDIR-$(CONFIG_LP_ARCH_ARM_V8)  := arm64
-ARCHDIR-$(CONFIG_LP_ARCH_X86)     := x86
+ARCHDIR-$(CONFIG_ARCH_ARM_V7)  := arm
+ARCHDIR-$(CONFIG_ARCH_ARM_V8)  := arm64
+ARCHDIR-$(CONFIG_ARCH_X86)     := x86
 
 ARCH-y := $(ARCHDIR-y)
 
 # If architecture folder name is different from xcompile architecture name,
 # override here.
-ARCH-$(CONFIG_LP_ARCH_ARM_V7)  := arm
-ARCH-$(CONFIG_LP_ARCH_ARM_V8)  := arm64
-ARCH-$(CONFIG_LP_ARCH_X86)     := x86_32
+ARCH-$(CONFIG_ARCH_ARM_V7)  := arm
+ARCH-$(CONFIG_ARCH_ARM_V8)  := arm64
+ARCH-$(CONFIG_ARCH_X86)     := x86_32
 
 CC := $(CC_$(ARCH-y))
 AS := $(AS_$(ARCH-y))
@@ -148,13 +147,13 @@ real-all: config
 else
 
 ifneq ($(INNER_SCANBUILD),y)
-ifeq ($(CONFIG_LP_COMPILER_LLVM_CLANG),y)
+ifeq ($(CONFIG_COMPILER_LLVM_CLANG),y)
 CC:=clang -m32
 HOSTCC:=clang
 endif
 endif
 
-ifeq ($(CONFIG_LP_CCACHE),y)
+ifeq ($(CONFIG_CCACHE),y)
 CCACHE:=$(word 1,$(wildcard $(addsuffix /ccache,$(subst :, ,$(PATH)))))
 ifeq ($(CCACHE),)
 $(error ccache selected, but not found in PATH)
@@ -172,12 +171,12 @@ strip_quotes = $(subst ",,$(subst \",,$(1)))
 # other files
 
 ifeq ($(INNER_SCANBUILD),y)
-CONFIG_LP_SCANBUILD_ENABLE:=
+CONFIG_SCANBUILD_ENABLE:=
 endif
 
-ifeq ($(CONFIG_LP_SCANBUILD_ENABLE),y)
-ifneq ($(CONFIG_LP_SCANBUILD_REPORT_LOCATION),)
-CONFIG_LP_SCANBUILD_REPORT_LOCATION:=-o $(CONFIG_LP_SCANBUILD_REPORT_LOCATION)
+ifeq ($(CONFIG_SCANBUILD_ENABLE),y)
+ifneq ($(CONFIG_SCANBUILD_REPORT_LOCATION),)
+CONFIG_SCANBUILD_REPORT_LOCATION:=-o $(CONFIG_SCANBUILD_REPORT_LOCATION)
 endif
 real-all:
 	echo '#!/bin/sh' > .ccwrap
@@ -186,7 +185,7 @@ real-all:
 	echo 'if [ "$$1" = "--hostcxx" ]; then shift; CC="$(HOSTCXX)"; fi' >> .ccwrap
 	echo 'eval $$CC $$*' >> .ccwrap
 	chmod +x .ccwrap
-	scan-build $(CONFIG_LP_SCANBUILD_REPORT_LOCATION) -analyze-headers --use-cc=$(top)/.ccwrap --use-c++=$(top)/.ccwrap $(MAKE) INNER_SCANBUILD=y
+	scan-build $(CONFIG_SCANBUILD_REPORT_LOCATION) -analyze-headers --use-cc=$(top)/.ccwrap --use-c++=$(top)/.ccwrap $(MAKE) INNER_SCANBUILD=y
 else
 real-all: real-target
 endif

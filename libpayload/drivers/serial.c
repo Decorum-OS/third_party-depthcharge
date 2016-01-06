@@ -39,7 +39,7 @@ static int serial_is_mem_mapped = 0;
 
 static uint8_t serial_read_reg(int offset)
 {
-#if IS_ENABLED(CONFIG_LP_IO_ADDRESS_SPACE)
+#if IS_ENABLED(CONFIG_IO_ADDRESS_SPACE)
 	if (!serial_is_mem_mapped)
 		return inb(IOBASE + offset);
 	else
@@ -49,7 +49,7 @@ static uint8_t serial_read_reg(int offset)
 
 static void serial_write_reg(uint8_t val, int offset)
 {
-#if IS_ENABLED(CONFIG_LP_IO_ADDRESS_SPACE)
+#if IS_ENABLED(CONFIG_IO_ADDRESS_SPACE)
 	if (!serial_is_mem_mapped)
 		outb(val, IOBASE + offset);
 	else
@@ -57,7 +57,7 @@ static void serial_write_reg(uint8_t val, int offset)
 		writeb(val, MEMBASE + offset);
 }
 
-#if IS_ENABLED(CONFIG_LP_SERIAL_SET_SPEED)
+#if IS_ENABLED(CONFIG_SERIAL_SET_SPEED)
 static void serial_hardware_init(int speed, int word_bits,
 				 int parity, int stop_bits)
 {
@@ -104,7 +104,7 @@ void serial_init(void)
 		(lib_sysinfo.serial->type == CB_SERIAL_TYPE_MEMORY_MAPPED);
 
 	if (!serial_is_mem_mapped) {
-#if IS_ENABLED(CONFIG_LP_IO_ADDRESS_SPACE)
+#if IS_ENABLED(CONFIG_IO_ADDRESS_SPACE)
 		if ((inb(IOBASE + 0x05) == 0xFF) &&
 				(inb(IOBASE + 0x06) == 0xFF)) {
 			return;
@@ -118,8 +118,8 @@ void serial_init(void)
 
 	serial_hardware_is_present = 1;
 
-#if IS_ENABLED(CONFIG_LP_SERIAL_SET_SPEED)
-	serial_hardware_init(CONFIG_LP_SERIAL_BAUD_RATE, 8, 0, 1);
+#if IS_ENABLED(CONFIG_SERIAL_SET_SPEED)
+	serial_hardware_init(CONFIG_SERIAL_BAUD_RATE, 8, 0, 1);
 #endif
 }
 
@@ -138,7 +138,7 @@ void serial_putchar(unsigned int c)
 {
 	if (!serial_hardware_is_present)
 		return;
-#if !IS_ENABLED(CONFIG_LP_PL011_SERIAL_CONSOLE)
+#if !IS_ENABLED(CONFIG_PL011_SERIAL_CONSOLE)
 	while ((serial_read_reg(0x05) & 0x20) == 0) ;
 #endif
 	serial_write_reg(c, 0x00);

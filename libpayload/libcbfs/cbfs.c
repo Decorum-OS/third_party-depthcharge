@@ -31,7 +31,7 @@
 
 #ifdef LIBPAYLOAD
 # include <libpayload-config.h>
-# if IS_ENABLED(CONFIG_LP_LZMA)
+# if IS_ENABLED(CONFIG_LZMA)
 #  include <lzma.h>
 #  define CBFS_CORE_WITH_LZMA
 # endif
@@ -55,7 +55,7 @@
 # include <console/console.h>
 # define ERROR(x...) printk(BIOS_ERR, "CBFS: " x)
 # define LOG(x...) printk(BIOS_INFO, "CBFS: " x)
-# if CONFIG_LP_DEBUG_CBFS
+# if CONFIG_DEBUG_CBFS
 #  define DEBUG(x...) printk(BIOS_SPEW, "CBFS: " x)
 # else
 #  define DEBUG(x...)

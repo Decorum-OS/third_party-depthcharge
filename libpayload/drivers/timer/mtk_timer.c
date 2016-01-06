@@ -21,11 +21,11 @@
 #include <libpayload-config.h>
 #include <stdint.h>
 
-static uint32_t *const mtk_tmrus = (void*)CONFIG_LP_TIMER_MTK_ADDRESS;
+static uint32_t *const mtk_tmrus = (void*)CONFIG_TIMER_MTK_ADDRESS;
 
 uint64_t timer_hz(void)
 {
-	return CONFIG_LP_TIMER_MTK_HZ;
+	return CONFIG_TIMER_MTK_HZ;
 }
 
 uint64_t timer_raw_value(void)
