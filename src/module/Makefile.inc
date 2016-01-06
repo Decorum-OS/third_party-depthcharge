@@ -25,7 +25,7 @@ module_obj=$(obj)/module
 # the module is set up.
 $(module_obj)/%.elf.tmp:
 	@printf "    LD         $(subst $(obj)/,,$@)\n"
-	$(Q)$(XCC) $(LINK_FLAGS) -o $@ $+ $(mod-$*-ldopts)
+	$(Q)$(CC) $(LINK_FLAGS) -o $@ $+ $(mod-$*-ldopts) -lpayload $(LIBGCC)
 
 # The default post processing of an ELF module strips out the .cparams,
 # .gbb_copy, and .shared_data sections, and fix up linking with the trampoline

@@ -74,21 +74,31 @@ toolchain := $(new_toolchain_name_$(toolchain))
 endif
 
 CC:=$(firstword $(CC_$(toolchain)))
-XCC := CC=$(CC) $(LIBPAYLOAD_DIR)/bin/lpgcc
 AS = $(LIBPAYLOAD_DIR)/bin/lpas
 OBJCOPY ?= $(OBJCOPY_$(toolchain))
 STRIP ?= $(STRIP_$(toolchain))
+LIBGCC ?= $(shell $(CC) -print-libgcc-file-name)
+GCC_INCLUDE = $(word 2,$(shell $(CC) -print-search-dirs))\include
+
+tryccoption = \
+	$(shell $(CC) $(1) -S -xc /dev/null -o /dev/null &> /dev/null; echo $$?)
+tryldoption = \
+	$(shell $(CC) $(1) -static -nostdlib -fuse-ld=bfd -xc /dev/null -o /dev/null &> /dev/null; echo $$?)
 
 include $(src)/src/arch/$(ARCH_DIR)/build_vars
 
 INCLUDES = -I$(obj) -I$(src)/src/ -I$(src)/src/arch/$(ARCH_DIR)/includes/ \
-	-I$(VB_SOURCE)/firmware/include
+	-I$(LIBPAYLOAD_DIR)/include/ -I$(LIBPAYLOAD_DIR)/include/$(ARCH) \
+	-I$(VB_SOURCE)/firmware/include -I$(GCC_INCLUDE) \
+	-include config.h -include kconfig.h
 ABI_FLAGS := $(ARCH_ABI_FLAGS) -ffreestanding -fno-builtin \
 	-fno-stack-protector -fomit-frame-pointer
-LINK_FLAGS = $(ARCH_LINK_FLAGS) $(ABI_FLAGS) -fuse-ld=bfd \
-	-Wl,-T,$(LDSCRIPT) -Wl,--gc-sections -Wl,-Map=$@.map
+LINK_FLAGS = $(ARCH_LINK_FLAGS) $(ABI_FLAGS) -fuse-ld=bfd -nostdlib \
+	-Wl,-T,$(LDSCRIPT) -Wl,--gc-sections -Wl,-Map=$@.map -static \
+	-L$(obj)/libpayload/
 CFLAGS := $(ARCH_CFLAGS) -Wall -Werror $(INCLUDES) -std=gnu99 \
-	$(ABI_FLAGS) -ffunction-sections -fdata-sections -ggdb3
+	$(ABI_FLAGS) -ffunction-sections -fdata-sections -ggdb3 \
+	-nostdinc -nostdlib -fno-stack-protector
 
 ifneq ($(SOURCE_DEBUG),)
 CFLAGS += -O0 -g
@@ -176,7 +186,7 @@ ifn$(EMPTY)def $(1)-objs_$(2)_template
 de$(EMPTY)fine $(1)-objs_$(2)_template
 $(obj)/$$(1).$(1).o: src/$$(1).$(2) $(KCONFIG_AUTOHEADER) $(4)
 	@printf "    CC         $$$$(subst $$$$(obj)/,,$$$$(@))\n"
-	$(Q)$(XCC) $(3) -MMD $$$$(CFLAGS) -c -o $$$$@ $$$$<
+	$(Q)$(CC) $(3) -MMD $$$$(CFLAGS) -c -o $$$$@ $$$$<
 en$(EMPTY)def
 end$(EMPTY)if
 endef

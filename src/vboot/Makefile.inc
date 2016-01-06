@@ -36,7 +36,7 @@ ifndef VB_SOURCE
 else
 	@printf "    MAKE       $(subst $(obj)/,,$(@))\n"
 	$(Q)FIRMWARE_ARCH=$(VB_FIRMWARE_ARCH) \
-		CC="$(XCC)" \
+		CC="$(CC)" \
 		CFLAGS="$(CFLAGS) -DVBOOT_DEBUG" \
 		$(MAKE) -C $(VB_SOURCE) \
 		MOCK_TPM=$(CONFIG_MOCK_TPM) \
@@ -64,6 +64,6 @@ $(TRAMPOLINE): $$(trampoline-objs)
 	@printf "    LD         $(subst $(obj)/,,$(@).tmp)\n"
 	$(Q)$(CC) $(LINK_FLAGS) -Wl,-relocatable -o $(@).tmp \
 		$(trampoline-objs) -nostdinc -nostdlib -static \
-		-e $(TRAMP_ENTRY)
+		-e $(TRAMP_ENTRY) $(LIBGCC) -lpayload
 	@printf "    OBJCOPY    $(subst $(obj)/,,$(@))\n"
 	$(Q)$(OBJCOPY) --prefix-symbols=$(TRAMP_PREFIX)_ $(@).tmp $(@)
