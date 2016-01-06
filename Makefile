@@ -65,14 +65,6 @@ build:
 		KCONFIG_AUTOHEADER=$(objb)/config.h \
 		obj=$(objbl) \
 		DOTCONFIG=$(objb)/.config
-
-	# "Install" libpayload.
-	@printf "Installing libpayload...\n"
-	$(Q)$(MAKE) -f $(srcl)/Makefile \
-		-C $(srcl) obj=$(objbl) \
-		KCONFIG_AUTOHEADER=$(objb)/config.h \
-		DOTCONFIG=$(objb)/.config \
-		DESTDIR="$(lpinst)" install
 	
 	# Build depthcharge using the new config.
 	@printf "Building depthcharge...\n"

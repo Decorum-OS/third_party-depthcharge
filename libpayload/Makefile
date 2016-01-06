@@ -82,9 +82,9 @@ all: real-all
 
 # in addition to the dependency below, create the file if it doesn't exist
 # to silence stupid warnings about a file that would be generated anyway.
-$(if $(wildcard .xcompile),,$(eval $(shell $(top)/../util/xcompile/xcompile $(XGCCPATH) > .xcompile)))
+$(if $(wildcard $(obj)/.xcompile),,$(eval $(shell mkdir -p $(obj); $(top)/../util/xcompile/xcompile $(XGCCPATH) > $(obj)/.xcompile)))
 
-.xcompile: $(top)/../util/xcompile/xcompile
+$(obj)/.xcompile: $(top)/../util/xcompile/xcompile
 	$< $(XGCCPATH) > $@.tmp
 	\mv -f $@.tmp $@ 2> /dev/null
 
@@ -100,7 +100,7 @@ include $(srck)/Makefile
 
 include $(HAVE_DOTCONFIG)
 
-include .xcompile
+include $(obj)/.xcompile
 
 ARCHDIR-$(CONFIG_ARCH_ARM_V7)  := arm
 ARCHDIR-$(CONFIG_ARCH_ARM_V8)  := arm64
@@ -187,7 +187,7 @@ real-all:
 	chmod +x .ccwrap
 	scan-build $(CONFIG_SCANBUILD_REPORT_LOCATION) -analyze-headers --use-cc=$(top)/.ccwrap --use-c++=$(top)/.ccwrap $(MAKE) INNER_SCANBUILD=y
 else
-real-all: real-target
+real-all: lib
 endif
 
 # must come rather early
@@ -295,7 +295,7 @@ doxygen-clean:
 	rm -rf $(DOXYGEN_OUTPUT_DIR)
 
 clean-for-update: doxygen-clean clean-for-update-target
-	rm -f $(allobjs) .xcompile
+	rm -f $(allobjs) $(obj)/.xcompile
 	rm -f $(DEPENDENCIES)
 	rmdir -p $(alldirs) 2>/dev/null >/dev/null || true
 

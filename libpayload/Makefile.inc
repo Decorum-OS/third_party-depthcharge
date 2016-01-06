@@ -34,9 +34,6 @@ export KERNELVERSION      := 0.2.0
 ARCHDIR-$(CONFIG_ARCH_ARM_V7)  := arm
 ARCHDIR-$(CONFIG_ARCH_ARM_V8)  := arm64
 ARCHDIR-$(CONFIG_ARCH_X86)     := x86
-DESTDIR ?= install
-
-real-target: lib
 
 classes-$(CONFIG_PCI) += libpci
 classes-$(CONFIG_LIBC) += libc
@@ -46,6 +43,8 @@ classes-$(CONFIG_LZ4) += liblz4
 classes-y += head.o
 libraries := $(classes-y)
 classes-$(CONFIG_REMOTEGDB) += libgdb
+
+lib: $(addsuffix .a,$(addprefix $(obj)/,$(libraries))) $(obj)/libpayload.a $(obj)/libgdb.a
 
 subdirs-y := arch/$(ARCHDIR-y)
 subdirs-y += crypto libc drivers libpci gdb
@@ -65,11 +64,6 @@ CFLAGS += -Wstrict-aliasing -Wshadow -Werror
 $(obj)/libpayload-config.h: $(KCONFIG_AUTOHEADER)
 	cmp $@ $< 2>/dev/null || cp $< $@
 
-library-targets = $(addsuffix .a,$(addprefix $(obj)/,$(libraries))) $(obj)/libpayload.a $(obj)/libgdb.a
-lib: $$(library-targets)
-
-extract_nth=$(word $(1), $(subst |, ,$(2)))
-
 $(obj)/libpayload.a: $(foreach class,$(libraries),$$($(class)-objs))
 	printf "    AR         $(subst $(shell pwd)/,,$(@))\n"
 	$(AR) rc $@ $^
@@ -77,41 +71,3 @@ $(obj)/libpayload.a: $(foreach class,$(libraries),$$($(class)-objs))
 $(obj)/%.a: $$(%-objs)
 	printf "    AR         $(subst $(shell pwd)/,,$(@))\n"
 	$(AR) rc $@ $^
-
-install: real-target
-	printf "    INSTALL    $(DESTDIR)/libpayload/lib\n"
-	install -m 755 -d $(DESTDIR)/libpayload/lib
-	for lib in $(library-targets); do \
-		install -m 644 $$lib $(DESTDIR)/libpayload/lib/; \
-	done
-	install -m 644 arch/$(ARCHDIR-y)/libpayload.ldscript $(DESTDIR)/libpayload/lib/
-	install -m 755 -d $(DESTDIR)/libpayload/lib/$(ARCHDIR-y)
-	install -m 644 $(DOTCONFIG) $(DESTDIR)/libpayload/libpayload.config
-	install -m 755 .xcompile $(DESTDIR)/libpayload/libpayload.xcompile
-
-clean-for-update-target:
-	rm -f $(addsuffix .a,$(addprefix $(obj)/,$(libraries))) $(obj)/libpayload.a
-
-clean-target:
-prepare:
-
-junit.xml:
-	echo '<?xml version="1.0" encoding="utf-8"?><testsuite>' > $@.tmp
-	for i in $(filter-out %.old,$(wildcard configs/*)); do \
-		$(MAKE) clean; \
-		yes "" | $(MAKE) oldconfig DOTCONFIG=$$i V=$(V) Q=$(Q) 2>/dev/null >/dev/null; \
-		echo "<testcase classname='libpayload' name='$$i'>" >> $@.tmp; \
-		$(MAKE) V=$(V) Q=$(Q) CONFIG_CCACHE=$(CONFIG_CCACHE) DOTCONFIG=$$i >> $@.tmp.2 2>&1 && type="system-out" || type="failure"; \
-		if [ $$type = "failure" ]; then \
-			echo "<failure type='buildFailed'>" >> $@.tmp; \
-		else \
-			echo "<$$type>" >> $@.tmp; \
-		fi; \
-		echo '<![CDATA[' >> $@.tmp; \
-		cat $@.tmp.2 >> $@.tmp; \
-		echo "]]></$$type>" >>$@.tmp; \
-		rm -f $@.tmp.2; \
-		echo "</testcase>" >> $@.tmp; \
-	done
-	echo "</testsuite>" >> $@.tmp
-	mv $@.tmp $@

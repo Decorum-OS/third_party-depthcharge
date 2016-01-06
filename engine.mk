@@ -29,7 +29,7 @@ Q:=@
 endif
 
 CONFIG_LP_COMPILER_GCC=y
-include $(LIBPAYLOAD_DIR)/libpayload.xcompile
+include $(obj)/libpayload/.xcompile
 LZMA := lzma
 
 # The default target placeholder. Default targets that do something should be
