@@ -28,13 +28,8 @@ Q:=@
 .SILENT:
 endif
 
-ifdef LIBPAYLOAD_DIR
-# libpayload's xcompile script checks for this config flag to decide which
-# compiler to use
 CONFIG_LP_COMPILER_GCC=y
 include $(LIBPAYLOAD_DIR)/libpayload.xcompile
-endif
-LIBPAYLOAD_DIR ?= ../libpayload/install/libpayload
 LZMA := lzma
 
 # The default target placeholder. Default targets that do something should be
@@ -74,7 +69,6 @@ toolchain := $(new_toolchain_name_$(toolchain))
 endif
 
 CC:=$(firstword $(CC_$(toolchain)))
-AS = $(LIBPAYLOAD_DIR)/bin/lpas
 OBJCOPY ?= $(OBJCOPY_$(toolchain))
 STRIP ?= $(STRIP_$(toolchain))
 LIBGCC ?= $(shell $(CC) -print-libgcc-file-name)
