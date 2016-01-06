@@ -169,13 +169,13 @@ add-special-class= \
 includemakefiles= \
 	$(foreach class,classes subdirs $(classes) $(special-classes), $(eval $(class)-y:=)) \
 	$(eval -include $(1)) \
+	$(foreach special,$(special-classes), \
+		$(foreach item,$($(special)-y), $(call $(special)-handler,$(dir $(1)),$(item)))) \
 	$(foreach class,$(classes-y), $(call add-class,$(class))) \
 	$(foreach class,$(classes), \
 		$(eval $(class)-srcs+= \
 			$$(subst $(src)/,, \
 			$$(abspath $$(subst $(dir $(1))/,/,$$(addprefix $(dir $(1)),$$($(class)-y))))))) \
-	$(foreach special,$(special-classes), \
-		$(foreach item,$($(special)-y), $(call $(special)-handler,$(dir $(1)),$(item)))) \
 	$(eval subdirs+=$$(subst $(CURDIR)/,,$$(abspath $$(addprefix $(dir $(1)),$$(subdirs-y)))))
 
 # For each path in $(subdirs) call includemakefiles
