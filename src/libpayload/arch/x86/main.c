@@ -50,10 +50,6 @@ void start_main(void)
 	/* Gather system information. */
 	lib_get_sysinfo();
 
-	/* Optionally set up the consoles. */
-	if (!CONFIG_SKIP_CONSOLE_INIT)
-		console_init();
-
 	exception_init();
 
 	/*

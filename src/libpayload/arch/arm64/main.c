@@ -123,9 +123,6 @@ void start_main(void)
 
 	post_sysinfo_scan_mmu_setup();
 
-	if (!CONFIG_SKIP_CONSOLE_INIT)
-		console_init();
-
 	printf("ARM64: Libpayload %s\n",__func__);
 	exception_init();
 
