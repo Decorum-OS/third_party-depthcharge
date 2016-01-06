@@ -33,7 +33,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <inttypes.h>
-#include <errno.h>
 
 /**
  * Calculate the length of a fixed-size string.
@@ -629,15 +628,6 @@ static char **strtok_global;
 char* strtok(char *str, const char *delim)
 {
 	return strtok_r(str, delim, strtok_global);
-}
-
-/**
- * Print error message and error number
- * @param s Error message to print
- */
-void perror(const char *s)
-{
-	printf("%s: %d\n", s?s:"(none)", errno);
 }
 
 /**

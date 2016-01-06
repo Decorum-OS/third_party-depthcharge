@@ -52,8 +52,6 @@ int fprintf(FILE *file, const char *fmt, ...)
 	__attribute__ ((format (printf, 2, 3)));
 /** @} */
 
-void perror(const char *s);
-
 #define SEEK_SET 0 /**< The seek offset is absolute. */
 #define SEEK_CUR 1 /**< The seek offset is against the current position. */
 #define SEEK_END 2 /**< The seek offset is against the end of the file. */

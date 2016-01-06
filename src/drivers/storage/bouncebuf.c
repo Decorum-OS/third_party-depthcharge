@@ -23,7 +23,6 @@
  * MA 02111-1307 USA
  */
 
-#include <errno.h>
 #include <libpayload.h>
 #include <malloc.h>
 
