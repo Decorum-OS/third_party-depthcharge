@@ -94,7 +94,7 @@ choice
         prompt "Target Architecture"
         default ARCH_X86
 
-config ARCH_ARM
+config ARCH_ARM_V7
         bool "ARM"
         help
           Support the ARM architecture
@@ -104,7 +104,7 @@ config ARCH_X86
         help
           Support the x86 architecture
 
-config ARCH_ARM64
+config ARCH_ARM_V8
         bool "ARM64"
         help
           Support the ARM64 architecture

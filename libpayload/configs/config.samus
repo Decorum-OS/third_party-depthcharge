@@ -16,9 +16,9 @@ CONFIG_LP_CHROMEOS=y
 #
 # Architecture Options
 #
-# CONFIG_LP_ARCH_ARM is not set
+# CONFIG_LP_ARCH_ARM_V7 is not set
 CONFIG_LP_ARCH_X86=y
-# CONFIG_LP_ARCH_ARM64 is not set
+# CONFIG_LP_ARCH_ARM_V8 is not set
 
 #
 # Standard Libraries
