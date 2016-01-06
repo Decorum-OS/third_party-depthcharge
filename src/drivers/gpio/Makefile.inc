@@ -22,7 +22,6 @@ depthcharge-$(CONFIG_DRIVER_GPIO_BAYTRAIL) += baytrail.c
 depthcharge-$(CONFIG_DRIVER_GPIO_BRASWELL) += braswell.c
 depthcharge-$(CONFIG_DRIVER_GPIO_EXYNOS5250) += exynos5250.c
 depthcharge-$(CONFIG_DRIVER_GPIO_EXYNOS5420) += exynos5420.c
-depthcharge-$(CONFIG_DRIVER_GPIO_IMGTEC_PISTACHIO) += imgtec_pistachio.c
 depthcharge-$(CONFIG_DRIVER_GPIO_IPQ_806X) += ipq806x.c
 depthcharge-$(CONFIG_DRIVER_GPIO_LYNXPOINT_LP) += lynxpoint_lp.c
 depthcharge-$(CONFIG_DRIVER_GPIO_MT8173) += mtk_gpio.c

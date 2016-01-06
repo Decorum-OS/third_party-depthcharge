@@ -23,7 +23,7 @@
 #include <libpayload.h>
 #include <vboot_api.h>
 
-static u8 fake_nvram[VBNV_BLOCK_SIZE];
+static uint8_t fake_nvram[VBNV_BLOCK_SIZE];
 
 VbError_t VbExNvStorageRead(uint8_t* buf)
 {

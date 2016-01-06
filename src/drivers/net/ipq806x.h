@@ -340,15 +340,15 @@ unsigned ipq_mdio_read(unsigned int phy_addr, unsigned int reg_offset,
 
 typedef struct
 {
-	volatile u32 status;		/* Status */
-	volatile u32 length;		/* Buffer 1 and Buffer 2 length */
-	volatile u32 buffer1;		/* Network Buffer 1 pointer (Dma-able) */
-	volatile u32 data1;		/* This holds virtual address of buffer1, not used by DMA */
+	volatile uint32_t status;		/* Status */
+	volatile uint32_t length;		/* Buffer 1 and Buffer 2 length */
+	volatile uint32_t buffer1;		/* Network Buffer 1 pointer (Dma-able) */
+	volatile uint32_t data1;		/* This holds virtual address of buffer1, not used by DMA */
 	/* Following is used only by driver */
-	volatile u32 extstatus;		/* Extended status of a Rx Descriptor */
-	volatile u32 reserved1;		/* Reserved word */
-	volatile u32 timestamplow;	/* Lower 32 bits of the 64 bit timestamp value */
-	volatile u32 timestamphigh;	/* Higher 32 bits of the 64 bit timestamp value */
+	volatile uint32_t extstatus;		/* Extended status of a Rx Descriptor */
+	volatile uint32_t reserved1;		/* Reserved word */
+	volatile uint32_t timestamplow;	/* Lower 32 bits of the 64 bit timestamp value */
+	volatile uint32_t timestamphigh;	/* Higher 32 bits of the 64 bit timestamp value */
 } ipq_gmac_desc_t ;
 
 typedef struct {
@@ -357,7 +357,7 @@ typedef struct {
 	unsigned		duplex;
 	unsigned		mac_unit;
 	unsigned		mac_ps;
-	u32			padding;
+	uint32_t		padding;
 	ipq_gmac_desc_t		*desc_tx[NO_OF_TX_DESC];
 	ipq_gmac_desc_t		*desc_rx[NO_OF_RX_DESC];
 	unsigned		next_tx;
@@ -367,41 +367,41 @@ typedef struct {
 	uip_eth_addr		mac_addr;
 	struct eth_mac_regs	*mac_regs_p;
 	struct eth_dma_regs	*dma_regs_p;
-	u8			started;
-	u8			mdio_addr;
+	uint8_t			started;
+	uint8_t			mdio_addr;
 }  IpqEthDev __attribute__ ((aligned(8)));
 
 struct eth_mac_regs {
-	u32 conf;		/* 0x00 */
-	u32 framefilt;		/* 0x04 */
-	u32 hashtablehigh;	/* 0x08 */
-	u32 hashtablelow;	/* 0x0c */
-	u32 miiaddr;		/* 0x10 */
-	u32 miidata;		/* 0x14 */
-	u32 flowcontrol;	/* 0x18 */
-	u32 vlantag;		/* 0x1c */
-	u32 version;		/* 0x20 */
-	u8 reserved_1[20];	/* 0x24 -- 0x37 */
-	u32 intreg;		/* 0x38 */
-	u32 intmask;		/* 0x3c */
-	u32 macaddr0hi;		/* 0x40 */
-	u32 macaddr0lo;		/* 0x44 */
+	uint32_t conf;		/* 0x00 */
+	uint32_t framefilt;	/* 0x04 */
+	uint32_t hashtablehigh;	/* 0x08 */
+	uint32_t hashtablelow;	/* 0x0c */
+	uint32_t miiaddr;	/* 0x10 */
+	uint32_t miidata;	/* 0x14 */
+	uint32_t flowcontrol;	/* 0x18 */
+	uint32_t vlantag;	/* 0x1c */
+	uint32_t version;	/* 0x20 */
+	uint8_t reserved_1[20];	/* 0x24 -- 0x37 */
+	uint32_t intreg;	/* 0x38 */
+	uint32_t intmask;	/* 0x3c */
+	uint32_t macaddr0hi;	/* 0x40 */
+	uint32_t macaddr0lo;	/* 0x44 */
 };
 
 struct eth_dma_regs {
-	u32 busmode;		/* 0x00 */
-	u32 txpolldemand;	/* 0x04 */
-	u32 rxpolldemand;	/* 0x08 */
-	u32 rxdesclistaddr;	/* 0x0c */
-	u32 txdesclistaddr;	/* 0x10 */
-	u32 status;		/* 0x14 */
-	u32 opmode;		/* 0x18 */
-	u32 intenable;		/* 0x1c */
-	u8 reserved[40];	/* 0x20 -- 0x47 */
-	u32 currhosttxdesc;	/* 0x48 */
-	u32 currhostrxdesc;	/* 0x4c */
-	u32 currhosttxbuffaddr;	/* 0x50 */
-	u32 currhostrxbuffaddr;	/* 0x54 */
+	uint32_t busmode;		/* 0x00 */
+	uint32_t txpolldemand;		/* 0x04 */
+	uint32_t rxpolldemand;		/* 0x08 */
+	uint32_t rxdesclistaddr;	/* 0x0c */
+	uint32_t txdesclistaddr;	/* 0x10 */
+	uint32_t status;		/* 0x14 */
+	uint32_t opmode;		/* 0x18 */
+	uint32_t intenable;		/* 0x1c */
+	uint8_t reserved[40];		/* 0x20 -- 0x47 */
+	uint32_t currhosttxdesc;	/* 0x48 */
+	uint32_t currhostrxdesc;	/* 0x4c */
+	uint32_t currhosttxbuffaddr;	/* 0x50 */
+	uint32_t currhostrxbuffaddr;	/* 0x54 */
 };
 
 void gmac_reset(void);
@@ -834,14 +834,14 @@ typedef enum {
 } phy_interface_t;
 
 typedef struct {
-        u8 *base;
+        uint8_t *base;
         int unit;
         unsigned is_macsec;
         unsigned mac_pwr0;
         unsigned mac_pwr1;
         unsigned mac_conn_to_phy;
         phy_interface_t phy;
-        u8 mdio_addr;
+        uint8_t mdio_addr;
 	unsigned switch_reset_gpio;
 } ipq_gmac_board_cfg_t;
 
@@ -863,6 +863,6 @@ static inline int get_cache_line_size(void)
 
 #define GMAC_CORE_RESET(n)	((void *)(0x903CBC + ((n) * 0x20)))
 #define GMACSEC_CORE_RESET(n)	((void *)(0x903E28 + ((n - 1) * 4)))
-#define GMAC_AHB_RESET		((u8 *)0x903E24)
+#define GMAC_AHB_RESET		((uint8_t *)0x903E24)
 
 #endif	/* _IPQ_GMAC_H */

@@ -44,7 +44,7 @@ void fit_set_compat(const char *compat)
 static void fit_set_default_compat(void)
 {
 	const char pattern[] = "google,%s-rev%u";
-	u32 rev = lib_sysinfo.board_id;
+	uint32_t rev = lib_sysinfo.board_id;
 
 	// Make sure board ID is not ~0 and will fit in two digits, so that
 	// it doesn't require more space than the '%u' in the pattern string.
@@ -196,8 +196,8 @@ void fit_add_ramdisk(DeviceTree *tree, void *ramdisk_addr, size_t ramdisk_size)
 	DeviceTreeNode *node = dt_find_node(tree->root, path, NULL, NULL, 1);
 
 	/* Warning: this assumes the ramdisk is currently located below 4GiB. */
-	u32 start = (uintptr_t)ramdisk_addr;
-	u32 end = start + ramdisk_size;
+	uint32_t start = (uintptr_t)ramdisk_addr;
+	uint32_t end = start + ramdisk_size;
 
 	dt_add_u32_prop(node, "linux,initrd-start", start);
 	dt_add_u32_prop(node, "linux,initrd-end", end);
@@ -229,29 +229,30 @@ static uint64_t max_range(unsigned size_cells)
 	return 0x1ULL << (size_cells * 32 - 1);
 }
 
-static void count_entries(u64 start, u64 end, void *pdata)
+static void count_entries(uint64_t start, uint64_t end, void *pdata)
 {
 	EntryParams *params = (EntryParams *)pdata;
 	unsigned *count = (unsigned *)params->data;
-	u64 size = end - start;
-	u64 max_size = max_range(params->size_cells);
+	uint64_t size = end - start;
+	uint64_t max_size = max_range(params->size_cells);
 	*count += ALIGN_UP(size, max_size) / max_size;
 }
 
-static void update_mem_property(u64 start, u64 end, void *pdata)
+static void update_mem_property(uint64_t start, uint64_t end, void *pdata)
 {
 	EntryParams *params = (EntryParams *)pdata;
-	u8 *data = (u8 *)params->data;
-	u64 full_size = end - start;
+	uint8_t *data = (uint8_t *)params->data;
+	uint64_t full_size = end - start;
 	while (full_size) {
-		const u64 max_size = max_range(params->size_cells);
-		const u32 size = MIN(max_size, full_size);
+		const uint64_t max_size = max_range(params->size_cells);
+		const uint32_t size = MIN(max_size, full_size);
 
-		dt_write_int(data, start, params->addr_cells * sizeof(u32));
+		dt_write_int(data, start,
+			     params->addr_cells * sizeof(uint32_t));
 		data += params->addr_cells * sizeof(uint32_t);
 		start += size;
 
-		dt_write_int(data, size, params->size_cells * sizeof(u32));
+		dt_write_int(data, size, params->size_cells * sizeof(uint32_t));
 		data += params->size_cells * sizeof(uint32_t);
 		full_size -= size;
 	}
@@ -263,7 +264,7 @@ static void update_memory(DeviceTree *tree)
 	Ranges mem;
 	Ranges reserved;
 	DeviceTreeNode *node;
-	u32 addr_cells = 1, size_cells = 1;
+	uint32_t addr_cells = 1, size_cells = 1;
 	dt_read_cell_props(tree->root, &addr_cells, &size_cells);
 
 	// First remove all existing device_type="memory" nodes, then add ours.
@@ -281,7 +282,6 @@ static void update_memory(DeviceTree *tree)
 	ranges_init(&mem);
 	ranges_init(&reserved);
 
-#define MEMORY_ALIGNMENT (1 << 20)
 	for (int i = 0; i < lib_sysinfo.n_memranges; i++) {
 		struct memrange *range = &lib_sysinfo.memrange[i];
 		uint64_t start = range->base;
@@ -293,8 +293,8 @@ static void update_memory(DeviceTree *tree)
 		 * is added to reserved memory.
 		 */
 		if (range->type == CB_MEM_RAM) {
-			uint64_t new_start = ALIGN_UP(start, MEMORY_ALIGNMENT);
-			uint64_t new_end = ALIGN_DOWN(end, MEMORY_ALIGNMENT);
+			uint64_t new_start = ALIGN_UP(start, 1 * MiB);
+			uint64_t new_end = ALIGN_DOWN(end, 1 * MiB);
 
 			if (new_start != start)
 				ranges_add(&reserved, start, new_start);
@@ -318,7 +318,7 @@ static void update_memory(DeviceTree *tree)
 	ranges_for_each(&mem, &count_entries, &count_params);
 
 	// Allocate the right amount of space and fill up the entries.
-	size_t length = count * (addr_cells + size_cells) * sizeof(u32);
+	size_t length = count * (addr_cells + size_cells) * sizeof(uint32_t);
 	void *data = xmalloc(length);
 	EntryParams add_params = { addr_cells, size_cells, data };
 	ranges_for_each(&mem, &update_mem_property, &add_params);

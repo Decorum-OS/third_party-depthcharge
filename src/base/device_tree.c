@@ -484,14 +484,15 @@ void dt_print_node(DeviceTreeNode *node)
  * @param addrcp	Pointer to store #address-cells in, skipped if NULL.
  * @param sizecp	Pointer to store #size-cells in, skipped if NULL.
  */
-void dt_read_cell_props(DeviceTreeNode *node, u32 *addrcp, u32 *sizecp)
+void dt_read_cell_props(DeviceTreeNode *node, uint32_t *addrcp,
+			uint32_t *sizecp)
 {
 	DeviceTreeProperty *prop;
 	list_for_each(prop, node->properties, list_node) {
 		if (addrcp && !strcmp("#address-cells", prop->prop.name))
-			*addrcp = betohl(*(u32 *)prop->prop.data);
+			*addrcp = betohl(*(uint32_t *)prop->prop.data);
 		if (sizecp && !strcmp("#size-cells", prop->prop.name))
-			*sizecp = betohl(*(u32 *)prop->prop.data);
+			*sizecp = betohl(*(uint32_t *)prop->prop.data);
 	}
 }
 
@@ -510,7 +511,7 @@ void dt_read_cell_props(DeviceTreeNode *node, u32 *addrcp, u32 *sizecp)
  * @return		The found/created node, or NULL.
  */
 DeviceTreeNode *dt_find_node(DeviceTreeNode *parent, const char **path,
-			     u32 *addrcp, u32 *sizecp, int create)
+			     uint32_t *addrcp, uint32_t *sizecp, int create)
 {
 	DeviceTreeNode *node, *found = NULL;
 
@@ -561,7 +562,8 @@ DeviceTreeNode *dt_find_node(DeviceTreeNode *parent, const char **path,
  * not starting or ending with a '/', and not having "//" anywhere in it.
  */
 DeviceTreeNode *dt_find_node_by_path(DeviceTreeNode *parent, const char *path,
-				     u32 *addrcp, u32 *sizecp, int create)
+				     uint32_t *addrcp, uint32_t *sizecp,
+				     int create)
 {
 	char *dup_path = strdup(path);
 	/* Hopefully enough depth for any node. */
@@ -727,10 +729,10 @@ DeviceTreeNode *dt_find_prop_value(DeviceTreeNode *parent, const char *name,
  * @param src		The integer to write (in CPU endianess).
  * @param length	the length of the destination integer in bytes.
  */
-void dt_write_int(u8 *dest, u64 src, size_t length)
+void dt_write_int(uint8_t *dest, uint64_t src, size_t length)
 {
 	while (length--) {
-		dest[length] = (u8)src;
+		dest[length] = (uint8_t)src;
 		src >>= 8;
 	}
 }
@@ -823,9 +825,9 @@ void dt_add_string_prop(DeviceTreeNode *node, char *name, char *str)
  * @param name		The name of the new property.
  * @param val		The integer to be stored in the property.
  */
-void dt_add_u32_prop(DeviceTreeNode *node, char *name, u32 val)
+void dt_add_u32_prop(DeviceTreeNode *node, char *name, uint32_t val)
 {
-	u32 *val_ptr = xmalloc(sizeof(val));
+	uint32_t *val_ptr = xmalloc(sizeof(val));
 	*val_ptr = htobel(val);
 	dt_add_bin_prop(node, name, val_ptr, sizeof(*val_ptr));
 }
@@ -840,19 +842,19 @@ void dt_add_u32_prop(DeviceTreeNode *node, char *name, u32 val)
  * @param addr_cells	Value of #address-cells property valid for this node.
  * @param size_cells	Value of #size-cells property valid for this node.
  */
-void dt_add_reg_prop(DeviceTreeNode *node, u64 *addrs, u64 *sizes,
-		     int count, u32 addr_cells, u32 size_cells)
+void dt_add_reg_prop(DeviceTreeNode *node, uint64_t *addrs, uint64_t *sizes,
+		     int count, uint32_t addr_cells, uint32_t size_cells)
 {
 	int i;
-	size_t length = (addr_cells + size_cells) * sizeof(u32) * count;
-	u8 *data = xmalloc(length);
-	u8 *cur = data;
+	size_t length = (addr_cells + size_cells) * sizeof(uint32_t) * count;
+	uint8_t *data = xmalloc(length);
+	uint8_t *cur = data;
 
 	for (i = 0; i < count; i++) {
-		dt_write_int(cur, addrs[i], addr_cells * sizeof(u32));
-		cur += addr_cells * sizeof(u32);
-		dt_write_int(cur, sizes[i], size_cells * sizeof(u32));
-		cur += size_cells * sizeof(u32);
+		dt_write_int(cur, addrs[i], addr_cells * sizeof(uint32_t));
+		cur += addr_cells * sizeof(uint32_t);
+		dt_write_int(cur, sizes[i], size_cells * sizeof(uint32_t));
+		cur += size_cells * sizeof(uint32_t);
 	}
 
 	dt_add_bin_prop(node, "reg", data, length);

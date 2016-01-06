@@ -38,7 +38,6 @@
 #include "image/startrw.h"
 #include "image/symbols.h"
 #include "vboot/boot.h"
-#include "vboot/boot_policy.h"
 #include "vboot/stages.h"
 #include "vboot/crossystem/crossystem.h"
 #include "vboot/util/commonparams.h"
@@ -48,6 +47,11 @@
 #include "vboot/vbnv.h"
 
 static uint32_t vboot_out_flags;
+
+enum {
+	CmdLineSize = 4096,
+	CrosParamSize = 4096,
+};
 
 int vboot_init(void)
 {
@@ -239,45 +243,31 @@ int vboot_select_and_load_kernel(void)
 void vboot_boot_kernel(VbSelectAndLoadKernelParams *kparams)
 {
 	static char cmd_line_buf[2 * CmdLineSize];
-	struct boot_info bi;
 
 	timestamp_add_now(TS_CROSSYSTEM_DATA);
 
-	memset(&bi, 0, sizeof(bi));
-
-	if (fill_boot_info(&bi, kparams) == -1) {
-		printf("ERROR!!! Unable to parse boot info\n");
-		goto fail;
-	}
-
-	bi.kparams = kparams;
+	// The scripts that packaged the kernel assumed it was going to end
+	// up at 1MB which is frequently not right. The address of the 
+	// "loader", which isn't actually used any more, is set based on that
+	// assumption. We have to subtract the 1MB offset from it, and then add
+	// the actual load address to figure ou thwere it actually is,
+	// or would be if it existed.
+	void *kernel = kparams->kernel_buffer;
+	void *loader = (uint8_t *)kernel +
+		(kparams->bootloader_address - 0x100000);
+	void *params = (uint8_t *)loader - CrosParamSize;
+	void *orig_cmd_line = (uint8_t *)params - CmdLineSize;
 
 	BlockDev *bdev = (BlockDev *)kparams->disk_handle;
 
-	struct commandline_info info = {
-		.devnum = 0,
-		.partnum = kparams->partition_number + 1,
-		.guid = kparams->partition_guid,
-		.external_gpt = bdev->external_gpt,
-	};
-
-	if (bi.cmd_line) {
-		if (commandline_subst(bi.cmd_line, cmd_line_buf,
-				      sizeof(cmd_line_buf), &info))
-			return;
-		bi.cmd_line = cmd_line_buf;
-	}
+	if (commandline_subst(orig_cmd_line, cmd_line_buf,
+			      sizeof(cmd_line_buf), 0,
+			      kparams->partition_number + 1,
+			      kparams->partition_guid, bdev->external_gpt))
+		return;
 
 	if (crossystem_setup())
 		return;
 
-	boot(&bi);
-
-fail:
-	/*
-	 * If the boot succeeded we'd never end up here. If configured, let's
-	 * try booting in alternative way.
-	 */
-	if (CONFIG_KERNEL_LEGACY)
-		legacy_boot(bi.kernel, cmd_line_buf);
+	boot(kernel, cmd_line_buf, params, loader);
 }

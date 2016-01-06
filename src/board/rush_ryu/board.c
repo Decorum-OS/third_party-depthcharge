@@ -24,10 +24,7 @@
 #include <libpayload.h>
 
 #include "base/init_funcs.h"
-#include "boot/android_dt.h"
 #include "boot/fit.h"
-#include "boot/commandline.h"
-#include "board/rush_ryu/fastboot.h"
 #include "config.h"
 #include "drivers/bus/spi/tegra.h"
 #include "drivers/bus/i2c/tegra.h"
@@ -36,7 +33,6 @@
 #include "drivers/gpio/sysinfo.h"
 #include "drivers/gpio/tegra.h"
 #include "drivers/dma/tegra_apb.h"
-#include "drivers/flash/block_flash.h"
 #include "drivers/flash/spi.h"
 #include "drivers/power/sysinfo.h"
 #include "drivers/power/tps65913.h"
@@ -45,7 +41,6 @@
 #include "drivers/storage/tegra_mmc.h"
 #include "drivers/video/display.h"
 #include "drivers/ec/cros/i2c.h"
-#include "vboot/boot_policy.h"
 #include "vboot/util/flag.h"
 #include "drivers/video/tegra132.h"
 #include "drivers/sound/i2s.h"
@@ -73,11 +68,6 @@ enum {
 	CLK_X_I2C6 = 0x1 << 6
 };
 
-const char *mainboard_commandline(void)
-{
-	return NULL;
-}
-
 const char *hardware_name(void)
 {
 	return "dragon";
@@ -97,14 +87,6 @@ static int board_setup(void)
 
 	choose_devicetree_by_boardid();
 
-	static const struct boot_policy policy[] = {
-		{KERNEL_IMAGE_BOOTIMG, CMD_LINE_DTB},
-		{KERNEL_IMAGE_CROS, CMD_LINE_SIGNER},
-	};
-
-	if (set_boot_policy(policy, ARRAY_SIZE(policy)) == -1)
-		halt();
-
 	void *dma_channel_bases[32];
 	for (int i = 0; i < ARRAY_SIZE(dma_channel_bases); i++)
 		dma_channel_bases[i] = (void *)((unsigned long)0x60021000 + 0x40 * i);
@@ -119,8 +101,6 @@ static int board_setup(void)
 	SpiFlash *flash = new_spi_flash(&spi4->ops);
 
 	flash_set_ops(&flash->ops);
-
-	FlashBlockDev *fbdev = block_flash_register_nor(&flash->ops);
 
 	TegraI2c *cam_i2c = new_tegra_i2c((void *)0x7000c500, 3,
 					  (void *)CLK_RST_U_RST_SET,
@@ -152,13 +132,6 @@ static int board_setup(void)
 
 	list_insert_after(&emmc->mmc.ctrlr.list_node,
 			  &fixed_block_dev_controllers);
-
-	/* Fill in fastboot related information */
-	BlockDevCtrlr *bdev_arr[BDEV_COUNT] = {
-		[FLASH_BDEV] = &fbdev->ctrlr,
-		[MMC_BDEV] = &emmc->mmc.ctrlr,
-	};
-	fill_fb_info(bdev_arr);
 
 	/* Careful: the EHCI base is at offset 0x100 from the SoC's IP base */
 	UsbHostController *usbd = new_usb_hc(EHCI, 0x7d000100);

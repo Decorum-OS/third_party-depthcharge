@@ -34,11 +34,11 @@ enum {
 
 static GpioRegs *gpio_reg = (GpioRegs *)(GPIO_BASE);
 
-int mt_set_gpio_out(GpioOps *me, u32 output)
+int mt_set_gpio_out(GpioOps *me, uint32_t output)
 {
 	MtGpio *gpio = container_of(me, MtGpio, ops);
-	u32 pin = gpio->pin_num;
-	u32 pos, bit;
+	uint32_t pin = gpio->pin_num;
+	uint32_t pos, bit;
 	GpioRegs *reg = gpio_reg;
 
 	assert(pin < GPIO_MAX);
@@ -57,8 +57,8 @@ int mt_set_gpio_out(GpioOps *me, u32 output)
 int mt_get_gpio_in(GpioOps *me)
 {
 	MtGpio *gpio = container_of(me, MtGpio, ops);
-	u32 pin = gpio->pin_num;
-	u32 pos, bit, val;
+	uint32_t pin = gpio->pin_num;
+	uint32_t pos, bit, val;
 	GpioRegs *reg = gpio_reg;
 
 	assert(pin < GPIO_MAX);
@@ -71,7 +71,7 @@ int mt_get_gpio_in(GpioOps *me)
 	return (((val & (1L << bit)) != 0) ? 1 : 0);
 }
 
-static MtGpio *new_mtk_gpio(u32 pin)
+static MtGpio *new_mtk_gpio(uint32_t pin)
 {
 	die_if(pin > GPIO_MAX, "Bad GPIO pin number %d.\n", pin);
 	MtGpio *gpio = xzalloc(sizeof(*gpio));
@@ -81,7 +81,7 @@ static MtGpio *new_mtk_gpio(u32 pin)
 	return gpio;
 }
 
-GpioOps *new_mtk_gpio_input(u32 pin)
+GpioOps *new_mtk_gpio_input(uint32_t pin)
 {
 	MtGpio *gpio = new_mtk_gpio(pin);
 
@@ -89,7 +89,7 @@ GpioOps *new_mtk_gpio_input(u32 pin)
 	return &gpio->ops;
 }
 
-GpioOps *new_mtk_gpio_output(u32 pin)
+GpioOps *new_mtk_gpio_output(uint32_t pin)
 {
 	MtGpio *gpio = new_mtk_gpio(pin);
 

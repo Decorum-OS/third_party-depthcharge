@@ -27,7 +27,6 @@
 #include "base/init_funcs.h"
 #include "base/timestamp.h"
 #include "config.h"
-#include "debug/cli/common.h"
 #include "drivers/input/input.h"
 #include "drivers/net/net.h"
 #include "drivers/power/power.h"
@@ -85,36 +84,6 @@ static const uint32_t MaxPayloadSize = CONFIG_KERNEL_SIZE;
 static char cmd_line[4096] = "lsm.module_locking=0 cros_netboot_ramfs "
 			     "cros_factory_install cros_secure cros_netboot";
 
-int try_dhcp(uip_ipaddr_t *my_ip,
-	     uip_ipaddr_t *next_ip,
-	     uip_ipaddr_t *server_ip,
-	     const char **dhcp_bootfile)
-{
-	static int mac_addr_set = 0;
-
-	if (!mac_addr_set) {
-		// Plug in the MAC address.
-		const uip_eth_addr *mac_addr = net_get_mac();
-		if (!mac_addr)
-			halt();
-		printf("MAC: ");
-		print_mac_addr(mac_addr);
-		printf("\n");
-		uip_setethaddr(*mac_addr);
-	}
-
-	if (dhcp_request(next_ip, server_ip, dhcp_bootfile))
-		return 1;
-
-	printf("My ip is ");
-	uip_gethostaddr(my_ip);
-	print_ip_addr(my_ip);
-	printf("\nThe DHCP server ip is ");
-	print_ip_addr(server_ip);
-	printf("\n");
-	return 0;
-}
-
 void netboot(uip_ipaddr_t *tftp_ip, char *bootfile, char *argsfile, char *args)
 {
 	net_wait_for_link();
@@ -122,11 +91,27 @@ void netboot(uip_ipaddr_t *tftp_ip, char *bootfile, char *argsfile, char *args)
 	// Start up the network stack.
 	uip_init();
 
+	// Plug in the MAC address.
+	const uip_eth_addr *mac_addr = net_get_mac();
+	if (!mac_addr)
+		halt();
+	printf("MAC: ");
+	print_mac_addr(mac_addr);
+	printf("\n");
+	uip_setethaddr(*mac_addr);
+
 	// Find out who we are.
 	uip_ipaddr_t my_ip, next_ip, server_ip;
 	const char *dhcp_bootfile;
-	while (try_dhcp(&my_ip, &next_ip, &server_ip, &dhcp_bootfile))
+	while (dhcp_request(&next_ip, &server_ip, &dhcp_bootfile))
 		printf("Dhcp failed, retrying.\n");
+
+	printf("My ip is ");
+	uip_gethostaddr(&my_ip);
+	print_ip_addr(&my_ip);
+	printf("\nThe DHCP server ip is ");
+	print_ip_addr(&server_ip);
+	printf("\n");
 
 	if (!tftp_ip) {
 		tftp_ip = &next_ip;
@@ -191,12 +176,7 @@ void netboot(uip_ipaddr_t *tftp_ip, char *bootfile, char *argsfile, char *args)
 	printf("The command line is: %s\n", cmd_line);
 
 	// Boot.
-	struct boot_info bi = {
-		.kernel = payload,
-		.cmd_line = cmd_line,
-	};
-
-	boot(&bi);
+	boot(payload, cmd_line, NULL, NULL);
 }
 
 int main(void) __attribute__((weak, alias("netboot_entry")));
@@ -217,9 +197,6 @@ int netboot_entry(void)
 
 	// Make sure graphics are available if they aren't already.
 	enable_graphics();
-
-	if (CONFIG_CLI)
-		console_loop();
 
 	srand(timer_raw_value());
 

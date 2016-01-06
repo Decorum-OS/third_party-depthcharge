@@ -29,7 +29,7 @@
 #include "drivers/storage/blockdev.h"
 #include "drivers/storage/sdhci.h"
 
-static void sdhci_reset(SdhciHost *host, u8 mask)
+static void sdhci_reset(SdhciHost *host, uint8_t mask)
 {
 	unsigned long timeout;
 
@@ -70,9 +70,9 @@ static void sdhci_transfer_pio(SdhciHost *host, MmcData *data)
 	for (i = 0; i < data->blocksize; i += 4) {
 		offs = data->dest + i;
 		if (data->flags == MMC_DATA_READ)
-			*(u32 *)offs = sdhci_readl(host, SDHCI_BUFFER);
+			*(uint32_t *)offs = sdhci_readl(host, SDHCI_BUFFER);
 		else
-			sdhci_writel(host, *(u32 *)offs, SDHCI_BUFFER);
+			sdhci_writel(host, *(uint32_t *)offs, SDHCI_BUFFER);
 	}
 }
 
@@ -109,7 +109,7 @@ static int sdhci_transfer_data(SdhciHost *host, MmcData *data,
 	return 0;
 }
 
-static void sdhci_alloc_adma_descs(SdhciHost *host, u32 need_descriptors)
+static void sdhci_alloc_adma_descs(SdhciHost *host, uint32_t need_descriptors)
 {
 	if (host->adma_descs) {
 		if (host->adma_desc_count < need_descriptors) {
@@ -130,7 +130,7 @@ static void sdhci_alloc_adma_descs(SdhciHost *host, u32 need_descriptors)
 	       need_descriptors);
 }
 
-static void sdhci_alloc_adma64_descs(SdhciHost *host, u32 need_descriptors)
+static void sdhci_alloc_adma64_descs(SdhciHost *host, uint32_t need_descriptors)
 {
 	if (host->adma64_descs) {
 		if (host->adma_desc_count < need_descriptors) {
@@ -155,7 +155,7 @@ static int sdhci_setup_adma(SdhciHost *host, MmcData *data)
 {
 	int i, togo, need_descriptors;
 	char *buffer_data;
-	u16 attributes;
+	uint16_t attributes;
 
 	togo = data->blocks * data->blocksize;
 	if (!togo) {
@@ -188,13 +188,13 @@ static int sdhci_setup_adma(SdhciHost *host, MmcData *data)
 			attributes |= SDHCI_ADMA_END;
 
 		if (host->dma64) {
-			host->adma64_descs[i].addr = (u32) buffer_data;
+			host->adma64_descs[i].addr = (uint32_t)buffer_data;
 			host->adma64_descs[i].addr_hi = 0;
 			host->adma64_descs[i].length = desc_length;
 			host->adma64_descs[i].attributes = attributes;
 
 		} else {
-			host->adma_descs[i].addr = (u32) buffer_data;
+			host->adma_descs[i].addr = (uint32_t)buffer_data;
 			host->adma_descs[i].length = desc_length;
 			host->adma_descs[i].attributes = attributes;
 		}
@@ -203,10 +203,10 @@ static int sdhci_setup_adma(SdhciHost *host, MmcData *data)
 	}
 
 	if (host->dma64)
-		sdhci_writel(host, (u32) host->adma64_descs,
+		sdhci_writel(host, (uint32_t)host->adma64_descs,
 			     SDHCI_ADMA_ADDRESS);
 	else
-		sdhci_writel(host, (u32) host->adma_descs,
+		sdhci_writel(host, (uint32_t)host->adma_descs,
 			     SDHCI_ADMA_ADDRESS);
 
 	return 0;
@@ -215,7 +215,7 @@ static int sdhci_setup_adma(SdhciHost *host, MmcData *data)
 static int sdhci_complete_adma(SdhciHost *host, MmcCommand *cmd)
 {
 	int retry;
-	u32 stat = 0, mask;
+	uint32_t stat = 0, mask;
 
 	mask = SDHCI_INT_RESPONSE | SDHCI_INT_ERROR;
 
@@ -267,7 +267,7 @@ static int sdhci_send_command(MmcCtrlr *mmc_ctrl, MmcCommand *cmd,
 {
 	unsigned int stat = 0;
 	int ret = 0;
-	u32 mask, flags;
+	uint32_t mask, flags;
 	unsigned int timeout, start_addr = 0;
 	uint64_t start;
 	SdhciHost *host = container_of(mmc_ctrl, SdhciHost, mmc_ctrlr);
@@ -314,7 +314,7 @@ static int sdhci_send_command(MmcCtrlr *mmc_ctrl, MmcCommand *cmd,
 
 	/* Set Transfer mode regarding to data flag */
 	if (data) {
-		u16 mode = 0;
+		uint16_t mode = 0;
 
 		sdhci_writew(host, SDHCI_MAKE_BLKSZ(SDHCI_DEFAULT_BOUNDARY_ARG,
 						    data->blocksize),
@@ -448,7 +448,7 @@ static int sdhci_set_clock(SdhciHost *host, unsigned int clock)
 }
 
 /* Find leftmost set bit in a 32 bit integer */
-static int fls(u32 x)
+static int fls(uint32_t x)
 {
 	int r = 32;
 
@@ -479,7 +479,7 @@ static int fls(u32 x)
 
 static void sdhci_set_power(SdhciHost *host, unsigned short power)
 {
-	u8 pwr = 0;
+	uint8_t pwr = 0;
 
 	if (power != (unsigned short)-1) {
 		switch (1 << power) {
@@ -512,7 +512,7 @@ static void sdhci_set_power(SdhciHost *host, unsigned short power)
 
 static void sdhci_set_ios(MmcCtrlr *mmc_ctrlr)
 {
-	u32 ctrl;
+	uint32_t ctrl;
 	SdhciHost *host = container_of(mmc_ctrlr,
 				       SdhciHost, mmc_ctrlr);
 

@@ -129,7 +129,6 @@ SECTIONS
 		_init_funcs_start = .;
 		KEEP(*(.init_funcs))
 		_init_funcs_end = .;
-		 KEEP(*(SORT(.dp_list*)));
 	}
 
 	.got : {
@@ -151,7 +150,6 @@ SECTIONS
 		. = ALIGN(16);
 		_heap = .;
 		. += HEAP_SIZE;
-		. += FASTBOOT_HEAP_SIZE;
 		. = ALIGN(16);
 		_eheap = .;
 

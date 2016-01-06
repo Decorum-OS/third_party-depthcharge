@@ -32,11 +32,11 @@
  * interface to do it. See http://crosbug.com/p/19989
  */
 
-static void crport_handshake(void *phy, u32 data, u32 cmd)
+static void crport_handshake(void *phy, uint32_t data, uint32_t cmd)
 {
-	u32 *phyreg0 = (u32 *)(phy + 0x14);
-	u32 *phyreg1 = (u32 *)(phy + 0x18);
-	u32 usec = 100;
+	uint32_t *phyreg0 = (uint32_t *)(phy + 0x14);
+	uint32_t *phyreg1 = (uint32_t *)(phy + 0x18);
+	uint32_t usec = 100;
 
 	writel(data | cmd, phyreg0);
 
@@ -63,7 +63,7 @@ static void crport_handshake(void *phy, u32 data, u32 cmd)
 		printf("CRPORT handshake timeout2 (0x%08x)\n", data | cmd);
 }
 
-static void crport_ctrl_write(void *phy, u32 addr, u32 data)
+static void crport_ctrl_write(void *phy, uint32_t addr, uint32_t data)
 {
 	/* Fill data field with address and pulse Capture Address bit */
 	crport_handshake(phy, addr << 2, 0x1 << 0);

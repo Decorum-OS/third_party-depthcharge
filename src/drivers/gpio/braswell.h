@@ -1,6 +1,4 @@
 /*
- * This file is part of the coreboot project.
- *
  * Copyright (C) 2013 Google Inc.
  * Copyright (C) 2015 Intel Corp.
  *

@@ -28,27 +28,27 @@
 #define spi_err(x...)	printf(x)
 #define SPI_TIMEOUT_US  100000
 typedef struct {
-	u32 ctrlr0;
-	u32 ctrlr1;
-	u32 enr;
-	u32 ser;
-	u32 baudr;
-	u32 txftlr;
-	u32 rxftlr;
-	u32 txflr;
-	u32 rxflr;
-	u32 sr;
-	u32 ipr;
-	u32 imr;
-	u32 isr;
-	u32 risr;
-	u32 icr;
-	u32 dmacr;
-	u32 dmatdlr;
-	u32 damrdlr;
-	u32 reserved0[(0x400 - 0x48) / 4];
-	u32 txdr[0x100];
-	u32 rxdr[0x100];
+	uint32_t ctrlr0;
+	uint32_t ctrlr1;
+	uint32_t enr;
+	uint32_t ser;
+	uint32_t baudr;
+	uint32_t txftlr;
+	uint32_t rxftlr;
+	uint32_t txflr;
+	uint32_t rxflr;
+	uint32_t sr;
+	uint32_t ipr;
+	uint32_t imr;
+	uint32_t isr;
+	uint32_t risr;
+	uint32_t icr;
+	uint32_t dmacr;
+	uint32_t dmatdlr;
+	uint32_t damrdlr;
+	uint32_t reserved0[(0x400 - 0x48) / 4];
+	uint32_t txdr[0x100];
+	uint32_t rxdr[0x100];
 } RkSpiRegs;
 
 #define FIFO_DEPTH			32

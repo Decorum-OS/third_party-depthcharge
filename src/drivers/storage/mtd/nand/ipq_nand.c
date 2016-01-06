@@ -1518,7 +1518,7 @@ int ipq_nand_post_scan_init(MtdDev *mtd)
 	struct ipq_nand_dev *dev = MTD_IPQ_NAND_DEV(mtd);
 	struct nand_onfi_params *nand_onfi = MTD_ONFI_PARAMS(mtd);
 	int ret = 0;
-	u8 *buf;
+	uint8_t *buf;
 
 	alloc_size = (mtd->writesize   /* For dev->pad_dat */
 		      + mtd->oobsize   /* For dev->pad_oob */

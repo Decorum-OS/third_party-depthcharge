@@ -31,37 +31,8 @@ choice
 	bool "dummy"
 endchoice
 
-config KERNEL_LEGACY
-	bool "Allow alternative(legacy) kernels"
-	default n
-
-config MACHID
-       hex "Machine ID to pass to the kernel"
-       depends on KERNEL_LEGACY
-       default 0
-       help
-         On some platforms this value could be discovered at run time.
-
-config ATAG_BASE
-       hex "Address in DRAM where to place ATAGs"
-       depends on KERNEL_LEGACY
-       depends on ARCH_ARM
-       default 0
-
 config KERNEL_FIT_FDT_ADDR
 	hex "FIT device tree load address."
 	depends on KERNEL_FIT
 	help
 	  Where to put the updated device tree when booting a FIT image.
-
-config ANDROID_DT_FIXUP
-	bool "Fixup device tree with properties for Android"
-	default n
-	help
-	  Enabling this option will create a /firmware/android node in the
-	  device tree and populate it with the hardware name and other
-	  values from the VPD such as the serial number.
-
-config BCB_SUPPORT
-	bool "Enable support for Bootloader control block"
-	default n

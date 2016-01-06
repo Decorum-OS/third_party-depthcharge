@@ -1,6 +1,4 @@
 /*
- * This file is part of the depthcharge project.
- *
  * Copyright (C) 2014 - 2015 The Linux Foundation. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -210,7 +208,7 @@ qup_return_t qup_reset_i2c_master_status(gsbi_id_t gsbi_id);
  * return: QUP_SUCCESS, when data is sent successfully to the peripheral.
  */
 qup_return_t qup_send_data(gsbi_id_t gsbi_id, qup_data_t *p_tx_obj,
-			   uint8_t stop_seq, int write_errmsg_on);
+			   uint8_t stop_seq);
 
 /*
  * Receive data from peripheral on the bus.

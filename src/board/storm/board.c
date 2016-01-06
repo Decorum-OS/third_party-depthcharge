@@ -365,6 +365,34 @@ static struct console_input_driver storm_input_driver =
 	&storm_getchar
 };
 
+/*
+ * Structure defining mapping between arbitrary objects and the device tree
+ * path to the property corresponding to the object.
+ */
+typedef struct {
+	int force_create; /* If false - do not create a new node. */
+	const char *dt_path;
+	const char *key;
+} DtPathMap;
+
+static int dt_set_mac_addresses(DeviceTree *tree, const DtPathMap *maps)
+{
+	int i, rv = 0;
+	const DtPathMap *map = maps;
+
+	for (i = 0;
+	     map->dt_path && (i < lib_sysinfo.num_macs);
+	     i++, map++) {
+
+		rv |= dt_set_bin_prop_by_path
+			(tree, map->dt_path, lib_sysinfo.macs[i].mac_addr,
+			 sizeof(lib_sysinfo.macs[i].mac_addr),
+			 map->force_create);
+	}
+
+	return rv;
+}
+
 static int board_setup(void)
 {
 	sysinfo_install_flags(NULL);
@@ -431,31 +459,6 @@ static int board_setup(void)
 	set_ramoops_buffer();
 
 	return 0;
-}
-
-int get_mach_id(void)
-{
-	int i;
-	struct cb_mainboard *mainboard = lib_sysinfo.mainboard;
-	const char *part_number = (const char *)mainboard->strings +
-		mainboard->part_number_idx;
-
-	struct PartDescriptor {
-		const char *part_name;
-		int mach_id;
-	} parts[] = {
-		{"Storm", 4936},
-		{"AP148", CONFIG_MACHID},
-	};
-
-	for (i = 0; i < ARRAY_SIZE(parts); i++) {
-		if (!strncmp(parts[i].part_name,
-			     part_number, strlen(parts[i].part_name))) {
-			return parts[i].mach_id;
-		}
-	}
-
-	return -1;
 }
 
 int board_wan_port_number(void)

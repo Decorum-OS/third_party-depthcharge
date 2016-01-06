@@ -148,7 +148,7 @@ static int spi_gpt_fixup(DeviceTreeFixup *fixup, DeviceTree *tree)
 
 	ListNode *prev_child = &nand->children;
 
-	u64 total_size = dev->block_dev.stream_block_count << BLOCK_SHIFT;
+	uint64_t total_size = dev->block_dev.stream_block_count << BLOCK_SHIFT;
 	/* TODO(chromium:436265): If we use 4GB+ NAND, update to support
 	 * two-word addresses for partitions on 32-bit architectures. */
 	if (total_size >> (32 * addrc) || total_size >> (32 * sizec)) {
@@ -177,7 +177,7 @@ static int spi_gpt_fixup(DeviceTreeFixup *fixup, DeviceTree *tree)
 	}
 	for (i = 0, e = entries; i <= max_idx; i++, e++) {
 		DeviceTreeNode *partition = xzalloc(sizeof(*partition));
-		u64 start, size;
+		uint64_t start, size;
 		if (IsUnusedEntry(e)) {
 			/* To make an empty partition, start has to be at
 			 * the logical end of the device, since size = 0

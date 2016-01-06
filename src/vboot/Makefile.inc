@@ -18,8 +18,6 @@
 subdirs-y := callbacks crossystem stages util
 
 depthcharge-y += stages.c
-depthcharge-$(CONFIG_FASTBOOT_MODE) += fastboot.c
-depthcharge-y += boot_policy.c
 depthcharge-y += firmware_id.c
 depthcharge-y += screens.c
 depthcharge-y += vbnv.c
@@ -59,7 +57,6 @@ endif
 $(TRAMP_LP): $(LIBPAYLOAD_DIR)/lib/libpayload.a
 	@printf "    OBJCOPY    $(subst $(obj)/,,$(@))\n"
 	$(Q)$(OBJCOPY) --prefix-symbols=$(TRAMP_PREFIX)_ \
-		--remove-section=".reginfo" \
 		--keep-global-symbol=$(TRAMP_PREFIX)_memcpy \
 		--keep-global-symbol=$(TRAMP_PREFIX)_memset \
 		--keep-global-symbol=$(TRAMP_PREFIX)_dcache_clean_all \

@@ -37,7 +37,7 @@ static int ipq_eth_start(IpqEthDev *priv);
  *
  * Retrun 1, as nonzero return value indicates success.
  */
-static int get_eth_mac_address(u8 *enetaddr)
+static int get_eth_mac_address(uint8_t *enetaddr)
 {
 	int i;
 	int valid_mac = 0;
@@ -59,7 +59,7 @@ static int get_eth_mac_address(u8 *enetaddr)
 		soc_unique[1] = readl(QFPROM_CORR_PTE_ROW0_MSB);
 
 		/* calculate its sha1. */
-		sha1((const u8 *)soc_unique, sizeof(soc_unique), scramble);
+		sha1((const uint8_t *)soc_unique, sizeof(soc_unique), scramble);
 
 		/*
 		 * 0x02 is a good first byte of the locally administered MAC
@@ -84,7 +84,7 @@ static void config_auto_neg(IpqEthDev *priv)
 static int ipq_phy_check_link(NetDevice *dev, int *ready)
 {
 	IpqEthDev *priv = dev->dev_data;
-	u16 phy_status;
+	uint16_t phy_status;
 
 	if (!priv->started) {
 		ipq_eth_start(priv);
@@ -103,8 +103,8 @@ static void get_phy_speed_duplexity(NetDevice *dev)
 {
 	IpqEthDev *priv = dev->dev_data;
 	unsigned phy_status;
-	u64 start;
-	const u64 timeout = 2000 * 1000; /* in microseconds */
+	uint64_t start;
+	const uint64_t timeout = 2000 * 1000; /* in microseconds */
 
 	start = timer_us(0);
 	while (timer_us(start) < timeout) {
@@ -140,8 +140,8 @@ static void get_phy_speed_duplexity(NetDevice *dev)
 static int ipq_eth_wr_macaddr(IpqEthDev *eth_dev )
 {
 	struct eth_mac_regs *mac_p = eth_dev->mac_regs_p;
-	u32 macid_lo, macid_hi;
-	u8 *mac_id = eth_dev->mac_addr.addr;
+	uint32_t macid_lo, macid_hi;
+	uint8_t *mac_id = eth_dev->mac_addr.addr;
 
 	macid_lo = mac_id[0] + (mac_id[1] << 8) +
 		   (mac_id[2] << 16) + (mac_id[3] << 24);
@@ -156,7 +156,7 @@ static int ipq_eth_wr_macaddr(IpqEthDev *eth_dev )
 static void ipq_mac_reset(IpqEthDev *eth_dev)
 {
 	struct eth_dma_regs *dma_reg = eth_dev->dma_regs_p;
-	u32 val;
+	uint32_t val;
 
 	writel(DMAMAC_SRST, &dma_reg->busmode);
 	do {
@@ -247,8 +247,8 @@ static int ipq_gmac_rx_desc_setup(IpqEthDev  *priv)
 		rxdesc = priv->desc_rx[i];
 		rxdesc->length |= ((ETH_MAX_FRAME_LEN << DescSize1Shift) &
 					DescSize1Mask);
-		rxdesc->buffer1 = (u32)p;
-		rxdesc->data1 = (u32)priv->desc_rx[(i + 1) %
+		rxdesc->buffer1 = (uint32_t)p;
+		rxdesc->data1 = (uint32_t)priv->desc_rx[(i + 1) %
 							NO_OF_RX_DESC];
 
 		rxdesc->extstatus = 0;
@@ -283,7 +283,7 @@ static int ipq_gmac_tx_rx_desc_ring(IpqEthDev  *priv)
 
 		desc->status |= TxDescChain;
 
-		desc->data1 = (u32)priv->desc_tx[(i + 1) %
+		desc->data1 = (uint32_t)priv->desc_tx[(i + 1) %
 				NO_OF_TX_DESC];
 
 		dcache_clean_invalidate_by_mva((void const *)desc,
@@ -301,7 +301,7 @@ static int ipq_gmac_tx_rx_desc_ring(IpqEthDev  *priv)
 		(i == (NO_OF_RX_DESC - 1)) ? RxDescEndOfRing : 0;
 
 		desc->length |= RxDescChain;
-		desc->data1 = (u32)priv->desc_rx[(i + 1) %
+		desc->data1 = (uint32_t)priv->desc_rx[(i + 1) %
 				NO_OF_RX_DESC];
 
 		dcache_clean_invalidate_by_mva((void const *)desc,
@@ -320,19 +320,19 @@ static inline void ipq_gmac_give_to_dma(ipq_gmac_desc_t *fr)
 	fr->status |= DescOwnByDma;
 }
 
-static inline u32 ipq_gmac_owned_by_dma(ipq_gmac_desc_t *fr)
+static inline uint32_t ipq_gmac_owned_by_dma(ipq_gmac_desc_t *fr)
 {
 	return fr->status & DescOwnByDma;
 }
 
-static inline u32 ipq_gmac_is_desc_empty(ipq_gmac_desc_t *fr)
+static inline uint32_t ipq_gmac_is_desc_empty(ipq_gmac_desc_t *fr)
 {
 	return ((fr->length & DescSize1Mask) == 0);
 }
 
 static int ipq_eth_start(IpqEthDev *priv)
 {
-	u32 data;
+	uint32_t data;
 	struct eth_dma_regs *dma_reg = priv->dma_regs_p;
 
 	priv->next_rx = 0;
@@ -367,7 +367,7 @@ static int ipq_eth_start(IpqEthDev *priv)
 	return 0;
 }
 
-static int ipq_eth_send(NetDevice *dev, void *packet, u16 length)
+static int ipq_eth_send(NetDevice *dev, void *packet, uint16_t length)
 {
 	IpqEthDev *priv = dev->dev_data;
 	struct eth_dma_regs *dma_p = priv->dma_regs_p;
@@ -411,7 +411,7 @@ static int ipq_eth_send(NetDevice *dev, void *packet, u16 length)
 	txdesc->buffer1 = 0;
 	priv->next_tx = (priv->next_tx + 1) % NO_OF_TX_DESC;
 
-	txdesc->data1 = (u32)priv->desc_tx[priv->next_tx];
+	txdesc->data1 = (uint32_t)priv->desc_tx[priv->next_tx];
 
 	dcache_clean_invalidate_by_mva((void const *)txdesc, DESC_FLUSH_SIZE);
 
@@ -422,10 +422,10 @@ static int ipq_eth_recv(NetDevice *dev, void *buf, uint16_t *len, int maxlen)
 {
 	IpqEthDev *priv = dev->dev_data;
 	struct eth_dma_regs *dma_p = priv->dma_regs_p;
-	u16 length = 0;
+	uint16_t length = 0;
 	ipq_gmac_desc_t *rxdesc = priv->desc_rx[priv->next_rx];
 	unsigned status;
-	u8 *p_buf = (u8 *)buf;
+	uint8_t *p_buf = (uint8_t *)buf;
 	*len = 0;
 
 	dcache_invalidate_by_mva((void const *)(priv->desc_rx[0]),
@@ -468,7 +468,7 @@ static int ipq_eth_recv(NetDevice *dev, void *buf, uint16_t *len, int maxlen)
 		rxdesc->length |= (priv->next_rx == (NO_OF_RX_DESC - 1)) ?
 					RxDescEndOfRing : 0;
 		rxdesc->length |= RxDescChain;
-		rxdesc->buffer1 = (u32)net_rx_packets[priv->next_rx];
+		rxdesc->buffer1 = (uint32_t)net_rx_packets[priv->next_rx];
 		priv->next_rx = (priv->next_rx + 1) % NO_OF_RX_DESC;
 		rxdesc->data1 = (unsigned long)priv->desc_rx[priv->next_rx];
 
@@ -568,10 +568,10 @@ static void gmac_sgmii_clk_init(unsigned mac_unit, unsigned clk_div,
 static void ipq_gmac_mii_clk_init(IpqEthDev *priv, unsigned clk_div,
 				  const ipq_gmac_board_cfg_t *gmac_cfg)
 {
-	u32 nss_gmac_ctl_val;
-	u32 nss_eth_clk_gate_ctl_val;
+	uint32_t nss_gmac_ctl_val;
+	uint32_t nss_eth_clk_gate_ctl_val;
 	int gmac_idx = priv->mac_unit;
-	u32 interface = priv->interface;
+	uint32_t interface = priv->interface;
 
 	switch (interface) {
 	case PHY_INTERFACE_MODE_RGMII:
@@ -699,11 +699,11 @@ static void ipq_gmac_core_reset(const ipq_gmac_board_cfg_t *gmac_cfg)
 }
 
 unsigned ipq_mdio_read(unsigned phy_addr,
-		       unsigned reg_offset, u16 *data)
+		       unsigned reg_offset, uint16_t *data)
 {
-	u8 *reg_base = NSS_GMAC0_BASE;
+	uint8_t *reg_base = NSS_GMAC0_BASE;
 	int poll_period;
-	u32 cycles;
+	uint32_t cycles;
 	unsigned miiaddr;
 	unsigned ret_val;
 
@@ -731,13 +731,13 @@ unsigned ipq_mdio_read(unsigned phy_addr,
 	return -1;
 }
 
-unsigned ipq_mdio_write(unsigned phy_addr, unsigned reg_offset, u16 data)
+unsigned ipq_mdio_write(unsigned phy_addr, unsigned reg_offset, uint16_t data)
 {
-	u8 *reg_base = NSS_GMAC0_BASE;
+	uint8_t *reg_base = NSS_GMAC0_BASE;
 
 	unsigned miiaddr;
 	int poll_period;
-	u32 cycles;
+	uint32_t cycles;
 
 	writel(data, (reg_base + MII_DATA_REG_ADDR));
 

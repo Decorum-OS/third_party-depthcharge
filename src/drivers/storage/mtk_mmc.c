@@ -36,10 +36,10 @@ enum {
 	MtkMmcVoltages = (MMC_VDD_32_33 | MMC_VDD_33_34),
 };
 
-static void mtk_mmc_set_buswidth(MtkMmcHost *host, u32 width)
+static void mtk_mmc_set_buswidth(MtkMmcHost *host, uint32_t width)
 {
 	MtkMmcReg *reg = host->reg;
-	u32 val;
+	uint32_t val;
 
 	switch (width) {
 	case 1:
@@ -60,10 +60,10 @@ static void mtk_mmc_set_buswidth(MtkMmcHost *host, u32 width)
 
 static void mtk_mmc_change_clock(MtkMmcHost *host, uint32_t clock)
 {
-	u32 mode;
-	u32 div;
-	u32 sclk;
-	u32 hclk = host->src_hz;
+	uint32_t mode;
+	uint32_t div;
+	uint32_t sclk;
+	uint32_t hclk = host->src_hz;
 	MtkMmcReg *reg = host->reg;
 
 	/* Only support SDR mode */
@@ -90,9 +90,9 @@ static void mtk_mmc_change_clock(MtkMmcHost *host, uint32_t clock)
 	mmc_debug("sclk: %d\n", sclk);
 }
 
-static inline u32 mtk_mmc_cmd_find_resp(MmcCommand *cmd)
+static inline uint32_t mtk_mmc_cmd_find_resp(MmcCommand *cmd)
 {
-	u32 resp;
+	uint32_t resp;
 
 	switch (cmd->resp_type) {
 	/* Actually, R1, R5, R6, R7 are the same */
@@ -138,27 +138,27 @@ static void mtk_mmc_dma_stop(MtkMmcHost *host)
 		mmc_error("Failed while wait DMA to inactive!\n");
 }
 
-static inline u32 mtk_mmc_prepare_raw_cmd(MtkMmcHost *host,
+static inline uint32_t mtk_mmc_prepare_raw_cmd(MtkMmcHost *host,
         MmcCommand *cmd, MmcData *data)
 {
 	MtkMmcReg *reg = host->reg;
 	union {
-		u32 full;
+		uint32_t full;
 		struct {
-			u32 cmd: 6;
-			u32 brk: 1;
-			u32 rsptype: 3;
-			u32 resv: 1;
-			u32 dtype: 2;
-			u32 rw: 1;
-			u32 stop: 1;
-			u32 go_irq: 1;
-			u32 len: 12;
-			u32 auto_cmd: 2;
-			u32 vol_switch: 1;
+			uint32_t cmd: 6;
+			uint32_t brk: 1;
+			uint32_t rsptype: 3;
+			uint32_t resv: 1;
+			uint32_t dtype: 2;
+			uint32_t rw: 1;
+			uint32_t stop: 1;
+			uint32_t go_irq: 1;
+			uint32_t len: 12;
+			uint32_t auto_cmd: 2;
+			uint32_t vol_switch: 1;
 		};
 	} rawcmd = {.full = 0};
-	u32 opcode = cmd->cmdidx;
+	uint32_t opcode = cmd->cmdidx;
 	rawcmd.cmd = cmd->cmdidx;
 	rawcmd.rsptype = mtk_mmc_cmd_find_resp(cmd);
 
@@ -187,9 +187,9 @@ static inline u32 mtk_mmc_prepare_raw_cmd(MtkMmcHost *host,
 	return rawcmd.full;
 }
 
-static inline u32 mtk_mmc_get_irq_status(MtkMmcHost *host, u32 mask)
+static inline uint32_t mtk_mmc_get_irq_status(MtkMmcHost *host, uint32_t mask)
 {
-	u32 status = readl(&host->reg->msdc_int);
+	uint32_t status = readl(&host->reg->msdc_int);
 	if (status)
 		writel(status, &host->reg->msdc_int);
 	return status & mask;
@@ -229,7 +229,7 @@ static int mtk_mmc_cmd_done(MtkMmcHost *host, int events, MmcCommand *cmd)
 static inline int mtk_mmc_cmd_do_poll(MtkMmcHost *host, MmcCommand *cmd)
 {
 	int intsts;
-	u32 done = 0;
+	uint32_t done = 0;
 
 	for (; !done;) {
 		intsts = mtk_mmc_get_irq_status(host, MSDC_INT_CMDRDY |
@@ -269,10 +269,10 @@ static int mtk_mmc_send_cmd_bounced(MmcCtrlr *ctrlr, MmcCommand *cmd,
 {
 	MtkMmcHost *host = container_of(ctrlr, MtkMmcHost, mmc);
 	MtkMmcReg *reg = host->reg;
-	u32 done = 0;
+	uint32_t done = 0;
 	int ret = 0;
-	u32 rawcmd;
-	u32 ints;
+	uint32_t rawcmd;
+	uint32_t ints;
 	mmc_debug("%s called\n", __func__);
 
 	ret = sdc_wait_ready(host, cmd, data);

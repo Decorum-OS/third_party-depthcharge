@@ -32,19 +32,19 @@
 #define I2C_TIMEOUT	3
 
 typedef struct {
-	u32 i2c_con;
-	u32 i2c_clkdiv;
-	u32 i2c_mrxaddr;
-	u32 i2c_mrxraddr;
-	u32 i2c_mtxcnt;
-	u32 i2c_mrxcnt;
-	u32 i2c_ien;
-	u32 i2c_ipd;
-	u32 i2c_fcnt;
-	u32 reserved0[(0x100 - 0x24) / 4];
-	u32 txdata[8];
-	u32 reserved1[(0x200 - 0x120) / 4];
-	u32 rxdata[8];
+	uint32_t i2c_con;
+	uint32_t i2c_clkdiv;
+	uint32_t i2c_mrxaddr;
+	uint32_t i2c_mrxraddr;
+	uint32_t i2c_mtxcnt;
+	uint32_t i2c_mrxcnt;
+	uint32_t i2c_ien;
+	uint32_t i2c_ipd;
+	uint32_t i2c_fcnt;
+	uint32_t reserved0[(0x100 - 0x24) / 4];
+	uint32_t txdata[8];
+	uint32_t reserved1[(0x200 - 0x120) / 4];
+	uint32_t rxdata[8];
 } RkI2cReg;
 
 /* Con register bits. */
@@ -183,7 +183,7 @@ static int i2c_write(RkI2cReg *reg_addr, I2cSeg segment)
 	int words_transfered = 0;
 	unsigned int i;
 	unsigned int j = 1;
-	u32 txdata = 0;
+	uint32_t txdata = 0;
 
 	txdata |= (segment.chip << 1);
 	while (bytes_remaining) {

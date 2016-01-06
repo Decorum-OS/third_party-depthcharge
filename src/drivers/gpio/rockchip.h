@@ -32,36 +32,36 @@ enum {
 };
 
 typedef struct {
-	u32 swporta_dr;
-	u32 swporta_ddr;
-	u32 reserved0[(0x30 - 0x08) / 4];
-	u32 inten;
-	u32 intmask;
-	u32 inttype_level;
-	u32 int_polarity;
-	u32 int_status;
-	u32 int_rawstatus;
-	u32 debounce;
-	u32 porta_eoi;
-	u32 ext_porta;
-	u32 reserved1[(0x60 - 0x54) / 4];
-	u32 ls_sync;
+	uint32_t swporta_dr;
+	uint32_t swporta_ddr;
+	uint32_t reserved0[(0x30 - 0x08) / 4];
+	uint32_t inten;
+	uint32_t intmask;
+	uint32_t inttype_level;
+	uint32_t int_polarity;
+	uint32_t int_status;
+	uint32_t int_rawstatus;
+	uint32_t debounce;
+	uint32_t porta_eoi;
+	uint32_t ext_porta;
+	uint32_t reserved1[(0x60 - 0x54) / 4];
+	uint32_t ls_sync;
 } RkGpioRegs;
 
 // This structure must be kept in sync with coreboot's GPIO implementation!
 typedef union {
-	u32 raw;
+	uint32_t raw;
 	struct {
-		u16 port;
+		uint16_t port;
 		union {
 			struct {
-				u16 num:5;
-				u16 :11;
+				uint16_t num:5;
+				uint16_t :11;
 			};
 			struct {
-				u16 idx:3;
-				u16 bank:2;
-				u16 :11;
+				uint16_t idx:3;
+				uint16_t bank:2;
+				uint16_t :11;
 			};
 		};
 	};

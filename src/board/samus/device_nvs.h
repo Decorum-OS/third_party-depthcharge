@@ -1,6 +1,4 @@
 /*
- * This file is part of the coreboot project.
- *
  * Copyright (C) 2014 Google Inc.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -36,9 +34,9 @@
 #define SIO_NVS_ADSP		8
 
 typedef struct {
-	u8	enable[9];
-	u32	bar0[9];
-	u32	bar1[9];
+	uint8_t enable[9];
+	uint32_t bar0[9];
+	uint32_t bar1[9];
 } __attribute__((packed)) device_nvs_t;
 
 #endif

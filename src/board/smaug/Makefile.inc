@@ -1,6 +1,4 @@
 ##
-## This file is part of the depthcharge project.
-##
 ## Copyright 2015 Google Inc.
 ##
 ## This program is free software; you can redistribute it and/or modify
@@ -19,5 +17,3 @@
 
 depthcharge-y += board.c
 depthcharge-y += emc.c
-depthcharge-$(CONFIG_FASTBOOT_MODE) += input.c
-depthcharge-$(CONFIG_FASTBOOT_MODE) += fastboot.c

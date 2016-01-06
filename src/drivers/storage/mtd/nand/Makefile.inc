@@ -1,4 +1,4 @@
-##
+
 ## Copyright 2012 Google Inc.
 ##
 ## This program is free software; you can redistribute it and/or modify
@@ -17,5 +17,3 @@
 
 depthcharge-$(CONFIG_DRIVER_STORAGE_MTD_NAND) += nand_ids.c
 depthcharge-$(CONFIG_DRIVER_STORAGE_MTD_IPQ_NAND) += ipq_nand.c
-depthcharge-$(CONFIG_DRIVER_STORAGE_MTD_SPI_NAND) += spi_nand.c
-depthcharge-$(CONFIG_DRIVER_STORAGE_MTD_BCM_NAND) += bcm_nand.c

@@ -1,6 +1,4 @@
 ##
-## This file is part of the depthcharge project.
-##
 ## Copyright (C) 2008 Advanced Micro Devices, Inc.
 ## Copyright (C) 2008 Uwe Hermann <uwe@hermann-uwe.de>
 ## Copyright 2012 Google Inc.
@@ -87,24 +85,12 @@ ARCH_DIR = arm
 else
 ARCH_DIR = $(ARCH)
 endif
-ifeq ($(CONFIG_ARCH_MIPS),y)
-ARCH = mips
-ARCH_DIR = mips
-endif
 
-ifeq ($(CONFIG_LDSCRIPT_ARCH),y)
-LDSCRIPT := $(src)/src/arch/$(ARCH_DIR)/depthcharge.ldscript
-ifeq ("$(wildcard $(LDSCRIPT))","")
-$(error $(LDSCRIPT): no such file.)
-endif
-else
 LDSCRIPT := $(src)/src/image/depthcharge.ldscript
-endif
 
 ARCH_TO_TOOLCHAIN_x86    := i386
 ARCH_TO_TOOLCHAIN_arm    := arm
 ARCH_TO_TOOLCHAIN_arm64  := arm64
-ARCH_TO_TOOLCHAIN_mips   := mipsel
 
 toolchain := $(ARCH_TO_TOOLCHAIN_$(ARCH))
 
@@ -112,7 +98,6 @@ toolchain := $(ARCH_TO_TOOLCHAIN_$(ARCH))
 # in some places. If the names above don't work, use another set.
 ifeq ($(CC_$(toolchain)),)
 new_toolchain_name_i386 := x86_32
-new_toolchain_name_mipsel := mips
 
 toolchain := $(new_toolchain_name_$(toolchain))
 endif
@@ -148,7 +133,6 @@ all:
 	@echo  '  depthcharge_ro_rw	- Build depthcharge RO and RW (with'
 	@echo  '  			  old trampoline and VbSelectFirmware)'
 	@echo  '  netboot_unified	- Build netboot binary'
-	@echo  '  fastboot_bin		- Build fastboot binary'
 	@echo  '  dev_unified		- Build unified developer binary (with'
 	@echo  '  			  (EFS) vboot, netboot and gdb)'
 	@echo  '  dev_ro_rw		- Build RO/RW developer binary (with

@@ -29,7 +29,7 @@
 
 static inline void sign_of_life(uint8_t val)
 {
-	/* It would be nice to do something here... */
+	// It would be nice to do something here...
 }
 
 #endif /* __ARCH_ARM_INCLUDES_ARCH_SIGN_OF_LIFE_H__ */

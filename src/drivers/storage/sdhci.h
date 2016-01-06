@@ -260,16 +260,16 @@
 
 /* ADMA packet descriptor */
 typedef struct {
-	u16     attributes;
-	u16     length;
-	u32     addr;
+	uint16_t attributes;
+	uint16_t length;
+	uint32_t addr;
 } SdhciAdma;
 
 typedef struct {
-	u16     attributes;
-	u16     length;
-	u32     addr;
-	u32     addr_hi;
+	uint16_t attributes;
+	uint16_t length;
+	uint32_t addr;
+	uint32_t addr_hi;
 } SdhciAdma64;
 
 #define SDHCI_MAX_PER_DESCRIPTOR 0x10000
@@ -317,31 +317,31 @@ struct sdhci_host {
 	void (*set_clock)(SdhciHost *host, unsigned int div);
 };
 
-static inline void sdhci_writel(SdhciHost *host, u32 val, int reg)
+static inline void sdhci_writel(SdhciHost *host, uint32_t val, int reg)
 {
 	writel(val, host->ioaddr + reg);
 }
 
-static inline void sdhci_writew(SdhciHost *host, u16 val, int reg)
+static inline void sdhci_writew(SdhciHost *host, uint16_t val, int reg)
 {
 	writew(val, host->ioaddr + reg);
 }
 
-static inline void sdhci_writeb(SdhciHost *host, u8 val, int reg)
+static inline void sdhci_writeb(SdhciHost *host, uint8_t val, int reg)
 {
 	writeb(val, host->ioaddr + reg);
 }
-static inline u32 sdhci_readl(SdhciHost *host, int reg)
+static inline uint32_t sdhci_readl(SdhciHost *host, int reg)
 {
 	return readl(host->ioaddr + reg);
 }
 
-static inline u16 sdhci_readw(SdhciHost *host, int reg)
+static inline uint16_t sdhci_readw(SdhciHost *host, int reg)
 {
 	return readw(host->ioaddr + reg);
 }
 
-static inline u8 sdhci_readb(SdhciHost *host, int reg)
+static inline uint8_t sdhci_readb(SdhciHost *host, int reg)
 {
 	return readb(host->ioaddr + reg);
 }

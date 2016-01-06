@@ -37,7 +37,7 @@
 #define PCH_PCR_PID_GPIOCOM1	0xAE
 #define PCH_PCR_PID_GPIOCOM0	0xAF
 
-static uint8_t *pcr_port_regs(u8 pid)
+static uint8_t *pcr_port_regs(uint8_t pid)
 {
 	uintptr_t reg_addr;
 

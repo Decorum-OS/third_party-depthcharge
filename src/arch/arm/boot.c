@@ -24,8 +24,6 @@
 
 #include "arch/arm/boot.h"
 #include "base/timestamp.h"
-#include "config.h"
-#include "vboot/boot.h"
 
 static inline uint32_t get_sctlr(void)
 {
@@ -42,8 +40,8 @@ static inline void set_sctlr(uint32_t val)
 
 int boot_arm_linux(void *fdt, FitImageNode *kernel)
 {
-	static const uint32_t SctlrM = (0x1 << 0);
-	static const uint32_t SctlrC = (0x1 << 2);
+	static const uint32_t SctlrM = 0x1 << 0;
+	static const uint32_t SctlrC = 0x1 << 2;
 
 	void *entry = kernel->data;
 	if (kernel->compression != CompressionNone) {

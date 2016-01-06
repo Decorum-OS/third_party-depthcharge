@@ -81,8 +81,8 @@ static void load_payload_and_run(struct cbfs_payload *payload)
 	while (1) {
 		void *src = base + be32toh(seg->offset);
 		void *dst = (void *)(unsigned long)be64toh(seg->load_addr);
-		u32 src_len = be32toh(seg->len);
-		u32 dst_len = be32toh(seg->mem_len);
+		uint32_t src_len = be32toh(seg->len);
+		uint32_t dst_len = be32toh(seg->mem_len);
 
 		switch (seg->type) {
 		case PAYLOAD_SEGMENT_CODE:

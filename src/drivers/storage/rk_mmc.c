@@ -24,30 +24,30 @@
 #include "drivers/gpio/rockchip.h"
 
 struct rk3288_cru_reg {
-	u32 cru_apll_con[4];
-	u32 cru_dpll_con[4];
-	u32 cru_cpll_con[4];
-	u32 cru_gpll_con[4];
-	u32 cru_npll_con[4];
-	u32 cru_mode_con;
-	u32 reserved0[3];
-	u32 cru_clksel_con[43];
-	u32 reserved1[21];
-	u32 cru_clkgate_con[19];
-	u32 reserved2;
-	u32 cru_glb_srst_fst_value;
-	u32 cru_glb_srst_snd_value;
-	u32 cru_softrst_con[12];
-	u32 cru_misc_con;
-	u32 cru_glb_cnt_th;
-	u32 cru_glb_rst_con;
-	u32 reserved3;
-	u32 cru_glb_rst_st;
-	u32 reserved4;
-	u32 cru_sdmmc_con[2];
-	u32 cru_sdio0_con[2];
-	u32 cru_sdio1_con[2];
-	u32 cru_emmc_con[2];
+	uint32_t cru_apll_con[4];
+	uint32_t cru_dpll_con[4];
+	uint32_t cru_cpll_con[4];
+	uint32_t cru_gpll_con[4];
+	uint32_t cru_npll_con[4];
+	uint32_t cru_mode_con;
+	uint32_t reserved0[3];
+	uint32_t cru_clksel_con[43];
+	uint32_t reserved1[21];
+	uint32_t cru_clkgate_con[19];
+	uint32_t reserved2;
+	uint32_t cru_glb_srst_fst_value;
+	uint32_t cru_glb_srst_snd_value;
+	uint32_t cru_softrst_con[12];
+	uint32_t cru_misc_con;
+	uint32_t cru_glb_cnt_th;
+	uint32_t cru_glb_rst_con;
+	uint32_t reserved3;
+	uint32_t cru_glb_rst_st;
+	uint32_t reserved4;
+	uint32_t cru_sdmmc_con[2];
+	uint32_t cru_sdio0_con[2];
+	uint32_t cru_sdio1_con[2];
+	uint32_t cru_emmc_con[2];
 };
 
 static struct rk3288_cru_reg *cru_ptr = (void *)0xff760000;

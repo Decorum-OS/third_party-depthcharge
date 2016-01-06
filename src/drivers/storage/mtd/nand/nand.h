@@ -61,63 +61,63 @@
 struct nand_onfi_params {
 	/* rev info and features block */
 	/* 'O' 'N' 'F' 'I'  */
-	u8 sig[4];
-	u16 revision;
-	u16 features;
-	u16 opt_cmd;
-	u8 reserved[22];
+	uint8_t sig[4];
+	uint16_t revision;
+	uint16_t features;
+	uint16_t opt_cmd;
+	uint8_t reserved[22];
 
 	/* manufacturer information block */
 	char manufacturer[12];
 	char model[20];
-	u8 jedec_id;
-	u16 date_code;
-	u8 reserved2[13];
+	uint8_t jedec_id;
+	uint16_t date_code;
+	uint8_t reserved2[13];
 
 	/* memory organization block */
-	u32 byte_per_page;
-	u16 spare_bytes_per_page;
-	u32 data_bytes_per_ppage;
-	u16 spare_bytes_per_ppage;
-	u32 pages_per_block;
-	u32 blocks_per_lun;
-	u8 lun_count;
-	u8 addr_cycles;
-	u8 bits_per_cell;
-	u16 bb_per_lun;
-	u16 block_endurance;
-	u8 guaranteed_good_blocks;
-	u16 guaranteed_block_endurance;
-	u8 programs_per_page;
-	u8 ppage_attr;
-	u8 ecc_bits;
-	u8 interleaved_bits;
-	u8 interleaved_ops;
-	u8 reserved3[13];
+	uint32_t byte_per_page;
+	uint16_t spare_bytes_per_page;
+	uint32_t data_bytes_per_ppage;
+	uint16_t spare_bytes_per_ppage;
+	uint32_t pages_per_block;
+	uint32_t blocks_per_lun;
+	uint8_t lun_count;
+	uint8_t addr_cycles;
+	uint8_t bits_per_cell;
+	uint16_t bb_per_lun;
+	uint16_t block_endurance;
+	uint8_t guaranteed_good_blocks;
+	uint16_t guaranteed_block_endurance;
+	uint8_t programs_per_page;
+	uint8_t ppage_attr;
+	uint8_t ecc_bits;
+	uint8_t interleaved_bits;
+	uint8_t interleaved_ops;
+	uint8_t reserved3[13];
 
 	/* electrical parameter block */
-	u8 io_pin_capacitance_max;
-	u16 async_timing_mode;
-	u16 program_cache_timing_mode;
-	u16 t_prog;
-	u16 t_bers;
-	u16 t_r;
-	u16 t_ccs;
-	u16 src_sync_timing_mode;
-	u16 src_ssync_features;
-	u16 clk_pin_capacitance_typ;
-	u16 io_pin_capacitance_typ;
-	u16 input_pin_capacitance_typ;
-	u8 input_pin_capacitance_max;
-	u8 driver_strenght_support;
-	u16 t_int_r;
-	u16 t_ald;
-	u8 reserved4[7];
+	uint8_t io_pin_capacitance_max;
+	uint16_t async_timing_mode;
+	uint16_t program_cache_timing_mode;
+	uint16_t t_prog;
+	uint16_t t_bers;
+	uint16_t t_r;
+	uint16_t t_ccs;
+	uint16_t src_sync_timing_mode;
+	uint16_t src_ssync_features;
+	uint16_t clk_pin_capacitance_typ;
+	uint16_t io_pin_capacitance_typ;
+	uint16_t input_pin_capacitance_typ;
+	uint8_t input_pin_capacitance_max;
+	uint8_t driver_strenght_support;
+	uint16_t t_int_r;
+	uint16_t t_ald;
+	uint8_t reserved4[7];
 
 	/* vendor */
-	u8 reserved5[90];
+	uint8_t reserved5[90];
 
-	u16 crc;
+	uint16_t crc;
 } __attribute__((packed));
 
 #define ONFI_CRC_BASE	0x4F4E

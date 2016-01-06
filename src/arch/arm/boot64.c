@@ -33,44 +33,40 @@
 #include "base/ranges.h"
 #include "base/physmem.h"
 
-#define MAX_KERNEL_SIZE (64*MiB)
+static const size_t MaxKernelSize = 64 * MiB;
 
 typedef struct {
-	u32 code0;
-	u32 code1;
-	u64 text_offset;
-	u64 image_size;
-	u64 flags;
-	u64 res2;
-	u64 res3;
-	u64 res4;
-	u32 magic;
-#define KERNEL_HEADER_MAGIC  0x644d5241
-	u32 res5;
+	uint32_t code0;
+	uint32_t code1;
+	uint64_t text_offset;
+	uint64_t image_size;
+	uint64_t flags;
+	uint64_t res2;
+	uint64_t res3;
+	uint64_t res4;
+	uint32_t magic;
+	uint32_t res5;
 } Arm64KernelHeader;
 
 struct {
 	union {
 		Arm64KernelHeader header;
-		u8 raw[sizeof(Arm64KernelHeader) + 0x100];
+		uint8_t raw[sizeof(Arm64KernelHeader) + 0x100];
 	};
-#define SCRATCH_CANARY_VALUE 0xdeadbeef
-	u32 canary;
+	uint32_t canary;
 } scratch;
 
 static void *get_kernel_reloc_addr(uint32_t load_offset)
 {
-	int i = 0;
-
-	for (; i < lib_sysinfo.n_memranges; i++) {
+	for (int i = 0; i < lib_sysinfo.n_memranges; i++) {
 		struct memrange *range = &lib_sysinfo.memrange[i];
 		if (range->type != CB_MEM_RAM)
 			continue;
 
 		uint64_t start = range->base;
 		uint64_t end = range->base + range->size;
-		uint64_t kstart = ALIGN_UP(start, 2*MiB) + load_offset;
-		uint64_t kend = kstart + MAX_KERNEL_SIZE;
+		uint64_t kstart = ALIGN_UP(start, 2 * MiB) + load_offset;
+		uint64_t kend = kstart + MaxKernelSize;
 
 		if (kend > CONFIG_BASE_ADDRESS || kend > CONFIG_KERNEL_START ||
 		    kend > CONFIG_KERNEL_FIT_FDT_ADDR) {
@@ -92,8 +88,11 @@ static void *get_kernel_reloc_addr(uint32_t load_offset)
 
 int boot_arm_linux(void *fdt, FitImageNode *kernel)
 {
+	static const uint32_t KernelHeaderMagic = 0x644d5241;
+	static const uint32_t ScratchCanaryValue = 0xdeadbeef;
+
 	// Partially decompress to get text_offset. Can't check for errors.
-	scratch.canary = SCRATCH_CANARY_VALUE;
+	scratch.canary = ScratchCanaryValue;
 	switch (kernel->compression) {
 	case CompressionNone:
 		memcpy(scratch.raw, kernel->data, sizeof(scratch.raw));
@@ -112,14 +111,14 @@ int boot_arm_linux(void *fdt, FitImageNode *kernel)
 	}
 
 	// Should never happen, but if it does we'll want to know.
-	if (scratch.canary != SCRATCH_CANARY_VALUE) {
+	if (scratch.canary != ScratchCanaryValue) {
 		printf("ERROR: Partial decompression ran over scratchbuf!\n");
 		return 1;
 	}
 
-	if (scratch.header.magic != KERNEL_HEADER_MAGIC) {
+	if (scratch.header.magic != KernelHeaderMagic) {
 		printf("ERROR: Invalid kernel magic: %#.8x\n != %#.8x\n",
-		       scratch.header.magic, KERNEL_HEADER_MAGIC);
+		       scratch.header.magic, KernelHeaderMagic);
 		return 1;
 	}
 
@@ -130,7 +129,7 @@ int boot_arm_linux(void *fdt, FitImageNode *kernel)
 	size_t true_size = kernel->size;
 	switch (kernel->compression) {
 	case CompressionNone:
-		if (kernel->size > MAX_KERNEL_SIZE) {
+		if (kernel->size > MaxKernelSize) {
 			printf("ERROR: Cannot relocate a kernel this large!\n");
 			return 1;
 		}
@@ -140,7 +139,7 @@ int boot_arm_linux(void *fdt, FitImageNode *kernel)
 	case CompressionLzma:
 		printf("Decompressing LZMA kernel to %p\n", reloc_addr);
 		true_size = ulzman(kernel->data, kernel->size,
-				   reloc_addr, MAX_KERNEL_SIZE);
+				   reloc_addr, MaxKernelSize);
 		if (!true_size) {
 			printf("ERROR: LZMA decompression failed!\n");
 			return 1;
@@ -149,13 +148,13 @@ int boot_arm_linux(void *fdt, FitImageNode *kernel)
 	case CompressionLz4:
 		printf("Decompressing LZ4 kernel to %p\n", reloc_addr);
 		true_size = ulz4fn(kernel->data, kernel->size,
-				   reloc_addr, MAX_KERNEL_SIZE);
+				   reloc_addr, MaxKernelSize);
 		if (!true_size) {
 			printf("ERROR: LZ4 decompression failed!\n");
 			return 1;
 		}
 		break;
-	default: // It's 2015 and GCC's reachability analyzer still sucks...
+	default:
 		return 1;
 	}
 

@@ -20,18 +20,10 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
 #include <vboot_api.h>
 #include <gpt.h>
 
-#include "boot/bcb.h"
-#include "config.h"
-
 uint8_t VbExOverrideGptEntryPriority(const GptEntry *e)
 {
-#if CONFIG_BCB_SUPPORT
-	if (bcb_override_priority(e->name))
-		return 15;
-#endif
 	return 0;
 }

@@ -44,22 +44,22 @@
 
 typedef struct {
 	/* Device Enabled in ACPI Mode */
-	u8	lpss_en[14];
-	u8	scc_en[3];
-	u8	lpe_en;
+	uint8_t lpss_en[14];
+	uint8_t scc_en[3];
+	uint8_t lpe_en;
 
 	/* BAR 0 */
-	u32	lpss_bar0[14];
-	u32	scc_bar0[3];
-	u32	lpe_bar0;
+	uint32_t lpss_bar0[14];
+	uint32_t scc_bar0[3];
+	uint32_t lpe_bar0;
 
 	/* BAR 0 */
-	u32	lpss_bar1[14];
-	u32	scc_bar1[3];
-	u32	lpe_bar1;
+	uint32_t lpss_bar1[14];
+	uint32_t scc_bar1[3];
+	uint32_t lpe_bar1;
 
 	/* Extra */
-	u32	lpe_fw; /* LPE Firmware */
+	uint32_t lpe_fw; /* LPE Firmware */
 } __attribute__((packed)) device_nvs_t;
 
 #endif

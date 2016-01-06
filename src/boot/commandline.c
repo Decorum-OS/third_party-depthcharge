@@ -64,18 +64,11 @@ static char *emit_guid(char *dest, uint8_t *guid)
 	return dest;
 }
 
-const char * __attribute__((weak)) mainboard_commandline(void)
-{
-	return NULL;
-}
-
 int commandline_subst(const char *src, char *dest, size_t dest_size,
-		      const struct commandline_info *info)
+		      int devnum, int partnum, uint8_t *guid, int external_gpt)
 {
 	static const char cros_secure[] = "cros_secure ";
 	const int cros_secure_size = sizeof(cros_secure) - 1;
-	int devnum = info->devnum;
-	int partnum = info->partnum;
 
 	/* sanity check on dest size */
 	if (dest_size > 10000)
@@ -103,17 +96,6 @@ int commandline_subst(const char *src, char *dest, size_t dest_size,
 	CHECK_SPACE(cros_secure_size);
 	memcpy(dest, cros_secure, cros_secure_size);
 	dest += (cros_secure_size);
-
-	// Add any mainboard options
-	const char *mainboard_cmdline = mainboard_commandline();
-	if (mainboard_cmdline != NULL) {
-		size_t mainboard_cmdline_size = strlen(mainboard_cmdline);
-		if (mainboard_cmdline_size > 0) {
-			CHECK_SPACE(mainboard_cmdline_size)
-			memcpy(dest, mainboard_cmdline, mainboard_cmdline_size);
-			dest += mainboard_cmdline_size;
-		}
-	}
 
 	int c;
 
@@ -156,14 +138,14 @@ int commandline_subst(const char *src, char *dest, size_t dest_size,
 		case 'U':
 			/* GUID replacement needs 36 bytes */
 			CHECK_SPACE(36 + 1);
-			dest = emit_guid(dest, info->guid);
+			dest = emit_guid(dest, guid);
 			break;
 		case 'R':
 			/*
 			 * If booting from NAND, /dev/ubiblock%P_0
 			 * If booting from disk, PARTUUID=%U/PARTNROFF=1
 			 */
-			if (info->external_gpt) {
+			if (external_gpt) {
 				/* Sanity check */
 				if (partnum < 1 || partnum > 99)
 					return 1;
@@ -184,7 +166,7 @@ int commandline_subst(const char *src, char *dest, size_t dest_size,
 				CHECK_SPACE(start_size + 36 + 1 + end_size);
 				memcpy(dest, start, start_size);
 				dest += start_size;
-				dest = emit_guid(dest, info->guid);
+				dest = emit_guid(dest, guid);
 				memcpy(dest, end, end_size);
 				dest += end_size;
 			}

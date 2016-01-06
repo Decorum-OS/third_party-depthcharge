@@ -30,4 +30,3 @@ link_config_options := \
 	HEAP_SIZE \
 	STACK_SIZE \
 	GBB_COPY_SIZE \
-	FASTBOOT_HEAP_SIZE \

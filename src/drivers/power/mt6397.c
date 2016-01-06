@@ -29,30 +29,30 @@
 #define power_error(format ...)	printf("mt6397: ERROR: " format)
 
 typedef struct {
-	u32	mode;
-	u32	length;
-	u32	restart;
-	u32	status;
-	u32	interval;
-	u32	swrst;
-	u32	swsysrst;
+	uint32_t mode;
+	uint32_t length;
+	uint32_t restart;
+	uint32_t status;
+	uint32_t interval;
+	uint32_t swrst;
+	uint32_t swsysrst;
 } MtkWdtReg;
 
 typedef struct {
-	u32	reserved1[40];
-	u32	cmd;		/* 0xA0 */
-	u32	rdata;		/* 0xA4 */
-	u32	vldclr;		/* 0xA8 */
+	uint32_t reserved1[40];
+	uint32_t cmd;		/* 0xA0 */
+	uint32_t rdata;		/* 0xA4 */
+	uint32_t vldclr;	/* 0xA8 */
 } MtkPwrapWacsReg;
 
 static inline uint32_t get_wacs0_fsm(uint32_t x)
 {
-	return (((x)>>16) & 0x7);
+	return (x >> 16) & 0x7;
 }
 
 static inline uint32_t get_wacs0_rdata(uint32_t x)
 {
-	return (((x)>>0) & 0xffff);
+	return x & 0xffff;
 }
 
 static int32_t pwrap_read(Mt6397Pmic *pmic, uint32_t adr, uint32_t *rdata)

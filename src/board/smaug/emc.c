@@ -49,10 +49,10 @@ static int emc_device_tree(DeviceTreeFixup *fixup, DeviceTree *tree)
 
 	dt_add_string_prop(emc_table_node, "compatible", "nvidia,tegra210-emc-table");
 
-	u32 addr_cells = 2, size_cells = 2;
+	uint32_t addr_cells = 2, size_cells = 2;
 
 	dt_add_reg_prop(emc_table_node, &lib_sysinfo.mtc_start,
-			(u64 *)&lib_sysinfo.mtc_size, 1, addr_cells,
+			(uint64_t *)&lib_sysinfo.mtc_size, 1, addr_cells,
 			size_cells);
 
 	DeviceTreeReserveMapEntry *reserve = xzalloc(sizeof(*reserve));

@@ -26,11 +26,11 @@
 	.global boot_arm_linux_jump
 	.type boot_arm_linux_jump, function
 boot_arm_linux_jump:
-	/* Entered with X0 = &fdt, X1 = entry */
+	// Entered with X0 = &fdt, X1 = entry
 
-	mov	x27, x1		/* Kernel entry */
+	mov	x27, x1		// Kernel entry
 
-	/* Configure sctlr to have caches off, etc. */
+	// Configure sctlr to have caches off, etc.
 	read_current x2, sctlr
 	ldr	 x3, .SCTLR_MASK
 	and	 x2, x2, x3
@@ -40,17 +40,15 @@ boot_arm_linux_jump:
 
 	msr      DAIFSet, #0xf
 
-				/* X0 = &fdt (already set by function caller) */
-	mov	x1, #0		/* X1 = 0 */
-	mov	x2, #0		/* X2 = 0 */
-	mov	x3, #0		/* X3 = 0 */
+				// X0 = &fdt (already set by function caller)
+	mov	x1, #0		// X1 = 0
+	mov	x2, #0		// X2 = 0
+	mov	x3, #0		// X3 = 0
 
-	br	x27		/* jump to entry pointer */
+	br	x27		// jump to entry pointer
 .align 4
 	 .SCTLR_MASK:
-	/*
-	 * Little endian, XN not enforced, Instruction caches disabled,
-	 * no stack alignment checking, data and unified cache disabled,
-	 * alignment checking disabled, and MMU disabled.
-	 */
+	 // Little endian, XN not enforced, Instruction caches disabled,
+	 // no stack alignment checking, data and unified cache disabled,
+	 // alignment checking disabled, and MMU disabled.
 	 .quad 0x0fdf7eff0

@@ -29,7 +29,7 @@
 
 static int install_coreboot_data(DeviceTreeFixup *fixup, DeviceTree *tree)
 {
-	u32 addr_cells = 1, size_cells = 1;
+	uint32_t addr_cells = 1, size_cells = 1;
 	const char *firmware_path[] = { "firmware", NULL };
 	DeviceTreeNode *firmware_node = dt_find_node(tree->root,
 		firmware_path, &addr_cells, &size_cells, 1);
@@ -53,8 +53,8 @@ static int install_coreboot_data(DeviceTreeFixup *fixup, DeviceTree *tree)
 	if (!cbmem_range)
 		return 1;
 
-	u64 reg_addrs[2];
-	u64 reg_sizes[2];
+	uint64_t reg_addrs[2];
+	uint64_t reg_sizes[2];
 
 	// First 'reg' address range is the coreboot table.
 	reg_addrs[0] = (uintptr_t)lib_sysinfo.header;

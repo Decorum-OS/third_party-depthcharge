@@ -25,17 +25,7 @@
 
 #include <stdint.h>
 
-struct commandline_info {
-	int devnum;
-	int partnum;
-	uint8_t *guid;
-	int external_gpt;
-};
-
 int commandline_subst(const char *src, char *dest, size_t dest_size,
-		      const struct commandline_info *info);
-
-/* Return a string with a trailing space to add to the command line or NULL. */
-const char *mainboard_commandline(void);
+		      int devnum, int partnum, uint8_t *guid, int external_gpt);
 
 #endif /* __BOOT_COMMAND_LINE_H__ */

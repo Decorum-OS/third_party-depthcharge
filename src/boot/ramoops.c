@@ -41,7 +41,7 @@ typedef struct
 } Ramoops;
 
 /* Undocumented, but linux kernel expects record-size to use only one cell */
-#define RECORD_SIZE_CELLS	1
+static const int RecordSizeCells = 1;
 
 static int ramoops_fixup(DeviceTreeFixup *fixup, DeviceTree *tree)
 {
@@ -52,7 +52,7 @@ static int ramoops_fixup(DeviceTreeFixup *fixup, DeviceTree *tree)
 	if (node)
 		list_remove(&node->list_node);
 
-	u32 addr_cells = 1, size_cells = 1;
+	uint32_t addr_cells = 1, size_cells = 1;
 	dt_read_cell_props(tree->root, &addr_cells, &size_cells);
 
 	// Create a ramoops node at the root of the tree.
@@ -68,11 +68,11 @@ static int ramoops_fixup(DeviceTreeFixup *fixup, DeviceTree *tree)
 			addr_cells, size_cells);
 
 	// Add a record-size property.
-	u8 *data = xzalloc(size_cells * sizeof(u32));
+	uint8_t *data = xzalloc(size_cells * sizeof(uint32_t));
 	dt_write_int(data, ramoops->record_size,
-		     RECORD_SIZE_CELLS * sizeof(u32));
+		     RecordSizeCells * sizeof(uint32_t));
 	dt_add_bin_prop(node, "record-size", data,
-			RECORD_SIZE_CELLS * sizeof(u32));
+			RecordSizeCells * sizeof(uint32_t));
 
 	// Add the optional dump-oops property.
 	dt_add_bin_prop(node, "dump-oops", NULL, 0);
@@ -103,8 +103,8 @@ void ramoops_buffer(uint64_t start, uint64_t size, uint64_t record_size)
 
 static int ramoops_init(void)
 {
-	if ((lib_sysinfo.ramoops_buffer == 0) ||
-	    (lib_sysinfo.ramoops_buffer_size == 0))
+	if (lib_sysinfo.ramoops_buffer == 0 ||
+	    lib_sysinfo.ramoops_buffer_size == 0)
 		return 0;
 
 	ramoops_buffer(lib_sysinfo.ramoops_buffer,

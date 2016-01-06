@@ -391,9 +391,5 @@ DesignwareI2c *new_designware_i2c(uintptr_t reg_addr, int speed)
 	bus->regs = (void *)reg_addr;
 	bus->speed = speed;
 
-	if (CONFIG_CLI)
-		add_i2c_controller_to_list(&bus->ops, "Designware-%08x",
-					   (uint32_t)reg_addr);
-
 	return bus;
 }

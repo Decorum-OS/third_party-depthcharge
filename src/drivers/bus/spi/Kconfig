@@ -18,10 +18,6 @@ config DRIVER_BUS_SPI_EXYNOS5
 	bool "Exynos5 SPI driver"
 	default n
 
-config DRIVER_BUS_SPI_IMGTEC
-	bool "IMGTEC SPFI driver"
-	default n
-
 config DRIVER_BUS_SPI_IPQ806X
 	bool "Ipq806x SPI driver"
 	default n
@@ -33,8 +29,4 @@ config DRIVER_BUS_SPI_ROCKCHIP
 config DRIVER_BUS_SPI_TEGRA
 	bool "Tegra SPI driver"
 	depends on DRIVER_DMA_TEGRA_APB
-	default n
-
-config DRIVER_BUS_SPI_BCM_QSPI
-	bool "BCM58305 SPI driver"
 	default n

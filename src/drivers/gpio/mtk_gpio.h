@@ -206,11 +206,11 @@ typedef struct {
 
 typedef struct MtGpio {
 	GpioOps ops;
-	u32 pin_num;
+	uint32_t pin_num;
 } MtGpio;
 
-GpioOps *new_mtk_gpio_input(u32 pin);
-GpioOps *new_mtk_gpio_output(u32 pin);
+GpioOps *new_mtk_gpio_input(uint32_t pin);
+GpioOps *new_mtk_gpio_output(uint32_t pin);
 
 #endif /* __DRIVERS_MT_GPIO_H__ */
 

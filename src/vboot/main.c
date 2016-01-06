@@ -27,11 +27,8 @@
 #include "arch/sign_of_life.h"
 #include "base/init_funcs.h"
 #include "base/timestamp.h"
-#include "boot/bcb.h"
 #include "config.h"
-#include "debug/cli/common.h"
 #include "drivers/input/input.h"
-#include "vboot/fastboot.h"
 #include "vboot/stages.h"
 #include "vboot/util/commonparams.h"
 #include "vboot/util/flag.h"
@@ -103,20 +100,9 @@ int main(void)
 
 	timestamp_add_now(TS_RO_VB_INIT);
 
-	if (CONFIG_CLI)
-		console_loop();
-
 	// Set up the common param structure, not clearing shared data.
 	if (vboot_init_handoff())
 		halt();
-
-	/* Fastboot is only entered in recovery path */
-	if (vboot_in_recovery())
-		vboot_try_fastboot();
-
-	/* Handle BCB command, if supported. */
-	if (CONFIG_BCB_SUPPORT)
-		bcb_handle_command();
 
 	timestamp_add_now(TS_VB_SELECT_AND_LOAD_KERNEL);
 
