@@ -72,3 +72,18 @@ config FMAP_OFFSET
 	help
 	  This is the offset of the FMAP in the ROM. The FMAP is not searched
 	  for, so if the address isn't correct the system won't boot.
+
+choice
+	prompt "Boot plan"
+	help
+	  Different ways of arranging depthcharge into modules. Which one to
+          use depends on how depthcharge is started, and what it should do
+          while running. Not all options will be supported on all boards.
+
+config BOOTPLAN_CB_SPLIT_PAYLOAD
+	bool "Coreboot payload (depthcharge selects firmware)"
+
+config BOOTPLAN_CB_PAYLOAD
+	bool "Coreboot payload (coreboot selects firmware)"
+
+endchoice
