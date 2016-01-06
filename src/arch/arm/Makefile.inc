@@ -35,5 +35,7 @@ libc-y += memset64.S
 depthcharge-y += physmem_arm64.c
 endif
 
+depthcharge-y += coreboot.c
 depthcharge-$(CONFIG_KERNEL_FIT) += fit.c
 depthcharge-y += gcc.c
+depthcharge-y += util.S

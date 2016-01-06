@@ -16,11 +16,13 @@
 ##
 
 depthcharge-y += boot.c
+depthcharge-y += coreboot.c
 readonly-y += commonparams.c
 readwrite-y += commonparams.c
 depthcharge-y += enter_trampoline.c
 depthcharge-y += gcc.c
 depthcharge-y += physmem.c
+depthcharge-y += util.S
 depthcharge-$(CONFIG_KERNEL_ZIMAGE) += zimage.c
 
 libc-y += string.c

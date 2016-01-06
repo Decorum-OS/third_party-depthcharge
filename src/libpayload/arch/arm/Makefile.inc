@@ -32,7 +32,7 @@ arm_asm_flags = -Wa,-mthumb -Wa,-mimplicit-it=always -Wa,-mno-warn-deprecated
 
 head.o-y += head.S
 libc-y += main.c sysinfo.c
-libc-y += timer.c coreboot.c util.S
+libc-y += timer.c
 libc-y += virtual.c
 libc-y += exception_asm.S exception.c
 libc-y += cache.c cpu.S
