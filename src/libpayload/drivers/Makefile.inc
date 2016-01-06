@@ -37,7 +37,6 @@ libc-$(CONFIG_8250_SERIAL_CONSOLE) += serial/8250.c
 libc-$(CONFIG_S5P_SERIAL_CONSOLE) += serial/s5p.c
 libc-$(CONFIG_8250_MMIO32_SERIAL_CONSOLE) += serial/8250_mmio32.c
 libc-$(CONFIG_IPQ806X_SERIAL_CONSOLE) += serial/ipq806x.c
-libc-$(CONFIG_BG4CD_SERIAL_CONSOLE) += serial/bg4cd.c
 libc-$(CONFIG_PC_KEYBOARD) += keyboard.c
 
 libc-$(CONFIG_CBMEM_CONSOLE) += cbmem_console.c
@@ -52,7 +51,6 @@ libc-$(CONFIG_TIMER_RDTSC) += timer/rdtsc.c
 libc-$(CONFIG_TIMER_TEGRA_1US) += timer/tegra_1us.c
 libc-$(CONFIG_TIMER_IPQ806X) += timer/ipq806x.c
 libc-$(CONFIG_TIMER_RK) += timer/rktimer.c
-libc-$(CONFIG_TIMER_BG4CD) += timer/bg4cd.c
 libc-$(CONFIG_TIMER_IMG_PISTACHIO) += timer/img_pistachio.c
 libc-$(CONFIG_TIMER_CYGNUS) += timer/cygnus.c
 

@@ -122,11 +122,6 @@ config IPQ806X_SERIAL_CONSOLE
 	depends on SERIAL_CONSOLE
 	default n
 
-config BG4CD_SERIAL_CONSOLE
-	bool "Serial port driver for Marvell's BG4CD"
-	depends on SERIAL_CONSOLE
-	default n
-
 config PL011_SERIAL_CONSOLE
 	bool "PL011 compatible serial port driver"
 	depends on 8250_SERIAL_CONSOLE
@@ -260,9 +255,6 @@ config TIMER_IPQ806X
 
 config TIMER_RK
 	bool "Timer for Rockchip"
-
-config TIMER_BG4CD
-	bool "Marvell BG4CD"
 
 config TIMER_CYGNUS
 	bool "Timer for Cygnus"
