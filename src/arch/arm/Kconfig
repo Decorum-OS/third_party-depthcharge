@@ -1,7 +1,5 @@
 ##
-## This file is part of the libpayload project.
-##
-## Copyright (c) 2012 Google Inc.
+## Copyright 2012 Google Inc.
 ##
 ## Redistribution and use in source and binary forms, with or without
 ## modification, are permitted provided that the following conditions
@@ -27,11 +25,22 @@
 ## SUCH DAMAGE.
 ##
 
-if ARCH_ARM_V8
+choice
+	prompt "ARM Version"
+	depends on ARCH_ARM
+	default ARCH_ARM_V7
+	help
+	  Version for ARM Arch
 
-config ARCH_SPECIFIC_OPTIONS # dummy
-	def_bool y
-	select LITTLE_ENDIAN
+config ARCH_ARM_V7
+	bool "ARMv7"
+
+config ARCH_ARM_V8
+	bool "ARMv8"
+
+endchoice
+
+if ARCH_ARM_V8
 
 config ARM64_A53_ERRATUM_843419
 	bool "Enable Cortex-A53 erratum 843419 linker workaround"

@@ -557,7 +557,3 @@ config LITTLE_ENDIAN
 config IO_ADDRESS_SPACE
 	default n
 	bool
-
-source "src/libpayload/arch/arm/Kconfig"
-source "src/libpayload/arch/arm64/Kconfig"
-source "src/libpayload/arch/x86/Kconfig"

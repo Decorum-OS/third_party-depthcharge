@@ -23,27 +23,17 @@ choice
 
 config ARCH_X86
 	bool "X86"
+	select LITTLE_ENDIAN
+	select IO_ADDRESS_SPACE
 
 config ARCH_ARM
 	bool "ARM"
 	select KERNEL_FIT
+	select LITTLE_ENDIAN
 
 endchoice
 
-choice
-	prompt "ARM Version"
-	depends on ARCH_ARM
-	default ARCH_ARM_V7
-	help
-	  Version for ARM Arch
-
-config ARCH_ARM_V7
-	bool "ARMv7"
-
-config ARCH_ARM_V8
-	bool "ARMv8"
-
-endchoice
+source src/arch/Kconfig
 
 source src/base/Kconfig
 source src/board/Kconfig
