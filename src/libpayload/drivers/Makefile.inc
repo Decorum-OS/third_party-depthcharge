@@ -33,10 +33,6 @@ libc-$(CONFIG_PCI) += pci.c
 
 libc-$(CONFIG_SPEAKER) += speaker.c
 
-libc-$(CONFIG_8250_SERIAL_CONSOLE) += serial/8250.c
-libc-$(CONFIG_S5P_SERIAL_CONSOLE) += serial/s5p.c
-libc-$(CONFIG_8250_MMIO32_SERIAL_CONSOLE) += serial/8250_mmio32.c
-libc-$(CONFIG_IPQ806X_SERIAL_CONSOLE) += serial/ipq806x.c
 libc-$(CONFIG_PC_KEYBOARD) += keyboard.c
 
 libc-$(CONFIG_CBMEM_CONSOLE) += cbmem_console.c
