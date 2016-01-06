@@ -21,16 +21,9 @@
  */
 
 #include <libpayload.h>
-#include <vboot_nvstorage.h>
-#include <vboot_api.h>
 
-#include "base/init_funcs.h"
-#include "base/timestamp.h"
 #include "config.h"
-#include "drivers/input/input.h"
 #include "drivers/net/net.h"
-#include "drivers/power/power.h"
-#include "drivers/video/display.h"
 #include "net/uip.h"
 #include "net/uip_arp.h"
 #include "netboot/dhcp.h"
@@ -38,33 +31,6 @@
 #include "netboot/params.h"
 #include "netboot/tftp.h"
 #include "vboot/boot.h"
-#include "vboot/util/flag.h"
-#include "vboot/vbnv.h"
-
-static void enable_graphics(void)
-{
-	display_init();
-	backlight_update(1);
-
-	if (!CONFIG_OPROM_MATTERS)
-		return;
-
-	int oprom_loaded = flag_fetch(FLAG_OPROM);
-
-	// Manipulating vboot's internal data and calling its internal
-	// functions is NOT NICE and will give you athlete's foot and make
-	// you unpopular at parties. Right now it's the only way to ensure
-	// graphics are enabled, though, so it's a necessary evil.
-	if (!oprom_loaded) {
-		printf("Enabling graphics.\n");
-
-		vbnv_write(VBNV_OPROM_NEEDED, 1);
-
-		printf("Rebooting.\n");
-		if (cold_reboot())
-			halt();
-	}
-}
 
 static void print_ip_addr(const uip_ipaddr_t *ip)
 {
@@ -81,8 +47,7 @@ static void print_mac_addr(const uip_eth_addr *mac)
 static void * const payload = (void *)(uintptr_t)CONFIG_KERNEL_START;
 static const uint32_t MaxPayloadSize = CONFIG_KERNEL_SIZE;
 
-static char cmd_line[4096] = "lsm.module_locking=0 cros_netboot_ramfs "
-			     "cros_factory_install cros_secure cros_netboot";
+char cmd_line[4096];
 
 void netboot(uip_ipaddr_t *tftp_ip, char *bootfile, char *argsfile, char *args)
 {
@@ -152,8 +117,7 @@ void netboot(uip_ipaddr_t *tftp_ip, char *bootfile, char *argsfile, char *args)
 				argsfile);
 	// If that fails or file wasn't specified fall back to args parameter
 	} else if (args) {
-		if (args != cmd_line)
-			strncpy(cmd_line, args, sizeof(cmd_line) - 1);
+		strncpy(cmd_line, args, sizeof(cmd_line) - 1);
 		printf("Command line predefined by user.\n");
 	}
 
@@ -167,7 +131,8 @@ void netboot(uip_ipaddr_t *tftp_ip, char *bootfile, char *argsfile, char *args)
 	static const char def_tftp_cmdline[] = " tftpserverip=xxx.xxx.xxx.xxx";
 	int cmd_line_size = strlen(cmd_line);
 	if (cmd_line_size + sizeof(def_tftp_cmdline) - 1 >= sizeof(cmd_line)) {
-		printf("Out of space adding TFTP server IP to the command line.\n");
+		printf("Out of space adding TFTP server IP " \
+		       "to the command line.\n");
 		return;
 	}
 	sprintf(&cmd_line[cmd_line_size], " tftpserverip=%d.%d.%d.%d",
@@ -177,39 +142,4 @@ void netboot(uip_ipaddr_t *tftp_ip, char *bootfile, char *argsfile, char *args)
 
 	// Boot.
 	boot(payload, cmd_line, NULL, NULL);
-}
-
-int main(void) __attribute__((weak, alias("netboot_entry")));
-int netboot_entry(void)
-{
-	// Initialize some consoles.
-	serial_console_init();
-	cbmem_console_init();
-	video_console_init();
-	input_init();
-
-	printf("\n\nStarting netboot on " CONFIG_BOARD "...\n");
-
-	timestamp_init();
-
-	if (run_init_funcs())
-		halt();
-
-	// Make sure graphics are available if they aren't already.
-	enable_graphics();
-
-	srand(timer_raw_value());
-
-	uip_ipaddr_t *tftp_ip;
-	char *bootfile, *argsfile;
-	if (netboot_params_read(&tftp_ip, cmd_line, sizeof(cmd_line),
-				&bootfile, &argsfile))
-		printf("ERROR: Failed to read netboot parameters from flash\n");
-
-	netboot(tftp_ip, bootfile, argsfile, cmd_line);
-
-	// We should never get here.
-	printf("Got to the end!\n");
-	halt();
-	return 0;
 }

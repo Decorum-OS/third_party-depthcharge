@@ -65,11 +65,12 @@ endif
 LIBPAYLOAD_DIR ?= ../libpayload/install/libpayload
 LZMA := lzma
 
-ifeq ($(strip $(HAVE_DOTCONFIG)),)
+# The default target placeholder. Default targets that do something should be
+# made dependencies of this.
+all:
+.PHONY: all
 
-all: help
-
-else
+ifneq ($(strip $(HAVE_DOTCONFIG)),)
 
 include $(src)/.config
 
@@ -124,21 +125,6 @@ CFLAGS += -O0 -g
 else
 CFLAGS += -Os
 endif
-
-all:
-	@echo  'You must specify one of the following targets to build:'
-	@echo
-	@echo  '  depthcharge_unified	- Build unified depthcharge (with no'
-	@echo  '  			  firmware selection, for use with EFS)'
-	@echo  '  depthcharge_ro_rw	- Build depthcharge RO and RW (with'
-	@echo  '  			  old trampoline and VbSelectFirmware)'
-	@echo  '  netboot_unified	- Build netboot binary'
-	@echo  '  dev_unified		- Build unified developer binary (with'
-	@echo  '  			  (EFS) vboot, netboot and gdb)'
-	@echo  '  dev_ro_rw		- Build RO/RW developer binary (with
-	@echo  '			  (legacy) vboot, netboot and gdb)'
-	@echo  '  clean			- Delete final output binaries'
-	@echo  '  distclean		- Delete whole build directory'
 
 endif
 

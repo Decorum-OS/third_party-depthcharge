@@ -22,7 +22,7 @@
 
 #include "net/uip.h"
 
-/* argsfile takes precedence before args. All parameters can be NULL. */
+// argsfile takes precedence before args. All parameters can be NULL.
 void netboot(uip_ipaddr_t *tftp_ip, char *bootfile, char *argsfile, char *args);
 int netboot_entry(void);
 
