@@ -36,30 +36,11 @@
  * Our entry point - assume that the CPU is in 32 bit protected mode and
  * all segments are in a flat model. That's our operating mode, so we won't
  * change anything.
- */
-_entry:
-	jmp _init
-
-	.align 4
-
-#define MB_MAGIC 0x1BADB002
-#define MB_FLAGS 0x00010003
-
-mb_header:
-	.long MB_MAGIC
-	.long MB_FLAGS
-	.long -(MB_MAGIC + MB_FLAGS)
-	.long mb_header
-	.long _start
-	.long _edata
-	.long _end
-	.long _init
-
-/*
+ *
  * This function saves off the previous stack and switches us to our
  * own execution environment.
  */
-_init:
+_entry:
 	/* No interrupts, please. */
 	cli
 

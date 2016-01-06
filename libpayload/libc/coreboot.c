@@ -56,11 +56,6 @@ static void cb_parse_memory(void *ptr, struct sysinfo_t *info)
 	for (i = 0; i < count; i++) {
 		struct cb_memory_range *range = MEM_RANGE_PTR(mem, i);
 
-#if IS_ENABLED(CONFIG_LP_MEMMAP_RAM_ONLY)
-		if (range->type != CB_MEM_RAM)
-			continue;
-#endif
-
 		info->memrange[info->n_memranges].base =
 		    cb_unpack64(range->start);
 

@@ -30,7 +30,6 @@
 #include <libpayload-config.h>
 #include <libpayload.h>
 #include <coreboot_tables.h>
-#include <multiboot_tables.h>
 
 /**
  * This is a global structure that is used through the library - we set it
@@ -51,12 +50,6 @@ int lib_get_sysinfo(void)
 
 	/* Get the CPU speed (for delays). */
 	lib_sysinfo.cpu_khz = get_cpu_speed();
-
-#if IS_ENABLED(CONFIG_LP_MULTIBOOT)
-	/* Get the information from the multiboot tables,
-	 * if they exist */
-	get_multiboot_info(&lib_sysinfo);
-#endif
 
 	/* Get information from the coreboot tables,
 	 * if they exist */

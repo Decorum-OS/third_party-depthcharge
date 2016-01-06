@@ -33,7 +33,6 @@ export KERNELVERSION      := 0.2.0
 
 ARCHDIR-$(CONFIG_LP_ARCH_ARM)     := arm
 ARCHDIR-$(CONFIG_LP_ARCH_ARM64)   := arm64
-ARCHDIR-$(CONFIG_LP_ARCH_MIPS)    := mips
 ARCHDIR-$(CONFIG_LP_ARCH_X86)     := x86
 DESTDIR ?= install
 
@@ -41,18 +40,15 @@ real-target: lib
 
 classes-$(CONFIG_LP_PCI) += libpci
 classes-$(CONFIG_LP_LIBC) += libc
-classes-$(CONFIG_LP_CURSES) += libcurses
-classes-$(CONFIG_LP_PDCURSES) += libmenu libform libpanel
 classes-$(CONFIG_LP_CBFS) += libcbfs
 classes-$(CONFIG_LP_LZMA) += liblzma
 classes-$(CONFIG_LP_LZ4) += liblz4
-classes-$(CONFIG_LP_REMOTEGDB) += libgdb
-libraries := $(filter-out libgdb,$(classes-y))
 classes-y += head.o
+libraries := $(classes-y)
+classes-$(CONFIG_LP_REMOTEGDB) += libgdb
 
 subdirs-y := arch/$(ARCHDIR-y)
 subdirs-y += crypto libc drivers libpci gdb
-subdirs-$(CONFIG_LP_CURSES) += curses
 subdirs-$(CONFIG_LP_CBFS) += libcbfs
 subdirs-$(CONFIG_LP_LZMA) += liblzma
 subdirs-$(CONFIG_LP_LZ4) += liblz4
@@ -70,7 +66,7 @@ $(obj)/libpayload-config.h: $(KCONFIG_AUTOHEADER)
 	cmp $@ $< 2>/dev/null || cp $< $@
 
 library-targets = $(addsuffix .a,$(addprefix $(obj)/,$(libraries))) $(obj)/libpayload.a $(obj)/libgdb.a
-lib: $$(library-targets) $(obj)/head.o
+lib: $$(library-targets)
 
 extract_nth=$(word $(1), $(subst |, ,$(2)))
 
@@ -89,10 +85,6 @@ $(obj)/%.a: $$(%-objs)
 	printf "    AR         $(subst $(shell pwd)/,,$(@))\n"
 	$(AR) rc $@ $^
 
-$(obj)/head.o: $(obj)/arch/$(ARCHDIR-y)/head.head.o.o
-	printf "    CP         $(subst $(shell pwd)/,,$(@))\n"
-	cp $^ $@
-
 install: real-target
 	printf "    INSTALL    $(DESTDIR)/libpayload/lib\n"
 	install -m 755 -d $(DESTDIR)/libpayload/lib
@@ -101,7 +93,6 @@ install: real-target
 	done
 	install -m 644 arch/$(ARCHDIR-y)/libpayload.ldscript $(DESTDIR)/libpayload/lib/
 	install -m 755 -d $(DESTDIR)/libpayload/lib/$(ARCHDIR-y)
-	install -m 644 $(obj)/head.o $(DESTDIR)/libpayload/lib/$(ARCHDIR-y)
 	printf "    INSTALL    $(DESTDIR)/libpayload/include\n"
 	install -m 755 -d $(DESTDIR)/libpayload/include
 	for file in `find include -name *.h -type f`; do \
