@@ -24,7 +24,6 @@ depthcharge-y += vbnv.c
 
 VB_LIB = $(obj)/external/vboot/vboot_fw.a
 
-TRAMP_LP = $(obj)/trampoline_libpayload.a
 TRAMP_PREFIX = tramp
 TRAMP_ENTRY = load_elf
 TRAMPOLINE = $(obj)/trampoline.o
@@ -49,7 +48,7 @@ endif
 
 # Trampoline to go from RO depthcharge to RW. Make our own libpayload where only
 # a few whitelisted symbols are linkable to avoid accidental binary bloat here.
-$(TRAMP_LP): $(obj)/libpayload/libpayload.a
+%.libc.o.tramp: %.libc.o
 	@printf "    OBJCOPY    $(subst $(obj)/,,$(@))\n"
 	$(Q)$(OBJCOPY) --prefix-symbols=$(TRAMP_PREFIX)_ \
 		--keep-global-symbol=$(TRAMP_PREFIX)_memcpy \
@@ -59,11 +58,13 @@ $(TRAMP_LP): $(obj)/libpayload/libpayload.a
 		--keep-global-symbol=$(TRAMP_PREFIX)_cache_sync_instructions \
 		--prefix-alloc-sections=.$(TRAMP_PREFIX) $(<) $(@)
 
+tramp-libc-objs = $(addsuffix .tramp,$(libc-objs))
+
 # The trampoline is linked with normal gcc to avoid linking the full libpayload.
 $(TRAMPOLINE): $$(trampoline-objs)
 	@printf "    LD         $(subst $(obj)/,,$(@).tmp)\n"
 	$(Q)$(CC) $(LINK_FLAGS) -Wl,-relocatable -o $(@).tmp \
 		$(trampoline-objs) -nostdinc -nostdlib -static \
-		-e $(TRAMP_ENTRY) $(LIBGCC) -lpayload
+		-e $(TRAMP_ENTRY) $(LIBGCC)
 	@printf "    OBJCOPY    $(subst $(obj)/,,$(@))\n"
 	$(Q)$(OBJCOPY) --prefix-symbols=$(TRAMP_PREFIX)_ $(@).tmp $(@)

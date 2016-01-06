@@ -29,25 +29,12 @@
 ## SUCH DAMAGE.
 ##
 
-classes-$(CONFIG_PCI) += libpci
+classes-y += head.o
 classes-$(CONFIG_LIBC) += libc
 classes-$(CONFIG_CBFS) += libcbfs
-classes-$(CONFIG_LZMA) += liblzma
 classes-$(CONFIG_LZ4) += liblz4
-classes-y += head.o
-libraries := $(classes-y)
+classes-$(CONFIG_LZMA) += liblzma
+classes-$(CONFIG_PCI) += libpci
 classes-$(CONFIG_REMOTEGDB) += libgdb
 
-subdirs-y := arch/$(ARCH)
-subdirs-y += crypto libc drivers libpci gdb
-subdirs-$(CONFIG_CBFS) += libcbfs
-subdirs-$(CONFIG_LZMA) += liblzma
-subdirs-$(CONFIG_LZ4) += liblz4
-
-$(obj)/libpayload/libpayload.a: $(foreach class,$(libraries),$$($(class)-objs))
-	printf "    AR         $(subst $(shell pwd)/,,$(@))\n"
-	$(AR) rc $@ $^
-
-$(obj)/libpayload/%.a: $$(%-objs)
-	printf "    AR         $(subst $(shell pwd)/,,$(@))\n"
-	$(AR) rc $@ $^
+subdirs-y := arch/$(ARCH) crypto drivers gdb libc libcbfs liblz4 liblzma libpci
