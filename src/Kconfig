@@ -16,6 +16,19 @@
 
 source src/libpayload/Kconfig
 
+config BIG_ENDIAN
+	default n
+	bool
+
+config LITTLE_ENDIAN
+	default n
+	bool
+
+# Whether the target system has an IO address space.
+config IO_ADDRESS_SPACE
+	default n
+	bool
+
 choice
 	prompt "Architecture"
 	help

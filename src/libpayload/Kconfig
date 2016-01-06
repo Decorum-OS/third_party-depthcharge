@@ -465,16 +465,3 @@ config DEBUG_MALLOC
 	  Say N here unless you are debugging memory allocator problems.
 
 endmenu
-
-config BIG_ENDIAN
-	default n
-	bool
-
-config LITTLE_ENDIAN
-	default n
-	bool
-
-# Whether the target system has an IO address space.
-config IO_ADDRESS_SPACE
-	default n
-	bool
