@@ -21,7 +21,6 @@
  */
 
 #include <pci.h>
-#include <pci/pci.h>
 #include <libpayload.h>
 #include <sysinfo.h>
 
@@ -133,7 +132,7 @@ static int board_setup(void)
 
 	if (lib_sysinfo.framebuffer != NULL) {
 		uintptr_t i915_base = pci_read_config32(PCI_DEV(0, 2, 0),
-						PCI_BASE_ADDRESS_0) & ~0xf;
+							PciConfBar0) & ~0xf;
 		display_set_ops(new_intel_i915_display(i915_base));
 	}
 

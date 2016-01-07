@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2008 Advanced Micro Devices, Inc.
  * Copyright (C) 2008 coresystems GmbH
+ * Copyright 2016 Google Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -35,61 +36,79 @@
 typedef uint32_t pcidev_t;
 
 /* Device config space registers. */
-#define REG_VENDOR_ID           0x00
-#define REG_DEVICE_ID           0x02
-#define REG_COMMAND             0x04
-#define REG_STATUS              0x06
-#define REG_REVISION_ID         0x08
-#define REG_PROG_IF             0x09
-#define REG_SUBCLASS            0x0A
-#define REG_CLASS               0x0B
-#define REG_CACHE_LINE_SIZE     0x0C
-#define REG_LATENCY_TIMER       0x0D
-#define REG_HEADER_TYPE         0x0E
-#define REG_BIST                0x0F
-#define REG_BAR0                0x10
-#define REG_BAR1                0x14
-#define REG_BAR2                0x18
-#define REG_BAR3                0x1C
-#define REG_BAR4                0x20
-#define REG_BAR5                0x24
-#define REG_CARDBUS_CIS_POINTER 0x28
-#define REG_SUBSYS_VENDOR_ID    0x2C
-#define REG_SUBSYS_ID           0x2E
-#define REG_DEV_OPROM_BASE      0x30
-#define REG_CAP_POINTER         0x34
-#define REG_INTERRUPT_LINE      0x3C
-#define REG_INTERRUPT_PIN       0x3D
-#define REG_MIN_GRANT           0x3E
-#define REG_MAX_LATENCY         0x3F
+typedef enum {
+	PciConfVendorId = 0x00,
+	PciConfDeviceId = 0x02,
+	PciConfCommand = 0x04,
+	PciConfStatus = 0x06,
+	PciConfRevisionId = 0x08,
+	PciConfProgIf = 0x09,
+	PciConfSubclass = 0x0a,
+	PciConfClass = 0x0b,
+	PciConfCacheLineSize = 0x0c,
+	PciConfLatencyTimer = 0x0d,
+	PciConfHeaderType = 0x0e,
+	PciConfBist = 0x0f,
+	PciConfBar0 = 0x10,
+	PciConfBar1 = 0x14,
+	PciConfBar2 = 0x18,
+	PciConfBar3 = 0x1c,
+	PciConfBar4 = 0x20,
+	PciConfBar5 = 0x24,
+	PciConfCardbusCisPointer = 0x28,
+	PciConfSubsysVendorId = 0x2c,
+	PciConfSubsysId = 0x2e,
+	PciConfDevOpromBase = 0x30,
+	PciConfCapPointer = 0x34,
+	PciConfInterruptLine = 0x3c,
+	PciConfInterruptPin = 0x3d,
+	PciConfMinGrant = 0x3e,
+	PciConfMaxLatency = 0x3f,
 
 /* Bridge config space registers. */
-#define REG_PRIMARY_BUS         0x18
-#define REG_SECONDARY_BUS       0x19
-#define REG_SUBORDINATE_BUS     0x1A
-#define REG_SECONDARY_LATENCY   0x1B
-#define REG_IO_BASE             0x1C
-#define REG_IO_LIMIT            0x1D
-#define REG_SECONDARY_STATUS    0x1E
-#define REG_MEMORY_BASE         0x20
-#define REG_MEMORY_LIMIT        0x22
-#define REG_PREFETCH_MEM_BASE   0x24
-#define REG_PREFETCH_MEM_LIMIT  0x26
-#define REG_PREFETCH_BASE_UPPER 0x28
-#define REG_PREFETCH_LIMIT_UPPER 0x2C
-#define REG_IO_BASE_UPPER       0x30
-#define REG_IO_LIMIT_UPPER      0x32
-#define REG_BRIDGE_OPROM_BASE   0x38
-#define REG_BRIDGE_CONTROL      0x3C
+	PciConfPrimaryBus = 0x18,
+	PciConfSecondaryBus = 0x19,
+	PciConfSubordinateBus = 0x1a,
+	PciConfSecondaryLatency = 0x1b,
+	PciConfRegIoBase = 0x1c,
+	PciConfRegIoLimit = 0x1d,
+	PciConfSecondaryStatus = 0x1e,
+	PciConfMemoryBase = 0x20,
+	PciConfMemoryLimit = 0x22,
+	PciConfPrefetchMemBase = 0x24,
+	PriConfPrefetchMemLimit = 0x26,
+	PciConfPrefetchBaseUpper = 0x28,
+	PciConfPrefetchLimitUpper = 0x2c,
+	PciConfIoBaseUpper = 0x30,
+	PciConfIoLimitUpper = 0x32,
+	PciConfBridgeOpromBase = 0x38,
+	PciConfBridgeControl = 0x3c,
+} PciConfRegOffsets;
 
-#define REG_COMMAND_IO  (1 << 0)
-#define REG_COMMAND_MEM (1 << 1)
-#define REG_COMMAND_BM  (1 << 2)
+enum {
+	PciConfOpromAddrMask = 0x7ff // Bits *not* to use.
+};
 
-#define HEADER_TYPE_NORMAL        0
-#define HEADER_TYPE_BRIDGE        1
-#define HEADER_TYPE_CARDBUS       2
-#define HEADER_TYPE_MULTIFUNCTION 0x80
+enum {
+	PciConfBarSpaceMask = 0x1,
+	PciConfBarSpaceIo = 0x1,
+	PciConfBarSpaceMem = 0x0,
+	PciConfBarIoMask = 0xf, // Bits *not* to use.
+	PciConfBarMemMask = 0x3 // Bits *not* to use.
+};
+
+typedef enum {
+	PciConfCommandIo = 1 << 0,
+	PciConfCommandMem = 1 << 1,
+	PciConfCommandBm = 1 << 2
+} PciConfCommandBits;
+
+typedef enum {
+	PciConfHeaderTypeNormal = 0,
+	PciConfHeaderTypeBridge = 1,
+	PciConfHeaderTypeCardbus = 2,
+	PciConfHeaderTypeMultifunction = 0x80
+} PciConfHeaderTypes;
 
 #define PCI_ADDR(_bus, _dev, _fn, _reg) \
 (0x80000000 | (_bus << 16) | (_dev << 11) | (_fn << 8) | (_reg & ~3))

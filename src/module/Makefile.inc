@@ -75,8 +75,8 @@ $(call add-special-class,module)
 
 DONT_GC_NETBOOT = -Wl,-u,netboot_entry
 
-libpayload-objects += $(libpci-objs) $(libc-objs) $(libcbfs-objs)
-libpayload-objects += $(liblzma-objs) $(liblz4-objs) $(head.o-objs)
+libpayload-objects += $(libc-objs) $(libcbfs-objs) $(liblzma-objs)
+libpayload-objects += $(liblz4-objs) $(head.o-objs)
 
 common-objects = $(depthcharge-objs) $(VB_LIB) $(libpayload-objects)
 tramp-objects = $(TRAMPOLINE) $(tramp-libc-objs)

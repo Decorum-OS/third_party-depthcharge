@@ -60,25 +60,25 @@ static void busmaster_disable_on_bus(int bus)
 	for (int slot = 0; slot < 0x20; slot++) {
 		for (int func = 0; func < 8; func++) {
 			pcidev_t dev = PCI_DEV(bus, slot, func);
-			uint32_t ids = pci_read_config32(dev, REG_VENDOR_ID);
+			uint32_t ids = pci_read_config32(dev, PciConfVendorId);
 
 			if (ids == 0xffffffff || ids == 0x00000000 ||
 			    ids == 0x0000ffff || ids == 0xffff0000)
 				continue;
 
 			// Disable Bus Mastering for this one device.
-			uint32_t cmd = pci_read_config32(dev, REG_COMMAND);
-			cmd &= ~REG_COMMAND_BM;
-			pci_write_config32(dev, REG_COMMAND, cmd);
+			uint32_t cmd = pci_read_config32(dev, PciConfCommand);
+			cmd &= ~PciConfCommandBm;
+			pci_write_config32(dev, PciConfCommand, cmd);
 
 			// If this is a bridge the follow it.
-			uint8_t hdr = pci_read_config8(dev, REG_HEADER_TYPE);
+			uint8_t hdr = pci_read_config8(dev, PciConfHeaderType);
 			hdr &= 0x7f;
-			if (hdr == HEADER_TYPE_BRIDGE ||
-			    hdr == HEADER_TYPE_CARDBUS) {
+			if (hdr == PciConfHeaderTypeBridge ||
+			    hdr == PciConfHeaderTypeCardbus) {
 				uint32_t busses;
 				busses = pci_read_config32(
-						dev, REG_PRIMARY_BUS);
+						dev, PciConfPrimaryBus);
 				busmaster_disable_on_bus((busses >> 8) & 0xff);
 			}
 		}

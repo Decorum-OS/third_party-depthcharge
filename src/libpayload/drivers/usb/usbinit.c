@@ -63,9 +63,9 @@ static int usb_controller_initialize(int bus, int dev, int func)
 	if (devclass == 0xc03) {
 		uint32_t pci_command;
 
-		pci_command = pci_read_config32(pci_device, PCI_COMMAND);
-		pci_command |= PCI_COMMAND_MASTER;
-		pci_write_config32(pci_device, PCI_COMMAND, pci_command);
+		pci_command = pci_read_config32(pci_device, PciConfCommand);
+		pci_command |= PciConfCommandBm;
+		pci_write_config32(pci_device, PciConfCommand, pci_command);
 
 		usb_debug("%02x:%02x.%x %04x:%04x.%d ", bus, dev, func,
 			pciid >> 16, pciid & 0xFFFF, func);
@@ -124,7 +124,8 @@ static void usb_scan_pci_bus(int bus)
 		pcidev_t pci_device = PCI_DEV(bus, dev, 0);
 
 		/* Check if there's a device here at all. */
-		if (pci_read_config32(pci_device, REG_VENDOR_ID) == 0xffffffff)
+		if (pci_read_config32(pci_device, PciConfVendorId) ==
+			0xffffffff)
 			continue;
 
 		/*
@@ -135,23 +136,26 @@ static void usb_scan_pci_bus(int bus)
 		 */
 
 		/* Check for a multifunction device. */
-		header_type = pci_read_config8(pci_device, REG_HEADER_TYPE);
-		if (header_type & HEADER_TYPE_MULTIFUNCTION)
+		header_type = pci_read_config8(pci_device, PciConfHeaderType);
+		if (header_type & PciConfHeaderTypeMultifunction)
 			func = 7;
 		else
 			func = 0;
 
 		for (; func >= 0; func--) {
 			pci_device = PCI_DEV(bus, dev, func);
-			header_type = pci_read_config8(pci_device, REG_HEADER_TYPE);
+			header_type = pci_read_config8(pci_device,
+						       PciConfHeaderType);
 			/* If this is a bridge, scan the other side. */
-			if ((header_type & ~HEADER_TYPE_MULTIFUNCTION) ==
-					HEADER_TYPE_BRIDGE) {
+			if ((header_type & ~PciConfHeaderTypeMultifunction) ==
+					PciConfHeaderTypeBridge) {
 				/* Verify that the bridge is enabled */
-				if ((pci_read_config16(pci_device, REG_COMMAND)
+				if ((pci_read_config16(pci_device,
+						       PciConfCommand)
 						& 3) != 0)
 					usb_scan_pci_bus(pci_read_config8(
-						pci_device, REG_SECONDARY_BUS));
+						pci_device,
+						PciConfSecondaryBus));
 			}
 			else
 				usb_controller_initialize(bus, dev, func);

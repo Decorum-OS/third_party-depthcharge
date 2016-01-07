@@ -22,7 +22,6 @@
  */
 
 #include <pci.h>
-#include <pci/pci.h>
 #include <libpayload.h>
 #include <sysinfo.h>
 

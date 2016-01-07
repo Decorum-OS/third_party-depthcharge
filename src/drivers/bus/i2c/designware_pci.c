@@ -16,7 +16,7 @@
  */
 
 #include <libpayload.h>
-#include <pci/pci.h>
+#include <pci.h>
 
 #include "drivers/bus/i2c/designware.h"
 
@@ -30,7 +30,7 @@
  */
 DesignwareI2c *new_pci_designware_i2c(pcidev_t dev, int speed)
 {
-	uint32_t addr = pci_read_config32(dev, PCI_BASE_ADDRESS_0);
+	uint32_t addr = pci_read_config32(dev, PciConfBar0);
 
 	if (addr == ((uint32_t)~0)) {
 		printf("%s: Error: PCI I2C @ %02x:%02x.%01x not found\n",

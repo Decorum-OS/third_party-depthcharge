@@ -769,17 +769,19 @@ static int nvme_ctrlr_init(BlockDevCtrlrOps *me)
 	pcidev_t dev = ctrlr->dev;
 	int status = NVME_SUCCESS;
 
-	if ((pci_read_config8(ctrlr->dev, REG_PROG_IF) != PCI_IF_NVMHCI)
-		|| (pci_read_config8(ctrlr->dev, REG_SUBCLASS) != PCI_CLASS_MASS_STORAGE_NVM)
-		|| (pci_read_config8(ctrlr->dev, REG_CLASS) != PCI_CLASS_MASS_STORAGE)) {
+	if ((pci_read_config8(ctrlr->dev, PciConfProgIf) != PCI_IF_NVMHCI)
+		|| (pci_read_config8(ctrlr->dev, PciConfSubclass) !=
+			PCI_CLASS_MASS_STORAGE_NVM)
+		|| (pci_read_config8(ctrlr->dev, PciConfClass) !=
+			PCI_CLASS_MASS_STORAGE)) {
 		printf("Unsupported NVMe controller found\n");
 		status = NVME_UNSUPPORTED;
 		goto exit;
 	}
 
 	printf("Initializing NVMe controller %04x:%04x\n",
-		pci_read_config16(ctrlr->dev, REG_VENDOR_ID),
-		pci_read_config16(ctrlr->dev, REG_DEVICE_ID));
+		pci_read_config16(ctrlr->dev, PciConfVendorId),
+		pci_read_config16(ctrlr->dev, PciConfDeviceId));
 
 	pci_set_bus_master(dev);
 

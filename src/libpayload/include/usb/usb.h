@@ -30,7 +30,7 @@
 #ifndef __USB_H
 #define __USB_H
 #include <libpayload.h>
-#include <pci/pci.h>
+#include <pci.h>
 #include <stdint.h>
 
 typedef enum { host_to_device = 0, device_to_host = 1 } dev_req_dir;

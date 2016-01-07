@@ -810,9 +810,9 @@ ehci_pci_init (pcidev_t addr)
 	hci_t *controller;
 	uint32_t reg_base;
 
-	uint32_t pci_command = pci_read_config32(addr, PCI_COMMAND);
-	pci_command = (pci_command | PCI_COMMAND_MEMORY) & ~PCI_COMMAND_IO ;
-	pci_write_config32(addr, PCI_COMMAND, pci_command);
+	uint32_t pci_command = pci_read_config32(addr, PciConfCommand);
+	pci_command = (pci_command | PciConfCommandMem) & ~PciConfCommandIo;
+	pci_write_config32(addr, PciConfCommand, pci_command);
 
 	reg_base = pci_read_config32 (addr, USBBASE);
 

@@ -20,7 +20,7 @@
  * MA 02111-1307 USA
  */
 
-#include <pci/pci.h>
+#include <pci.h>
 
 #include "base/init_funcs.h"
 #include "board/rambi/device_nvs.h"
@@ -69,7 +69,7 @@ static int board_setup(void)
 	uintptr_t lpe_mmio = nvs->lpe_bar0;
 	if (!nvs->lpe_en) {
 		pcidev_t lpe_pcidev = PCI_DEV(0, 0x15, 0);
-		lpe_mmio = pci_read_config32(lpe_pcidev, PCI_BASE_ADDRESS_0);
+		lpe_mmio = pci_read_config32(lpe_pcidev, PciConfBar0);
 	}
 	BytI2s *i2s = new_byt_i2s(lpe_mmio, &baytrail_max98090_settings,
 				16, 2,4800000, 48000);

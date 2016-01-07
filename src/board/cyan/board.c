@@ -20,7 +20,7 @@
  * MA 02111-1307 USA
  */
 
-#include <pci/pci.h>
+#include <pci.h>
 
 #include "base/init_funcs.h"
 #include "board/cyan/device_nvs.h"
@@ -74,7 +74,7 @@ static int board_setup(void)
 	uintptr_t lpe_mmio = nvs->lpe_bar0;
 	if (!nvs->lpe_en) {
 		pcidev_t lpe_pcidev = PCI_DEV(0, 0x15, 0);
-		lpe_mmio = pci_read_config32(lpe_pcidev, PCI_BASE_ADDRESS_0);
+		lpe_mmio = pci_read_config32(lpe_pcidev, PciConfBar0);
 	}
 	BswI2s *i2s = new_bsw_i2s(lpe_mmio, &braswell_max98090_settings,
 				16, 2,4800000, 48000);
@@ -120,8 +120,8 @@ static int board_setup(void)
 	list_insert_after(&sd->mmc_ctrlr.ctrlr.list_node,
 			&removable_block_dev_controllers);
 
-	uintptr_t UsbMmioBase = pci_read_config32( PCI_DEV(0, 0x14, 0),
-					PCI_BASE_ADDRESS_0 );
+	uintptr_t UsbMmioBase = pci_read_config32(PCI_DEV(0, 0x14, 0),
+						  PciConfBar0);
 	UsbMmioBase &= 0xFFFF0000;	// 32 bits only?
 	UsbHostController *usb_host1 = new_usb_hc(XHCI, UsbMmioBase );
 	list_insert_after(&usb_host1->list_node, &usb_host_controllers);

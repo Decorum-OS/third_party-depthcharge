@@ -79,7 +79,7 @@ static int find_on_bus(int bus, unsigned short vid, unsigned short did,
 		int slot = (devfn >> 3) & 0x1f;
 
 		val = pci_read_config32(PCI_DEV(bus, slot, func),
-					REG_VENDOR_ID);
+					PciConfVendorId);
 
 		if (val == 0xffffffff || val == 0x00000000 ||
 		    val == 0x0000ffff || val == 0xffff0000)
@@ -91,13 +91,14 @@ static int find_on_bus(int bus, unsigned short vid, unsigned short did,
 		}
 
 		hdr = pci_read_config8(PCI_DEV(bus, slot, func),
-				       REG_HEADER_TYPE);
+				       PciConfHeaderType);
 		hdr &= 0x7F;
 
-		if (hdr == HEADER_TYPE_BRIDGE || hdr == HEADER_TYPE_CARDBUS) {
+		if (hdr == PciConfHeaderTypeBridge ||
+				hdr == PciConfHeaderTypeCardbus) {
 			unsigned int busses;
 			busses = pci_read_config32(PCI_DEV(bus, slot, func),
-						   REG_PRIMARY_BUS);
+						   PciConfPrimaryBus);
 			busses = (busses >> 8) & 0xFF;
 
 			/* Avoid recursion if the new bus is the same as
@@ -124,7 +125,7 @@ uint32_t pci_read_resource(pcidev_t dev, int bar)
 
 void pci_set_bus_master(pcidev_t dev)
 {
-	uint16_t val = pci_read_config16(dev, REG_COMMAND);
-	val |= REG_COMMAND_BM;
-	pci_write_config16(dev, REG_COMMAND, val);
+	uint16_t val = pci_read_config16(dev, PciConfCommand);
+	val |= PciConfCommandBm;
+	pci_write_config16(dev, PciConfCommand, val);
 }

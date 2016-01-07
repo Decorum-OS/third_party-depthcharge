@@ -448,7 +448,7 @@ static int ahci_ctrlr_init(BlockDevCtrlrOps *me)
 
 	// JMicron-specific fixup taken from kernel:
 	// make sure we're in AHCI mode
-	if (pci_read_config16(ctrlr->dev, REG_VENDOR_ID) == 0x197b)
+	if (pci_read_config16(ctrlr->dev, PciConfVendorId) == 0x197b)
 		pci_write_config8(ctrlr->dev, 0x41, 0xa1);
 
 	/* initialize adapter */
@@ -576,8 +576,8 @@ static int ahci_ctrlr_init(BlockDevCtrlrOps *me)
 	host_ctl = readl(mmio + HOST_CTL);
 	printf("HOST_CTL 0x%x\n", host_ctl);
 
-	pci_write_config16(pdev, REG_COMMAND,
-		pci_read_config16(pdev, REG_COMMAND) | REG_COMMAND_BM);
+	pci_write_config16(pdev, PciConfCommand,
+		pci_read_config16(pdev, PciConfCommand) | PciConfCommandBm);
 
 	ahci_print_info(ctrlr);
 

@@ -21,7 +21,7 @@
  */
 
 #include <libpayload.h>
-#include <pci/pci.h>
+#include <pci.h>
 
 #include "drivers/storage/sdhci.h"
 
@@ -38,7 +38,7 @@ static int attach_device(SdhciHost *host)
 	uint32_t addr;
 
 	pci_host = container_of(host, PciSdhciHost, sdhci_host);
-	addr = pci_read_config32(pci_host->sdhci_dev, PCI_BASE_ADDRESS_0);
+	addr = pci_read_config32(pci_host->sdhci_dev, PciConfBar0);
 
 	if (addr == ((uint32_t)~0)) {
 		printf("%s: Error: %s not found\n",
