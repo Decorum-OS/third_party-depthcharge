@@ -30,7 +30,9 @@
 #ifndef __CHIPIDEA_PRIV_H__
 #define __CHIPIDEA_PRIV_H__
 
-#include <queue.h>
+#include <stdint.h>
+
+#include "base/queue.h"
 
 struct chipidea_opreg {
 	uint8_t pad0[0x130];
@@ -147,7 +149,7 @@ struct qh {
 };
 
 struct job {
-	SIMPLEQ_ENTRY(job) queue; // linkage
+	QueueNode queue_node; // linkage
 	struct td *tds; // for later free()ing
 	int td_count;
 	void *data;
@@ -156,12 +158,10 @@ struct job {
 	int autofree; // free after processing?
 };
 
-SIMPLEQ_HEAD(job_queue, job);
-
 struct chipidea_pdata {
 	struct chipidea_opreg *opreg;
 	struct qh *qhlist;
-	struct job_queue job_queue[16][2];
+	Queue job_queue[16][2];
 	int ep_busy[16][2];
 };
 

@@ -30,8 +30,9 @@
 #ifndef __UDC_H__
 #define __UDC_H__
 
-#include <queue.h>
 #include <usb/usb.h>
+
+#include "base/list.h"
 
 struct usbdev_ctrl;
 
@@ -66,11 +67,9 @@ struct usbdev_interface {
 
 struct usbdev_configuration {
 	configuration_descriptor_t descriptor;
-	SLIST_ENTRY(usbdev_configuration) list;
+	ListNode list_node;
 	struct usbdev_interface interfaces[];
 };
-
-SLIST_HEAD(configuration_list, usbdev_configuration);
 
 struct usbdev_ctrl {
 	/* private data */
@@ -83,7 +82,7 @@ struct usbdev_ctrl {
 	struct usbdev_interface *current_iface;
 	int current_config_id;
 
-	struct configuration_list configs;
+	ListNode configs;
 	int config_count;
 	device_descriptor_t device_descriptor;
 

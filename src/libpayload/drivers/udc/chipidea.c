@@ -31,7 +31,6 @@
 #include <arch/cache.h>
 #include <assert.h>
 #include <endian.h>
-#include <queue.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -85,13 +84,11 @@ static int chipidea_hw_init(struct usbdev_ctrl *this, void *_opreg,
 
 	memset(p->qhlist, 0, sizeof(struct qh) * CI_QHELEMENTS);
 
-	SLIST_INIT(&this->configs);
+	memset(&this->configs, 0, sizeof(this->configs));
 
 	int i;
-	for (i = 0; i < 16; i++) {
-		SIMPLEQ_INIT(&p->job_queue[i][0]);
-		SIMPLEQ_INIT(&p->job_queue[i][1]);
-	}
+	for (i = 0; i < 16; i++)
+		memset(&p->job_queue[i], 0, sizeof(p->job_queue[i]));
 
 	for (i = 0; i < CI_QHELEMENTS; i++) {
 		p->qhlist[i].config = QH_MPS(512) | QH_NO_AUTO_ZLT | QH_IOS;
@@ -142,12 +139,12 @@ static void chipidea_halt_ep(struct usbdev_ctrl *this, int ep, int in_dir)
 		;
 	clrbits_le32(&p->opreg->epctrl[ep], 1 << (7 + (in_dir ? 16 : 0)));
 
-	while (!SIMPLEQ_EMPTY(&p->job_queue[ep][in_dir])) {
-		struct job *job = SIMPLEQ_FIRST(&p->job_queue[ep][in_dir]);
+	Queue *queue = &p->job_queue[ep][in_dir];
+	while (!queue_empty(queue)) {
+		struct job *job = container_of(queue_pop(queue), struct job,
+					       queue_node);
 		if (job->autofree)
 			free(job->data);
-
-		SIMPLEQ_REMOVE_HEAD(&p->job_queue[ep][in_dir], queue);
 	}
 }
 
@@ -171,10 +168,11 @@ static void advance_endpoint(struct chipidea_pdata *p, int endpoint, int in_dir)
 {
 	if (p->ep_busy[endpoint][in_dir])
 		return;
-	if (SIMPLEQ_EMPTY(&p->job_queue[endpoint][in_dir]))
+	if (queue_empty(&p->job_queue[endpoint][in_dir]))
 		return;
 
-	struct job *job = SIMPLEQ_FIRST(&p->job_queue[endpoint][in_dir]);
+	QueueNode *node = queue_peek(&p->job_queue[endpoint][in_dir]);
+	struct job *job = container_of(node, struct job, queue_node);
 	struct qh *qh = get_qh(p, endpoint, in_dir);
 
 	uint32_t start = (uint32_t)(uintptr_t)job->data;
@@ -238,8 +236,8 @@ static void advance_endpoint(struct chipidea_pdata *p, int endpoint, int in_dir)
 static void handle_endpoint(struct usbdev_ctrl *this, int endpoint, int in_dir)
 {
 	struct chipidea_pdata *p = CI_PDATA(this);
-	struct job *job = SIMPLEQ_FIRST(&p->job_queue[endpoint][in_dir]);
-	SIMPLEQ_REMOVE_HEAD(&p->job_queue[endpoint][in_dir], queue);
+	QueueNode *node = queue_pop(&p->job_queue[endpoint][in_dir]);
+	struct job *job = container_of(node, struct job, queue_node);
 
 	if (in_dir)
 		dcache_invalidate_by_mva(job->data, job->length);
@@ -314,7 +312,7 @@ static void chipidea_enqueue_packet(struct usbdev_ctrl *this, int endpoint,
 	job->autofree = autofree;
 
 	debug("adding job of %d bytes to EP %d-%d\n", len, endpoint, in_dir);
-	SIMPLEQ_INSERT_TAIL(&p->job_queue[endpoint][in_dir], job, queue);
+	queue_push(&job->queue_node, &p->job_queue[endpoint][in_dir]);
 
 	if ((endpoint == 0) || (this->initialized))
 		advance_endpoint(p, endpoint, in_dir);
@@ -435,7 +433,7 @@ static void chipidea_shutdown(struct usbdev_ctrl *this)
 		this->poll(this);
 		for (i = 0; i < 16; i++)
 			for (j = 0; j < 2; j++)
-				if (!SIMPLEQ_EMPTY(&p->job_queue[i][j]))
+				if (!queue_empty(&p->job_queue[i][j]))
 					is_empty = 0;
 	}
 	chipidea_force_shutdown(this);

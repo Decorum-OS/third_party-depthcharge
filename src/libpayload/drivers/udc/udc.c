@@ -31,13 +31,14 @@
 #include <arch/cache.h>
 #include <assert.h>
 #include <endian.h>
-#include <queue.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <usb/usb.h>
 
 #include <udc/udc.h>
+
+#include "base/list.h"
 
 #ifdef DEBUG
 #define debug(x...) printf(x)
@@ -84,7 +85,7 @@ static struct usbdev_configuration *fetch_config(struct usbdev_ctrl *this,
 	int id)
 {
 	struct usbdev_configuration *config;
-	SLIST_FOREACH(config, &this->configs, list) {
+	list_for_each(config, this->configs, list_node) {
 		debug("checking descriptor %d\n",
 			config->descriptor.bConfigurationValue);
 		if (config->descriptor.bConfigurationValue == id)
@@ -392,7 +393,7 @@ void udc_add_gadget(struct usbdev_ctrl *this,
 	struct usbdev_configuration *config)
 {
 	int i, size;
-	SLIST_INSERT_HEAD(&this->configs, config, list);
+	list_insert_after(&config->list_node, &this->configs);
 
 	size = sizeof(configuration_descriptor_t);
 
