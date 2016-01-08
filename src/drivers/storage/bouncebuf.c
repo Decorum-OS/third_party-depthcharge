@@ -24,7 +24,7 @@
  */
 
 #include <libpayload.h>
-#include <malloc.h>
+#include <stdlib.h>
 
 #include "arch/cache.h"
 #include "drivers/storage/bouncebuf.h"
