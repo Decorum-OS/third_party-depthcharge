@@ -35,3 +35,5 @@ libc-y += qsort.c
 libc-y += rand.c
 libc-y += string.c
 libc-y += strlcpy.c
+
+src-includes-y += includes
