@@ -29,7 +29,7 @@
  * Function(s) needed for some EABI conformant tool chains (ex GCC).
  */
 
-#include <die.h>
+#include "base/die.h"
 
 int raise(int signum) __attribute__((weak));
 int raise(int signum)

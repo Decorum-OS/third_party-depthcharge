@@ -45,7 +45,6 @@
 
 #include <cbgfx.h>
 #include <ctype.h>
-#include <die.h>
 #include <endian.h>
 #include <fmap_serialized.h>
 #include <ipchksum.h>
@@ -58,6 +57,8 @@
 #include <arch/io.h>
 #include <sysinfo.h>
 #include <pci.h>
+
+#include "base/die.h"
 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define MAX(a,b) ((a) > (b) ? (a) : (b))

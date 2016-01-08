@@ -29,12 +29,13 @@
 
 #include <libpayload.h>
 #include <assert.h>
-#include <die.h>
 #include <stdlib.h>
 #include <arch/barrier.h>
 #include <arch/cache.h>
 #include <arch/virtual.h>
 #include <arch/io.h>
+
+#include "base/die.h"
 
 extern char _end[];
 

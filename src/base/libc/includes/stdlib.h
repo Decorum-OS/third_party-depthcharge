@@ -31,9 +31,10 @@
 #ifndef _STDLIB_H
 #define _STDLIB_H
 
-#include <die.h>
 #include <stddef.h>
 #include <string.h>
+
+#include "base/die.h"
 
 #define ALIGN(x,a)              __ALIGN_MASK(x,(typeof(x))(a)-1UL)
 #define __ALIGN_MASK(x,mask)    (((x)+(mask))&~(mask))
