@@ -77,9 +77,9 @@ static int i2ctpm_xmit(TpmOps *me, const uint8_t *sendbuf, size_t sbuf_size,
 
 	uint32_t count, ordinal;
 	memcpy(&count, sendbuf + TpmCmdCountOffset, sizeof(count));
-	count = betohl(count);
+	count = be32toh(count);
 	memcpy(&ordinal, sendbuf + TpmCmdOrdinalOffset, sizeof(ordinal));
-	ordinal = betohl(ordinal);
+	ordinal = be32toh(ordinal);
 
 	if (count == 0) {
 		printf("%s: No data.\n", __func__);

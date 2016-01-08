@@ -40,17 +40,13 @@ static inline uint16_t swap_bytes16(uint16_t in)
 
 static inline uint32_t swap_bytes32(uint32_t in)
 {
-	return ((in & 0xFF) << 24) | ((in & 0xFF00) << 8) |
-		((in & 0xFF0000) >> 8) | ((in & 0xFF000000) >> 24);
+	return (uint32_t)__builtin_bswap32(in);
 }
 
 static inline uint64_t swap_bytes64(uint64_t in)
 {
-	return ((uint64_t)swap_bytes32((uint32_t)in) << 32) |
-		((uint64_t)swap_bytes32((uint32_t)(in >> 32)));
+	return (uint64_t)__builtin_bswap64(in);
 }
-
-/* Endian functions from glibc 2.9 / BSD "endian.h" */
 
 #if CONFIG_BIG_ENDIAN
 
@@ -94,104 +90,32 @@ static inline uint64_t swap_bytes64(uint64_t in)
 #define ntohl(in) be32toh(in)
 #define ntohll(in) be64toh(in)
 
-/*
- * Alignment-agnostic encode/decode bytestream to/from little/big endian.
- */
+// Handy bit manipulation functions.
 
-static inline uint16_t be16dec(const void *pp)
+static inline void clrsetbits_le32(void *addr, uint32_t clear, uint32_t set)
 {
-	uint8_t const *p = (uint8_t const *)pp;
-
-	return ((p[0] << 8) | p[1]);
+	writel(htole32((le32toh(readl(addr)) & ~clear) | set), addr);
+}
+static inline void setbits_le32(void *addr, uint32_t set)
+{
+	writel(htole32(le32toh(readl(addr)) | set), addr);
+}
+static inline void clrbits_le32(void *addr, uint32_t clear)
+{
+	writel(htole32(le32toh(readl(addr)) & ~clear), addr);
 }
 
-static inline uint32_t be32dec(const void *pp)
+static inline void clrsetbits_be32(void *addr, uint32_t clear, uint32_t set)
 {
-	uint8_t const *p = (uint8_t const *)pp;
-
-	return (((unsigned)p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3]);
+	writel(htobe32((be32toh(readl(addr)) & ~clear) | set), addr);
 }
-
-static inline uint16_t le16dec(const void *pp)
+static inline void setbits_be32(void *addr, uint32_t set)
 {
-	uint8_t const *p = (uint8_t const *)pp;
-
-	return ((p[1] << 8) | p[0]);
+	writel(htobe32(be32toh(readl(addr)) | set), addr);
 }
-
-static inline uint32_t le32dec(const void *pp)
+static inline void clrbits_be32(void *addr, uint32_t clear)
 {
-	uint8_t const *p = (uint8_t const *)pp;
-
-	return ((p[3] << 24) | (p[2] << 16) | (p[1] << 8) | p[0]);
+	writel(htobe32(be32toh(readl(addr)) & ~clear), addr);
 }
-
-static inline void bebitenc(void *pp, uint32_t u, uint8_t b)
-{
-	uint8_t *p = (uint8_t *)pp;
-	int i;
-
-	for (i = (b - 1); i >= 0; i++)
-		p[i] = (u >> i*8) & 0xFF;
-}
-
-static inline void be16enc(void *pp, uint16_t u)
-{
-	bebitenc(pp, u, 2);
-}
-
-static inline void be32enc(void *pp, uint32_t u)
-{
-	bebitenc(pp, u, 4);
-}
-
-static inline void lebitenc(void *pp, uint32_t u, uint8_t b)
-{
-	uint8_t *p = (uint8_t *)pp;
-	int i;
-
-	for (i = 0; i < b; i++)
-		p[i] = (u >> i*8) & 0xFF;
-}
-
-static inline void le16enc(void *pp, uint16_t u)
-{
-	lebitenc(pp, u, 2);
-}
-
-static inline void le32enc(void *pp, uint32_t u)
-{
-	lebitenc(pp, u, 4);
-}
-
-/* Deprecated names (not in glibc / BSD) */
-#define htobew(in) htobe16(in)
-#define htobel(in) htobe32(in)
-#define htobell(in) htobe64(in)
-#define htolew(in) htole16(in)
-#define htolel(in) htole32(in)
-#define htolell(in) htole64(in)
-#define betohw(in) be16toh(in)
-#define betohl(in) be32toh(in)
-#define betohll(in) be64toh(in)
-#define letohw(in) le16toh(in)
-#define letohl(in) le32toh(in)
-#define letohll(in) le64toh(in)
-
-/* Handy bit manipulation macros */
-
-#define clrsetbits_le32(addr, clear, set) writel(htole32((le32toh(readl(addr)) \
-	& ~(clear)) | (set)), (addr))
-#define setbits_le32(addr, set) writel(htole32(le32toh(readl(addr)) \
-	| (set)), (addr))
-#define clrbits_le32(addr, clear) writel(htole32(le32toh(readl(addr)) \
-	& ~(clear)), (addr))
-
-#define clrsetbits_be32(addr, clear, set) writel(htobe32((be32toh(readl(addr)) \
-	& ~(clear)) | (set)), (addr))
-#define setbits_be32(addr, set) writel(htobe32(be32toh(readl(addr)) \
-	| (set)), (addr))
-#define clrbits_be32(addr, clear) writel(htobe32(be32toh(readl(addr)) \
-	& ~(clear)), (addr))
 
 #endif /* _ENDIAN_H_ */

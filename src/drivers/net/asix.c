@@ -116,7 +116,7 @@ static int asix_mdio_write(NetDevice *dev, uint8_t loc, uint16_t val)
 	GenericUsbDevice *gen_dev = (GenericUsbDevice *)dev->dev_data;
 	usbdev_t *usb_dev = gen_dev->dev;
 
-	val = htolew(val);
+	val = htole16(val);
 	if (asix_set_sw_mii(usb_dev) ||
 	    usb_eth_write_reg(usb_dev, PhyRegWrite, asix_dev.phy_id,
 			      loc, sizeof(val), &val) ||
@@ -221,7 +221,7 @@ static int asix_send(NetDevice *net_dev, void *buf, uint16_t len)
 	static uint8_t msg[CONFIG_UIP_BUFSIZE + sizeof(packet_len)];
 
 	packet_len = ((len << 16) | (len << 0)) ^ 0xffff0000;
-	packet_len = htolel(packet_len);
+	packet_len = htole32(packet_len);
 	memcpy(msg, &packet_len, sizeof(packet_len));
 	if (len > sizeof(msg) - sizeof(packet_len)) {
 		printf("ASIX: Packet size %u is too large.\n", len);

@@ -377,7 +377,7 @@ static int tpm_recv(I2cTpmChipOps *me, uint8_t *buf, size_t count)
 	}
 
 	memcpy(&expected, buf + TpmCmdCountOffset, sizeof(expected));
-	expected = betohl(expected);
+	expected = be32toh(expected);
 	if ((size_t)expected > count) {
 		size = -1;
 		goto out;
@@ -484,7 +484,7 @@ static int tpm_init(I2cTpmChipOps *me)
 
 	if (vendor == TPM_TIS_I2C_DID_VID_9645) {
 		tpm->chip_type = SLB9645;
-	} else if (betohl(vendor) == TPM_TIS_I2C_DID_VID_9635) {
+	} else if (be32toh(vendor) == TPM_TIS_I2C_DID_VID_9635) {
 		tpm->chip_type = SLB9635;
 	} else {
 		printf("Vendor ID 0x%08x not recognized.\n", vendor);

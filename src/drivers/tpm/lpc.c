@@ -338,7 +338,7 @@ static uint32_t lpctpm_readresponse(LpcTpm *tpm, uint8_t *buffer, size_t *len)
 				memcpy(&real_length,
 				       buffer + 2,
 				       sizeof(real_length));
-				expected_count = betohl(real_length);
+				expected_count = be32toh(real_length);
 
 				if ((expected_count < offset) ||
 				    (expected_count > *len)) {

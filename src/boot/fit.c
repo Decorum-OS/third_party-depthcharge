@@ -335,9 +335,9 @@ FitImageNode *fit_load(void *fit, char *cmd_line, DeviceTree **dt)
 
 	printf("Loading FIT.\n");
 
-	if (betohl(header->magic) != FdtMagic) {
+	if (be32toh(header->magic) != FdtMagic) {
 		printf("Bad FIT header magic value 0x%08x.\n",
-			betohl(header->magic));
+			be32toh(header->magic));
 		return NULL;
 	}
 
@@ -384,7 +384,7 @@ FitImageNode *fit_load(void *fit, char *cmd_line, DeviceTree **dt)
 			void *fdt_blob = config->fdt_node->data;
 			FdtHeader *fdt_header = (FdtHeader *)fdt_blob;
 			uint32_t fdt_offset =
-				betohl(fdt_header->structure_offset);
+				be32toh(fdt_header->structure_offset);
 			if (fdt_find_compat(fdt_blob, fdt_offset,
 					    &config->compat)) {
 				config->compat_rank = -1;

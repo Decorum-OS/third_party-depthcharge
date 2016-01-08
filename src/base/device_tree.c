@@ -42,12 +42,12 @@ int fdt_next_property(void *blob, uint32_t offset, FdtProperty *prop)
 	uint32_t *ptr = (uint32_t *)(((uint8_t *)blob) + offset);
 
 	int index = 0;
-	if (betohl(ptr[index++]) != TokenProperty)
+	if (be32toh(ptr[index++]) != TokenProperty)
 		return 0;
 
-	uint32_t size = betohl(ptr[index++]);
-	uint32_t name_offset = betohl(ptr[index++]);
-	name_offset += betohl(header->strings_offset);
+	uint32_t size = be32toh(ptr[index++]);
+	uint32_t name_offset = be32toh(ptr[index++]);
+	name_offset += be32toh(header->strings_offset);
 
 	if (prop) {
 		prop->name = (char *)((uint8_t *)blob + name_offset);
@@ -64,7 +64,7 @@ int fdt_node_name(void *blob, uint32_t offset, const char **name)
 {
 	uint8_t *ptr = ((uint8_t *)blob) + offset;
 
-	if (betohl(*(uint32_t *)ptr) != TokenBeginNode)
+	if (be32toh(*(uint32_t *)ptr) != TokenBeginNode)
 		return 0;
 
 	ptr += 4;
@@ -230,8 +230,8 @@ static int fdt_unflatten_map_entry(void *blob, uint32_t offset,
 				   DeviceTreeReserveMapEntry **new_entry)
 {
 	uint64_t *ptr = (uint64_t *)(((uint8_t *)blob) + offset);
-	uint64_t start = betohll(ptr[0]);
-	uint64_t size = betohll(ptr[1]);
+	uint64_t start = be64toh(ptr[0]);
+	uint64_t size = be64toh(ptr[1]);
 
 	if (!size)
 		return 0;
@@ -250,9 +250,9 @@ DeviceTree *fdt_unflatten(void *blob)
 	FdtHeader *header = (FdtHeader *)blob;
 	tree->header = header;
 
-	uint32_t struct_offset = betohl(header->structure_offset);
-	uint32_t strings_offset = betohl(header->strings_offset);
-	uint32_t reserve_offset = betohl(header->reserve_map_offset);
+	uint32_t struct_offset = be32toh(header->structure_offset);
+	uint32_t strings_offset = be32toh(header->strings_offset);
+	uint32_t reserve_offset = be32toh(header->reserve_map_offset);
 	uint32_t min_offset = 0;
 	min_offset = MIN(struct_offset, strings_offset);
 	min_offset = MIN(min_offset, reserve_offset);
@@ -349,8 +349,8 @@ uint32_t dt_flat_size(DeviceTree *tree)
 static void dt_flatten_map_entry(DeviceTreeReserveMapEntry *entry,
 				 void **map_start)
 {
-	((uint64_t *)*map_start)[0] = htobell(entry->start);
-	((uint64_t *)*map_start)[1] = htobell(entry->size);
+	((uint64_t *)*map_start)[0] = htobe64(entry->start);
+	((uint64_t *)*map_start)[1] = htobe64(entry->size);
 	*map_start = ((uint8_t *)*map_start) + sizeof(uint64_t) * 2;
 }
 
@@ -360,14 +360,14 @@ static void dt_flatten_prop(DeviceTreeProperty *prop, void **struct_start,
 	uint8_t *dstruct = (uint8_t *)*struct_start;
 	uint8_t *dstrings = (uint8_t *)*strings_start;
 
-	*((uint32_t *)dstruct) = htobel(TokenProperty);
+	*((uint32_t *)dstruct) = htobe32(TokenProperty);
 	dstruct += sizeof(uint32_t);
 
-	*((uint32_t *)dstruct) = htobel(prop->prop.size);
+	*((uint32_t *)dstruct) = htobe32(prop->prop.size);
 	dstruct += sizeof(uint32_t);
 
 	uint32_t name_offset = (uintptr_t)dstrings - (uintptr_t)strings_base;
-	*((uint32_t *)dstruct) = htobel(name_offset);
+	*((uint32_t *)dstruct) = htobe32(name_offset);
 	dstruct += sizeof(uint32_t);
 
 	strcpy((char *)dstrings, prop->prop.name);
@@ -386,7 +386,7 @@ static void dt_flatten_node(DeviceTreeNode *node, void **struct_start,
 	uint8_t *dstruct = (uint8_t *)*struct_start;
 	uint8_t *dstrings = (uint8_t *)*strings_start;
 
-	*((uint32_t *)dstruct) = htobel(TokenBeginNode);
+	*((uint32_t *)dstruct) = htobe32(TokenBeginNode);
 	dstruct += sizeof(uint32_t);
 
 	strcpy((char *)dstruct, node->name);
@@ -402,7 +402,7 @@ static void dt_flatten_node(DeviceTreeNode *node, void **struct_start,
 		dt_flatten_node(child, (void **)&dstruct, strings_base,
 				(void **)&dstrings);
 
-	*((uint32_t *)dstruct) = htobel(TokenEndNode);
+	*((uint32_t *)dstruct) = htobe32(TokenEndNode);
 	dstruct += sizeof(uint32_t);
 
 	*struct_start = dstruct;
@@ -428,22 +428,22 @@ void dt_flatten(DeviceTree *tree, void *start_dest)
 	dt_flat_node_size(tree->root, &struct_size, &strings_size);
 
 	uint8_t *struct_start = dest;
-	header->structure_offset = htobel(dest - (uint8_t *)start_dest);
-	header->structure_size = htobel(struct_size);
+	header->structure_offset = htobe32(dest - (uint8_t *)start_dest);
+	header->structure_size = htobe32(struct_size);
 	dest += struct_size;
 
-	*((uint32_t *)dest) = htobel(TokenEnd);
+	*((uint32_t *)dest) = htobe32(TokenEnd);
 	dest += sizeof(uint32_t);
 
 	uint8_t *strings_start = dest;
-	header->strings_offset = htobel(dest - (uint8_t *)start_dest);
-	header->strings_size = htobel(strings_size);
+	header->strings_offset = htobe32(dest - (uint8_t *)start_dest);
+	header->strings_size = htobe32(strings_size);
 	dest += strings_size;
 
 	dt_flatten_node(tree->root, (void **)&struct_start, strings_start,
 			(void **)&strings_start);
 
-	header->totalsize = htobel(dest - (uint8_t *)start_dest);
+	header->totalsize = htobe32(dest - (uint8_t *)start_dest);
 }
 
 
@@ -490,9 +490,9 @@ void dt_read_cell_props(DeviceTreeNode *node, uint32_t *addrcp,
 	DeviceTreeProperty *prop;
 	list_for_each(prop, node->properties, list_node) {
 		if (addrcp && !strcmp("#address-cells", prop->prop.name))
-			*addrcp = betohl(*(uint32_t *)prop->prop.data);
+			*addrcp = be32toh(*(uint32_t *)prop->prop.data);
 		if (sizecp && !strcmp("#size-cells", prop->prop.name))
-			*sizecp = betohl(*(uint32_t *)prop->prop.data);
+			*sizecp = be32toh(*(uint32_t *)prop->prop.data);
 	}
 }
 
@@ -776,7 +776,7 @@ void dt_add_string_prop(DeviceTreeNode *node, char *name, char *str)
 void dt_add_u32_prop(DeviceTreeNode *node, char *name, uint32_t val)
 {
 	uint32_t *val_ptr = xmalloc(sizeof(val));
-	*val_ptr = htobel(val);
+	*val_ptr = htobe32(val);
 	dt_add_bin_prop(node, name, val_ptr, sizeof(*val_ptr));
 }
 

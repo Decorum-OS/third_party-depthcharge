@@ -146,10 +146,10 @@ static int ahci_fill_sg(AhciSg *sg, void *buf, int len)
 	}
 
 	for (int i = 0; i < sg_count; i++) {
-		sg->addr = htolel((uintptr_t)buf + i * MAX_DATA_BYTE_COUNT);
+		sg->addr = htole32((uintptr_t)buf + i * MAX_DATA_BYTE_COUNT);
 		sg->addr_hi = 0;
 		uint32_t bytes = MIN(len, MAX_DATA_BYTE_COUNT);
-		sg->flags_size = htolel((bytes - 1) & 0x3fffff);
+		sg->flags_size = htole32((bytes - 1) & 0x3fffff);
 		sg++;
 		len -= MAX_DATA_BYTE_COUNT;
 	}
@@ -160,9 +160,9 @@ static int ahci_fill_sg(AhciSg *sg, void *buf, int len)
 
 static void ahci_fill_cmd_slot(AhciIoPort *pp, uint32_t opts)
 {
-	pp->cmd_slot->opts = htolel(opts);
+	pp->cmd_slot->opts = htole32(opts);
 	pp->cmd_slot->status = 0;
-	pp->cmd_slot->tbl_addr = htolel((uint32_t)(uintptr_t)pp->cmd_tbl);
+	pp->cmd_slot->tbl_addr = htole32((uint32_t)(uintptr_t)pp->cmd_tbl);
 	pp->cmd_slot->tbl_addr_hi = 0;
 }
 
@@ -429,10 +429,10 @@ static int ahci_read_capacity(AhciIoPort *port, lba_t *cap,
 
 	uint32_t cap32;
 	memcpy(&cap32, &id.sectors28, sizeof(cap32));
-	*cap = letohl(cap32);
+	*cap = le32toh(cap32);
 	if (*cap == 0xfffffff) {
 		memcpy(cap, id.sectors48, sizeof(*cap));
-		*cap = letohll(*cap);
+		*cap = le64toh(*cap);
 	}
 
 	*block_size = 512;

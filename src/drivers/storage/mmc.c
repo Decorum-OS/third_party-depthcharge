@@ -623,8 +623,8 @@ static int sd_change_freq(MmcMedia *media)
 	}
 	mmc_debug("%s: end SD_CMD_APP_SEND_SCR\n", __func__);
 
-	media->scr[0] = betohl(scr[0]);
-	media->scr[1] = betohl(scr[1]);
+	media->scr[0] = be32toh(scr[0]);
+	media->scr[1] = be32toh(scr[1]);
 
 	switch ((media->scr[0] >> 24) & 0xf) {
 		case 0:
@@ -850,7 +850,7 @@ static int mmc_startup(MmcMedia *media)
 			/* According to the JEDEC Standard, the value of
 			 * ext_csd's capacity is valid if the value is more
 			 * than 2GB */
-			// TODO(hungte) Replace by letohl().
+			// TODO(hungte) Replace by le32toh().
 			capacity = (ext_csd[EXT_CSD_SEC_CNT + 0] << 0 |
 				    ext_csd[EXT_CSD_SEC_CNT + 1] << 8 |
 				    ext_csd[EXT_CSD_SEC_CNT + 2] << 16 |
