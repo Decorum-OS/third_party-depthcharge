@@ -25,9 +25,10 @@
  * SUCH DAMAGE.
  */
 
-#include <arch/io.h>
 #include <libpayload.h>
 #include <stdint.h>
+
+#include "base/io.h"
 
 struct __attribute__((packed)) mct_regs
 {

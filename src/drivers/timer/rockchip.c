@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc.
  */
-#include <arch/io.h>
+
 #include <libpayload.h>
 #include <stdint.h>
 

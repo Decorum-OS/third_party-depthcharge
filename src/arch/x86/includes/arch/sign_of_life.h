@@ -23,8 +23,7 @@
 #ifndef __ARCH_X86_INCLUDES_ARCH_SIGN_OF_LIFE_H__
 #define __ARCH_X86_INCLUDES_ARCH_SIGN_OF_LIFE_H__
 
-#include <arch/io.h>
-
+#include "base/io.h"
 #include "base/sign_of_life.h"
 
 static inline void sign_of_life(uint8_t val)

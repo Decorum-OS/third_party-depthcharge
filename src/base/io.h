@@ -27,68 +27,37 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _ENDIAN_H_
-#define _ENDIAN_H_
+#ifndef __BASE_IO_H__
+#define __BASE_IO_H__
 
+#include <arch/io.h>
 #include <arch/types.h>
+#include <endian.h>
 
-static inline uint16_t swap_bytes16(uint16_t in)
+static inline void clrsetbits_le32(void *addr, uint32_t clear, uint32_t set)
 {
-	return ((in & 0xFF) << 8) | ((in & 0xFF00) >> 8);
+	writel(htole32((le32toh(readl(addr)) & ~clear) | set), addr);
+}
+static inline void setbits_le32(void *addr, uint32_t set)
+{
+	writel(htole32(le32toh(readl(addr)) | set), addr);
+}
+static inline void clrbits_le32(void *addr, uint32_t clear)
+{
+	writel(htole32(le32toh(readl(addr)) & ~clear), addr);
 }
 
-static inline uint32_t swap_bytes32(uint32_t in)
+static inline void clrsetbits_be32(void *addr, uint32_t clear, uint32_t set)
 {
-	return (uint32_t)__builtin_bswap32(in);
+	writel(htobe32((be32toh(readl(addr)) & ~clear) | set), addr);
+}
+static inline void setbits_be32(void *addr, uint32_t set)
+{
+	writel(htobe32(be32toh(readl(addr)) | set), addr);
+}
+static inline void clrbits_be32(void *addr, uint32_t clear)
+{
+	writel(htobe32(be32toh(readl(addr)) & ~clear), addr);
 }
 
-static inline uint64_t swap_bytes64(uint64_t in)
-{
-	return (uint64_t)__builtin_bswap64(in);
-}
-
-#if CONFIG_BIG_ENDIAN
-
-#define htobe16(in) (in)
-#define htobe32(in) (in)
-#define htobe64(in) (in)
-
-#define htole16(in) swap_bytes16(in)
-#define htole32(in) swap_bytes32(in)
-#define htole64(in) swap_bytes64(in)
-
-#elif CONFIG_LITTLE_ENDIAN
-
-#define htobe16(in) swap_bytes16(in)
-#define htobe32(in) swap_bytes32(in)
-#define htobe64(in) swap_bytes64(in)
-
-#define htole16(in) (in)
-#define htole32(in) (in)
-#define htole64(in) (in)
-
-#else
-
-#error Cant tell if the CPU is little or big endian.
-
-#endif /* CONFIG_*_ENDIAN */
-
-#define be16toh(in) htobe16(in)
-#define be32toh(in) htobe32(in)
-#define be64toh(in) htobe64(in)
-
-#define le16toh(in) htole16(in)
-#define le32toh(in) htole32(in)
-#define le64toh(in) htole64(in)
-
-#define htonw(in) htobe16(in)
-#define htonl(in) htobe32(in)
-#define htonll(in) htobe64(in)
-
-#define ntohw(in) be16toh(in)
-#define ntohl(in) be32toh(in)
-#define ntohll(in) be64toh(in)
-
-// Handy bit manipulation functions.
-
-#endif /* _ENDIAN_H_ */
+#endif /* __BASE_IO_H__ */

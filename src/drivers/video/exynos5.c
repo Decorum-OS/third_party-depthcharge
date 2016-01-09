@@ -20,11 +20,11 @@
  * MA 02111-1307 USA
  */
 
-#include <arch/io.h>
 #include <stdint.h>
 
 #include "base/cleanup_funcs.h"
 #include "base/init_funcs.h"
+#include "base/io.h"
 
 enum {
 	FIMD_VIDCON0_ENVID = 2,

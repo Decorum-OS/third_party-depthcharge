@@ -10,11 +10,11 @@
 
 /* Implementation of per-board codec beeping */
 
-#include <arch/io.h>
 #include <libpayload.h>
 #include <pci.h>
 
 #include "base/container_of.h"
+#include "base/io.h"
 #include "base/xalloc.h"
 #include "drivers/sound/hda_codec.h"
 

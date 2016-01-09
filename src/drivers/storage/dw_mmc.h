@@ -22,8 +22,7 @@
 #ifndef __DRIVERS_STORAGE_DW_MMC_H__
 #define __DRIVERS_STORAGE_DW_MMC_H__
 
-#include <arch/io.h>
-
+#include "base/io.h"
 #include "drivers/gpio/gpio.h"
 #include "drivers/storage/blockdev.h"
 #include "drivers/storage/mmc.h"

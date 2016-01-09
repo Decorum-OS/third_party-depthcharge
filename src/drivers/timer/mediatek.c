@@ -16,9 +16,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc.
  */
-#include <arch/io.h>
+
 #include <libpayload.h>
 #include <stdint.h>
+
+#include "base/io.h"
 
 static uint32_t *const mtk_tmrus = (void*)CONFIG_DRIVER_TIMER_MEDIATEK_ADDRESS;
 

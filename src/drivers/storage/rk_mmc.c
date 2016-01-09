@@ -17,9 +17,9 @@
  * MA 02111-1307 USA
  */
 
-#include <arch/io.h>
 #include <libpayload.h>
 
+#include "base/io.h"
 #include "drivers/storage/dw_mmc.h"
 #include "drivers/gpio/rockchip.h"
 

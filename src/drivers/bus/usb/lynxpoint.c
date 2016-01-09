@@ -21,10 +21,10 @@
  */
 
 #include <assert.h>
-#include <arch/io.h>
 
 #include "base/cleanup_funcs.h"
 #include "base/init_funcs.h"
+#include "base/io.h"
 
 static int lynxpoint_route_to_xhci(struct CleanupFunc *cleanup,
 				   CleanupType type)

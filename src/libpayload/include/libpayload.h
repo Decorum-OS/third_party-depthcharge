@@ -53,11 +53,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <arch/types.h>
-#include <arch/io.h>
 #include <sysinfo.h>
 #include <pci.h>
 
 #include "base/die.h"
+#include "base/io.h"
 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define MAX(a,b) ((a) > (b) ? (a) : (b))

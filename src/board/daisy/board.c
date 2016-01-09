@@ -20,9 +20,8 @@
  * MA 02111-1307 USA
  */
 
-#include <arch/io.h>
-
 #include "base/init_funcs.h"
+#include "base/io.h"
 #include "board/daisy/i2c_arb.h"
 #include "boot/fit.h"
 #include "drivers/bus/i2c/s3c24x0.h"

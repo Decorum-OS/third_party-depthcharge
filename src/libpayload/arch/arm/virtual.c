@@ -33,9 +33,9 @@
 #include <arch/barrier.h>
 #include <arch/cache.h>
 #include <arch/virtual.h>
-#include <arch/io.h>
 
 #include "base/die.h"
+#include "base/io.h"
 
 extern char _end[];
 

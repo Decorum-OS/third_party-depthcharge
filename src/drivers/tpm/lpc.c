@@ -29,12 +29,12 @@
  * slb9635), so this driver provides access to locality 0 only.
  */
 
-#include <arch/io.h>
 #include <endian.h>
 #include <libpayload.h>
 #include <stdint.h>
 
 #include "base/cleanup_funcs.h"
+#include "base/io.h"
 #include "base/xalloc.h"
 #include "drivers/tpm/lpc.h"
 

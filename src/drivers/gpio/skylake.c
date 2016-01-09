@@ -16,12 +16,12 @@
  * Foundation, Inc.
  */
 
-#include <arch/io.h>
 #include <libpayload.h>
 #include <stdint.h>
 
 #include "base/cleanup_funcs.h"
 #include "base/container_of.h"
+#include "base/io.h"
 #include "base/xalloc.h"
 #include "drivers/gpio/gpio.h"
 #include "drivers/gpio/skylake.h"

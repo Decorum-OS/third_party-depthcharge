@@ -17,30 +17,27 @@
  * MA 02111-1307 USA
  */
 
-#include <arch/io.h>
-
-#include "base/init_funcs.h"
 #include "base/container_of.h"
+#include "base/init_funcs.h"
+#include "base/io.h"
 #include "base/xalloc.h"
 #include "boot/fit.h"
 #include "boot/ramoops.h"
-#include "drivers/gpio/rockchip.h"
 #include "drivers/bus/i2c/rockchip.h"
-#include "drivers/flash/spi.h"
+#include "drivers/bus/i2s/rockchip.h"
 #include "drivers/bus/spi/rockchip.h"
-#include "drivers/tpm/slb9635_i2c.h"
-#include "drivers/tpm/tpm.h"
+#include "drivers/bus/usb/usb.h"
+#include "drivers/flash/spi.h"
+#include "drivers/gpio/rockchip.h"
+#include "drivers/gpio/sysinfo.h"
 #include "drivers/power/rk808.h"
 #include "drivers/power/sysinfo.h"
 #include "drivers/storage/dw_mmc.h"
 #include "drivers/storage/rk_mmc.h"
+#include "drivers/tpm/slb9635_i2c.h"
+#include "drivers/tpm/tpm.h"
 #include "drivers/video/display.h"
-
-#include "drivers/gpio/sysinfo.h"
 #include "vboot/util/flag.h"
-#include "drivers/bus/i2s/rockchip.h"
-
-#include "drivers/bus/usb/usb.h"
 
 static void install_phys_presence_flag(void)
 {

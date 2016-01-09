@@ -24,8 +24,7 @@
 #ifndef __DRIVERS_STORAGE_TEGRA_MMC_H_
 #define __DRIVERS_STORAGE_TEGRA_MMC_H_
 
-#include <arch/io.h>
-
+#include "base/io.h"
 #include "drivers/gpio/gpio.h"
 #include "drivers/storage/blockdev.h"
 #include "drivers/storage/mmc.h"

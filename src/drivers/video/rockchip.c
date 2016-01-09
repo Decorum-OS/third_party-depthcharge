@@ -17,10 +17,10 @@
  * MA 02111-1307 USA
  */
 
-#include <arch/io.h>
 #include <libpayload.h>
 
 #include "base/container_of.h"
+#include "base/io.h"
 #include "base/xalloc.h"
 #include "drivers/video/rockchip.h"
 
