@@ -26,7 +26,7 @@
 
 #include "base/xalloc.h"
 #include "drivers/storage/blockdev.h"
-#include "drivers/storage/stream.h"
+#include "drivers/storage/bdev_stream.h"
 
 static void setup_vb_disk_info(VbDiskInfo *disk, BlockDev *bdev)
 {
@@ -34,7 +34,7 @@ static void setup_vb_disk_info(VbDiskInfo *disk, BlockDev *bdev)
 	disk->handle = (VbExDiskHandle_t)bdev;
 	disk->bytes_per_lba = bdev->block_size;
 	disk->lba_count = bdev->block_count;
-	disk->streaming_lba_count = bdev->stream_block_count;
+	disk->streaming_lba_count = 0;
 	disk->flags = bdev->removable ? VB_DISK_FLAG_REMOVABLE :
 					VB_DISK_FLAG_FIXED;
 	if (bdev->external_gpt)
@@ -117,19 +117,15 @@ VbError_t VbExDiskWrite(VbExDiskHandle_t handle, uint64_t lba_start,
 VbError_t VbExStreamOpen(VbExDiskHandle_t handle, uint64_t lba_start,
 			 uint64_t lba_count, VbExStream_t *stream_ptr)
 {
-	BlockDevOps *ops = &((BlockDev *)handle)->ops;
-	*stream_ptr = (VbExStream_t)ops->new_stream(ops, lba_start, lba_count);
-	if (*stream_ptr == NULL) {
-		printf("Stream open failed.\n");
-		return VBERROR_UNKNOWN;
-	}
+	*stream_ptr = (VbExStream_t)new_bdev_stream((BlockDev *)handle,
+						    lba_start, lba_count);
 	return VBERROR_SUCCESS;
 }
 
 VbError_t VbExStreamRead(VbExStream_t stream, uint32_t bytes, void *buffer)
 {
-	StreamOps *dev = (StreamOps *)stream;
-	int ret = dev->read(dev, bytes, buffer);
+	StreamOps *ops = (StreamOps *)stream;
+	int ret = ops->read(ops, bytes, buffer);
 	if (ret != bytes) {
 		printf("Stream read failed.\n");
 		return VBERROR_UNKNOWN;
@@ -139,6 +135,6 @@ VbError_t VbExStreamRead(VbExStream_t stream, uint32_t bytes, void *buffer)
 
 void VbExStreamClose(VbExStream_t stream)
 {
-	StreamOps *dev = (StreamOps *)stream;
-	dev->close(dev);
+	StreamOps *ops = (StreamOps *)stream;
+	ops->close(ops);
 }

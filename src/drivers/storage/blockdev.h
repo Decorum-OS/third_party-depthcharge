@@ -26,7 +26,6 @@
 #include <stdint.h>
 
 #include "base/list.h"
-#include "drivers/storage/stream.h"
 
 typedef uint64_t lba_t;
 
@@ -38,8 +37,6 @@ typedef struct BlockDevOps {
 	lba_t (*fill_write)(struct BlockDevOps *me, lba_t start, lba_t count,
 			    uint8_t fill_byte);
 	lba_t (*erase)(struct BlockDevOps *me, lba_t start, lba_t count);
-	StreamOps *(*new_stream)(struct BlockDevOps *me, lba_t start,
-				 lba_t count);
 } BlockDevOps;
 
 typedef struct BlockDev {
@@ -49,10 +46,7 @@ typedef struct BlockDev {
 	int removable;
 	int external_gpt;
 	unsigned block_size;
-	/* If external_gpt = 0, then stream_block_count may be 0, indicating
-	 * that the block_count value applies for both read/write and streams */
-	lba_t block_count;		/* size addressable by read/write */
-	lba_t stream_block_count;	/* size addressible by new_stream */
+	lba_t block_count;
 
 	ListNode list_node;
 } BlockDev;
@@ -78,7 +72,5 @@ typedef struct BlockDevCtrlr {
 
 extern ListNode fixed_block_dev_controllers;
 extern ListNode removable_block_dev_controllers;
-
-StreamOps *new_simple_stream(BlockDevOps *me, lba_t start, lba_t count);
 
 #endif /* __DRIVERS_STORAGE_BLOCKDEV_H__ */

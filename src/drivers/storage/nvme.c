@@ -742,7 +742,6 @@ static NVME_STATUS nvme_identify_namespaces(NvmeCtrlr *ctrlr) {
 			snprintf(name, name_size, "NVMe Namespace %d", index);
 			nvme_drive->dev.ops.read = &nvme_read;
 			nvme_drive->dev.ops.write = &nvme_write;
-			nvme_drive->dev.ops.new_stream = &new_simple_stream;
 			nvme_drive->dev.name = name;
 			nvme_drive->dev.removable = 0;
 			nvme_drive->dev.block_size = 2 << (namespace_data->lba_format[namespace_data->flbas & 0xF].lbads - 1);

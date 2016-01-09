@@ -16,6 +16,7 @@
 ##
 
 depthcharge-$(CONFIG_DRIVER_AHCI) += ahci.c
+depthcharge-y += bdev_stream.c
 depthcharge-y += blockdev.c
 depthcharge-$(CONFIG_DRIVER_STORAGE_MMC) += mmc.c
 depthcharge-$(CONFIG_DRIVER_STORAGE_MMC_DW) += dw_mmc.c
