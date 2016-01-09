@@ -25,6 +25,7 @@
 #include "arch/arm/boot.h"
 #include "base/cleanup_funcs.h"
 #include "base/device_tree.h"
+#include "base/xalloc.h"
 #include "boot/fit.h"
 #include "vboot/boot.h"
 

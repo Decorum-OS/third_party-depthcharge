@@ -34,8 +34,6 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "base/die.h"
-
 #define ALIGN(x,a)              __ALIGN_MASK(x,(typeof(x))(a)-1UL)
 #define __ALIGN_MASK(x,mask)    (((x)+(mask))&~(mask))
 #define ALIGN_UP(x,a)           ALIGN((x),(a))
@@ -155,41 +153,6 @@ void *dma_memalign(size_t align, size_t size);
 void init_dma_memory(void *start, uint32_t size);
 int dma_initialized(void);
 int dma_coherent(void *ptr);
-
-static inline void *xmalloc_work(size_t size, const char *file,
-				 const char *func, int line)
-{
-	void *ret = malloc(size);
-	if (!ret && size) {
-		die_work(file, func, line, "Failed to malloc %zu bytes.\n",
-			 size);
-	}
-	return ret;
-}
-#define xmalloc(size) xmalloc_work((size), __FILE__, __FUNCTION__, __LINE__)
-
-static inline void *xzalloc_work(size_t size, const char *file,
-				 const char *func, int line)
-{
-	void *ret = xmalloc_work(size, file, func, line);
-	memset(ret, 0, size);
-	return ret;
-}
-#define xzalloc(size) xzalloc_work((size), __FILE__, __FUNCTION__, __LINE__)
-
-static inline void *xmemalign_work(size_t align, size_t size, const char *file,
-				  const char *func, int line)
-{
-	void *ret = memalign(align, size);
-	if (!ret && size) {
-		die_work(file, func, line,
-			 "Failed to memalign %zu bytes with %zu alignment.\n",
-			 size, align);
-	}
-	return ret;
-}
-#define xmemalign(align, size) \
-	xmemalign_work((align), (size), __FILE__, __func__, __LINE__)
 /** @} */
 
 /**

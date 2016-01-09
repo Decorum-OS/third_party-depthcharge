@@ -35,6 +35,7 @@
 #include <stdint.h>
 
 #include "base/cleanup_funcs.h"
+#include "base/xalloc.h"
 #include "drivers/tpm/lpc.h"
 
 typedef struct {

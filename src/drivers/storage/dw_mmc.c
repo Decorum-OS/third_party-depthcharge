@@ -26,6 +26,7 @@
 #include <stdint.h>
 
 #include "arch/cache.h"
+#include "base/xalloc.h"
 #include "drivers/storage/dw_mmc.h"
 
 enum {

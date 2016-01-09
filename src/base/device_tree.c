@@ -26,6 +26,7 @@
 #include <stdint.h>
 
 #include "base/device_tree.h"
+#include "base/xalloc.h"
 
 /*
  * Functions for picking apart flattened trees.

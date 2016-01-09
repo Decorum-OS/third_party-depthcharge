@@ -24,6 +24,7 @@
 #include <libpayload.h>
 
 #include "base/cleanup_funcs.h"
+#include "base/xalloc.h"
 #include "drivers/bus/usb/usb.h"
 
 ListNode generic_usb_drivers;

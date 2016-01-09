@@ -25,6 +25,7 @@
 #include <libpayload.h>
 
 #include "base/state_machine.h"
+#include "base/xalloc.h"
 
 /*
  * Each state is represented by:

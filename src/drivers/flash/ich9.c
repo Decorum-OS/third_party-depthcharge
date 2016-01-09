@@ -24,6 +24,7 @@
 #include <libpayload.h>
 #include <stdint.h>
 
+#include "base/xalloc.h"
 #include "drivers/flash/ich9.h"
 #include "drivers/flash/ich_shared.h"
 

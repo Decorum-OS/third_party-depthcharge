@@ -21,6 +21,7 @@
 
 #include "base/init_funcs.h"
 #include "base/container_of.h"
+#include "base/xalloc.h"
 #include "boot/fit.h"
 #include "boot/ramoops.h"
 #include "drivers/gpio/rockchip.h"

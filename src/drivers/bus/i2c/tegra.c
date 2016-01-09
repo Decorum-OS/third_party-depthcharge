@@ -18,6 +18,7 @@
 #include <libpayload.h>
 
 #include "base/container_of.h"
+#include "base/xalloc.h"
 #include "drivers/bus/i2c/i2c.h"
 #include "drivers/bus/i2c/tegra.h"
 

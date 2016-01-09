@@ -25,6 +25,7 @@
 #include <stdint.h>
 
 #include "base/container_of.h"
+#include "base/xalloc.h"
 #include "drivers/gpio/exynos5250.h"
 #include "drivers/gpio/gpio.h"
 

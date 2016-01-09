@@ -33,6 +33,8 @@
 #include "ohci_private.h"
 #include "ohci.h"
 
+#include "base/xalloc.h"
+
 typedef struct {
 	int numports;
 	int *port;

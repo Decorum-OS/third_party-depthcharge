@@ -33,6 +33,8 @@
 #include "ehci.h"
 #include "ehci_private.h"
 
+#include "base/xalloc.h"
+
 typedef struct {
 	int n_ports;
 	/* typical C, n_ports is the number

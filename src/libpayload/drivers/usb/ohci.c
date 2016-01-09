@@ -33,6 +33,8 @@
 #include "ohci_private.h"
 #include "ohci.h"
 
+#include "base/xalloc.h"
+
 static void ohci_start (hci_t *controller);
 static void ohci_stop (hci_t *controller);
 static void ohci_reset (hci_t *controller);

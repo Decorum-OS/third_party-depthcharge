@@ -22,6 +22,7 @@
 
 #include <libpayload.h>
 
+#include "base/xalloc.h"
 #include "drivers/storage/sdhci.h"
 
 /* Initialize an SDHCI port with memory address */

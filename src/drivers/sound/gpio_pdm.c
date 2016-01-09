@@ -20,6 +20,7 @@
 #include <stdint.h>
 
 #include "base/container_of.h"
+#include "base/xalloc.h"
 #include "drivers/sound/gpio_pdm.h"
 
 /* Square wave with 1 channel */

@@ -25,6 +25,7 @@
 
 #include "base/physmem.h"
 #include "base/ranges.h"
+#include "base/xalloc.h"
 
 /*
  * This implementation tracks a collection of ranges by keeping a linked list

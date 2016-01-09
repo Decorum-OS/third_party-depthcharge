@@ -26,6 +26,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "base/xalloc.h"
 #include "drivers/storage/tegra_mmc.h"
 
 enum {

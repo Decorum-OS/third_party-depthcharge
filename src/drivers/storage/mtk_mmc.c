@@ -22,6 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "base/xalloc.h"
 #include "drivers/storage/mtk_mmc_private.h"
 #include "drivers/storage/mtk_mmc.h"
 

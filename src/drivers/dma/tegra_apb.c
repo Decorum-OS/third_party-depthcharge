@@ -18,6 +18,7 @@
 
 #include <libpayload.h>
 
+#include "base/xalloc.h"
 #include "drivers/dma/tegra_apb.h"
 
 static int tegra_apb_dma_busy(TegraApbDmaChannel *me)

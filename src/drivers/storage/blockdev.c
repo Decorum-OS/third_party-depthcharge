@@ -20,11 +20,12 @@
  * MA 02111-1307 USA
  */
 
-#include "drivers/storage/blockdev.h"
-
 #include <assert.h>
 #include <libpayload.h>
 #include <stdio.h>
+
+#include "base/xalloc.h"
+#include "drivers/storage/blockdev.h"
 
 ListNode fixed_block_devices;
 ListNode removable_block_devices;

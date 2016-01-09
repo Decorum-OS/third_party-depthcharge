@@ -19,6 +19,7 @@
 
 #include <libpayload.h>
 #include "base/container_of.h"
+#include "base/xalloc.h"
 #include "drivers/power/rk808.h"
 
 #define RK808_DEVCTRL_REG 0x4b

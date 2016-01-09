@@ -33,6 +33,8 @@
 #include "uhci.h"
 #include "uhci_private.h"
 
+#include "base/xalloc.h"
+
 typedef struct {
 	int port[2];
 } rh_inst_t;

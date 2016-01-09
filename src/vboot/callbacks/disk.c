@@ -24,6 +24,7 @@
 #include <libpayload.h>
 #include <vboot_api.h>
 
+#include "base/xalloc.h"
 #include "drivers/storage/blockdev.h"
 #include "drivers/storage/stream.h"
 

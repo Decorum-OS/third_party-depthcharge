@@ -31,6 +31,8 @@
 
 #include <usb/usb.h>
 
+#include "base/xalloc.h"
+
 #define DR_DESC gen_bmRequestType(device_to_host, standard_type, dev_recp)
 
 hci_t *usb_hcs = 0;

@@ -24,6 +24,7 @@
 #include <endian.h>
 #include <libpayload.h>
 
+#include "base/xalloc.h"
 #include "drivers/net/net.h"
 #include "net/net.h"
 #include "net/uip.h"

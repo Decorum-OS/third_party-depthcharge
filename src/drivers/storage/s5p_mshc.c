@@ -28,6 +28,7 @@
 
 #include "arch/cache.h"
 #include "base/init_funcs.h"
+#include "base/xalloc.h"
 #include "drivers/storage/exynos_mshc.h"
 #include "drivers/storage/mmc.h"
 

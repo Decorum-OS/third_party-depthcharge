@@ -33,6 +33,8 @@
 #include "uhci.h"
 #include "uhci_private.h"
 
+#include "base/xalloc.h"
+
 static void uhci_start (hci_t *controller);
 static void uhci_stop (hci_t *controller);
 static void uhci_reset (hci_t *controller);

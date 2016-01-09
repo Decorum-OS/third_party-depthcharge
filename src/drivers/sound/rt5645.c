@@ -9,6 +9,8 @@
  */
 
 #include <libpayload.h>
+
+#include "base/xalloc.h"
 #include "drivers/bus/i2c/i2c.h"
 #include "drivers/sound/rt5645.h"
 

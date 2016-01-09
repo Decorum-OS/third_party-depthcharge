@@ -12,6 +12,7 @@
 
 #include "base/container_of.h"
 #include "base/list.h"
+#include "base/xalloc.h"
 #include "drivers/sound/route.h"
 
 static int route_enable_components(SoundRoute *route)

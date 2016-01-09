@@ -28,6 +28,7 @@
 #include "base/device_tree.h"
 #include "base/init_funcs.h"
 #include "base/list.h"
+#include "base/xalloc.h"
 #include "boot/ramoops.h"
 #include "vboot/util/memory.h"
 

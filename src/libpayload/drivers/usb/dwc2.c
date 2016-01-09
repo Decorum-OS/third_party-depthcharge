@@ -23,6 +23,8 @@
 #include "dwc2.h"
 #include "dwc2_private.h"
 
+#include "base/xalloc.h"
+
 static void dummy(hci_t *controller)
 {
 }

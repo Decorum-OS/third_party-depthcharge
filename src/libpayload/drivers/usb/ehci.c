@@ -35,6 +35,8 @@
 #include "ehci.h"
 #include "ehci_private.h"
 
+#include "base/xalloc.h"
+
 static void dump_td(uint32_t addr)
 {
 	qtd_t *td = (void *)(uintptr_t)addr;

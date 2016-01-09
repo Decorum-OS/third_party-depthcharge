@@ -22,6 +22,7 @@
 #include <libpayload.h>
 
 #include "base/container_of.h"
+#include "base/xalloc.h"
 #include "drivers/sound/pcat_beep.h"
 
 /* Timer 2 legacy PC beep functions */

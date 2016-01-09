@@ -21,6 +21,7 @@
  */
 
 #include "base/container_of.h"
+#include "base/xalloc.h"
 #include "drivers/bus/i2c/mtk_i2c.h"
 
 static volatile const void *I2CADDR_R(uint32_t base, uint32_t offset)

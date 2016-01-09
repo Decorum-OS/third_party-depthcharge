@@ -24,6 +24,7 @@
 
 #include "base/init_funcs.h"
 #include "base/device_tree.h"
+#include "base/xalloc.h"
 
 static int emc_device_tree(DeviceTreeFixup *fixup, DeviceTree *tree)
 {

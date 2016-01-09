@@ -26,6 +26,7 @@
 
 #include <libpayload.h>
 
+#include "base/xalloc.h"
 #include "drivers/storage/blockdev.h"
 #include "drivers/storage/sdhci.h"
 

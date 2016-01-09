@@ -21,6 +21,7 @@
  */
 
 #include "base/container_of.h"
+#include "base/xalloc.h"
 #include "drivers/power/sysinfo.h"
 
 static int gpio_reboot(PowerOps *me)

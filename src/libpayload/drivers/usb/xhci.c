@@ -34,6 +34,8 @@
 #include "xhci_private.h"
 #include "xhci.h"
 
+#include "base/xalloc.h"
+
 static void xhci_start (hci_t *controller);
 static void xhci_stop (hci_t *controller);
 static void xhci_reset (hci_t *controller);

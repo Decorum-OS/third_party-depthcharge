@@ -24,6 +24,7 @@
 #include <libpayload.h>
 
 #include "base/container_of.h"
+#include "base/xalloc.h"
 #include "drivers/power/max77620.h"
 
 enum {

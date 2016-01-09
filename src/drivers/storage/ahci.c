@@ -29,6 +29,7 @@
 #include <libpayload.h>
 #include <stdint.h>
 
+#include "base/xalloc.h"
 #include "drivers/storage/ahci.h"
 #include "drivers/storage/ata.h"
 #include "drivers/storage/blockdev.h"

@@ -23,6 +23,7 @@
 #include <libpayload.h>
 #include <pci.h>
 
+#include "base/xalloc.h"
 #include "drivers/storage/sdhci.h"
 
 typedef struct {

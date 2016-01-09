@@ -26,6 +26,7 @@
 #include <sysinfo.h>
 
 #include "base/init_funcs.h"
+#include "base/xalloc.h"
 #include "boot/fit.h"
 #include "boot/ramoops.h"
 #include "drivers/bus/i2c/tegra.h"

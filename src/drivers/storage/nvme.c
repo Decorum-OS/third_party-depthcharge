@@ -52,6 +52,7 @@
 #include <stdio.h>
 
 #include "base/cleanup_funcs.h"
+#include "base/xalloc.h"
 #include "drivers/storage/blockdev.h"
 #include "drivers/storage/nvme.h"
 
