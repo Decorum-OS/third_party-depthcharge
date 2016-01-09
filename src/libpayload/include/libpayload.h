@@ -46,7 +46,6 @@
 #include <cbgfx.h>
 #include <ctype.h>
 #include <endian.h>
-#include <fmap_serialized.h>
 #include <ipchksum.h>
 #include <stddef.h>
 #include <stdio.h>
