@@ -16,8 +16,8 @@
  * Foundation, Inc.
  */
 
-#ifndef _GDB_H_
-#define _GDB_H_
+#ifndef __DEBUG_GDB_GDB_H__
+#define __DEBUG_GDB_GDB_H__
 
 #include <stdint.h>
 
@@ -238,4 +238,4 @@ enum {
 	GDB_EXC_BREAKPOINT = 150, /* Breakpoint */
 };
 
-#endif	/* _GDB_H_ */
+#endif	/* __DEBUG_GDB_GDB_H__ */

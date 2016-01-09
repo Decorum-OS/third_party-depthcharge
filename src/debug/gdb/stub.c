@@ -16,8 +16,9 @@
  * Foundation, Inc.
  */
 
-#include <gdb.h>
 #include <libpayload.h>
+
+#include "debug/gdb/gdb.h"
 
 struct gdb_state gdb_state;
 

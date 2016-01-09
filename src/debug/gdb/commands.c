@@ -17,8 +17,9 @@
  */
 
 #include <arch/cache.h>
-#include <gdb.h>
 #include <libpayload.h>
+
+#include "debug/gdb/gdb.h"
 
 static void gdb_get_last_signal(struct gdb_message *command,
 				int offset, struct gdb_message *reply)

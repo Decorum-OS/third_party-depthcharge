@@ -17,8 +17,9 @@
  */
 
 #include <exception.h>
-#include <gdb.h>
 #include <libpayload.h>
+
+#include "debug/gdb/gdb.h"
 
 struct gdb_regs
 {
