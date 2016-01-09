@@ -65,14 +65,6 @@ size_t strspn(const char *s, const char *a);
 size_t strcspn(const char *s, const char *a);
 char *strtok(char *str, const char *delim);
 char *strtok_r(char *str, const char *delim, char **ptr);
-char *strerror(int errnum);
-/** @} */
-
-/**
- * @defgroup string Unicode functions
- * @{
- */
-char *utf16le_to_ascii(uint16_t *utf16_string, int maxlen);
 /** @} */
 
 /**
