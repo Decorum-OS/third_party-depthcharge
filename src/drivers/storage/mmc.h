@@ -274,10 +274,6 @@ typedef struct MmcMedia {
 	uint64_t capacity;
 	int high_capacity;
 	uint32_t tran_speed;
-	/* Erase size in terms of block length. */
-	uint32_t erase_size;
-	/* Trim operation multiplier for determining timeout. */
-	uint32_t trim_mult;
 
 	uint32_t ocr;
 	uint16_t rca;
@@ -298,9 +294,6 @@ int mmc_setup_media(MmcCtrlr *ctrlr);
 lba_t block_mmc_read(BlockDevOps *me, lba_t start, lba_t count, void *buffer);
 lba_t block_mmc_write(BlockDevOps *me, lba_t start, lba_t count,
 		      const void *buffer);
-lba_t block_mmc_erase(BlockDevOps *me, lba_t start, lba_t count);
-lba_t block_mmc_fill_write(BlockDevOps *me, lba_t start, lba_t count,
-			   uint8_t fill_byte);
 
 // Debug functions.
 extern int __mmc_debug, __mmc_trace;

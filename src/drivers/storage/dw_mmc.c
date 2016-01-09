@@ -378,9 +378,6 @@ static int dwmci_update(BlockDevCtrlrOps *me)
 			host->mmc.media->dev.removable = 1;
 			host->mmc.media->dev.ops.read = &block_mmc_read;
 			host->mmc.media->dev.ops.write = &block_mmc_write;
-			host->mmc.media->dev.ops.erase = &block_mmc_erase;
-			host->mmc.media->dev.ops.fill_write =
-				&block_mmc_fill_write;
 			list_insert_after(&host->mmc.media->dev.list_node,
 					  &removable_block_devices);
 		} else if (!present && host->mmc.media) {
@@ -396,9 +393,6 @@ static int dwmci_update(BlockDevCtrlrOps *me)
 		host->mmc.media->dev.removable = 0;
 		host->mmc.media->dev.ops.read = &block_mmc_read;
 		host->mmc.media->dev.ops.write = &block_mmc_write;
-		host->mmc.media->dev.ops.erase = &block_mmc_erase;
-		host->mmc.media->dev.ops.fill_write =
-			&block_mmc_fill_write;
 		list_insert_after(&host->mmc.media->dev.list_node,
 				  &fixed_block_devices);
 		host->mmc.ctrlr.need_update = 0;
