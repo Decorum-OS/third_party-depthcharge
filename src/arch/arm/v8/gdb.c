@@ -21,17 +21,17 @@
 
 #include "debug/gdb/gdb.h"
 
-struct gdb_regs
+typedef struct __attribute__((packed))
 {
 	uint64_t x[32];
-	struct fp_reg
+	struct
 	{
 		uint64_t quad[2];
 	} __attribute__((packed)) f[32];
 	uint32_t fpcr;
 	uint32_t fpsr;
 	uint32_t spsr;
-} __attribute__((packed));
+} GdbRegs;
 
 static const uint8_t type_to_signal[] = {
 	[EXC_SYNC_SP0] = GDB_SIGTRAP,
@@ -72,10 +72,10 @@ int gdb_arch_set_single_step(int on)
 	return -1;
 }
 
-void gdb_arch_encode_regs(struct gdb_message *message)
+void gdb_arch_encode_regs(GdbMessage *message)
 {
 }
 
-void gdb_arch_decode_regs(int offset, struct gdb_message *message)
+void gdb_arch_decode_regs(int offset, GdbMessage *message)
 {
 }

@@ -81,13 +81,13 @@ int gdb_arch_set_single_step(int on)
 	return 0;
 }
 
-void gdb_arch_encode_regs(struct gdb_message *message)
+void gdb_arch_encode_regs(GdbMessage *message)
 {
 	gdb_message_encode_bytes(message, &exception_state->regs,
 				 sizeof(exception_state->regs));
 }
 
-void gdb_arch_decode_regs(int offset, struct gdb_message *message)
+void gdb_arch_decode_regs(int offset, GdbMessage *message)
 {
 	gdb_message_decode_bytes(message, offset, &exception_state->regs,
 				 sizeof(exception_state->regs));

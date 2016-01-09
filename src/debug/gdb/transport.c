@@ -81,8 +81,7 @@ static char to_hex(uint8_t v)
 
 /* Message encode/decode functions (must access whole aligned words for MMIO) */
 
-void gdb_message_encode_bytes(struct gdb_message *message, const void *data,
-			      int length)
+void gdb_message_encode_bytes(GdbMessage *message, const void *data, int length)
 {
 	die_if(message->used + length * 2 > message->size, output_overrun);
 	const mmio_word_t *aligned =
@@ -97,7 +96,7 @@ void gdb_message_encode_bytes(struct gdb_message *message, const void *data,
 	}
 }
 
-void gdb_message_decode_bytes(const struct gdb_message *message, int offset,
+void gdb_message_decode_bytes(const GdbMessage *message, int offset,
 			      void *data, int length)
 {
 	die_if(offset + 2 * length > message->used, "Decode overrun in GDB "
@@ -119,14 +118,14 @@ void gdb_message_decode_bytes(const struct gdb_message *message, int offset,
 	}
 }
 
-void gdb_message_encode_zero_bytes(struct gdb_message *message, int length)
+void gdb_message_encode_zero_bytes(GdbMessage *message, int length)
 {
 	die_if(message->used + length * 2 > message->size, output_overrun);
 	memset(message->buf + message->used, '0', length * 2);
 	message->used += length * 2;
 }
 
-void gdb_message_add_string(struct gdb_message *message, const char *string)
+void gdb_message_add_string(GdbMessage *message, const char *string)
 {
 	message->used += strlcpy((char *)message->buf + message->used,
 			     string, message->size - message->used);
@@ -135,7 +134,7 @@ void gdb_message_add_string(struct gdb_message *message, const char *string)
 	die_if(message->used >= message->size, output_overrun);
 }
 
-void gdb_message_encode_int(struct gdb_message *message, uintptr_t val)
+void gdb_message_encode_int(GdbMessage *message, uintptr_t val)
 {
 	int length = sizeof(uintptr_t) * 2 - __builtin_clz(val) / 4;
 	die_if(message->used + length > message->size, output_overrun);
@@ -144,7 +143,7 @@ void gdb_message_encode_int(struct gdb_message *message, uintptr_t val)
 			to_hex((val >> length * 4) & 0xf);
 }
 
-uintptr_t gdb_message_decode_int(const struct gdb_message *message, int offset,
+uintptr_t gdb_message_decode_int(const GdbMessage *message, int offset,
 				 int length)
 {
 	uintptr_t val = 0;
@@ -161,7 +160,7 @@ uintptr_t gdb_message_decode_int(const struct gdb_message *message, int offset,
 }
 
 /* Like strtok/strsep: writes back offset argument, returns original offset. */
-int gdb_message_tokenize(const struct gdb_message *message, int *offset)
+int gdb_message_tokenize(const GdbMessage *message, int *offset)
 {
 	int token = *offset;
 	while (!strchr(",;:", message->buf[(*offset)++]))
@@ -173,7 +172,7 @@ int gdb_message_tokenize(const struct gdb_message *message, int *offset)
 
 /* High-level send/receive functions. */
 
-void gdb_get_command(struct gdb_message *command)
+void gdb_get_command(GdbMessage *command)
 {
 	enum command_state {
 		STATE_WAITING,
@@ -233,7 +232,7 @@ void gdb_get_command(struct gdb_message *command)
 	}
 }
 
-void gdb_send_reply(const struct gdb_message *reply)
+void gdb_send_reply(const GdbMessage *reply)
 {
 	int i;
 	int retries = 1 * 1000 * 1000 / timeout_us;

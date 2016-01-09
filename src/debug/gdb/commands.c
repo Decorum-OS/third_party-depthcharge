@@ -21,28 +21,27 @@
 
 #include "debug/gdb/gdb.h"
 
-static void gdb_get_last_signal(struct gdb_message *command,
-				int offset, struct gdb_message *reply)
+static void gdb_get_last_signal(GdbMessage *command,
+				int offset, GdbMessage *reply)
 {
 	gdb_message_add_string(reply, "S");
 	gdb_message_encode_bytes(reply, &gdb_state.signal, 1);
 }
 
-static void gdb_read_general_registers(struct gdb_message *command,
-				       int offset, struct gdb_message *reply)
+static void gdb_read_general_registers(GdbMessage *command,
+				       int offset, GdbMessage *reply)
 {
 	gdb_arch_encode_regs(reply);
 }
 
-static void gdb_write_general_registers(struct gdb_message *command,
-					int offset, struct gdb_message *reply)
+static void gdb_write_general_registers(GdbMessage *command,
+					int offset, GdbMessage *reply)
 {
 	gdb_arch_decode_regs(offset, command);
 	gdb_message_add_string(reply, "OK");
 }
 
-static void gdb_read_memory(struct gdb_message *command,
-			    int offset, struct gdb_message *reply)
+static void gdb_read_memory(GdbMessage *command, int offset, GdbMessage *reply)
 {
 	int tok = gdb_message_tokenize(command, &offset);
 	uintptr_t addr = gdb_message_decode_int(command, tok, offset - 1 - tok);
@@ -52,8 +51,7 @@ static void gdb_read_memory(struct gdb_message *command,
 	gdb_message_encode_bytes(reply, (void *)addr, length);
 }
 
-static void gdb_write_memory(struct gdb_message *command,
-			     int offset, struct gdb_message *reply)
+static void gdb_write_memory(GdbMessage *command, int offset, GdbMessage *reply)
 {
 	int tok = gdb_message_tokenize(command, &offset);
 	uintptr_t addr = gdb_message_decode_int(command, tok, offset - 1 - tok);
@@ -68,8 +66,7 @@ static void gdb_write_memory(struct gdb_message *command,
 	gdb_message_add_string(reply, "OK");
 }
 
-static void gdb_continue(struct gdb_message *command,
-			 int offset, struct gdb_message *reply)
+static void gdb_continue(GdbMessage *command, int offset, GdbMessage *reply)
 {
 	/* Disable single step if it's still on. */
 	gdb_arch_set_single_step(0);
@@ -81,8 +78,7 @@ static void gdb_continue(struct gdb_message *command,
 		gdb_state.resumed = 1;
 }
 
-static void gdb_single_step(struct gdb_message *command,
-			    int offset, struct gdb_message *reply)
+static void gdb_single_step(GdbMessage *command, int offset, GdbMessage *reply)
 {
 	if (command->used > offset || gdb_arch_set_single_step(1))
 		gdb_message_add_string(reply, "E00");
@@ -90,7 +86,7 @@ static void gdb_single_step(struct gdb_message *command,
 		gdb_state.resumed = 1;
 }
 
-struct gdb_command gdb_commands[] = {
+GdbCommand gdb_commands[] = {
 	{ "?", &gdb_get_last_signal },
 	{ "g", &gdb_read_general_registers },
 	{ "G", &gdb_write_general_registers },

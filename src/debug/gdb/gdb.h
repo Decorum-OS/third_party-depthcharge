@@ -21,29 +21,29 @@
 
 #include <stdint.h>
 
-struct gdb_message
+typedef struct
 {
 	uint8_t *buf;
 	int used;
 	const int size;
-};
+} GdbMessage;
 
-struct gdb_state
+typedef struct
 {
 	uint8_t signal;
 	uint8_t resumed : 1;
 	uint8_t connected : 1;
-};
-extern struct gdb_state gdb_state;
+} GdbState;
+extern GdbState gdb_state;
 
-typedef void (*gdb_command_handler)(struct gdb_message *command,
-				    int offset, struct gdb_message *reply);
-struct gdb_command
+typedef void (*GdbCommandHandler)(GdbMessage *command, int offset,
+				  GdbMessage *reply);
+typedef struct
 {
 	const char *str;
-	gdb_command_handler handler;
-};
-extern struct gdb_command gdb_commands[];
+	GdbCommandHandler handler;
+} GdbCommand;
+extern GdbCommand gdb_commands[];
 extern const int gdb_command_count;
 
 /* arch/gdb.c */
@@ -53,30 +53,30 @@ void gdb_arch_enter(void);
 
 int gdb_arch_set_single_step(int on);
 
-void gdb_arch_encode_regs(struct gdb_message *message);
-void gdb_arch_decode_regs(int offset, struct gdb_message *message);
+void gdb_arch_encode_regs(GdbMessage *message);
+void gdb_arch_decode_regs(int offset, GdbMessage *message);
 
 /* gdb/transport.c */
 
 void gdb_transport_init(void);
 void gdb_transport_teardown(void);
 
-void gdb_message_encode_bytes(struct gdb_message *message, const void *data,
+void gdb_message_encode_bytes(GdbMessage *message, const void *data,
 			      int length);
-void gdb_message_decode_bytes(const struct gdb_message *message, int offset,
+void gdb_message_decode_bytes(const GdbMessage *message, int offset,
 			      void *data, int length);
-void gdb_message_encode_zero_bytes(struct gdb_message *message, int length);
+void gdb_message_encode_zero_bytes(GdbMessage *message, int length);
 
-void gdb_message_add_string(struct gdb_message *message, const char *string);
+void gdb_message_add_string(GdbMessage *message, const char *string);
 
-void gdb_message_encode_int(struct gdb_message *message, uintptr_t val);
-uintptr_t gdb_message_decode_int(const struct gdb_message *message, int offset,
+void gdb_message_encode_int(GdbMessage *message, uintptr_t val);
+uintptr_t gdb_message_decode_int(const GdbMessage *message, int offset,
 				 int length);
 
-int gdb_message_tokenize(const struct gdb_message *message, int *offset);
+int gdb_message_tokenize(const GdbMessage *message, int *offset);
 
-void gdb_get_command(struct gdb_message *command);
-void gdb_send_reply(const struct gdb_message *reply);
+void gdb_get_command(GdbMessage *command);
+void gdb_send_reply(const GdbMessage *reply);
 
 /* gdb/stub.c */
 

@@ -20,17 +20,17 @@
 
 #include "debug/gdb/gdb.h"
 
-struct gdb_state gdb_state;
+GdbState gdb_state;
 
 static uint8_t reply_buf[2048];
 static uint8_t command_buf[2048];
 
-static struct gdb_message command = {
+static GdbMessage command = {
 	.buf = command_buf,
 	.used = 0,
 	.size = sizeof(command_buf),
 };
-static struct gdb_message reply = {
+static GdbMessage reply = {
 	.buf = reply_buf,
 	.used = 0,
 	.size = sizeof(reply_buf),

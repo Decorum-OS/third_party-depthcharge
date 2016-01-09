@@ -21,16 +21,16 @@
 
 #include "debug/gdb/gdb.h"
 
-struct gdb_regs
+typedef struct __attribute__((packed))
 {
 	uint32_t r[16];
-	struct fp_reg
+	struct
 	{
 		uint8_t byte[12];
 	} __attribute__((packed)) f[8];
 	uint32_t fps;
 	uint32_t cpsr;
-} __attribute__((packed));
+} GdbRegs;
 
 static const uint8_t type_to_signal[] = {
 	[EXC_UNDEF]  = GDB_SIGILL,
@@ -53,7 +53,7 @@ static int gdb_exception_hook(uint32_t type)
 	 */
 	if (gdb_state.connected && !gdb_state.resumed) {
 		static const char error_code[] = "E22";	/* EINVAL? */
-		static const struct gdb_message tmp_reply = {
+		static const GdbMessage tmp_reply = {
 			.buf = (uint8_t *)error_code,
 			.used = sizeof(error_code),
 			.size = sizeof(error_code),
@@ -95,19 +95,19 @@ int gdb_arch_set_single_step(int on)
 	return -1;
 }
 
-void gdb_arch_encode_regs(struct gdb_message *message)
+void gdb_arch_encode_regs(GdbMessage *message)
 {
 	gdb_message_encode_bytes(message, exception_state.regs,
 				 sizeof(exception_state.regs));
 	gdb_message_encode_zero_bytes(message,
-		offsetof(struct gdb_regs, cpsr) - offsetof(struct gdb_regs, f));
+		offsetof(GdbRegs, cpsr) - offsetof(GdbRegs, f));
 	gdb_message_encode_bytes(message, &exception_state.cpsr,
 				 sizeof(exception_state.cpsr));
 }
 
-void gdb_arch_decode_regs(int offset, struct gdb_message *message)
+void gdb_arch_decode_regs(int offset, GdbMessage *message)
 {
-	const int cpsr_hex_offset = offsetof(struct gdb_regs, cpsr) * 2;
+	const int cpsr_hex_offset = offsetof(GdbRegs, cpsr) * 2;
 	gdb_message_decode_bytes(message, offset,
 			exception_state.regs, sizeof(exception_state.regs));
 	gdb_message_decode_bytes(message, offset + cpsr_hex_offset,
