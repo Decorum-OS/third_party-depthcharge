@@ -36,7 +36,6 @@ libc-$(CONFIG_PC_KEYBOARD) += keyboard.c
 libc-$(CONFIG_CBMEM_CONSOLE) += cbmem_console.c
 
 libc-$(CONFIG_NVRAM) += nvram.c
-libc-$(CONFIG_NVRAM) += options.c
 
 # Video console drivers
 libc-$(CONFIG_VIDEO_CONSOLE) += video/video.c

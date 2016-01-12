@@ -186,36 +186,6 @@ void cbmem_console_init(void);
 void cbmem_console_write(const void *buffer, size_t count);
 /** @} */
 
-/* drivers/option.c */
-struct nvram_accessor {
-	uint8_t (*read)(uint8_t reg);
-	void (*write)(uint8_t val, uint8_t reg);
-};
-
-extern uint8_t *mem_accessor_base;
-extern struct nvram_accessor *use_nvram, *use_mem;
-
-struct cb_cmos_option_table *get_system_option_table(void);
-int options_checksum_valid(const struct nvram_accessor *nvram);
-void fix_options_checksum_with(const struct nvram_accessor *nvram);
-void fix_options_checksum(void);
-
-struct cb_cmos_entries *first_cmos_entry(struct cb_cmos_option_table *option_table);
-struct cb_cmos_entries *next_cmos_entry(struct cb_cmos_entries *cur);
-
-struct cb_cmos_enums *first_cmos_enum(struct cb_cmos_option_table *option_table);
-struct cb_cmos_enums *next_cmos_enum(struct cb_cmos_enums *cmos_enum);
-struct cb_cmos_enums *first_cmos_enum_of_id(struct cb_cmos_option_table *option_table, int id);
-struct cb_cmos_enums *next_cmos_enum_of_id(struct cb_cmos_enums *cmos_enum, int id);
-
-int get_option_with(const struct nvram_accessor *nvram, struct cb_cmos_option_table *option_table, void *dest, const char *name);
-int get_option_from(struct cb_cmos_option_table *option_table, void *dest, const char *name);
-int get_option(void *dest, const char *name);
-int set_option_with(const struct nvram_accessor *nvram, struct cb_cmos_option_table *option_table, const void *value, const char *name);
-int set_option(const void *value, const char *name);
-int get_option_as_string(const struct nvram_accessor *nvram, struct cb_cmos_option_table *option_table, char **dest, const char *name);
-int set_option_from_string(const struct nvram_accessor *nvram, struct cb_cmos_option_table *option_table, const char *value, const char *name);
-
 /**
  * @defgroup console Console functions
  * @{
