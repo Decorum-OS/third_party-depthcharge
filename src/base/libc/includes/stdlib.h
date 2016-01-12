@@ -34,6 +34,8 @@
 #include <stddef.h>
 #include <string.h>
 
+#define RAND_MAX 0x7fffffff
+
 #define ALIGN(x,a)              __ALIGN_MASK(x,(typeof(x))(a)-1UL)
 #define __ALIGN_MASK(x,mask)    (((x)+(mask))&~(mask))
 #define ALIGN_UP(x,a)           ALIGN((x),(a))

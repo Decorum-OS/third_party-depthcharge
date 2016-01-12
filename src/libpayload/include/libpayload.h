@@ -68,14 +68,6 @@ static inline uint32_t div_round_up(uint32_t n, uint32_t d)
 	return (n + d - 1) / d;
 }
 
-#define LITTLE_ENDIAN	1234
-#define BIG_ENDIAN	4321
-
-#define EXIT_SUCCESS 0
-#define EXIT_FAILURE 1
-
-#define RAND_MAX 0x7fffffff
-
 #define MAX_ARGC_COUNT 10
 
 /*
