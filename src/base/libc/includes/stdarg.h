@@ -32,27 +32,9 @@
 
 #include <stddef.h>
 
-/* With GCC we use -nostdinc -ffreestanding to keep out system includes.
- * Unfortunately this also gets us rid of the _compiler_ includes, like
- * stdarg.h. To work around the issue, we define varargs directly here.
- * On LLVM we can still just include stdarg.h.
- */
-#ifdef __GNUC__
 #define va_start(v,l)		__builtin_va_start(v,l)
 #define va_end(v)		__builtin_va_end(v)
 #define va_arg(v,l)		__builtin_va_arg(v,l)
 typedef __builtin_va_list	va_list;
-#else
-#include_next <stdarg.h>
-#endif
-
-/**
- * @defgroup vprintf Varargs print functions
- * @{
- */
-int vsnprintf(char *str, size_t size, const char *fmt, va_list ap);
-int vsprintf(char *str, const char *fmt, va_list ap);
-int vprintf(const char *fmt, va_list ap);
-/** @} */
 
 #endif

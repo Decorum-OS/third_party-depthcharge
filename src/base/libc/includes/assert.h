@@ -38,7 +38,7 @@
 #else
 #define assert(statement)					\
 	if ((statement) == 0) {					\
-		fprintf(stderr, "assertion failed in file %s, "	\
+		printf("assertion failed in file %s, "		\
 			"function %s(), line %d\n",		\
 			 __FILE__, __FUNCTION__, __LINE__);	\
 		abort();					\

@@ -36,13 +36,6 @@
 #include <libpayload.h>
 #include <ctype.h>
 
-static struct _FILE {
-} _stdout, _stdin, _stderr;
-
-FILE *stdout = &_stdout;
-FILE *stdin = &_stdin;
-FILE *stderr = &_stderr;
-
 /** Structure for specifying output methods for different printf clones. */
 struct printf_spec {
 	/* Output function, returns count of printed characters or EOF. */
@@ -703,20 +696,6 @@ int sprintf(char *str, const char *fmt, ...)
 	va_end(args);
 
 	return ret;
-}
-
-int fprintf(FILE *file, const char *fmt, ...)
-{
-	int ret;
-	if ((file == stdout) || (file == stderr)) {
-		va_list args;
-		va_start(args, fmt);
-		ret = vprintf(fmt, args);
-		va_end(args);
-
-		return ret;
-	}
-	return -1;
 }
 
 struct vsnprintf_data {

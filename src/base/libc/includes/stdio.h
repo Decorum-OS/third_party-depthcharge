@@ -30,13 +30,8 @@
 #ifndef _STDIO_H
 #define _STDIO_H
 
+#include <stdarg.h>
 #include <stddef.h>
-
-#define EOF (-1)
-
-typedef struct _FILE FILE;
-
-extern FILE *stdout, *stdin, *stderr;
 
 /**
  * @defgroup printf Print functions
@@ -48,12 +43,15 @@ int sprintf(char *str, const char *fmt, ...)
 	__attribute__ ((format (printf, 2, 3)));
 int printf(const char *fmt, ...)
 	__attribute__ ((format (printf, 1, 2)));
-int fprintf(FILE *file, const char *fmt, ...)
-	__attribute__ ((format (printf, 2, 3)));
 /** @} */
 
-#define SEEK_SET 0 /**< The seek offset is absolute. */
-#define SEEK_CUR 1 /**< The seek offset is against the current position. */
-#define SEEK_END 2 /**< The seek offset is against the end of the file. */
+/**
+ * @defgroup vprintf Varargs print functions
+ * @{
+ */
+int vsnprintf(char *str, size_t size, const char *fmt, va_list ap);
+int vsprintf(char *str, const char *fmt, va_list ap);
+int vprintf(const char *fmt, va_list ap);
+/** @} */
 
 #endif
