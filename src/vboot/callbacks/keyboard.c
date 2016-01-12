@@ -41,7 +41,7 @@ uint32_t VbExKeyboardRead(void)
 	uint64_t timer_start;
 
 	// No input, just give up.
-	if (!havechar())
+	if (!havekey())
 		return 0;
 
 	uint32_t ch = getchar();
@@ -53,7 +53,7 @@ uint32_t VbExKeyboardRead(void)
 	case KEY_LEFT: return VB_KEY_LEFT;
 	case CSI_0:
 		timer_start = timer_us(0);
-		while (!havechar()) {
+		while (!havekey()) {
 			if (timer_us(timer_start) >= TIMEOUT_US)
 				return CSI_0;
 		}

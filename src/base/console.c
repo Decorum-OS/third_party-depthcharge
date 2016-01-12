@@ -159,7 +159,7 @@ int getchar(void)
 			usb_poll();
 		struct console_input_driver *in;
 		for (in = console_in; in != 0; in = in->next)
-			if (in->havechar()) {
+			if (in->havekey()) {
 				last_getchar_input_type = in->input_type;
 				return in->getchar();
 			}
