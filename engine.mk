@@ -44,24 +44,20 @@ OBJCOPY ?= $(OBJCOPY_$(TC_ARCH))
 STRIP ?= $(STRIP_$(TC_ARCH))
 LIBGCC ?= $(shell $(CC) -print-libgcc-file-name)
 LZMA ?= lzma
-GCC_INCLUDE = $(word 2,$(shell $(CC) -print-search-dirs))\include
 
 tryccoption = \
 	$(shell $(CC) $(1) -S -xc /dev/null -o /dev/null &> /dev/null; echo $$?)
 tryldoption = \
 	$(shell $(CC) $(1) -static -nostdlib -fuse-ld=bfd -xc /dev/null -o /dev/null &> /dev/null; echo $$?)
 
-# There are (almost) no include dirs to start with, these will be filled in by
-# included Makefiles. The one exception is GCC_INCLUDE, but since we want to
-# supercede some files in there that needs to be last. To ensure that it is,
-# it's handled separately.
+# There are no include dirs to start with, these will be filled in by included
+# Makefiles.
 INCLUDE_DIRS =
 ABI_FLAGS = $(ARCH_ABI_FLAGS) -ffreestanding -fno-builtin \
 	-fno-stack-protector -fomit-frame-pointer
 LINK_FLAGS = $(ARCH_LINK_FLAGS) $(ABI_FLAGS) -fuse-ld=bfd -nostdlib \
 	-Wl,-T,$(LDSCRIPT) -Wl,--gc-sections -Wl,-Map=$@.map -static
-CFLAGS = $(ARCH_CFLAGS) -Wall -Werror \
-	$(INCLUDE_DIRS) -I$(GCC_INCLUDE) -include $(obj)/config.h \
+CFLAGS = $(ARCH_CFLAGS) -Wall -Werror $(INCLUDE_DIRS) -include $(obj)/config.h \
 	-std=gnu99 $(ABI_FLAGS) -ffunction-sections -fdata-sections \
 	-ggdb3 -nostdinc -nostdlib -fno-stack-protector
 
