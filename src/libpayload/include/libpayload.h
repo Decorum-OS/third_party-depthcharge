@@ -102,20 +102,11 @@ void rtc_read_clock(struct tm *tm);
 /** @} */
 
 /**
- * @defgroup storage driver functions
- * @{
- */
-void storage_initialize(void);
-/** @} */
-
-/**
  * @defgroup usb USB functions
  * @{
  */
 int usb_initialize(void);
 int usb_exit (void);
-int usbhid_havechar(void);
-int usbhid_getchar(void);
 /** @} */
 
 /**
@@ -156,16 +147,6 @@ void serial_end_altcharset(void);
 void serial_set_color(short fg, short bg);
 void serial_cursor_enable(int state);
 void serial_set_cursor(int y, int x);
-/** @} */
-
-/**
- * @defgroup speaker Speaker functions
- * @ingroup input
- * @{
- */
-void speaker_enable(uint16_t freq);
-void speaker_disable(void);
-void speaker_tone(uint16_t freq, unsigned int duration);
 /** @} */
 
 /**
@@ -279,21 +260,11 @@ int console_remove_output_driver(void *function);
 
 
 /**
- * @defgroup exec Execution functions
- * @{
- */
-int exec(long addr, int argc, char **argv);
-/** @} */
-
-/**
  * @defgroup misc Misc functions
  * @{
  */
 int bcd2dec(int b);
 int dec2bcd(int d);
-int abs(int j);
-long int labs(long int j);
-long long int llabs(long long int j);
 uint8_t bin2hex(uint8_t b);
 uint8_t hex2bin(uint8_t h);
 void hexdump(const void *memory, size_t length);

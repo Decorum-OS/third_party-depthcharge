@@ -34,6 +34,10 @@
 #include <stddef.h>
 #include <string.h>
 
+int abs(int j);
+long int labs(long int j);
+long long int llabs(long long int j);
+
 #define RAND_MAX 0x7fffffff
 
 #define ALIGN(x,a)              __ALIGN_MASK(x,(typeof(x))(a)-1UL)

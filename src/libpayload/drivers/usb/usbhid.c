@@ -384,6 +384,23 @@ usb_hid_set_protocol (usbdev_t *dev, interface_descriptor_t *interface, hid_prot
 	dev->controller->control (dev, OUT, sizeof (dev_req_t), &dr, 0, 0);
 }
 
+int usbhid_havechar (void)
+{
+	return (keycount != 0);
+}
+
+int usbhid_getchar (void)
+{
+	short ret;
+
+	if (keycount == 0)
+		return 0;
+	ret = keybuffer[0];
+	memmove(keybuffer, keybuffer + 1, --keycount);
+
+	return (int)ret;
+}
+
 static struct console_input_driver cons = {
 	.havekey = usbhid_havechar,
 	.getchar = usbhid_getchar,
@@ -490,21 +507,4 @@ usb_hid_init (usbdev_t *dev)
 			break;
 		}
 	}
-}
-
-int usbhid_havechar (void)
-{
-	return (keycount != 0);
-}
-
-int usbhid_getchar (void)
-{
-	short ret;
-
-	if (keycount == 0)
-		return 0;
-	ret = keybuffer[0];
-	memmove(keybuffer, keybuffer + 1, --keycount);
-
-	return (int)ret;
 }
