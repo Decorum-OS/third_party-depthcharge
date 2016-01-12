@@ -25,7 +25,10 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
+#include <stdint.h>
+
+#include "arch/io.h"
+#include "drivers/timer/timer.h"
 
 static uint32_t * const tegra_tmrus =
 	(void *)CONFIG_DRIVER_TIMER_TEGRA_1US_ADDRESS;

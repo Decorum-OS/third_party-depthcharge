@@ -25,6 +25,7 @@
 #include "drivers/bus/i2s/i2s.h"
 #include "drivers/bus/i2s/braswell/braswell.h"
 #include "drivers/bus/i2s/braswell/braswell-regs.h"
+#include "drivers/timer/timer.h"
 
 /* ssacd LUT */
 static const uint8_t

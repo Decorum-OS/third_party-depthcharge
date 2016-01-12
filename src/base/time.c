@@ -37,6 +37,8 @@
 #include <arch/rdtsc.h>
 #endif
 
+#include "drivers/timer/timer.h"
+
 static struct {
 	uint64_t ticks;
 	time_t secs;

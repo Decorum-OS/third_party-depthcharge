@@ -27,6 +27,7 @@
 #include "base/xalloc.h"
 #include "drivers/ec/cros/lpc.h"
 #include "drivers/ec/cros/lpc_mec.h"
+#include "drivers/timer/timer.h"
 
 /* Timeout waiting for a flash erase command to complete */
 static const int CROS_EC_CMD_TIMEOUT_MS = 5000;

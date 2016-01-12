@@ -27,6 +27,7 @@
 #include "base/container_of.h"
 #include "base/xalloc.h"
 #include "drivers/bus/i2c/designware.h"
+#include "drivers/timer/timer.h"
 
 typedef struct {
 	uint32_t control;

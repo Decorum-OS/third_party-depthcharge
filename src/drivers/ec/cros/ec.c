@@ -34,6 +34,7 @@
 #include "base/xalloc.h"
 #include "drivers/ec/cros/message.h"
 #include "drivers/ec/cros/ec.h"
+#include "drivers/timer/timer.h"
 
 static CrosEcBusOps *cros_ec_bus;
 static GpioOps *cros_ec_interrupt_gpio;

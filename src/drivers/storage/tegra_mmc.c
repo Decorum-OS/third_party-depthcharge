@@ -28,6 +28,7 @@
 
 #include "base/xalloc.h"
 #include "drivers/storage/tegra_mmc.h"
+#include "drivers/timer/timer.h"
 
 enum {
 	// For card identification, and also the highest low-speed SDOI card

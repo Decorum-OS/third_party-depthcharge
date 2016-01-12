@@ -284,11 +284,6 @@ int lib_get_sysinfo(void);
 void lib_sysinfo_get_memranges(struct memrange **ranges,
 			       uint64_t *nranges);
 
-/* Timer functions. */
-/* Defined by each architecture. */
-uint64_t timer_hz(void);
-uint64_t timer_raw_value(void);
-uint64_t timer_us(uint64_t base);
 /* Generic. */
 void ndelay(unsigned int n);
 void udelay(unsigned int n);

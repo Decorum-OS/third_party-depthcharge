@@ -30,6 +30,7 @@
 #include "base/state_machine.h"
 #include "drivers/input/input.h"
 #include "drivers/input/pseudo/keyboard.h"
+#include "drivers/timer/timer.h"
 
 /* State machine data for pseudo keyboard */
 static struct sm_data *pk_sm;

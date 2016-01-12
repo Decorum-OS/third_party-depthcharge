@@ -17,10 +17,10 @@
  * Foundation, Inc.
  */
 
-#include <libpayload.h>
 #include <stdint.h>
 
 #include "base/io.h"
+#include "drivers/timer/timer.h"
 
 static uint32_t *const mtk_tmrus = (void*)CONFIG_DRIVER_TIMER_MEDIATEK_ADDRESS;
 

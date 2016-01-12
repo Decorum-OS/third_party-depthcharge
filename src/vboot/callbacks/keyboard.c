@@ -25,6 +25,7 @@
 #include <vboot/util/flag.h>
 
 #include "debug/netboot.h"
+#include "drivers/timer/timer.h"
 
 #define CSI_0 0x1B
 #define CSI_1 0x5B

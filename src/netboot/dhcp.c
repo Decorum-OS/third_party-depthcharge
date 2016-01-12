@@ -26,6 +26,7 @@
 
 #include "base/xalloc.h"
 #include "drivers/net/net.h"
+#include "drivers/timer/timer.h"
 #include "net/net.h"
 #include "net/uip.h"
 #include "net/uip_arp.h"

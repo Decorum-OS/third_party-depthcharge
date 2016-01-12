@@ -17,8 +17,9 @@
  * Foundation, Inc.
  */
 
-#include <libpayload.h>
 #include <stdint.h>
+
+#include "drivers/timer/timer.h"
 
 struct rk_timer {
 	uint32_t timer_load_count0;

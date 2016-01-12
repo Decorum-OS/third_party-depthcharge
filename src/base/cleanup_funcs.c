@@ -24,6 +24,7 @@
 #include <libpayload.h>
 
 #include "base/cleanup_funcs.h"
+#include "drivers/timer/timer.h"
 
 ListNode cleanup_funcs;
 

@@ -41,6 +41,7 @@
 
 #include "base/xalloc.h"
 #include "drivers/bus/i2c/i2c.h"
+#include "drivers/timer/timer.h"
 #include "drivers/tpm/i2c.h"
 #include "drivers/tpm/slb9635_i2c.h"
 

@@ -27,6 +27,7 @@
 #include "board/smaug/input.h"
 #include "drivers/gpio/sysinfo.h"
 #include "drivers/gpio/tegra210.h"
+#include "drivers/timer/timer.h"
 
 /* GPIOs for reading status of buttons */
 static GpioOps *pwr_btn_gpio, *vol_down_gpio, *vol_up_gpio;

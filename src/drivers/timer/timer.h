@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,16 +20,13 @@
  * MA 02111-1307 USA
  */
 
+#ifndef __DRIVERS_TIMER_TIMER_H__
+#define __DRIVERS_TIMER_TIMER_H__
+
 #include <stdint.h>
 
-#include "drivers/timer/timer.h"
+uint64_t timer_hz(void);
+uint64_t timer_raw_value(void);
+uint64_t timer_us(uint64_t base);
 
-uint64_t timer_hz(void)
-{
-	return 0;
-}
-
-uint64_t timer_raw_value(void)
-{
-	return 0;
-}
+#endif /* __DRIVERS_TIMER_TIMER_H__ */

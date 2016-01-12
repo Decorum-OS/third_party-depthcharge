@@ -25,10 +25,10 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
 #include <stdint.h>
 
 #include "base/io.h"
+#include "drivers/timer/timer.h"
 
 struct __attribute__((packed)) mct_regs
 {

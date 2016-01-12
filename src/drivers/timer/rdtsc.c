@@ -35,6 +35,8 @@
 #include <libpayload.h>
 #include <arch/rdtsc.h>
 
+#include "drivers/timer/timer.h"
+
 static void set_cpu_speed(void)
 {
 	const uint32_t clock_rate = 1193182; // 1.193182 MHz

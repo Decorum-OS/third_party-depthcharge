@@ -22,6 +22,7 @@
 #include "drivers/bus/i2s/i2s.h"
 #include "drivers/bus/i2s/broadwell/broadwell-regs.h"
 #include "drivers/bus/i2s/broadwell/broadwell.h"
+#include "drivers/timer/timer.h"
 
 static void init_shim_csr(BdwI2s *bus)
 {

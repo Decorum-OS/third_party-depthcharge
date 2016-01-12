@@ -20,6 +20,7 @@
 #include <libpayload.h>
 
 #include "debug/gdb/gdb.h"
+#include "drivers/timer/timer.h"
 
 /* MMIO word size is not standardized, but *usually* 32 (even on ARM64) */
 typedef uint32_t mmio_word_t;

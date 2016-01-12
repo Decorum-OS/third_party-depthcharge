@@ -29,6 +29,7 @@
 #include "base/xalloc.h"
 #include "drivers/storage/blockdev.h"
 #include "drivers/storage/sdhci.h"
+#include "drivers/timer/timer.h"
 
 static void sdhci_reset(SdhciHost *host, uint8_t mask)
 {

@@ -30,6 +30,7 @@
 #include "base/xalloc.h"
 #include "drivers/bus/i2s/i2s.h"
 #include "drivers/sound/i2s.h"
+#include "drivers/timer/timer.h"
 
 // Generates square wave sound data for 1 second.
 static void sound_square_wave(uint16_t *data, int channels,

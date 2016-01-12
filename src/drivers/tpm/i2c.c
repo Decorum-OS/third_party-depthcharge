@@ -38,6 +38,7 @@
 #include <libpayload.h>
 
 #include "drivers/bus/i2c/i2c.h"
+#include "drivers/timer/timer.h"
 #include "drivers/tpm/i2c.h"
 #include "drivers/tpm/tpm.h"
 

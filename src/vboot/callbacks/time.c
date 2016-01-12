@@ -24,6 +24,7 @@
 #include <vboot_api.h>
 
 #include "drivers/sound/sound.h"
+#include "drivers/timer/timer.h"
 
 uint64_t VbExGetTimer(void)
 {

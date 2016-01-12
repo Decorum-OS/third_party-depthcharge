@@ -36,6 +36,7 @@
 #include "drivers/bus/spi/spi.h"
 #include "drivers/ec/cros/ec.h"
 #include "drivers/ec/cros/spi.h"
+#include "drivers/timer/timer.h"
 
 // How long we have to leave CS deasserted between transactions.
 static const uint64_t CsCooldownUs = 200;

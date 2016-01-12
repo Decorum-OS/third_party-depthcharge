@@ -23,6 +23,7 @@
 #include "base/xalloc.h"
 #include "drivers/bus/i2c/exynos5_usi.h"
 #include "drivers/bus/i2c/i2c.h"
+#include "drivers/timer/timer.h"
 
 typedef struct __attribute__ ((packed)) UsiI2cRegs {
 	uint32_t usi_ctl;

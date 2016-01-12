@@ -36,6 +36,7 @@
 #include "base/cleanup_funcs.h"
 #include "base/io.h"
 #include "base/xalloc.h"
+#include "drivers/timer/timer.h"
 #include "drivers/tpm/lpc.h"
 
 typedef struct {
