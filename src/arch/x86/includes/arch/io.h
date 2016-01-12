@@ -31,7 +31,7 @@
 #ifndef _ARCH_IO_H
 #define _ARCH_IO_H
 
-#include <inttypes.h>
+#include <stdint.h>
 
 /*
  * readb/w/l writeb/w/l are deprecated. use read8/16/32 and write8/16/32

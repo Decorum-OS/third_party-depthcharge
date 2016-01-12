@@ -32,7 +32,7 @@
 #include <libpayload.h>
 #include <string.h>
 #include <ctype.h>
-#include <inttypes.h>
+#include <stdint.h>
 
 /**
  * Calculate the length of a fixed-size string.
