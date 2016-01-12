@@ -35,6 +35,7 @@
 #include "ehci.h"
 #include "ehci_private.h"
 
+#include "base/die.h"
 #include "base/xalloc.h"
 
 static void dump_td(uint32_t addr)
@@ -581,7 +582,7 @@ static void *ehci_create_intr_queue(
 	 */
 	uint8_t *data = (uint8_t *)dma_malloc(reqsize * (reqcount + 1));
 	if (!intrq || !data)
-		fatal("Not enough memory to create USB interrupt queue.\n");
+		die("Not enough memory to create USB interrupt queue.\n");
 	intrq->data = data;
 	intrq->endp = ep;
 	intrq->reqsize = reqsize;
@@ -765,12 +766,12 @@ ehci_init (unsigned long physical_bar)
 	uint32_t *const periodic_list =
 		(uint32_t *)dma_memalign(4096, 1024 * sizeof(uint32_t));
 	if (!periodic_list)
-		fatal("Not enough memory creating EHCI periodic frame list.\n");
+		die("Not enough memory creating EHCI periodic frame list.\n");
 
 	if (dma_initialized()) {
 		EHCI_INST(controller)->dma_buffer = dma_memalign(4096, DMA_SIZE);
 		if (!EHCI_INST(controller)->dma_buffer)
-			fatal("Not enough DMA memory for EHCI bounce buffer.\n");
+			die("Not enough DMA memory for EHCI bounce buffer.\n");
 	}
 
 	/*

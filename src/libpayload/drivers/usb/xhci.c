@@ -34,6 +34,7 @@
 #include "xhci_private.h"
 #include "xhci.h"
 
+#include "base/die.h"
 #include "base/xalloc.h"
 
 static void xhci_start (hci_t *controller);
@@ -307,7 +308,7 @@ xhci_pci_init (pcidev_t addr)
 
 	reg_addr = pci_read_config32 (addr, 0x10) & ~0xf;
 	if (pci_read_config32 (addr, 0x14) > 0) {
-		fatal("We don't do 64bit addressing.\n");
+		die("We don't do 64bit addressing.\n");
 	}
 
 	controller = xhci_init((unsigned long)reg_addr);

@@ -23,6 +23,7 @@
 #include "dwc2.h"
 #include "dwc2_private.h"
 
+#include "base/die.h"
 #include "base/xalloc.h"
 
 static void dummy(hci_t *controller)
@@ -53,7 +54,7 @@ static void dwc2_reinit(hci_t *controller)
 			break;
 	}
 	if (i == timeout)
-		fatal("DWC2 Init error AHB Idle\n");
+		die("DWC2 Init error AHB Idle\n");
 
 	/* Restart the Phy Clock */
 	writel(0x0, &reg->pcgr.pcgcctl);
@@ -67,7 +68,7 @@ static void dwc2_reinit(hci_t *controller)
 			break;
 	}
 	if (i == timeout)
-		fatal("DWC2 Init error reset fail\n");
+		die("DWC2 Init error reset fail\n");
 
 	/* Set 16bit PHY if & Force host mode */
 	gusbcfg.d32 = readl(&reg->core.gusbcfg);
@@ -83,7 +84,7 @@ static void dwc2_reinit(hci_t *controller)
 			break;
 	}
 	if (i == timeout)
-		fatal("DWC2 Init error force host mode fail\n");
+		die("DWC2 Init error force host mode fail\n");
 
 	/*
 	 * Config FIFO

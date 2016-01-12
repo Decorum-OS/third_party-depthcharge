@@ -33,6 +33,8 @@
 #include <usb/usbmsc.h>
 #include <usb/usbdisk.h>
 
+#include "base/die.h"
+
 enum {
 	msc_subclass_rbc = 0x1,
 	msc_subclass_mmc2 = 0x2,
@@ -627,7 +629,7 @@ usb_msc_init (usbdev_t *dev)
 
 	dev->data = malloc (sizeof (usbmsc_inst_t));
 	if (!dev->data)
-		fatal("Not enough memory for USB MSC device.\n");
+		die("Not enough memory for USB MSC device.\n");
 
 	MSC_INST (dev)->bulk_in = 0;
 	MSC_INST (dev)->bulk_out = 0;

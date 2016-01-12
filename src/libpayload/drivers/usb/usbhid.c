@@ -32,6 +32,8 @@
 #include <keycodes.h>
 #include <usb/usb.h>
 
+#include "base/die.h"
+
 enum { hid_subclass_none = 0, hid_subclass_boot = 1 };
 typedef enum { hid_proto_boot = 0, hid_proto_report = 1 } hid_proto;
 enum { hid_boot_proto_none = 0, hid_boot_proto_keyboard =
@@ -434,7 +436,7 @@ usb_hid_init (usbdev_t *dev)
 		case hid_boot_proto_keyboard:
 			dev->data = malloc (sizeof (usbhid_inst_t));
 			if (!dev->data)
-				fatal("Not enough memory for USB HID device.\n");
+				die("Not enough memory for USB HID device.\n");
 			memset(&HID_INST(dev)->previous, 0x00,
 			       sizeof(HID_INST(dev)->previous));
 			usb_debug ("  configuring...\n");

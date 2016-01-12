@@ -102,17 +102,6 @@ uint8_t hex2bin(uint8_t h)
 	        ('a' <= h && h <= 'f') ? (h - 'a' + 10) : 0);
 }
 
-/**
- * Enters HALT state, after printing msg
- *
- * @param msg message to print
- */
-void fatal(const char *msg)
-{
-	fprintf(stderr, "%s",msg);
-	halt();
-}
-
 void exit(int status)
 {
 	printf("exited with status %d\n", status);

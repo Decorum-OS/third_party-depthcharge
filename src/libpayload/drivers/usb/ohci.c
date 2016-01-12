@@ -33,6 +33,7 @@
 #include "ohci_private.h"
 #include "ohci.h"
 
+#include "base/die.h"
 #include "base/xalloc.h"
 
 static void ohci_start (hci_t *controller);
@@ -217,7 +218,7 @@ ohci_init (unsigned long physical_bar)
 	if (dma_initialized()) {
 		OHCI_INST(controller)->dma_buffer = dma_memalign(4096, DMA_SIZE);
 		if (!OHCI_INST(controller)->dma_buffer)
-			fatal("Not enough DMA memory for OHCI bounce buffer.\n");
+			die("Not enough DMA memory for OHCI bounce buffer.\n");
 	}
 
 	/* Initialize interrupt table. */

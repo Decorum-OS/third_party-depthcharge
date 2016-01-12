@@ -33,6 +33,7 @@
 #include "uhci.h"
 #include "uhci_private.h"
 
+#include "base/die.h"
 #include "base/xalloc.h"
 
 static void uhci_start (hci_t *controller);
@@ -168,7 +169,7 @@ uhci_pci_init (pcidev_t addr)
 
 	UHCI_INST (controller)->framelistptr = memalign (0x1000, 1024 * sizeof (flistp_t));	/* 4kb aligned to 4kb */
 	if (! UHCI_INST (controller)->framelistptr)
-		fatal("Not enough memory for USB frame list pointer.\n");
+		die("Not enough memory for USB frame list pointer.\n");
 
 	memset (UHCI_INST (controller)->framelistptr, 0,
 		1024 * sizeof (flistp_t));
@@ -182,7 +183,7 @@ uhci_pci_init (pcidev_t addr)
 	   */
 	td_t *antiberserk = memalign(16, sizeof(td_t));
 	if (!antiberserk)
-		fatal("Not enough memory for chipset workaround.\n");
+		die("Not enough memory for chipset workaround.\n");
 	memset(antiberserk, 0, sizeof(td_t));
 
 	UHCI_INST (controller)->qh_prei = memalign (16, sizeof (qh_t));
@@ -194,7 +195,7 @@ uhci_pci_init (pcidev_t addr)
 	    ! UHCI_INST (controller)->qh_intr ||
 	    ! UHCI_INST (controller)->qh_data ||
 	    ! UHCI_INST (controller)->qh_last)
-		fatal("Not enough memory for USB controller queues.\n");
+		die("Not enough memory for USB controller queues.\n");
 
 	UHCI_INST (controller)->qh_prei->headlinkptr =
 		(uintptr_t)UHCI_INST (controller)->qh_intr | FLISTP_QH;
@@ -418,7 +419,7 @@ uhci_bulk (endpoint_t *ep, int size, uint8_t *data, int finalize)
 {
 	int maxpsize = ep->maxpacketsize;
 	if (maxpsize == 0)
-		fatal("MaxPacketSize == 0!!!");
+		die("MaxPacketSize == 0!!!");
 	int numpackets = (size + maxpsize - 1) / maxpsize;
 	if (finalize && ((size % maxpsize) == 0)) {
 		numpackets++;
@@ -462,13 +463,13 @@ uhci_create_intr_queue (endpoint_t *ep, int reqsize, int reqcount, int reqtiming
 	qh_t *qh = memalign(16, sizeof(qh_t));
 
 	if (!data || !tds || !qh)
-		fatal("Not enough memory to create USB intr queue prerequisites.\n");
+		die("Not enough memory to create USB intr queue prerequisites.\n");
 
 	qh->elementlinkptr = (uintptr_t)tds;
 
 	intr_q *q = malloc(sizeof(intr_q));
 	if (!q)
-		fatal("Not enough memory to create USB intr queue.\n");
+		die("Not enough memory to create USB intr queue.\n");
 	q->qh = qh;
 	q->tds = tds;
 	q->data = data;

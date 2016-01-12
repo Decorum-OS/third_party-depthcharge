@@ -30,6 +30,8 @@
 #include <inttypes.h>
 #include "xhci_private.h"
 
+#include "base/die.h"
+
 trb_t *
 xhci_next_command_trb(xhci_t *const xhci)
 {
@@ -80,7 +82,7 @@ xhci_wait_for_command(xhci_t *const xhci,
 	cc = xhci_wait_for_command_aborted(xhci, cmd_trb);
 
 	if (xhci->opreg->crcr_lo & CRCR_CRR)
-		fatal("xhci_wait_for_command: Command ring still running\n");
+		die("xhci_wait_for_command: Command ring still running\n");
 
 	return cc;
 }
