@@ -24,6 +24,7 @@
 #include <vboot_api.h>
 #include <vboot/util/flag.h>
 
+#include "debug/gdb/gdb.h"
 #include "debug/netboot.h"
 #include "drivers/timer/timer.h"
 

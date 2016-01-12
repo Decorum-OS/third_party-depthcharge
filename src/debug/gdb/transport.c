@@ -19,7 +19,7 @@
 #include <endian.h>
 #include <libpayload.h>
 
-#include "debug/gdb/gdb.h"
+#include "debug/gdb/gdb_int.h"
 #include "drivers/timer/timer.h"
 
 /* MMIO word size is not standardized, but *usually* 32 (even on ARM64) */

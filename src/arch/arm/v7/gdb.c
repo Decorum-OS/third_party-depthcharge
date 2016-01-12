@@ -19,7 +19,7 @@
 #include <exception.h>
 #include <libpayload.h>
 
-#include "debug/gdb/gdb.h"
+#include "debug/gdb/gdb_int.h"
 
 typedef struct __attribute__((packed))
 {

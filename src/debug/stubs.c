@@ -19,6 +19,8 @@
 
 #include <stdint.h>
 
+#include "debug/gdb/gdb.h"
+
 /*
  * These stubs are linked for debug-related functions in non-developer builds
  * to ensure that those features do not work. Developer builds will override

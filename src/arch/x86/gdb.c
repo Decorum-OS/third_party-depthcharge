@@ -19,7 +19,7 @@
 #include <exception.h>
 #include <libpayload.h>
 
-#include "debug/gdb/gdb.h"
+#include "debug/gdb/gdb_int.h"
 
 static const uint8_t type_to_signal[] = {
 	[EXC_DE]  = GDB_SIGFPE,

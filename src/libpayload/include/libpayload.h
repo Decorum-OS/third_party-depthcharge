@@ -293,9 +293,4 @@ void delay(unsigned int n);
 /* Defined in arch/${ARCH}/selfboot.c */
 void selfboot(void *entry);
 
-/* Enter remote GDB mode. Will initialize connection if not already up. */
-void gdb_enter(void);
-/* Disconnect existing GDB connection if one exists. */
-void gdb_exit(int8_t exit_status);
-
 #endif
