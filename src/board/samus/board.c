@@ -49,42 +49,29 @@
 #include "drivers/video/intel_i915.h"
 #include "vboot/util/flag.h"
 
-enum {
-	/* Power Control and Status to enable/disable D3Hot */
-	PCH_REG_PCS = 0x84,
-	PCH_VAL_PCS_D3HOT = 3,
-
-	/* Power register to enable and disable clock */
-	SIO_REG_PPR_CLOCK = 0x800,
-	SIO_BIT_PPR_CLOCK_EN = (1 << 0),
-
-	/* 400 KHz bus speed */
-	I2C_BUS_SPEED = 400000,
-};
-
-/* Put device in D0 state */
+// Put device in D0 state.
 static void device_enable(int sio_index)
 {
 	device_nvs_t *nvs = lib_sysinfo.acpi_gnvs + DEVICE_NVS_OFFSET;
-	uint32_t reg_pcs = nvs->bar1[sio_index] + PCH_REG_PCS;
+	uint32_t reg_pcs = nvs->bar1[sio_index] + 0x84;
 
-	/* Put device in D0 state */
-	writel(readl(reg_pcs) & ~PCH_VAL_PCS_D3HOT, reg_pcs);
+	// Put device in D0 state. Disable D3Hot.
+	writel(readl(reg_pcs) & ~3, reg_pcs);
 	(void)readl(reg_pcs);
 }
 
 static DesignwareI2c *i2c_enable(int sio_index)
 {
 	device_nvs_t *nvs = lib_sysinfo.acpi_gnvs + DEVICE_NVS_OFFSET;
-	uint32_t reg_ppr = nvs->bar0[sio_index] + SIO_REG_PPR_CLOCK;
+	uint32_t ppr_clock = nvs->bar0[sio_index] + 0x800;
 
 	device_enable(sio_index);
 
-	/* Enable clock to the device */
-	writel(readl(reg_ppr) | SIO_BIT_PPR_CLOCK_EN, reg_ppr);
-	(void)readl(reg_ppr);
+	// Enable clock to the device.
+	writel(readl(ppr_clock) | (1 << 0), ppr_clock);
+	(void)readl(ppr_clock);
 
-	return new_designware_i2c(nvs->bar0[sio_index], I2C_BUS_SPEED);
+	return new_designware_i2c(nvs->bar0[sio_index], 400000);
 }
 
 static BdwI2s *i2s_enable(int ssp)
@@ -117,7 +104,7 @@ static int board_setup(void)
 
 	tpm_set_ops(&new_lpc_tpm((void *)(uintptr_t)0xfed40000)->ops);
 
-	/* Setup sound route via I2S to RT5677 codec */
+	// Setup sound route via I2S to RT5677 codec.
 	BdwI2s *i2s = i2s_enable(0);
 	I2sSource *i2s_source = new_i2s_source(&i2s->ops, 48000, 2, 16000);
 	SoundRoute *sound_route = new_sound_route(&i2s_source->ops);
