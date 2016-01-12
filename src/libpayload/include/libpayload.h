@@ -68,18 +68,6 @@ static inline uint32_t div_round_up(uint32_t n, uint32_t d)
 	return (n + d - 1) / d;
 }
 
-/*
- * Payload information parameters - these are used to pass information
- * to the entity loading the payload.
- * Usage:   PAYLOAD_INFO(key, value)
- * Example: PAYLOAD_INFO(name, "CoreInfo!")
- */
-#define _pstruct(key) __pinfo_ ##key
-#define PAYLOAD_INFO(key, value)                                        \
-static const char _pstruct(key)[]                                        \
-  __attribute__((__used__))                                              \
-  __attribute__((section(".note.pinfo"),unused)) = #key "=" value
-
 /**
  * @defgroup nvram NVRAM and RTC functions
  * @{
