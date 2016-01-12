@@ -33,11 +33,6 @@
 unsigned long loader_eax;  /**< The value of EAX passed from the loader */
 unsigned long loader_ebx;  /**< The value of EBX passed from the loader */
 
-unsigned int main_argc;    /**< The argc value to pass to main() */
-
-/** The argv value to pass to main() */
-char *main_argv[MAX_ARGC_COUNT];
-
 /**
  * This is our C entry function - set up the system
  * and jump into the payload entry point.
@@ -62,7 +57,7 @@ void start_main(void)
 	 * In the future we may care about the return value.
 	 */
 
-	(void) main(main_argc, (main_argc != 0) ? main_argv : NULL);
+	(void)main(0, NULL);
 
 	/*
 	 * Returning here will go to the _leave function to return

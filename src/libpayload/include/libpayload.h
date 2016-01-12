@@ -68,8 +68,6 @@ static inline uint32_t div_round_up(uint32_t n, uint32_t d)
 	return (n + d - 1) / d;
 }
 
-#define MAX_ARGC_COUNT 10
-
 /*
  * Payload information parameters - these are used to pass information
  * to the entity loading the payload.
