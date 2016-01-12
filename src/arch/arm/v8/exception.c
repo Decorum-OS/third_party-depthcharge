@@ -72,7 +72,6 @@ static void print_regs(struct exception_state *state)
 	}
 }
 
-void exception_dispatch(struct exception_state *state, int idx);
 void exception_dispatch(struct exception_state *state, int idx)
 {
 	exception_state = state;

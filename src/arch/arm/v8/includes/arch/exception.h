@@ -32,14 +32,15 @@
 
 #include <stdint.h>
 
-void set_vbar(void* vbar);
-
 struct exception_state
 {
 	uint64_t elr;
 	uint64_t esr;
 	uint64_t regs[31];
 } __attribute__((packed));
+
+void exception_dispatch(struct exception_state *state, int idx);
+void set_vbar(void* vbar);
 
 extern struct exception_state *exception_state;
 
