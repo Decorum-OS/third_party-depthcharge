@@ -1,0 +1,23 @@
+#!/usr/bin/python
+
+import optparse
+import importlib
+
+parser = optparse.OptionParser()
+parser.add_option("--board", "-b", dest="board", default=None,
+		  help="Name of the board this image is for")
+
+def main():
+  (options, _) = parser.parse_args()
+  if not options.board:
+    raise RuntimeError("No board specified")
+
+  board = importlib.import_module(".%s" % options.board, "boards")
+  image = board.Image()
+
+  out = open("out.bin", "wb")
+  out.write(image.build())
+  out.close()
+
+if __name__ == '__main__':
+  main()
