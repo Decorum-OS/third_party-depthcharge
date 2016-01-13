@@ -35,32 +35,60 @@ link_config_options := \
 
 
 
-bootplan-handler= \
-	$(eval bp-$2: $$$$(foreach mod,$$$$(bp-$2-modules),$$(obj)/module/$$$$(mod))) \
-	$(eval bp-$2: $$$$(bp-$2-images)) \
-	$(eval .PHONY: bp-$2) \
-	$(eval bootplans: bp-$2)
-
-.PHONY: bootplans
-all: bootplans
-
-$(call add-special-class,bootplan)
+image_obj=$(obj)/image
 
 
 
+.PHONY: images
+all: images
 
-bootplan-$(CONFIG_BOOTPLAN_CB_SPLIT_PAYLOAD) += cb_split_payload_dev
-bp-cb_split_payload_dev-modules += cb_dev_ro.bin
-bp-cb_split_payload_dev-modules += cb_dev_rw.bin
+image-handler=$(eval images: $(image_obj)/$2)
 
-bootplan-$(CONFIG_BOOTPLAN_CB_SPLIT_PAYLOAD) += cb_split_payload
-bp-cb_split_payload-modules += cb_readonly.bin
-bp-cb_split_payload-modules += cb_readwrite.bin
-bp-cb_split_payload-modules += netboot.bin
+$(call add-special-class,image)
 
-bootplan-$(CONFIG_BOOTPLAN_CB_PAYLOAD) += cb_payload_dev
-bp-cb_payload_dev-modules += cb_dev.payload
 
-bootplan-$(CONFIG_BOOTPLAN_CB_PAYLOAD) += cb_payload
-bp-cb_payload-modules += cb_payload.payload
-bp-cb_payload-modules += netboot.payload
+
+ifeq ($(CONFIG_BOOTPLAN_CB_SPLIT_PAYLOAD),y)
+
+image-y += depthcharge.ro.elf depthcharge.ro.bin \
+	depthcharge.rw.elf depthcharge.rw.bin \
+	dev.ro.bin dev.ro.elf dev.rw.bin dev.rw.elf
+
+$(image_obj)/depthcharge.ro.%: $$(module_obj)/cb_readonly.$$*
+	@printf "    CP         $(subst $(obj)/,,$@)\n"
+	$(Q)cp $< $@
+
+$(image_obj)/depthcharge.rw.%: $$(module_obj)/cb_readwrite.$$*
+	@printf "    CP         $(subst $(obj)/,,$@)\n"
+	$(Q)cp $< $@
+
+$(image_obj)/dev.ro.%: $$(module_obj)/cb_dev_ro.$$*
+	@printf "    CP         $(subst $(obj)/,,$@)\n"
+	$(Q)cp $< $@
+
+$(image_obj)/dev.rw.%: $$(module_obj)/cb_dev_rw.$$*
+	@printf "    CP         $(subst $(obj)/,,$@)\n"
+	$(Q)cp $< $@
+
+endif # CONFIG_BOOTPLAN_CB_SPLIT_PAYLOAD
+
+
+
+ifeq ($(CONFIG_BOOTPLAN_CB_PAYLOAD),y)
+
+image-y += depthcharge.elf depthcharge.payload \
+	dev.elf dev.payload netboot.elf netboot.payload
+
+$(image_obj)/depthcharge.%: $$(module_obj)/cb_payload.$$*
+	@printf "    CP         $(subst $(obj)/,,$@)\n"
+	$(Q)cp $< $@
+
+$(image_obj)/dev.%: $$(module_obj)/cb_dev.$$*
+	@printf "    CP         $(subst $(obj)/,,$@)\n"
+	$(Q)cp $< $@
+
+$(image_obj)/netboot.%: $$(module_obj)/netboot.$$*
+	@printf "    CP         $(subst $(obj)/,,$@)\n"
+	$(Q)cp $< $@
+
+endif # CONFIG_BOOTPLAN_CB_PAYLOAD
