@@ -18,7 +18,7 @@
 readonly-y += startrw.c
 trampoline-y += load_elf.c
 
-LDSCRIPT = $(src)/src/module/depthcharge.ldscript
+DEFAULT_LDSCRIPT = $(src)/src/module/depthcharge.ldscript
 
 # These options are passed from .config to the linker script. When making
 # changes, update Kconfig as well.
@@ -46,7 +46,8 @@ module_obj=$(obj)/module
 # the module is set up.
 $(module_obj)/%.elf.tmp:
 	@printf "    LD         $(subst $(obj)/,,$@)\n"
-	$(Q)$(CC) $(LINK_FLAGS) -o $@ $+ $(mod-$*-ldopts) $(LIBGCC)
+	$(Q)$(CC) $(LINK_FLAGS) -Wl,-T,$(mod-$*-ldscript) -o $@ $+ \
+		$(mod-$*-ldopts) $(LIBGCC)
 
 
 # The default post processing of an ELF module strips out the .cparams,
@@ -89,9 +90,11 @@ $(module_obj)/%.payload: $(module_obj)/%.elf
 module-handler= \
 	$(call add-class,mod-$2) \
 	$(eval $(module_obj)/$2.elf.tmp: $$$$(mod-$2-objs)) \
-	$(eval $(module_obj)/$2.elf.tmp: $$$$(mod-$2-libs))
+	$(eval $(module_obj)/$2.elf.tmp: $$$$(mod-$2-libs)) \
+	$(eval mod-$2-ldscript ?= $$(DEFAULT_LDSCRIPT))
 
 $(call add-special-class,module)
+
 
 
 DONT_GC_NETBOOT = -Wl,-u,netboot_entry
