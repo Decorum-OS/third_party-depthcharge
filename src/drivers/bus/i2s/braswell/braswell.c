@@ -24,7 +24,7 @@
 #include "base/xalloc.h"
 #include "drivers/bus/i2s/i2s.h"
 #include "drivers/bus/i2s/braswell/braswell.h"
-#include "drivers/bus/i2s/braswell/braswell-regs.h"
+#include "drivers/bus/i2s/braswell/regs.h"
 #include "drivers/timer/timer.h"
 
 /* ssacd LUT */

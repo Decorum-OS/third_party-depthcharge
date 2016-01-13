@@ -25,7 +25,7 @@
 #include "board/daisy/i2c_arb.h"
 #include "boot/fit.h"
 #include "drivers/bus/i2c/s3c24x0.h"
-#include "drivers/bus/i2s/exynos5.h"
+#include "drivers/bus/i2s/exynos5/exynos5.h"
 #include "drivers/bus/i2s/i2s.h"
 #include "drivers/bus/spi/exynos5.h"
 #include "drivers/bus/usb/usb.h"

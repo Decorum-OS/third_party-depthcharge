@@ -1,7 +1,7 @@
 /*
  * Copyright 2013 Google Inc.  All rights reserved.
  *
- * tegra-regs.h - Definitions for Tegra124 I2S driver.
+ * regs.h - Definitions for Tegra124 I2S driver.
  * Note, some structures (ex, CIF) are different in Tegra114.
  *
  * Copyright (c) 2011-2013, NVIDIA CORPORATION.  All rights reserved.
@@ -214,4 +214,4 @@ enum {
 	I2S_FLOW_STATUS_MONITOR_EN = 1 << 0,
 };
 
-#endif // __DRIVERS_BUS_I2S_TEGRA_REGS_H__
+#endif /* __DRIVERS_BUS_I2S_TEGRA_REGS_H__ */

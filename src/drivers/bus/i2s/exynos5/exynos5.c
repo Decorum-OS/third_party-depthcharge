@@ -26,8 +26,8 @@
 
 #include "base/container_of.h"
 #include "base/xalloc.h"
-#include "drivers/bus/i2s/exynos5.h"
-#include "drivers/bus/i2s/exynos5-regs.h"
+#include "drivers/bus/i2s/exynos5/exynos5.h"
+#include "drivers/bus/i2s/exynos5/regs.h"
 #include "drivers/bus/i2s/i2s.h"
 
 typedef struct __attribute__((packed)) Exynos5I2sRegs {

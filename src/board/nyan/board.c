@@ -28,7 +28,7 @@
 #include "boot/fit.h"
 #include "boot/ramoops.h"
 #include "drivers/bus/i2c/tegra.h"
-#include "drivers/bus/i2s/tegra.h"
+#include "drivers/bus/i2s/tegra/tegra.h"
 #include "drivers/bus/spi/tegra.h"
 #include "drivers/bus/usb/usb.h"
 #include "drivers/ec/cros/spi.h"

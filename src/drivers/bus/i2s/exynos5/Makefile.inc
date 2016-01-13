@@ -1,5 +1,5 @@
 ##
-## Copyright 2015 Google Inc.
+## Copyright 2016 Google Inc.
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -15,5 +15,4 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-depthcharge-$(CONFIG_DRIVER_BUS_I2S_BROADWELL) += broadwell.c
-depthcharge-$(CONFIG_DRIVER_BUS_I2S_BROADWELL_ALC5677) += alc5677.c
+depthcharge-$(CONFIG_DRIVER_BUS_I2S_EXYNOS5) += exynos5.c

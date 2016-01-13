@@ -20,7 +20,7 @@
  * MA 02111-1307 USA
  */
 
-#include "drivers/bus/i2s/braswell/braswell-max98090.h"
+#include "drivers/bus/i2s/braswell/max98090.h"
 
 /* Braswell I2S controller settings for MAX98090 codec. */
 const BswI2sSettings braswell_max98090_settings = {

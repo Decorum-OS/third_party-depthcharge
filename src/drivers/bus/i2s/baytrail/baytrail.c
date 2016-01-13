@@ -24,7 +24,7 @@
 #include "base/xalloc.h"
 #include "drivers/bus/i2s/i2s.h"
 #include "drivers/bus/i2s/baytrail/baytrail.h"
-#include "drivers/bus/i2s/baytrail/baytrail-regs.h"
+#include "drivers/bus/i2s/baytrail/regs.h"
 #include "drivers/timer/timer.h"
 
 /* ssacd LUT */

@@ -23,7 +23,7 @@
 #include "base/init_funcs.h"
 #include "boot/fit.h"
 #include "drivers/bus/i2c/exynos5_usi.h"
-#include "drivers/bus/i2s/exynos5.h"
+#include "drivers/bus/i2s/exynos5/exynos5.h"
 #include "drivers/bus/spi/exynos5.h"
 #include "drivers/bus/usb/exynos.h"
 #include "drivers/bus/usb/usb.h"

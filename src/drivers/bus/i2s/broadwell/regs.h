@@ -15,8 +15,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef __DRIVERS_BUS_I2S_BROADWELL_BROADWELL_REGS_H__
-#define __DRIVERS_BUS_I2S_BROADWELL_BROADWELL_REGS_H__
+#ifndef __DRIVERS_BUS_I2S_BROADWELL_REGS_H__
+#define __DRIVERS_BUS_I2S_BROADWELL_REGS_H__
 
 /* SHIM Configuration & Status */
 enum {
@@ -270,4 +270,4 @@ enum {
 
 #define SSP_SSTSA(x) (SSP_SSTSA_MASK & (x))
 
-#endif
+#endif /* __DRIVERS_BUS_I2S_BROADWELL_REGS_H__ */

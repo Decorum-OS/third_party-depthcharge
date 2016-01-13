@@ -28,8 +28,8 @@
 #include "base/container_of.h"
 #include "base/xalloc.h"
 #include "drivers/bus/i2s/i2s.h"
-#include "drivers/bus/i2s/tegra.h"
-#include "drivers/bus/i2s/tegra-regs.h"
+#include "drivers/bus/i2s/tegra/regs.h"
+#include "drivers/bus/i2s/tegra/tegra.h"
 
 static void tegra_i2s_transmit_enable(TegraI2sRegs *regs, int on)
 {

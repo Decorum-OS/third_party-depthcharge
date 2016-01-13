@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Google Inc.  All rights reserved.
+ * Copyright 2013 Google Inc.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,28 +15,34 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA, 02110-1301 USA
  */
 
-#ifndef __DRIVERS_BUS_I2S_EXYNOS5_H__
-#define __DRIVERS_BUS_I2S_EXYNOS5_H__
+#ifndef __DRIVERS_BUS_I2S_TEGRA_TEGRA_H__
+#define __DRIVERS_BUS_I2S_TEGRA_TEGRA_H__
 
 #include "drivers/bus/i2s/i2s.h"
+#include "drivers/common/fifo.h"
 
-typedef struct
-{
+struct TegraI2sRegs;
+typedef struct {
 	I2sOps ops;
 
-	void *regs;
+	struct TegraI2sRegs *regs;
+	TxFifoOps *fifo;
 
 	int initialized;
-
 	int bits_per_sample;
 	int channels;
-	int lr_frame_size;
-} Exynos5I2s;
 
-Exynos5I2s *new_exynos5_i2s(uintptr_t regs, int bits_per_sample,
-			    int channels, int lr_frame_size);
+	int id;
+	uint32_t clock_freq;
+	uint32_t sampling_rate;
+} TegraI2s;
 
-Exynos5I2s *new_exynos5_i2s_multi(uintptr_t regs, int bits_per_sample,
-				  int channels, int lr_frame_size);
+TegraI2s *new_tegra_i2s(uintptr_t regs, TxFifoOps *fifo, int id,
+			int bits_per_sample, int channels, uint32_t clock_freq,
+			uint32_t sampling_rate);
 
-#endif /* __DRIVERS_BUS_I2S_EXYNOS5_H__ */
+// Sets the client interface value when an I2S peripheral is integrated into
+// audio hub.
+int tegra_i2s_set_cif_tx_ctrl(TegraI2s *i2s, uint32_t value);
+
+#endif /* __DRIVERS_BUS_I2S_TEGRA_TEGRA_H__ */

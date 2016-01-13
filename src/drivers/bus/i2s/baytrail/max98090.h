@@ -20,11 +20,11 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __DRIVERS_BUS_I2S_BAYTRAIL_BAYTRAIL_MAX98090_H__
-#define __DRIVERS_BUS_I2S_BAYTRAIL_BAYTRAIL_MAX98090_H__
+#ifndef __DRIVERS_BUS_I2S_BAYTRAIL_MAX98090_H__
+#define __DRIVERS_BUS_I2S_BAYTRAIL_MAX98090_H__
 
 #include "drivers/bus/i2s/baytrail/baytrail.h"
 
 extern const BytI2sSettings baytrail_max98090_settings;
 
-#endif
+#endif /* __DRIVERS_BUS_I2S_BAYTRAIL_MAX98090_H__ */

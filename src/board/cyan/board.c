@@ -25,7 +25,7 @@
 #include "base/init_funcs.h"
 #include "board/cyan/device_nvs.h"
 #include "drivers/bus/i2c/designware.h"
-#include "drivers/bus/i2s/braswell/braswell-max98090.h"
+#include "drivers/bus/i2s/braswell/max98090.h"
 #include "drivers/ec/cros/lpc.h"
 #include "drivers/flash/flash.h"
 #include "drivers/flash/memmapped.h"

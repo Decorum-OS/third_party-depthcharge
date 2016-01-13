@@ -20,7 +20,7 @@
  * MA 02111-1307 USA
  */
 
-#include "drivers/bus/i2s/baytrail/baytrail-max98090.h"
+#include "drivers/bus/i2s/baytrail/max98090.h"
 
 /* Baytrail I2S controller settings for MAX98090 codec. */
 const BytI2sSettings baytrail_max98090_settings = {

@@ -19,8 +19,8 @@
   * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
   */
 
-#ifndef __DRIVERS_BUS_I2S_BAYTRAIL_BAYTRAIL_REGS_H__
-#define __DRIVERS_BUS_I2S_BAYTRAIL_BAYTRAIL_REGS_H__
+#ifndef __DRIVERS_BUS_I2S_BAYTRAIL_REGS_H__
+#define __DRIVERS_BUS_I2S_BAYTRAIL_REGS_H__
 
 #include <libpayload.h>
 
@@ -366,4 +366,4 @@ typedef struct BytI2sRegs {
 } __attribute__ ((packed)) BytI2sRegs;
 
 
-#endif
+#endif /* __DRIVERS_BUS_I2S_BAYTRAIL_REGS_H__ */

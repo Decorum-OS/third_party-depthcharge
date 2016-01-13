@@ -16,7 +16,7 @@
 #ifndef __DRIVERS_SOUND_TEGRA_AHUB_H__
 #define __DRIVERS_SOUND_TEGRA_AHUB_H__
 
-#include "drivers/bus/i2s/tegra.h"
+#include "drivers/bus/i2s/tegra/tegra.h"
 #include "drivers/common/fifo.h"
 #include "drivers/sound/route.h"
 

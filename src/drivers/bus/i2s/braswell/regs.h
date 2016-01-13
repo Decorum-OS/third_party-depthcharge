@@ -19,8 +19,8 @@
   * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
   */
 
-#ifndef __DRIVERS_BUS_I2S_BRASWELL_BRASWELL_REGS_H__
-#define __DRIVERS_BUS_I2S_BRASWELL_BRASWELL_REGS_H__
+#ifndef __DRIVERS_BUS_I2S_BRASWELL_REGS_H__
+#define __DRIVERS_BUS_I2S_BRASWELL_REGS_H__
 
 #include <libpayload.h>
 
@@ -365,4 +365,4 @@ typedef struct BswI2sRegs {
 	uint32_t asrc_frmcnt;
 } __attribute__ ((packed)) BswI2sRegs;
 
-#endif
+#endif /* __DRIVERS_BUS_I2S_BRASWELL_REGS_H__ */

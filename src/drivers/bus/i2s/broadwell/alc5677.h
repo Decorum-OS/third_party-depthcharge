@@ -15,15 +15,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "drivers/bus/i2s/broadwell/broadwell-alc5677.h"
+#ifndef __DRIVERS_BUS_I2S_BROADWELL_ALC5677_H__
+#define __DRIVERS_BUS_I2S_BROADWELL_ALC5677_H__
 
-/* Broadwell I2S controller settings for ALC5677 codec. */
-const BdwI2sSettings broadwell_alc5677_settings = {
-	.sfrm_polarity = SSP_FRMS_ACTIVE_LOW,
-	.end_transfer_state = SSP_END_TRANSFER_STATE_LOW,
-	.sclk_mode = SCLK_MODE_DDF_DSR_ISL,
-	.sfrm_relative_timing = NEXT_FRMS_WITH_LSB_PREVIOUS_FRM,
-	.sclk_dummy_stop = 0,
-	.sclk_frame_width = 31,
-	.sclk_rate = 15,
-};
+#include "drivers/bus/i2s/broadwell/broadwell.h"
+
+extern const BdwI2sSettings broadwell_alc5677_settings;
+
+#endif /* __DRIVERS_BUS_I2S_BROADWELL_ALC5677_H__ */

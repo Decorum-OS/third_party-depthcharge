@@ -16,4 +16,4 @@
 ##
 
 depthcharge-$(CONFIG_DRIVER_BUS_I2S_BAYTRAIL) += baytrail.c
-depthcharge-$(CONFIG_DRIVER_BUS_I2S_BAYTRAIL_MAX98090) += baytrail-max98090.c
+depthcharge-$(CONFIG_DRIVER_BUS_I2S_BAYTRAIL_MAX98090) += max98090.c

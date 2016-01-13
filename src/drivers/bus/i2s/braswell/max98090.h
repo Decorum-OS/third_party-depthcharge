@@ -20,11 +20,11 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __DRIVERS_BUS_I2S_BRASWELL_BRASWELL_MAX98090_H__
-#define __DRIVERS_BUS_I2S_BRASWELL_BRASWELL_MAX98090_H__
+#ifndef __DRIVERS_BUS_I2S_BRASWELL_MAX98090_H__
+#define __DRIVERS_BUS_I2S_BRASWELL_MAX98090_H__
 
 #include "drivers/bus/i2s/braswell/braswell.h"
 
 extern const BswI2sSettings braswell_max98090_settings;
 
-#endif
+#endif /* __DRIVERS_BUS_I2S_BRASWELL_MAX98090_H__ */
