@@ -20,12 +20,12 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __IMAGE_ENTER_TRAMPOLINE_H__
-#define __IMAGE_ENTER_TRAMPOLINE_H__
+#ifndef __MODULE_ENTER_TRAMPOLINE_H__
+#define __MODULE_ENTER_TRAMPOLINE_H__
 
 #include "base/elf.h"
 
 void enter_trampoline(Elf32_Ehdr *ehdr);
 void tramp_load_elf(Elf32_Ehdr *ehdr, void *param);
 
-#endif /* __IMAGE_ENTER_TRAMPOLINE_H__ */
+#endif /* __MODULE_ENTER_TRAMPOLINE_H__ */

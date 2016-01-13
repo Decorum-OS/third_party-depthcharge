@@ -24,9 +24,9 @@
 #include <lzma.h>
 
 #include "base/elf.h"
-#include "image/enter_trampoline.h"
-#include "image/startrw.h"
-#include "image/symbols.h"
+#include "module/enter_trampoline.h"
+#include "module/startrw.h"
+#include "module/symbols.h"
 
 int start_rw_firmware(const void *compressed_image, uint32_t size)
 {

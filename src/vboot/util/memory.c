@@ -27,7 +27,7 @@
 
 #include "base/ranges.h"
 #include "base/physmem.h"
-#include "image/symbols.h"
+#include "module/symbols.h"
 #include "vboot/util/memory.h"
 
 static Ranges used;

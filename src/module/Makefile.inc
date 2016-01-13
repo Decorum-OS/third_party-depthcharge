@@ -15,6 +15,27 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
+readonly-y += startrw.c
+trampoline-y += load_elf.c
+
+LDSCRIPT = $(src)/src/module/depthcharge.ldscript
+
+# These options are passed from .config to the linker script. When making
+# changes, update Kconfig as well.
+link_config_options := \
+	KERNEL_START \
+	KERNEL_SIZE \
+	BASE_ADDRESS \
+	HEAP_SIZE \
+	STACK_SIZE \
+	GBB_COPY_SIZE
+
+# Kconfig options intended for the linker.
+$(foreach option,$(link_config_options), \
+	$(eval LINK_FLAGS += -Wl,--defsym=$(option)=$$(CONFIG_$(option))))
+
+
+
 module_obj=$(obj)/module
 
 # The default linking step for a module. You can add linking options by

@@ -23,8 +23,8 @@
 #include <stdint.h>
 
 #include "base/elf.h"
-#include "image/symbols.h"
-#include "image/enter_trampoline.h"
+#include "module/enter_trampoline.h"
+#include "module/symbols.h"
 
 void enter_trampoline(Elf32_Ehdr *ehdr)
 {

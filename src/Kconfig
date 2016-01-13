@@ -61,6 +61,8 @@ menu "Netboot"
 source src/netboot/Kconfig
 endmenu
 
+source src/module/Kconfig
+
 menu "Image layout"
 source src/image/Kconfig
 endmenu

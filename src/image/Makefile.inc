@@ -17,21 +17,6 @@
 
 depthcharge-y += fmap.c
 depthcharge-y += index.c
-readonly-y += startrw.c
-
-trampoline-y += load_elf.c
-
-LDSCRIPT = $(src)/src/image/depthcharge.ldscript
-
-# These options are passed from .config to the linker script. When making
-# changes, update Kconfig as well.
-link_config_options := \
-	KERNEL_START \
-	KERNEL_SIZE \
-	BASE_ADDRESS \
-	HEAP_SIZE \
-	STACK_SIZE \
-	GBB_COPY_SIZE
 
 
 

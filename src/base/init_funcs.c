@@ -21,7 +21,7 @@
  */
 
 #include "base/init_funcs.h"
-#include "image/symbols.h"
+#include "module/symbols.h"
 
 int run_init_funcs(void)
 {

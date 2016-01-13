@@ -20,33 +20,9 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __IMAGE_SYMBOLS_H__
-#define __IMAGE_SYMBOLS_H__
+#ifndef __MODULE_STARTRW_H__
+#define __MODULE_STARTRW_H__
 
-#include <stdint.h>
+int start_rw_firmware(const void *compressed_image, uint32_t size);
 
-// C level variable definitions for symbols defined in the linker script.
-
-extern uint8_t _start;
-extern uint8_t _gbb_copy_start;
-extern uint8_t _gbb_copy_end;
-extern uint8_t _edata;
-extern uint8_t _heap;
-extern uint8_t _eheap;
-extern uint8_t _estack;
-extern uint8_t _stack;
-extern uint8_t _end;
-extern uint8_t _tramp_start;
-extern uint8_t _tramp_end;
-extern uint8_t _tramp_stack;
-extern uint8_t _tramp_estack;
-extern uint8_t _kernel_start;
-extern uint8_t _kernel_end;
-extern uint8_t _init_funcs_start;
-extern uint8_t _init_funcs_end;
-
-#define CPARAMS __attribute__((section(".cparams")))
-#define SHARED_DATA __attribute__((section(".shared_data")))
-#define GBB_COPY __attribute__((section(".gbb_copy")))
-
-#endif /* __IMAGE_SYMBOLS_H__ */
+#endif /* __MODULE_STARTRW_H__ */
