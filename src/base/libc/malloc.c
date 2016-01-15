@@ -54,10 +54,10 @@ struct memory_type {
 #endif
 };
 
-extern char _heap, _eheap;	/* Defined in the ldscript. */
+static uint8_t heap_buffer[CONFIG_HEAP_SIZE] __attribute__((aligned(16)));
 
 static struct memory_type default_type =
-	{ (void *)&_heap, (void *)&_eheap, NULL
+	{ (void *)&heap_buffer[0], (void *)&heap_buffer[CONFIG_HEAP_SIZE], NULL
 #if CONFIG_DEBUG_MALLOC
 	, 0, 0, "HEAP"
 #endif

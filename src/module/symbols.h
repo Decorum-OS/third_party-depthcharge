@@ -31,8 +31,6 @@ extern uint8_t _start;
 extern uint8_t _gbb_copy_start;
 extern uint8_t _gbb_copy_end;
 extern uint8_t _edata;
-extern uint8_t _heap;
-extern uint8_t _eheap;
 extern uint8_t _estack;
 extern uint8_t _stack;
 extern uint8_t _end;
