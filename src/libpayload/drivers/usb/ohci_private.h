@@ -37,7 +37,7 @@
 	// FIXME: fake
 	typedef enum { CMD} reg;
 
-	enum {
+	typedef enum {
 		NumberDownstreamPorts = 1<<0,
 		PowerSwitchingMode = 1<<8,
 		NoPowerSwitching = 1<<9,
@@ -47,17 +47,17 @@
 		PowerOnToPowerGoodTime = 1<<24
 	} HcRhDescriptorAReg;
 
-	enum {
+	typedef enum {
 		NumberDownstreamPortsMask = MASK(0, 8),
 		PowerOnToPowerGoodTimeMask = MASK(24, 8)
 	} HcRhDescriptorAMask;
 
-	enum {
+	typedef enum {
 		DeviceRemovable = 1<<0,
 		PortPowerControlMask = 1<<16
 	} HcRhDescriptorBReg;
 
-	enum {
+	typedef enum {
 		CurrentConnectStatus		= 1<<0,
 		PortEnableStatus		= 1<<1,
 		PortSuspendStatus		= 1<<2,
@@ -71,7 +71,7 @@
 		PortOverCurrentIndicatorChange	= 1<<19,
 		PortResetStatusChange		= 1<<20
 	} HcRhPortStatusRead;
-	enum {
+	typedef enum {
 		ClearPortEnable			= 1<<0,
 		SetPortEnable			= 1<<1,
 		SetPortSuspend			= 1<<2,
@@ -81,7 +81,7 @@
 		ClearPortPower			= 1<<9,
 	} HcRhPortStatusSet;
 
-	enum {
+	typedef enum {
 		LocalPowerStatus = 1<<0,
 		OverCurrentIndicator = 1<<1,
 		DeviceRemoteWakeupEnable = 1<<15,
@@ -90,18 +90,18 @@
 		ClearRemoteWakeupEnable = 1<<31
 	} HcRhStatusReg;
 
-	enum {
+	typedef enum {
 		FrameInterval = 1<<0,
 		FSLargestDataPacket = 1<<16,
 		FrameIntervalToggle = 1<<31
 	} HcFmIntervalOffset;
-	enum {
+	typedef enum {
 		FrameIntervalMask = MASK(0, 14),
 		FSLargestDataPacketMask = MASK(16, 15),
 		FrameIntervalToggleMask = MASK(31, 1)
 	} HcFmIntervalMask;
 
-	enum {
+	typedef enum {
 		ControlBulkServiceRatio = 1<<0,
 		PeriodicListEnable = 1<<2,
 		IsochronousEnable = 1<<3,
@@ -113,7 +113,7 @@
 		RemoteWakeupEnable = 1<<10
 	} HcControlReg;
 
-	enum {
+	typedef enum {
 		ControlBulkServiceRatioMask = MASK(0, 2),
 		HostControllerFunctionalStateMask = MASK(6, 2)
 	} HcControlMask;
@@ -125,7 +125,7 @@
 		USBSuspend = 3*HostControllerFunctionalState
 	};
 
-	enum {
+	typedef enum {
 		HostControllerReset = 1<<0,
 		ControlListFilled = 1<<1,
 		BulkListFilled = 1<<2,
@@ -133,16 +133,16 @@
 		SchedulingOverrunCount = 1<<16
 	} HcCommandStatusReg;
 
-	enum {
+	typedef enum {
 		SchedulingOverrunCountMask = MASK(16, 2)
 	} HcCommandStatusMask;
 
-	enum {
+	typedef enum {
 		FrameRemaining = 1<<0,
 		FrameRemainingToggle = 1<<31
 	} HcFmRemainingReg;
 
-	enum {
+	typedef enum {
 		SchedulingOverrung = 1<<0,
 		WritebackDoneHead = 1<<1,
 		StartofFrame = 1<<2,
