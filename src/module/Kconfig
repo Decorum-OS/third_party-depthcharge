@@ -51,7 +51,7 @@ config BASE_ADDRESS
 
 config STACK_SIZE
 	hex "The size of the stack in bytes"
-	default 0x4000
+	default 0x40000
 	help
 	  The size of the stack in bytes, minus any padding needed to align it
 	  to a 16 byte boundary.
