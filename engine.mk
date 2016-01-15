@@ -59,7 +59,7 @@ LINK_FLAGS = $(ARCH_LINK_FLAGS) $(ABI_FLAGS) -fuse-ld=bfd -nostdlib \
 	-Wl,--gc-sections -Wl,-Map=$@.map -static
 CFLAGS = $(ARCH_CFLAGS) -Wall -Werror $(INCLUDE_DIRS) -include $(obj)/config.h \
 	-std=gnu99 $(ABI_FLAGS) -ffunction-sections -fdata-sections \
-	-ggdb3 -nostdinc -nostdlib -fno-stack-protector
+	-ggdb3 -nostdinc -nostdlib -fno-stack-protector -fno-common
 
 ifneq ($(SOURCE_DEBUG),)
 CFLAGS += -O0 -g
