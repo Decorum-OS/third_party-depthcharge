@@ -26,8 +26,7 @@
  */
 
 /*
- * KERNEL_START, KERNEL_SIZE, BASE_ADDRESS, STACK_SIZE and GBB_COPY_SIZE
- * come from KConfig
+ * KERNEL_START, KERNEL_SIZE, BASE_ADDRESS, and GBB_COPY_SIZE come from KConfig
  */
 
 ENTRY(_entry)
@@ -108,14 +107,6 @@ SECTIONS
 		*(.bss)
 		*(.bss.*)
 		*(COMMON)
-
-		/* Stack and heap */
-
-		. = ALIGN(16);
-		_estack = .;
-		. += STACK_SIZE;
-		. = ALIGN(16);
-		_stack = .;
 	}
 
 	_end = .;

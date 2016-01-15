@@ -20,6 +20,7 @@ subdirs-y += libc
 depthcharge-y += cleanup_funcs.c
 depthcharge-y += console.c
 depthcharge-y += coreboot.c
+depthcharge-y += dc_stack.c
 depthcharge-y += device_tree.c
 depthcharge-y += die.c
 depthcharge-y += graphics.c

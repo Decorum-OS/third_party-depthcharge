@@ -76,4 +76,4 @@ bss_boundaries:
 1:
 .word	cb_header_ptr
 2:
-.word	_stack
+.word	dc_stack_buffer + CONFIG_STACK_SIZE

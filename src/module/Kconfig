@@ -20,6 +20,12 @@ config HEAP_SIZE
 	help
 	  The size of the heap in bytes.
 
+config STACK_SIZE
+	hex "The size of the stack in bytes"
+	default 0x40000
+	help
+	  The size of the stack in bytes.
+
 
 # Options which are passed to the linker script. When making changes, update
 # the list of options in Makefile.inc as well.
@@ -48,13 +54,6 @@ config BASE_ADDRESS
 	  everything except the code which pivots between the read only and
 	  read/write firmware which is linked to run from the region of memory
 	  the kernel is eventually loaded into.
-
-config STACK_SIZE
-	hex "The size of the stack in bytes"
-	default 0x40000
-	help
-	  The size of the stack in bytes, minus any padding needed to align it
-	  to a 16 byte boundary.
 
 config GBB_COPY_SIZE
 	hex "The size of the area to cache the GBB contents"

@@ -63,7 +63,7 @@ _entry:
 	rep stosb
 
 	/* Setup new stack. */
-	movl $_stack, %ebx
+	movl $(dc_stack_buffer + CONFIG_STACK_SIZE), %ebx
 
 	movl %ebx, %esp
 

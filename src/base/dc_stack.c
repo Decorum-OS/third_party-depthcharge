@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,27 +20,6 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __MODULE_SYMBOLS_H__
-#define __MODULE_SYMBOLS_H__
-
 #include <stdint.h>
 
-// C level variable definitions for symbols defined in the linker script.
-
-extern uint8_t _start;
-extern uint8_t _gbb_copy_start;
-extern uint8_t _gbb_copy_end;
-extern uint8_t _edata;
-extern uint8_t _end;
-extern uint8_t _tramp_start;
-extern uint8_t _tramp_end;
-extern uint8_t _kernel_start;
-extern uint8_t _kernel_end;
-extern uint8_t _init_funcs_start;
-extern uint8_t _init_funcs_end;
-
-#define CPARAMS __attribute__((section(".cparams")))
-#define SHARED_DATA __attribute__((section(".shared_data")))
-#define GBB_COPY __attribute__((section(".gbb_copy")))
-
-#endif /* __MODULE_SYMBOLS_H__ */
+uint8_t dc_stack_buffer[CONFIG_STACK_SIZE] __attribute__((aligned(16)));

@@ -55,4 +55,4 @@ ENDPROC(_entry)
 1:
 .quad	cb_header_ptr
 2:
-.quad	_stack
+.quad	dc_stack_buffer + CONFIG_STACK_SIZE
