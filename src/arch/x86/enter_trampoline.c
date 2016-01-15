@@ -23,17 +23,19 @@
 #include <stdint.h>
 
 #include "base/elf.h"
-#include "module/enter_trampoline.h"
 #include "module/symbols.h"
+#include "module/trampoline.h"
 
 void enter_trampoline(Elf32_Ehdr *ehdr)
 {
+	uint8_t *estack = &trampoline_stack[TrampolineStackSize - 8];
+
 	__asm__ __volatile__(
 		"mov %[new_stack], %%esp\n"
 		"push %[cb_header_ptr]\n"
 		"push %[ehdr]\n"
-		"call load_elf\n"
-		:: [new_stack]"r"(&_tramp_estack - 8), [ehdr]"a"(ehdr),
+		"call trampoline\n"
+		:: [new_stack]"r"(estack), [ehdr]"a"(ehdr),
 		   [cb_header_ptr]"d"(0)
 		: "memory"
 	);

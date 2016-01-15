@@ -40,9 +40,6 @@ SECTIONS
 	}
 
 	.noload : {
-		_tramp_stack = .;
-		. += 0x200;
-		_tramp_estack = .;
 		*(.sbss)
 		*(.sbss.*)
 		*(.bss)

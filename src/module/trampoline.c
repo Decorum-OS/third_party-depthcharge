@@ -24,13 +24,18 @@
 #include <string.h>
 
 #include "base/elf.h"
+#include "module/trampoline.h"
 
-void load_elf(Elf32_Ehdr *ehdr, void *param)
+uint8_t trampoline_stack[TrampolineStackSize] __attribute__((aligned(16)));
+
+void trampoline(Elf32_Ehdr *ehdr, void *param)
 {
 	uintptr_t base = (uintptr_t)ehdr;
 	uintptr_t addr = (uintptr_t)ehdr + ehdr->e_phoff;
 	uintptr_t step = ehdr->e_phentsize;
 	int num = ehdr->e_phnum;
+
+	ehdr->e_phentsize = trampoline_stack[0];
 
 	// Copy over the ELF segments.
 	while (num--) {

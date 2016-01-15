@@ -23,21 +23,23 @@
 #include <stdint.h>
 
 #include "base/elf.h"
-#include "module/enter_trampoline.h"
 #include "module/symbols.h"
+#include "module/trampoline.h"
 
 extern void *cb_header_ptr;
 
 void enter_trampoline(Elf32_Ehdr *ehdr)
 {
+	uint8_t *estack = &trampoline_stack[TrampolineStackSize - 8];
+
 	__asm__ __volatile__(
 		"mov sp, %[new_stack]\n"
 		"mov r0, %[ehdr]\n"
 		"mov r1, %[cb_header_ptr]\n"
 		// Need register addressing since the call goes too far
-		"bx %[load_elf]\n"
-		:: [new_stack]"r"(&_tramp_estack - 8), [ehdr]"r"(ehdr),
-		   [zero]"r"(0), [load_elf]"r"(&load_elf),
+		"bx %[trampoline]\n"
+		:: [new_stack]"r"(estack), [ehdr]"r"(ehdr),
+		   [zero]"r"(0), [trampoline]"r"(&trampoline),
 		   [cb_header_ptr]"r"(cb_header_ptr)
 		: "memory", "r0", "r1", "sp"
 	);

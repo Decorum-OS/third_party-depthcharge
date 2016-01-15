@@ -24,20 +24,20 @@
 #include <lzma.h>
 
 #include "base/elf.h"
-#include "module/enter_trampoline.h"
-#include "module/startrw.h"
+#include "module/module.h"
 #include "module/symbols.h"
+#include "module/trampoline.h"
 
-int start_rw_firmware(const void *compressed_image, uint32_t size)
+int start_module(const void *compressed_image, uint32_t size)
 {
-	// Put the decompressed RW ELF at the end of the trampoline.
+	// Put the decompressed module at the end of the trampoline.
 	void *elf_image = &_tramp_end;
 
-	// Decompress the RW image.
+	// Decompress the image.
 	uint32_t out_size = ulzman(compressed_image, size, elf_image,
 				   &_kernel_end - &_tramp_end);
 	if (!out_size) {
-		printf("Error decompressing RW firmware.\n");
+		printf("Error decompressing module.\n");
 		return -1;
 	}
 
@@ -45,11 +45,11 @@ int start_rw_firmware(const void *compressed_image, uint32_t size)
 	unsigned char *e_ident = elf_image;
 	if (e_ident[0] != ElfMag0Val || e_ident[1] != ElfMag1Val ||
 		e_ident[2] != ElfMag2Val || e_ident[3] != ElfMag3Val) {
-		printf("Bad ELF magic value in RW firmware.\n");
+		printf("Bad ELF magic value in module.\n");
 		return -1;
 	}
 	if (e_ident[EI_Class] != ElfClass32) {
-		printf("Only loading of 32 bit RW firmware is supported.\n");
+		printf("Only loading of 32 bit modules is supported.\n");
 		return -1;
 	}
 

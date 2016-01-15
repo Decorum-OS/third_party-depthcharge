@@ -15,7 +15,7 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-readonly-y += startrw.c
+depthcharge-y += module.c
 
 DEFAULT_LDSCRIPT = $(src)/src/module/depthcharge.ldscript
 
@@ -96,19 +96,19 @@ $(call add-special-class,module)
 TRAMPOLINE = $(module_obj)/trampoline.mod
 
 module-y += trampoline
-mod-trampoline-y += load_elf.c
+mod-trampoline-y += trampoline.c
 mod-trampoline-libs += $(libc-objs)
 mod-trampoline-ldscript += $(src)/src/module/trampoline.ldscript
-mod-trampoline-ldopts += -Wl,--relocatable -Wl,-d -Wl,--entry=load_elf
+mod-trampoline-ldopts += -Wl,--relocatable -Wl,-d -Wl,--entry=trampoline
+mod-trampoline-ldopts += -Wl,--undefined=trampoline_stack -Wl,--warn-common
 
-# Make all the symbols in the trampoline local, except the load_elf entry
-# point and stack boundaries.
+# Make all the symbols in the trampoline local, except the trampoline entry
+# point and stack.
 $(module_obj)/trampoline.mod: $(module_obj)/trampoline.elf.tmp
 	@printf "    OBJCOPY    $(subst $(obj)/,,$@)\n"
 	$(Q)$(OBJCOPY) $< $@ \
-		--keep-global-symbol=load_elf \
-		--keep-global-symbol=_tramp_stack \
-		--keep-global-symbol=_tramp_estack
+		--keep-global-symbol=trampoline \
+		--keep-global-symbol=trampoline_stack
 
 
 

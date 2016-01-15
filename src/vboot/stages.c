@@ -34,7 +34,7 @@
 #include "drivers/storage/blockdev.h"
 #include "image/fmap.h"
 #include "image/index.h"
-#include "module/startrw.h"
+#include "module/module.h"
 #include "module/symbols.h"
 #include "vboot/boot.h"
 #include "vboot/stages.h"
@@ -201,7 +201,7 @@ int vboot_select_firmware(void)
 		if (!image)
 			return 1;
 
-		if (start_rw_firmware(image, image_size))
+		if (start_module(image, image_size))
 			return 1;
 	}
 

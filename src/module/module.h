@@ -20,9 +20,9 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __MODULE_STARTRW_H__
-#define __MODULE_STARTRW_H__
+#ifndef __MODULE_MODULE_H__
+#define __MODULE_MODULE_H__
 
-int start_rw_firmware(const void *compressed_image, uint32_t size);
+int start_module(const void *compressed_image, uint32_t size);
 
-#endif /* __MODULE_STARTRW_H__ */
+#endif /* __MODULE_MODULE_H__ */
