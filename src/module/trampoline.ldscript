@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Advanced Micro Devices, Inc.
+ * Copyright 2016 Google, Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,105 +25,30 @@
  * SUCH DAMAGE.
  */
 
-/*
- * KERNEL_START, KERNEL_SIZE, BASE_ADDRESS, HEAP_SIZE and STACK_SIZE
- * come from KConfig
- */
-
-ENTRY(_entry)
 
 SECTIONS
 {
-	/*
-	 * The trampoline to RW firmware. It goes where the kernel will go
-	 * eventually since that area has to be kept clear anyway, and we'll
-	 * be done with it by the time we need it for the kernel.
-	 */
-	. = KERNEL_START;
-	_kernel_start = KERNEL_START;
-
-	. = ALIGN(16);
-	_tramp_start = .;
-	.tramp.load : {
-		*trampoline.mod(.load*)
-	}
-	. = ALIGN(16);
-	.tramp.noload : {
-		*trampoline.mod(.noload*)
-	}
-	_tramp_end = .;
-
-	. = KERNEL_START + KERNEL_SIZE;
-	_kernel_end = .;
-
-
-	/* The main portion of depthcharge. */
-	. = BASE_ADDRESS;
-
-	. = ALIGN(16);
-	_start = .;
-
-	.cparams : {
-		KEEP(*(.cparams))
-	}
-	.shared_data : {
-		KEEP(*(.shared_data))
-	}
-	.gbb_copy : {
-		_gbb_copy_start = .;
-		. += GBB_COPY_SIZE;
-		_gbb_copy_end = .;
-	}
-
-	.text : {
-		*(.text._entry)
+	.load : {
 		*(.text)
 		*(.text.*)
-	}
-
-	.rodata : {
 		*(.rodata)
 		*(.rodata.*)
-	}
-
-	.data : {
 		*(.data)
 		*(.data.*)
-
-		_init_funcs_start = .;
-		KEEP(*(.init_funcs))
-		_init_funcs_end = .;
-	}
-
-	.got : {
 		*(.got)
 		*(.got.*)
 	}
 
-	_edata = .;
-
-	.bss : {
+	.noload : {
+		_tramp_stack = .;
+		. += 0x200;
+		_tramp_estack = .;
 		*(.sbss)
 		*(.sbss.*)
 		*(.bss)
 		*(.bss.*)
 		*(COMMON)
-
-		/* Stack and heap */
-
-		. = ALIGN(16);
-		_heap = .;
-		. += HEAP_SIZE;
-		. = ALIGN(16);
-		_eheap = .;
-
-		_estack = .;
-		. += STACK_SIZE;
-		. = ALIGN(16);
-		_stack = .;
 	}
-
-	_end = .;
 
 	/* Stuff we don't want in the final image. */
 	/DISCARD/ : {

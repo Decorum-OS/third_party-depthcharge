@@ -37,7 +37,7 @@ void enter_trampoline(Elf32_Ehdr *ehdr)
 		// Need register addressing since the call goes too far
 		"bx %[load_elf]\n"
 		:: [new_stack]"r"(&_tramp_estack - 8), [ehdr]"r"(ehdr),
-		   [zero]"r"(0), [load_elf]"r"(&tramp_load_elf),
+		   [zero]"r"(0), [load_elf]"r"(&load_elf),
 		   [cb_header_ptr]"r"(cb_header_ptr)
 		: "memory", "r0", "r1", "sp"
 	);

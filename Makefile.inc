@@ -24,8 +24,7 @@ $(call add-special-class,src-includes)
 $(call add-special-class,abs-includes)
 
 
-classes-y := depthcharge trampoline readwrite readonly unified \
-	     uip net netboot dev
+classes-y := depthcharge readwrite readonly unified uip net netboot dev
 
 subdirs-y := src
 

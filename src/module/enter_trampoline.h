@@ -23,9 +23,11 @@
 #ifndef __MODULE_ENTER_TRAMPOLINE_H__
 #define __MODULE_ENTER_TRAMPOLINE_H__
 
+#include <stdint.h>
+
 #include "base/elf.h"
 
 void enter_trampoline(Elf32_Ehdr *ehdr);
-void tramp_load_elf(Elf32_Ehdr *ehdr, void *param);
+void load_elf(Elf32_Ehdr *ehdr, void *param);
 
 #endif /* __MODULE_ENTER_TRAMPOLINE_H__ */
