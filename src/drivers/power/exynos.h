@@ -25,6 +25,6 @@
 
 #include "drivers/power/power.h"
 
-PowerOps exynos_power_ops;
+extern PowerOps exynos_power_ops;
 
 #endif /* __DRIVERS_POWER_EXYNOS_H__ */
