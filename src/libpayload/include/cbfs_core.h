@@ -169,7 +169,7 @@ struct cbfs_file_attr_hash {
 	uint32_t hash_type;
 	/* hash_data is len - sizeof(struct) bytes */
 	uint8_t  hash_data[];
-} __PACKED;
+} __attribute__((packed));
 
 /* Given a cbfs_file, return the first file attribute, or NULL. */
 struct cbfs_file_attribute *cbfs_file_first_attr(struct cbfs_file *file);
