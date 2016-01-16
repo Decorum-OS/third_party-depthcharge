@@ -30,10 +30,10 @@
 //#define USB_DEBUG
 #include <endian.h>
 #include <usb/usb.h>
-#include <usb/usbmsc.h>
-#include <usb/usbdisk.h>
 
 #include "base/die.h"
+#include "drivers/usb/usbdisk.h"
+#include "drivers/usb/usbmsc.h"
 
 enum {
 	msc_subclass_rbc = 0x1,

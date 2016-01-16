@@ -23,14 +23,14 @@
 #include <assert.h>
 #include <libpayload.h>
 #include <usb/usb.h>
-#include <usb/usbdisk.h>
-#include <usb/usbmsc.h>
 
 #include "base/init_funcs.h"
 #include "base/xalloc.h"
 #include "drivers/bus/usb/usb.h"
 #include "drivers/storage/blockdev.h"
 #include "drivers/storage/usb.h"
+#include "drivers/usb/usbdisk.h"
+#include "drivers/usb/usbmsc.h"
 
 typedef struct UsbDrive {
 	BlockDev dev;
