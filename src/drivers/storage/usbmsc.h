@@ -30,6 +30,9 @@
 #ifndef __DRIVERS_STORAGE_USBMSC_H__
 #define __DRIVERS_STORAGE_USBMSC_H__
 
+#include <stdint.h>
+#include <usb/usb.h>
+
 typedef struct {
 	unsigned int blocksize;
 	unsigned int numblocks;
@@ -39,22 +42,26 @@ typedef struct {
 	int8_t ready;
 	uint8_t lun;
 	uint8_t num_luns;
-	void *data; /* For use by consumers of libpayload. */
+	void *data; // User defined data.
 } usbmsc_inst_t;
 
-/* Possible values for ready field. */
+// Possible values for ready field.
 enum {
-	USB_MSC_DETACHED = -1, /* Disk detached or out to lunch. */
-	USB_MSC_NOT_READY = 0, /* Disk not ready yet -- empty card reader */
-	USB_MSC_READY = 1,     /* Disk ready to communicate. */
+	USB_MSC_DETACHED = -1, // Disk detached or out to lunch.
+	USB_MSC_NOT_READY = 0, // Disk not ready yet -- empty card reader.
+	USB_MSC_READY = 1,     // Disk ready to communicate.
 };
 
 #define MSC_INST(dev) ((usbmsc_inst_t*)(dev)->data)
 
-typedef enum { cbw_direction_data_in = 0x80, cbw_direction_data_out = 0
+typedef enum {
+	cbw_direction_data_in = 0x80,
+	cbw_direction_data_out = 0
 } cbw_direction;
 
-int readwrite_blocks_512 (usbdev_t *dev, int start, int n, cbw_direction dir, uint8_t *buf);
-int readwrite_blocks (usbdev_t *dev, int start, int n, cbw_direction dir, uint8_t *buf);
+int readwrite_blocks_512(usbdev_t *dev, int start, int n, cbw_direction dir,
+			 uint8_t *buf);
+int readwrite_blocks(usbdev_t *dev, int start, int n, cbw_direction dir,
+		     uint8_t *buf);
 
 #endif /* __DRIVERS_STORAGE_USBMSC_H__ */
