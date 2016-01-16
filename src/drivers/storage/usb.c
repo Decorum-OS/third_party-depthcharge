@@ -29,8 +29,8 @@
 #include "drivers/bus/usb/usb.h"
 #include "drivers/storage/blockdev.h"
 #include "drivers/storage/usb.h"
-#include "drivers/usb/usbdisk.h"
-#include "drivers/usb/usbmsc.h"
+#include "drivers/storage/usbdisk.h"
+#include "drivers/storage/usbmsc.h"
 
 typedef struct UsbDrive {
 	BlockDev dev;

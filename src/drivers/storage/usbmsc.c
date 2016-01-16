@@ -32,8 +32,8 @@
 #include <usb/usb.h>
 
 #include "base/die.h"
-#include "drivers/usb/usbdisk.h"
-#include "drivers/usb/usbmsc.h"
+#include "drivers/storage/usbdisk.h"
+#include "drivers/storage/usbmsc.h"
 
 enum {
 	msc_subclass_rbc = 0x1,

@@ -67,7 +67,6 @@ libc-$(CONFIG_USB_XHCI) += usb/xhci_events.c
 libc-$(CONFIG_USB_XHCI) += usb/xhci_commands.c
 libc-$(CONFIG_USB_XHCI) += usb/xhci_rh.c
 libc-$(CONFIG_USB_HID) += usb/usbhid.c
-libc-$(CONFIG_USB_MSC) += usb/usbmsc.c
 libc-$(CONFIG_USB_DWC2) += usb/dwc2.c
 libc-$(CONFIG_USB_DWC2) += usb/dwc2_rh.c
 
