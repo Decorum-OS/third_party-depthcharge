@@ -19,7 +19,8 @@
 
 #ifndef __DWC2_REGS_H__
 #define __DWC2_REGS_H__
-#include <usb/dwc2_registers.h>
+
+#include "libpayload/drivers/usb/dwc2_registers.h"
 
 typedef struct dwc_ctrl {
 #define DMA_SIZE (64 * 1024)
