@@ -34,7 +34,6 @@
 #include "ehci.h"
 #include "xhci.h"
 #include "dwc2.h"
-#include <usb/usbdisk.h>
 
 #if CONFIG_USB_PCI
 /**
