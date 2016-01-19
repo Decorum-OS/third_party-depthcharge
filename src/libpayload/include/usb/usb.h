@@ -29,15 +29,28 @@
 
 #ifndef __USB_H
 #define __USB_H
+
 #include <libpayload.h>
 #include <pci.h>
 #include <stdint.h>
 
-typedef enum { host_to_device = 0, device_to_host = 1 } dev_req_dir;
-typedef enum { standard_type = 0, class_type = 1, vendor_type =
-		2, reserved_type = 3
+typedef enum {
+	host_to_device = 0,
+	device_to_host = 1
+} dev_req_dir;
+
+typedef enum {
+	standard_type = 0,
+	class_type = 1,
+	vendor_type = 2,
+	reserved_type = 3
 } dev_req_type;
-typedef enum { dev_recp = 0, iface_recp = 1, endp_recp = 2, other_recp = 3
+
+typedef enum {
+	dev_recp = 0,
+	iface_recp = 1,
+	endp_recp = 2,
+	other_recp = 3
 } dev_req_recp;
 
 enum {
@@ -72,82 +85,81 @@ typedef enum {
 #define SET_ADDRESS_MDELAY 2
 
 typedef struct {
-	unsigned char bDescLength;
-	unsigned char bDescriptorType;
-	unsigned char bNbrPorts;
+	uint8_t bDescLength;
+	uint8_t bDescriptorType;
+	uint8_t bNbrPorts;
 	union {
 		struct {
-			unsigned long logicalPowerSwitchingMode:2;
-			unsigned long isCompoundDevice:1;
-			unsigned long overcurrentProtectionMode:2;
-			unsigned long ttThinkTime:2;
-			unsigned long arePortIndicatorsSupported:1;
-			unsigned long:8;
+			uint32_t logicalPowerSwitchingMode:2;
+			uint32_t isCompoundDevice:1;
+			uint32_t overcurrentProtectionMode:2;
+			uint32_t ttThinkTime:2;
+			uint32_t arePortIndicatorsSupported:1;
+			uint32_t:8;
 		} __attribute__ ((packed));
-		unsigned short wHubCharacteristics;
+		uint16_t wHubCharacteristics;
 	} __attribute__ ((packed));
-	unsigned char bPowerOn2PwrGood;
-	unsigned char bHubContrCurrent;
-	char DeviceRemovable[];
+	uint8_t bPowerOn2PwrGood;
+	uint8_t bHubContrCurrent;
 } __attribute__ ((packed)) hub_descriptor_t;
 
 typedef struct {
-	unsigned char bLength;
-	unsigned char bDescriptorType;
-	unsigned short bcdUSB;
-	unsigned char bDeviceClass;
-	unsigned char bDeviceSubClass;
-	unsigned char bDeviceProtocol;
-	unsigned char bMaxPacketSize0;
-	unsigned short idVendor;
-	unsigned short idProduct;
-	unsigned short bcdDevice;
-	unsigned char iManufacturer;
-	unsigned char iProduct;
-	unsigned char iSerialNumber;
-	unsigned char bNumConfigurations;
+	uint8_t bLength;
+	uint8_t bDescriptorType;
+	uint16_t bcdUSB;
+	uint8_t bDeviceClass;
+	uint8_t bDeviceSubClass;
+	uint8_t bDeviceProtocol;
+	uint8_t bMaxPacketSize0;
+	uint16_t idVendor;
+	uint16_t idProduct;
+	uint16_t bcdDevice;
+	uint8_t iManufacturer;
+	uint8_t iProduct;
+	uint8_t iSerialNumber;
+	uint8_t bNumConfigurations;
 } __attribute__ ((packed)) device_descriptor_t;
 
 typedef struct {
-	unsigned char bLength;
-	unsigned char bDescriptorType;
-	unsigned short wTotalLength;
-	unsigned char bNumInterfaces;
-	unsigned char bConfigurationValue;
-	unsigned char iConfiguration;
-	unsigned char bmAttributes;
-	unsigned char bMaxPower;
+	uint8_t bLength;
+	uint8_t bDescriptorType;
+	uint16_t wTotalLength;
+	uint8_t bNumInterfaces;
+	uint8_t bConfigurationValue;
+	uint8_t iConfiguration;
+	uint8_t bmAttributes;
+	uint8_t bMaxPower;
 } __attribute__ ((packed)) configuration_descriptor_t;
 
 typedef struct {
-	unsigned char bLength;
-	unsigned char bDescriptorType;
-	unsigned char bInterfaceNumber;
-	unsigned char bAlternateSetting;
-	unsigned char bNumEndpoints;
-	unsigned char bInterfaceClass;
-	unsigned char bInterfaceSubClass;
-	unsigned char bInterfaceProtocol;
-	unsigned char iInterface;
+	uint8_t bLength;
+	uint8_t bDescriptorType;
+	uint8_t bInterfaceNumber;
+	uint8_t bAlternateSetting;
+	uint8_t bNumEndpoints;
+	uint8_t bInterfaceClass;
+	uint8_t bInterfaceSubClass;
+	uint8_t bInterfaceProtocol;
+	uint8_t iInterface;
 } __attribute__ ((packed)) interface_descriptor_t;
 
 typedef struct {
-	unsigned char bLength;
-	unsigned char bDescriptorType;
-	unsigned char bEndpointAddress;
-	unsigned char bmAttributes;
-	unsigned short wMaxPacketSize;
-	unsigned char bInterval;
+	uint8_t bLength;
+	uint8_t bDescriptorType;
+	uint8_t bEndpointAddress;
+	uint8_t bmAttributes;
+	uint16_t wMaxPacketSize;
+	uint8_t bInterval;
 } __attribute__ ((packed)) endpoint_descriptor_t;
 
 typedef struct {
-	unsigned char bLength;
-	unsigned char bDescriptorType;
-	unsigned short bcdHID;
-	unsigned char bCountryCode;
-	unsigned char bNumDescriptors;
-	unsigned char bReportDescriptorType;
-	unsigned short wReportDescriptorLength;
+	uint8_t bLength;
+	uint8_t bDescriptorType;
+	uint16_t bcdHID;
+	uint8_t bCountryCode;
+	uint8_t bNumDescriptors;
+	uint8_t bReportDescriptorType;
+	uint16_t wReportDescriptorLength;
 } __attribute__ ((packed)) hid_descriptor_t;
 
 typedef struct {
@@ -157,12 +169,12 @@ typedef struct {
 			dev_req_type req_type:2;
 			dev_req_dir data_dir:1;
 		} __attribute__ ((packed));
-		unsigned char bmRequestType;
+		uint8_t bmRequestType;
 	} __attribute__ ((packed));
-	unsigned char bRequest;
-	unsigned short wValue;
-	unsigned short wIndex;
-	unsigned short wLength;
+	uint8_t bRequest;
+	uint16_t wValue;
+	uint16_t wIndex;
+	uint16_t wLength;
 } __attribute__ ((packed)) dev_req_t;
 
 struct usbdev_hc;
@@ -171,8 +183,17 @@ typedef struct usbdev_hc hci_t;
 struct usbdev;
 typedef struct usbdev usbdev_t;
 
-typedef enum { SETUP, IN, OUT } direction_t;
-typedef enum { CONTROL = 0, ISOCHRONOUS = 1, BULK = 2, INTERRUPT = 3
+typedef enum {
+	SETUP,
+	IN,
+	OUT
+} direction_t;
+
+typedef enum {
+	CONTROL = 0,
+	ISOCHRONOUS = 1,
+	BULK = 2,
+	INTERRUPT = 3
 } endpoint_type;
 
 typedef struct {
@@ -187,7 +208,10 @@ typedef struct {
 } endpoint_t;
 
 typedef enum {
-	FULL_SPEED = 0, LOW_SPEED = 1, HIGH_SPEED = 2, SUPER_SPEED = 3,
+	FULL_SPEED = 0,
+	LOW_SPEED = 1,
+	HIGH_SPEED = 2,
+	SUPER_SPEED = 3,
 } usb_speed;
 
 struct usbdev {
@@ -202,12 +226,18 @@ struct usbdev {
 	void *data;
 	device_descriptor_t *descriptor;
 	configuration_descriptor_t *configuration;
-	void (*init) (usbdev_t *dev);
-	void (*destroy) (usbdev_t *dev);
-	void (*poll) (usbdev_t *dev);
+	void (*init)(usbdev_t *dev);
+	void (*destroy)(usbdev_t *dev);
+	void (*poll)(usbdev_t *dev);
 };
 
-typedef enum { OHCI = 0, UHCI = 1, EHCI = 2, XHCI = 3, DWC2 = 4} hc_type;
+typedef enum {
+	OHCI = 0,
+	UHCI = 1,
+	EHCI = 2,
+	XHCI = 3,
+	DWC2 = 4
+} hc_type;
 
 struct usbdev_hc {
 	hci_t *next;
@@ -218,26 +248,27 @@ struct usbdev_hc {
 	usbdev_t *devices[128];	// dev 0 is root hub, 127 is last addressable
 
 	/* start():     Resume operation. */
-	void (*start) (hci_t *controller);
+	void (*start)(hci_t *controller);
 	/* stop():      Stop operation but keep controller initialized. */
-	void (*stop) (hci_t *controller);
+	void (*stop)(hci_t *controller);
 	/* reset():     Perform a controller reset. The controller needs to
 	                be (re)initialized afterwards to work (again). */
-	void (*reset) (hci_t *controller);
+	void (*reset)(hci_t *controller);
 	/* init():      Initialize a (previously reset) controller
 	                to a working state. */
-	void (*init) (hci_t *controller);
+	void (*init)(hci_t *controller);
 	/* shutdown():  Stop operation, detach host controller and shutdown
 	                this driver instance. After calling shutdown() any
 			other usage of this hci_t* is invalid. */
-	void (*shutdown) (hci_t *controller);
+	void (*shutdown)(hci_t *controller);
 
-	int (*bulk) (endpoint_t *ep, int size, uint8_t *data, int finalize);
-	int (*control) (usbdev_t *dev, direction_t pid, int dr_length,
-			void *devreq, int data_length, uint8_t *data);
-	void* (*create_intr_queue) (endpoint_t *ep, int reqsize, int reqcount, int reqtiming);
-	void (*destroy_intr_queue) (endpoint_t *ep, void *queue);
-	uint8_t* (*poll_intr_queue) (void *queue);
+	int (*bulk)(endpoint_t *ep, int size, uint8_t *data, int finalize);
+	int (*control)(usbdev_t *dev, direction_t pid, int dr_length,
+		       void *devreq, int data_length, uint8_t *data);
+	void* (*create_intr_queue)(endpoint_t *ep, int reqsize, int reqcount,
+				   int reqtiming);
+	void (*destroy_intr_queue)(endpoint_t *ep, void *queue);
+	uint8_t* (*poll_intr_queue)(void *queue);
 	void *instance;
 
 	/* set_address():		Tell the usb device its address (xHCI
@@ -245,49 +276,50 @@ struct usbdev_hc {
 					themselves). Also, allocate the usbdev
 					structure, initialize enpoint 0
 					(including MPS) and return it. */
-	usbdev_t *(*set_address) (hci_t *controller, usb_speed speed,
-				  int hubport, int hubaddr);
+	usbdev_t *(*set_address)(hci_t *controller, usb_speed speed,
+				 int hubport, int hubaddr);
 	/* finish_device_config():	Another hook for xHCI,
 					returns 0 on success. */
-	int (*finish_device_config) (usbdev_t *dev);
+	int (*finish_device_config)(usbdev_t *dev);
 	/* destroy_device():		Finally, destroy all structures that
 					were allocated during set_address()
 					and finish_device_config(). */
-	void (*destroy_device) (hci_t *controller, int devaddr);
+	void (*destroy_device)(hci_t *controller, int devaddr);
 };
 
 hci_t *usb_add_mmio_hc(hc_type type, void *bar);
-hci_t *new_controller (void);
-void detach_controller (hci_t *controller);
-void usb_poll (void);
-usbdev_t *init_device_entry (hci_t *controller, int num);
+hci_t *new_controller(void);
+void detach_controller(hci_t *controller);
+void usb_poll(void);
+usbdev_t *init_device_entry(hci_t *controller, int num);
 
-int usb_decode_mps0 (usb_speed speed, uint8_t bMaxPacketSize0);
-int set_feature (usbdev_t *dev, int endp, int feature, int rtype);
-int get_status (usbdev_t *dev, int endp, int rtype, int len, void *data);
-int get_descriptor (usbdev_t *dev, int rtype, int descType, int descIdx,
-		    void *data, size_t len);
-int set_configuration (usbdev_t *dev);
-int clear_feature (usbdev_t *dev, int endp, int feature, int rtype);
-int clear_stall (endpoint_t *ep);
+int usb_decode_mps0(usb_speed speed, uint8_t bMaxPacketSize0);
+int set_feature(usbdev_t *dev, int endp, int feature, int rtype);
+int get_status(usbdev_t *dev, int endp, int rtype, int len, void *data);
+int get_descriptor(usbdev_t *dev, int rtype, int descType, int descIdx,
+		   void *data, size_t len);
+int set_configuration(usbdev_t *dev);
+int clear_feature(usbdev_t *dev, int endp, int feature, int rtype);
+int clear_stall(endpoint_t *ep);
 
-void usb_nop_init (usbdev_t *dev);
-void usb_hub_init (usbdev_t *dev);
-void usb_hid_init (usbdev_t *dev);
-void usb_msc_init (usbdev_t *dev);
-void usb_generic_init (usbdev_t *dev);
+void usb_nop_init(usbdev_t *dev);
+void usb_hub_init(usbdev_t *dev);
+void usb_hid_init(usbdev_t *dev);
+void usb_msc_init(usbdev_t *dev);
+void usb_generic_init(usbdev_t *dev);
 
 int closest_usb2_hub(const usbdev_t *dev, int *const addr, int *const port);
 
-static inline unsigned char
-gen_bmRequestType (dev_req_dir dir, dev_req_type type, dev_req_recp recp)
+static inline unsigned char gen_bmRequestType(dev_req_dir dir,
+					      dev_req_type type,
+					      dev_req_recp recp)
 {
 	return (dir << 7) | (type << 5) | recp;
 }
 
-/* default "set address" handler */
-usbdev_t *generic_set_address (hci_t *controller, usb_speed speed,
-			       int hubport, int hubaddr);
+// Default "set address" handler.
+usbdev_t *generic_set_address(hci_t *controller, usb_speed speed,
+			      int hubport, int hubaddr);
 
 void usb_detach_device(hci_t *controller, int devno);
 int usb_attach_device(hci_t *controller, int hubaddress, int port,
@@ -296,17 +328,19 @@ int usb_attach_device(hci_t *controller, int hubaddress, int port,
 uint32_t usb_quirk_check(uint16_t vendor, uint16_t device);
 int usb_interface_check(uint16_t vendor, uint16_t device);
 
-#define USB_QUIRK_MSC_FORCE_PROTO_SCSI		(1 <<  0)
-#define USB_QUIRK_MSC_FORCE_PROTO_ATAPI		(1 <<  1)
-#define USB_QUIRK_MSC_FORCE_PROTO_UFI		(1 <<  2)
-#define USB_QUIRK_MSC_FORCE_PROTO_RBC		(1 <<  3)
-#define USB_QUIRK_MSC_FORCE_TRANS_BBB		(1 <<  4)
-#define USB_QUIRK_MSC_FORCE_TRANS_CBI		(1 <<  5)
-#define USB_QUIRK_MSC_FORCE_TRANS_CBI_I		(1 <<  6)
-#define USB_QUIRK_MSC_NO_TEST_UNIT_READY	(1 <<  7)
-#define USB_QUIRK_MSC_SHORT_INQUIRY		(1 <<  8)
-#define USB_QUIRK_TEST				(1 << 31)
-#define USB_QUIRK_NONE				 0
+enum {
+	USB_QUIRK_MSC_FORCE_PROTO_SCSI = 1 << 0,
+	USB_QUIRK_MSC_FORCE_PROTO_ATAPI = 1 << 1,
+	USB_QUIRK_MSC_FORCE_PROTO_UFI = 1 << 2,
+	USB_QUIRK_MSC_FORCE_PROTO_RBC = 1 << 3,
+	USB_QUIRK_MSC_FORCE_TRANS_BBB = 1 << 4,
+	USB_QUIRK_MSC_FORCE_TRANS_CBI = 1 << 5,
+	USB_QUIRK_MSC_FORCE_TRANS_CBI_I = 1 << 6,
+	USB_QUIRK_MSC_NO_TEST_UNIT_READY = 1 << 7,
+	USB_QUIRK_MSC_SHORT_INQUIRY = 1 << 8,
+	USB_QUIRK_TEST = 1 << 31,
+	USB_QUIRK_NONE = 0
+};
 
 static inline void usb_debug(const char *fmt, ...)
 {
@@ -325,7 +359,7 @@ static inline void usb_debug(const char *fmt, ...)
  *
  * @param dev descriptor for the USB device
  */
-void __attribute__((weak)) usb_generic_create (usbdev_t *dev);
+void __attribute__((weak)) usb_generic_create(usbdev_t *dev);
 
 /**
  * To be implemented by libpayload-client. It's called by the USB stack
@@ -334,6 +368,6 @@ void __attribute__((weak)) usb_generic_create (usbdev_t *dev);
  *
  * @param dev descriptor for the USB device
  */
-void __attribute__((weak)) usb_generic_remove (usbdev_t *dev);
+void __attribute__((weak)) usb_generic_remove(usbdev_t *dev);
 
 #endif
