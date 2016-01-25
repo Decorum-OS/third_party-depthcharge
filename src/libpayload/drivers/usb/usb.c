@@ -33,21 +33,21 @@
 
 #include "base/xalloc.h"
 
-#define DR_DESC gen_bmRequestType(device_to_host, standard_type, dev_recp)
+#define DR_DESC usb_gen_bmRequestType(UsbDeviceToHost, UsbStandardType, UsbDevRecp)
 
-hci_t *usb_hcs = 0;
+UsbDevHc *usb_hcs = 0;
 
-hci_t *
+UsbDevHc *
 new_controller (void)
 {
-	hci_t *controller = xzalloc(sizeof (hci_t));
+	UsbDevHc *controller = xzalloc(sizeof (UsbDevHc));
 	controller->next = usb_hcs;
 	usb_hcs = controller;
 	return controller;
 }
 
 void
-detach_controller (hci_t *controller)
+detach_controller (UsbDevHc *controller)
 {
 	if (controller == NULL)
 		return;
@@ -57,7 +57,7 @@ detach_controller (hci_t *controller)
 	if (usb_hcs == controller) {
 		usb_hcs = controller->next;
 	} else {
-		hci_t *it = usb_hcs;
+		UsbDevHc *it = usb_hcs;
 		while (it != NULL) {
 			if (it->next == controller) {
 				it->next = controller->next;
@@ -88,7 +88,7 @@ usb_poll (void)
 {
 	if (usb_hcs == 0)
 		return;
-	hci_t *controller = usb_hcs;
+	UsbDevHc *controller = usb_hcs;
 	while (controller != NULL) {
 		int i;
 		for (i = 0; i < 128; i++) {
@@ -100,10 +100,10 @@ usb_poll (void)
 	}
 }
 
-usbdev_t *
-init_device_entry (hci_t *controller, int i)
+UsbDev *
+init_device_entry (UsbDevHc *controller, int i)
 {
-	usbdev_t *dev = calloc(1, sizeof(usbdev_t));
+	UsbDev *dev = calloc(1, sizeof(UsbDev));
 	if (!dev) {
 		usb_debug("no memory to allocate device structure\n");
 		return NULL;
@@ -121,58 +121,58 @@ init_device_entry (hci_t *controller, int i)
 }
 
 int
-set_feature (usbdev_t *dev, int endp, int feature, int rtype)
+usb_set_feature (UsbDev *dev, int endp, int feature, int rtype)
 {
-	dev_req_t dr;
+	UsbDevReq dr;
 
 	dr.bmRequestType = rtype;
-	dr.data_dir = host_to_device;
-	dr.bRequest = SET_FEATURE;
+	dr.data_dir = UsbHostToDevice;
+	dr.bRequest = UsbReqSetFeature;
 	dr.wValue = feature;
 	dr.wIndex = endp;
 	dr.wLength = 0;
 
-	return dev->controller->control (dev, OUT, sizeof (dr), &dr, 0, 0);
+	return dev->controller->control(dev, UsbDirOut, sizeof (dr), &dr, 0, 0);
 }
 
 int
-get_status (usbdev_t *dev, int intf, int rtype, int len, void *data)
+usb_get_status (UsbDev *dev, int intf, int rtype, int len, void *data)
 {
-	dev_req_t dr;
+	UsbDevReq dr;
 
 	dr.bmRequestType = rtype;
-	dr.data_dir = device_to_host;
-	dr.bRequest = GET_STATUS;
+	dr.data_dir = UsbDeviceToHost;
+	dr.bRequest = UsbReqGetStatus;
 	dr.wValue = 0;
 	dr.wIndex = intf;
 	dr.wLength = len;
 
-	return dev->controller->control (dev, IN, sizeof (dr), &dr, len, data);
+	return dev->controller->control(dev, UsbDirIn, sizeof(dr),
+					&dr, len, data);
 }
 
-/*
- * Certain Lexar / Micron USB 2.0 disks will fail the get_descriptor(DT_CFG)
- * call due to timing issues. Work around this by making extra attempts on
- * failure.
- */
-#define GET_DESCRIPTOR_TRIES 3
-
 int
-get_descriptor(usbdev_t *dev, int rtype, int desc_type, int desc_idx,
-		void *data, size_t len)
+usb_get_descriptor(UsbDev *dev, int rtype, int desc_type, int desc_idx,
+		   void *data, size_t len)
 {
-	dev_req_t dr;
+	UsbDevReq dr;
 	int fail_tries = 0;
 	int ret = 0;
 
-	while (fail_tries++ < GET_DESCRIPTOR_TRIES) {
+	/*
+	 * Certain Lexar / Micron USB 2.0 disks will fail the
+	 * usb_get_descriptor(UsbDescTypeCfg)
+	 * call due to timing issues. Work around this by making extra
+	 * attempts on failure.
+	 */
+	while (fail_tries++ < 3) {
 		dr.bmRequestType = rtype;
-		dr.bRequest = GET_DESCRIPTOR;
+		dr.bRequest = UsbReqGetDescriptor;
 		dr.wValue = desc_type << 8 | desc_idx;
 		dr.wIndex = 0;
 		dr.wLength = len;
 
-		ret = dev->controller->control(dev, IN,
+		ret = dev->controller->control(dev, UsbDirIn,
 				sizeof(dr), &dr, len, data);
 		if (ret)
 			udelay(10);
@@ -183,46 +183,48 @@ get_descriptor(usbdev_t *dev, int rtype, int desc_type, int desc_idx,
 }
 
 int
-set_configuration (usbdev_t *dev)
+usb_set_configuration (UsbDev *dev)
 {
-	dev_req_t dr;
+	UsbDevReq dr;
 
 	dr.bmRequestType = 0;
-	dr.bRequest = SET_CONFIGURATION;
+	dr.bRequest = UsbReqSetConfiguration;
 	dr.wValue = dev->configuration->bConfigurationValue;
 	dr.wIndex = 0;
 	dr.wLength = 0;
 
-	return dev->controller->control (dev, OUT, sizeof (dr), &dr, 0, 0);
+	return dev->controller->control(dev, UsbDirOut, sizeof (dr), &dr, 0, 0);
 }
 
 int
-clear_feature (usbdev_t *dev, int endp, int feature, int rtype)
+usb_clear_feature (UsbDev *dev, int endp, int feature, int rtype)
 {
-	dev_req_t dr;
+	UsbDevReq dr;
 
 	dr.bmRequestType = rtype;
-	dr.data_dir = host_to_device;
-	dr.bRequest = CLEAR_FEATURE;
+	dr.data_dir = UsbHostToDevice;
+	dr.bRequest = UsbReqClearFeature;
 	dr.wValue = feature;
 	dr.wIndex = endp;
 	dr.wLength = 0;
 
-	return dev->controller->control (dev, OUT, sizeof (dr), &dr, 0, 0) < 0;
+	return dev->controller->control(dev, UsbDirOut, sizeof (dr), &dr, 0, 0) < 0;
 }
 
 int
-clear_stall (endpoint_t *ep)
+usb_clear_stall (UsbEndpoint *ep)
 {
-	int ret = clear_feature (ep->dev, ep->endpoint, ENDPOINT_HALT,
-		gen_bmRequestType (host_to_device, standard_type, endp_recp));
+	int ret = usb_clear_feature(ep->dev, ep->endpoint, UsbEndpointHalt,
+				    usb_gen_bmRequestType(UsbHostToDevice,
+							  UsbStandardType,
+							  UsbEndpRecp));
 	ep->toggle = 0;
 	return ret;
 }
 
 /* returns free address or -1 */
 static int
-get_free_address (hci_t *controller)
+get_free_address (UsbDevHc *controller)
 {
 	int i = controller->latest_address + 1;
 	for (; i != controller->latest_address; i++) {
@@ -242,16 +244,16 @@ get_free_address (hci_t *controller)
 }
 
 int
-usb_decode_mps0(usb_speed speed, uint8_t bMaxPacketSize0)
+usb_decode_mps0(UsbSpeed speed, uint8_t bMaxPacketSize0)
 {
 	switch (speed) {
-	case LOW_SPEED:
+	case UsbLowSpeed:
 		if (bMaxPacketSize0 != 8) {
 			usb_debug("Invalid MPS0: 0x%02x\n", bMaxPacketSize0);
 			bMaxPacketSize0 = 8;
 		}
 		return bMaxPacketSize0;
-	case FULL_SPEED:
+	case UsbFullSpeed:
 		switch (bMaxPacketSize0) {
 		case 8: case 16: case 32: case 64:
 			return bMaxPacketSize0;
@@ -259,13 +261,13 @@ usb_decode_mps0(usb_speed speed, uint8_t bMaxPacketSize0)
 			usb_debug("Invalid MPS0: 0x%02x\n", bMaxPacketSize0);
 			return 8;
 		}
-	case HIGH_SPEED:
+	case UsbHighSpeed:
 		if (bMaxPacketSize0 != 64) {
 			usb_debug("Invalid MPS0: 0x%02x\n", bMaxPacketSize0);
 			bMaxPacketSize0 = 64;
 		}
 		return bMaxPacketSize0;
-	case SUPER_SPEED:
+	case UsbSuperSpeed:
 		if (bMaxPacketSize0 != 9) {
 			usb_debug("Invalid MPS0: 0x%02x\n", bMaxPacketSize0);
 			bMaxPacketSize0 = 9;
@@ -278,36 +280,39 @@ usb_decode_mps0(usb_speed speed, uint8_t bMaxPacketSize0)
 
 /* Normalize bInterval to log2 of microframes */
 static int
-usb_decode_interval(usb_speed speed, const endpoint_type type, const unsigned char bInterval)
+usb_decode_interval(UsbSpeed speed, const UsbEndpointType type, const unsigned char bInterval)
 {
 #define LOG2(a) ((sizeof(unsigned) << 3) - __builtin_clz(a) - 1)
 	switch (speed) {
-	case LOW_SPEED:
+	case UsbLowSpeed:
 		switch (type) {
-		case ISOCHRONOUS: case INTERRUPT:
+		case UsbEndpTypeIsochronous:
+		case UsbEndpTypeInterrupt:
 			return LOG2(bInterval) + 3;
 		default:
 			return 0;
 		}
-	case FULL_SPEED:
+	case UsbFullSpeed:
 		switch (type) {
-		case ISOCHRONOUS:
+		case UsbEndpTypeIsochronous:
 			return (bInterval - 1) + 3;
-		case INTERRUPT:
+		case UsbEndpTypeInterrupt:
 			return LOG2(bInterval) + 3;
 		default:
 			return 0;
 		}
-	case HIGH_SPEED:
+	case UsbHighSpeed:
 		switch (type) {
-		case ISOCHRONOUS: case INTERRUPT:
+		case UsbEndpTypeIsochronous:
+		case UsbEndpTypeInterrupt:
 			return bInterval - 1;
 		default:
 			return LOG2(bInterval);
 		}
-	case SUPER_SPEED:
+	case UsbSuperSpeed:
 		switch (type) {
-		case ISOCHRONOUS: case INTERRUPT:
+		case UsbEndpTypeIsochronous:
+		case UsbEndpTypeInterrupt:
 			return bInterval - 1;
 		default:
 			return 0;
@@ -318,23 +323,23 @@ usb_decode_interval(usb_speed speed, const endpoint_type type, const unsigned ch
 #undef LOG2
 }
 
-usbdev_t *
-generic_set_address (hci_t *controller, usb_speed speed,
-		     int hubport, int hubaddr)
+UsbDev *
+usb_generic_set_address (UsbDevHc *controller, UsbSpeed speed,
+			 int hubport, int hubaddr)
 {
 	int adr = get_free_address (controller);	// address to set
-	dev_req_t dr;
+	UsbDevReq dr;
 
 	memset (&dr, 0, sizeof (dr));
-	dr.data_dir = host_to_device;
-	dr.req_type = standard_type;
-	dr.req_recp = dev_recp;
-	dr.bRequest = SET_ADDRESS;
+	dr.data_dir = UsbHostToDevice;
+	dr.req_type = UsbStandardType;
+	dr.req_recp = UsbDevRecp;
+	dr.bRequest = UsbReqSetAddress;
 	dr.wValue = adr;
 	dr.wIndex = 0;
 	dr.wLength = 0;
 
-	usbdev_t *dev = init_device_entry(controller, adr);
+	UsbDev *dev = init_device_entry(controller, adr);
 	if (!dev)
 		return NULL;
 
@@ -347,9 +352,10 @@ generic_set_address (hci_t *controller, usb_speed speed,
 	dev->endpoints[0].endpoint = 0;
 	dev->endpoints[0].maxpacketsize = 8;
 	dev->endpoints[0].toggle = 0;
-	dev->endpoints[0].direction = SETUP;
-	dev->endpoints[0].type = CONTROL;
-	if (dev->controller->control (dev, OUT, sizeof (dr), &dr, 0, 0) < 0) {
+	dev->endpoints[0].direction = UsbDirSetup;
+	dev->endpoints[0].type = UsbEndpTypeControl;
+	if (dev->controller->control(dev, UsbDirOut, sizeof(dr),
+				     &dr, 0, 0) < 0) {
 		usb_debug ("set_address failed\n");
 		usb_detach_device (controller, adr);
 		return NULL;
@@ -358,9 +364,9 @@ generic_set_address (hci_t *controller, usb_speed speed,
 
 	uint8_t buf[8];
 	dev->address = adr;
-	if (get_descriptor (dev, DR_DESC, DT_DEV, 0, buf, sizeof(buf))
-			!= sizeof(buf)) {
-		usb_debug("first get_descriptor(DT_DEV) failed\n");
+	if (usb_get_descriptor(dev, DR_DESC, UsbDescTypeDev, 0, buf,
+			       sizeof(buf)) != sizeof(buf)) {
+		usb_debug("first usb_get_descriptor(UsbDescTypeDev) failed\n");
 		usb_detach_device (controller, adr);
 		return NULL;
 	}
@@ -370,9 +376,9 @@ generic_set_address (hci_t *controller, usb_speed speed,
 }
 
 static int
-set_address (hci_t *controller, usb_speed speed, int hubport, int hubaddr)
+set_address (UsbDevHc *controller, UsbSpeed speed, int hubport, int hubaddr)
 {
-	usbdev_t *dev = controller->set_address(controller, speed,
+	UsbDev *dev = controller->set_address(controller, speed,
 						hubport, hubaddr);
 	if (!dev) {
 		usb_debug ("set_address failed\n");
@@ -380,10 +386,12 @@ set_address (hci_t *controller, usb_speed speed, int hubport, int hubaddr)
 	}
 
 	dev->descriptor = malloc(sizeof(*dev->descriptor));
-	if (!dev->descriptor || get_descriptor (dev, DR_DESC, DT_DEV, 0,
-			dev->descriptor, sizeof(*dev->descriptor))
-			!= sizeof(*dev->descriptor)) {
-		usb_debug ("get_descriptor(DT_DEV) failed\n");
+	if (!dev->descriptor || usb_get_descriptor(dev, DR_DESC,
+						   UsbDescTypeDev, 0,
+						   dev->descriptor,
+						   sizeof(*dev->descriptor)) !=
+	    sizeof(*dev->descriptor)) {
+		usb_debug ("usb_get_descriptor(UsbDescTypeDev) failed\n");
 		usb_detach_device (controller, dev->address);
 		return -1;
 	}
@@ -405,9 +413,9 @@ set_address (hci_t *controller, usb_speed speed, int hubport, int hubaddr)
 	}
 
 	uint16_t buf[2];
-	if (get_descriptor (dev, DR_DESC, DT_CFG, 0, buf, sizeof(buf))
-			!= sizeof(buf)) {
-		usb_debug ("first get_descriptor(DT_CFG) failed\n");
+	if (usb_get_descriptor(dev, DR_DESC, UsbDescTypeCfg, 0, buf,
+			       sizeof(buf)) != sizeof(buf)) {
+		usb_debug ("first usb_get_descriptor(UsbDescTypeCfg) failed\n");
 		usb_detach_device (controller, dev->address);
 		return -1;
 	}
@@ -416,17 +424,18 @@ set_address (hci_t *controller, usb_speed speed, int hubport, int hubaddr)
 	mdelay(1);
 	dev->configuration = malloc(buf[1]);
 	if (!dev->configuration) {
-		usb_debug ("could not allocate %d bytes for DT_CFG\n", buf[1]);
+		usb_debug ("could not allocate %d bytes for UsbDescTypeCfg\n",
+			   buf[1]);
 		usb_detach_device (controller, dev->address);
 		return -1;
 	}
-	if (get_descriptor (dev, DR_DESC, DT_CFG, 0, dev->configuration,
-			    buf[1]) != buf[1]) {
-		usb_debug ("get_descriptor(DT_CFG) failed\n");
+	if (usb_get_descriptor(dev, DR_DESC, UsbDescTypeCfg, 0,
+			       dev->configuration, buf[1]) != buf[1]) {
+		usb_debug ("usb_get_descriptor(UsbDescTypeCfg) failed\n");
 		usb_detach_device (controller, dev->address);
 		return -1;
 	}
-	configuration_descriptor_t *cd = dev->configuration;
+	UsbConfigurationDescriptor *cd = dev->configuration;
 	if (cd->wTotalLength != buf[1]) {
 		usb_debug ("configuration descriptor size changed, aborting\n");
 		usb_detach_device (controller, dev->address);
@@ -452,21 +461,21 @@ set_address (hci_t *controller, usb_speed speed, int hubport, int hubaddr)
 			   "the list of well-known quirks.\n");
 
 	uint8_t *end = (void *)dev->configuration + cd->wTotalLength;
-	interface_descriptor_t *intf;
+	UsbInterfaceDescriptor *intf;
 	uint8_t *ptr;
 
 	/* Find our interface (or the first good one if we don't know) */
 	for (ptr = (void *)dev->configuration + sizeof(*cd); ; ptr += ptr[0]) {
 		if (ptr + 2 > end || !ptr[0] || ptr + ptr[0] > end) {
-			usb_debug ("Couldn't find usable DT_INTF\n");
+			usb_debug ("Couldn't find usable UsbDescTypeIntf\n");
 			usb_detach_device (controller, dev->address);
 			return -1;
 		}
-		if (ptr[1] != DT_INTF)
+		if (ptr[1] != UsbDescTypeIntf)
 			continue;
 		intf = (void *)ptr;
 		if (intf->bLength != sizeof(*intf)) {
-			usb_debug ("Skipping broken DT_INTF\n");
+			usb_debug ("Skipping broken UsbDescTypeIntf\n");
 			continue;
 		}
 		if (ifnum >= 0 && intf->bInterfaceNumber != ifnum)
@@ -481,13 +490,13 @@ set_address (hci_t *controller, usb_speed speed, int hubport, int hubaddr)
 	/* Gather up all endpoints belonging to this inteface */
 	dev->num_endp = 1;
 	for (; ptr + 2 <= end && ptr[0] && ptr + ptr[0] <= end; ptr += ptr[0]) {
-		if (ptr[1] == DT_INTF || ptr[1] == DT_CFG ||
+		if (ptr[1] == UsbDescTypeIntf || ptr[1] == UsbDescTypeCfg ||
 				dev->num_endp >= ARRAY_SIZE(dev->endpoints))
 			break;
-		if (ptr[1] != DT_ENDP)
+		if (ptr[1] != UsbDescTypeEndp)
 			continue;
 
-		endpoint_descriptor_t *desc = (void *)ptr;
+		UsbEndpointDescriptor *desc = (void *)ptr;
 		static const char *transfertypes[4] = {
 			"control", "isochronous", "bulk", "interrupt"
 		};
@@ -497,12 +506,13 @@ set_address (hci_t *controller, usb_speed speed, int hubport, int hubaddr)
 			desc->wMaxPacketSize,
 			transfertypes[desc->bmAttributes & 0x3]);
 
-		endpoint_t *ep = &dev->endpoints[dev->num_endp++];
+		UsbEndpoint *ep = &dev->endpoints[dev->num_endp++];
 		ep->dev = dev;
 		ep->endpoint = desc->bEndpointAddress;
 		ep->toggle = 0;
 		ep->maxpacketsize = desc->wMaxPacketSize;
-		ep->direction = (desc->bEndpointAddress & 0x80) ? IN : OUT;
+		ep->direction = (desc->bEndpointAddress & 0x80) ?
+				UsbDirIn : UsbDirOut;
 		ep->type = desc->bmAttributes & 0x3;
 		ep->interval = usb_decode_interval (dev->speed, ep->type,
 						    desc->bInterval);
@@ -510,7 +520,7 @@ set_address (hci_t *controller, usb_speed speed, int hubport, int hubaddr)
 
 	if ((controller->finish_device_config &&
 			controller->finish_device_config(dev)) ||
-			set_configuration(dev) < 0) {
+			usb_set_configuration(dev) < 0) {
 		usb_debug ("Could not finalize device configuration\n");
 		usb_detach_device (controller, dev->address);
 		return -1;
@@ -617,7 +627,7 @@ set_address (hci_t *controller, usb_speed speed, int hubport, int hubaddr)
  * malfunctioning device.
  */
 void
-usb_detach_device(hci_t *controller, int devno)
+usb_detach_device(UsbDevHc *controller, int devno)
 {
 	/* check if device exists, as we may have
 	   been called yet by the usb class driver */
@@ -633,7 +643,7 @@ usb_detach_device(hci_t *controller, int devno)
 }
 
 int
-usb_attach_device(hci_t *controller, int hubaddress, int port, usb_speed speed)
+usb_attach_device(UsbDevHc *controller, int hubaddress, int port, UsbSpeed speed)
 {
 	static const char* speeds[] = { "full", "low", "high", "super" };
 	usb_debug ("%sspeed device\n", (speed < sizeof(speeds) / sizeof(char*))
@@ -641,7 +651,7 @@ usb_attach_device(hci_t *controller, int hubaddress, int port, usb_speed speed)
 	int newdev = set_address (controller, speed, port, hubaddress);
 	if (newdev == -1)
 		return -1;
-	usbdev_t *newdev_t = controller->devices[newdev];
+	UsbDev *newdev_t = controller->devices[newdev];
 	// determine responsible driver - current done in set_address
 	newdev_t->init (newdev_t);
 	/* init() may have called usb_detach_device() yet, so check */
@@ -649,14 +659,14 @@ usb_attach_device(hci_t *controller, int hubaddress, int port, usb_speed speed)
 }
 
 static void
-usb_generic_destroy (usbdev_t *dev)
+usb_generic_destroy (UsbDev *dev)
 {
 	if (usb_generic_remove)
 		usb_generic_remove(dev);
 }
 
 void
-usb_generic_init (usbdev_t *dev)
+usb_generic_init (UsbDev *dev)
 {
 	dev->data = NULL;
 	dev->destroy = usb_generic_destroy;
@@ -674,9 +684,9 @@ usb_generic_init (usbdev_t *dev)
  * returns the address of the closest USB2.0 hub, which is responsible for
  * split transactions, along with the number of the used downstream port
  */
-int closest_usb2_hub(const usbdev_t *dev, int *const addr, int *const port)
+int usb_closest_usb2_hub(const UsbDev *dev, int *const addr, int *const port)
 {
-	const usbdev_t *usb1dev;
+	const UsbDev *usb1dev;
 
 	do {
 		usb1dev = dev;

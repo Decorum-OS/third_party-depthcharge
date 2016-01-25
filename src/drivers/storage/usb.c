@@ -34,7 +34,7 @@
 
 typedef struct UsbDrive {
 	BlockDev dev;
-	usbdev_t *udev;
+	UsbDev *udev;
 } UsbDrive;
 
 static lba_t dc_usb_read(BlockDevOps *me, lba_t start, lba_t count,
@@ -59,7 +59,7 @@ static lba_t dc_usb_write(BlockDevOps *me, lba_t start, lba_t count,
 		return count;
 }
 
-void usbdisk_create(usbdev_t *dev)
+void usbdisk_create(UsbDev *dev)
 {
 	usbmsc_inst_t *msc = MSC_INST(dev);
 	UsbDrive *drive = xzalloc(sizeof(*drive));
@@ -81,7 +81,7 @@ void usbdisk_create(usbdev_t *dev)
 	printf("Added %s.\n", name);
 }
 
-void usbdisk_remove(usbdev_t *dev)
+void usbdisk_remove(UsbDev *dev)
 {
 	usbmsc_inst_t *msc = MSC_INST(dev);
 	UsbDrive *drive = (UsbDrive *)(msc->data);

@@ -39,7 +39,7 @@
  *
  * @param dev descriptor for the USB storage device
  */
-void __attribute__((weak)) usbdisk_create (usbdev_t *dev);
+void __attribute__((weak)) usbdisk_create (UsbDev *dev);
 
 /**
  * To be implemented by libpayload-client. It's called by the USB stack
@@ -47,6 +47,6 @@ void __attribute__((weak)) usbdisk_create (usbdev_t *dev);
  *
  * @param dev descriptor for the USB storage device
  */
-void __attribute__((weak)) usbdisk_remove (usbdev_t *dev);
+void __attribute__((weak)) usbdisk_remove (UsbDev *dev);
 
 #endif /* __DRIVERS_STORAGE_USBDISK_H__ */

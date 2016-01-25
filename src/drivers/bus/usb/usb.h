@@ -43,12 +43,12 @@ extern ListNode generic_usb_drivers;
 
 typedef struct GenericUsbDevice {
 	GenericUsbDriver *driver;
-	usbdev_t *dev;
+	UsbDev *dev;
 	void *dev_data;
 } GenericUsbDevice;
 
 typedef struct UsbHostController {
-	hc_type type;
+	UsbHcType type;
 	void *bar;
 	ListNode list_node;
 	UsbHcCallback *init_callback;
@@ -56,7 +56,7 @@ typedef struct UsbHostController {
 
 extern ListNode usb_host_controllers;
 
-UsbHostController *new_usb_hc(hc_type type, uintptr_t bar);
+UsbHostController *new_usb_hc(UsbHcType type, uintptr_t bar);
 void set_usb_init_callback(UsbHostController *hc, UsbHcCallback *callback);
 void dc_usb_initialize(void);
 

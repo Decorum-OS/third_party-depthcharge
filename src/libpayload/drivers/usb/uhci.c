@@ -36,15 +36,15 @@
 #include "base/die.h"
 #include "base/xalloc.h"
 
-static void uhci_start (hci_t *controller);
-static void uhci_stop (hci_t *controller);
-static void uhci_reset (hci_t *controller);
-static void uhci_shutdown (hci_t *controller);
-static int uhci_bulk (endpoint_t *ep, int size, uint8_t *data, int finalize);
-static int uhci_control (usbdev_t *dev, direction_t dir, int drlen, void *devreq,
+static void uhci_start (UsbDevHc *controller);
+static void uhci_stop (UsbDevHc *controller);
+static void uhci_reset (UsbDevHc *controller);
+static void uhci_shutdown (UsbDevHc *controller);
+static int uhci_bulk (UsbEndpoint *ep, int size, uint8_t *data, int finalize);
+static int uhci_control (UsbDev *dev, UsbDirection dir, int drlen, void *devreq,
 			 int dalen, uint8_t *data);
-static void* uhci_create_intr_queue (endpoint_t *ep, int reqsize, int reqcount, int reqtiming);
-static void uhci_destroy_intr_queue (endpoint_t *ep, void *queue);
+static void* uhci_create_intr_queue (UsbEndpoint *ep, int reqsize, int reqcount, int reqtiming);
+static void uhci_destroy_intr_queue (UsbEndpoint *ep, void *queue);
 static uint8_t* uhci_poll_intr_queue (void *queue);
 
 static void td_dump(td_t *td)
@@ -95,7 +95,7 @@ static void td_dump(td_t *td)
 }
 
 static void
-uhci_reset (hci_t *controller)
+uhci_reset (UsbDevHc *controller)
 {
 	/* reset */
 	uhci_reg_write16 (controller, USBCMD, 4); /* Global Reset */
@@ -113,7 +113,7 @@ uhci_reset (hci_t *controller)
 }
 
 static void
-uhci_reinit (hci_t *controller)
+uhci_reinit (UsbDevHc *controller)
 {
 	uhci_reg_write32(controller, FLBASEADD,
 			 (uint32_t)(uintptr_t)UHCI_INST(controller)->framelistptr);
@@ -130,15 +130,15 @@ uhci_reinit (hci_t *controller)
 	uhci_start (controller);
 }
 
-hci_t *
+UsbDevHc *
 uhci_pci_init (pcidev_t addr)
 {
 	int i;
 	uint16_t reg16;
 
-	hci_t *controller = new_controller ();
+	UsbDevHc *controller = new_controller ();
 	controller->instance = xzalloc(sizeof (uhci_t));
-	controller->type = UHCI;
+	controller->type = UsbUhci;
 	controller->start = uhci_start;
 	controller->stop = uhci_stop;
 	controller->reset = uhci_reset;
@@ -146,7 +146,7 @@ uhci_pci_init (pcidev_t addr)
 	controller->shutdown = uhci_shutdown;
 	controller->bulk = uhci_bulk;
 	controller->control = uhci_control;
-	controller->set_address = generic_set_address;
+	controller->set_address = usb_generic_set_address;
 	controller->finish_device_config = NULL;
 	controller->destroy_device = NULL;
 	controller->create_intr_queue = uhci_create_intr_queue;
@@ -225,7 +225,7 @@ uhci_pci_init (pcidev_t addr)
 }
 
 static void
-uhci_shutdown (hci_t *controller)
+uhci_shutdown (UsbDevHc *controller)
 {
 	if (controller == 0)
 		return;
@@ -242,14 +242,14 @@ uhci_shutdown (hci_t *controller)
 }
 
 static void
-uhci_start (hci_t *controller)
+uhci_start (UsbDevHc *controller)
 {
 	uhci_reg_write16(controller, USBCMD,
 			 uhci_reg_read16(controller, USBCMD) | 1);	// start work on schedule
 }
 
 static void
-uhci_stop (hci_t *controller)
+uhci_stop (UsbDevHc *controller)
 {
 	uhci_reg_write16(controller, USBCMD,
 			 uhci_reg_read16(controller, USBCMD) & ~1);	// stop work on schedule
@@ -258,7 +258,7 @@ uhci_stop (hci_t *controller)
 #define GET_TD(x) ((void*)(((unsigned int)(x))&~0xf))
 
 static td_t *
-wait_for_completed_qh (hci_t *controller, qh_t *qh)
+wait_for_completed_qh (UsbDevHc *controller, qh_t *qh)
 {
 	int timeout = 1000;	/* max 30 ms. */
 	void *current = GET_TD (qh->elementlinkptr);
@@ -291,7 +291,7 @@ min (int a, int b)
 }
 
 static int
-uhci_control (usbdev_t *dev, direction_t dir, int drlen, void *devreq, int dalen,
+uhci_control (UsbDev *dev, UsbDirection dir, int drlen, void *devreq, int dalen,
 	      unsigned char *data)
 {
 	int endp = 0;		/* this is control: always 0 */
@@ -320,9 +320,9 @@ uhci_control (usbdev_t *dev, direction_t dir, int drlen, void *devreq, int dalen
 	int toggle = 1;
 	for (i = 1; i < count; i++) {
 		switch (dir) {
-			case SETUP: tds[i].token = UHCI_SETUP; break;
-			case IN:    tds[i].token = UHCI_IN;    break;
-			case OUT:   tds[i].token = UHCI_OUT;   break;
+			case UsbDirSetup: tds[i].token = UHCI_SETUP; break;
+			case UsbDirIn:    tds[i].token = UHCI_IN;    break;
+			case UsbDirOut:   tds[i].token = UHCI_OUT;   break;
 		}
 		tds[i].token |= dev->address << TD_DEVADDR_SHIFT |
 			endp << TD_EP_SHIFT |
@@ -337,7 +337,7 @@ uhci_control (usbdev_t *dev, direction_t dir, int drlen, void *devreq, int dalen
 		data += mlen;
 	}
 
-	tds[count].token = ((dir == OUT) ? UHCI_IN : UHCI_OUT) |
+	tds[count].token = ((dir == UsbDirOut) ? UHCI_IN : UHCI_OUT) |
 		dev->address << TD_DEVADDR_SHIFT |
 		endp << TD_EP_SHIFT |
 		maxlen(0) << TD_MAXLEN_SHIFT |
@@ -379,27 +379,28 @@ create_schedule (int numpackets)
 }
 
 static void
-fill_schedule (td_t *td, endpoint_t *ep, int length, unsigned char *data,
+fill_schedule (td_t *td, UsbEndpoint *ep, int length, unsigned char *data,
 	       int *toggle)
 {
 	switch (ep->direction) {
-		case IN: td->token = UHCI_IN; break;
-		case OUT: td->token = UHCI_OUT; break;
-		case SETUP: td->token = UHCI_SETUP; break;
+		case UsbDirIn: td->token = UHCI_IN; break;
+		case UsbDirOut: td->token = UHCI_OUT; break;
+		case UsbDirSetup: td->token = UHCI_SETUP; break;
 	}
 	td->token |= ep->dev->address << TD_DEVADDR_SHIFT |
 		(ep->endpoint & 0xf) << TD_EP_SHIFT |
 		maxlen (length) << TD_MAXLEN_SHIFT |
 		(*toggle & 1) << TD_TOGGLE_SHIFT;
 	td->bufptr = (uintptr_t)data;
-	td->ctrlsts = ((ep->direction == SETUP?3:0) << TD_COUNTER_SHIFT) |
+	td->ctrlsts = ((ep->direction == UsbDirSetup ? 3 : 0) <<
+		       TD_COUNTER_SHIFT) |
 		(ep->dev->speed?TD_LOWSPEED:0) |
 		TD_STATUS_ACTIVE;
 	*toggle ^= 1;
 }
 
 static int
-run_schedule (usbdev_t *dev, td_t *td)
+run_schedule (UsbDev *dev, td_t *td)
 {
 	UHCI_INST (dev->controller)->qh_data->elementlinkptr =
 		(uintptr_t)td & ~(FLISTP_QH | FLISTP_TERMINATE);
@@ -415,7 +416,7 @@ run_schedule (usbdev_t *dev, td_t *td)
 
 /* finalize == 1: if data is of packet aligned size, add a zero length packet */
 static int
-uhci_bulk (endpoint_t *ep, int size, uint8_t *data, int finalize)
+uhci_bulk (UsbEndpoint *ep, int size, uint8_t *data, int finalize)
 {
 	int maxpsize = ep->maxpacketsize;
 	if (maxpsize == 0)
@@ -456,7 +457,7 @@ typedef struct {
 
 /* create and hook-up an intr queue into device schedule */
 static void*
-uhci_create_intr_queue (endpoint_t *ep, int reqsize, int reqcount, int reqtiming)
+uhci_create_intr_queue (UsbEndpoint *ep, int reqsize, int reqcount, int reqtiming)
 {
 	uint8_t *data = malloc(reqsize*reqcount);
 	td_t *tds = memalign(16, sizeof(td_t) * reqcount);
@@ -484,9 +485,9 @@ uhci_create_intr_queue (endpoint_t *ep, int reqsize, int reqcount, int reqtiming
 		tds[i].ptr = (uintptr_t)&tds[i + 1];
 
 		switch (ep->direction) {
-			case IN: tds[i].token = UHCI_IN; break;
-			case OUT: tds[i].token = UHCI_OUT; break;
-			case SETUP: tds[i].token = UHCI_SETUP; break;
+			case UsbDirIn: tds[i].token = UHCI_IN; break;
+			case UsbDirOut: tds[i].token = UHCI_OUT; break;
+			case UsbDirSetup: tds[i].token = UHCI_SETUP; break;
 		}
 		tds[i].token |= ep->dev->address << TD_DEVADDR_SHIFT |
 			(ep->endpoint & 0xf) << TD_EP_SHIFT |
@@ -526,7 +527,7 @@ uhci_create_intr_queue (endpoint_t *ep, int reqsize, int reqcount, int reqtiming
 
 /* remove queue from device schedule, dropping all data that came in */
 static void
-uhci_destroy_intr_queue (endpoint_t *ep, void *q_)
+uhci_destroy_intr_queue (UsbEndpoint *ep, void *q_)
 {
 	intr_q *const q = (intr_q*)q_;
 
@@ -582,37 +583,37 @@ uhci_poll_intr_queue (void *q_)
 }
 
 void
-uhci_reg_write32 (hci_t *ctrl, usbreg reg, uint32_t value)
+uhci_reg_write32 (UsbDevHc *ctrl, usbreg reg, uint32_t value)
 {
 	outl (value, ctrl->reg_base + reg);
 }
 
 uint32_t
-uhci_reg_read32 (hci_t *ctrl, usbreg reg)
+uhci_reg_read32 (UsbDevHc *ctrl, usbreg reg)
 {
 	return inl (ctrl->reg_base + reg);
 }
 
 void
-uhci_reg_write16 (hci_t *ctrl, usbreg reg, uint16_t value)
+uhci_reg_write16 (UsbDevHc *ctrl, usbreg reg, uint16_t value)
 {
 	outw (value, ctrl->reg_base + reg);
 }
 
 uint16_t
-uhci_reg_read16 (hci_t *ctrl, usbreg reg)
+uhci_reg_read16 (UsbDevHc *ctrl, usbreg reg)
 {
 	return inw (ctrl->reg_base + reg);
 }
 
 void
-uhci_reg_write8 (hci_t *ctrl, usbreg reg, uint8_t value)
+uhci_reg_write8 (UsbDevHc *ctrl, usbreg reg, uint8_t value)
 {
 	outb (value, ctrl->reg_base + reg);
 }
 
 uint8_t
-uhci_reg_read8 (hci_t *ctrl, usbreg reg)
+uhci_reg_read8 (UsbDevHc *ctrl, usbreg reg)
 {
 	return inb (ctrl->reg_base + reg);
 }

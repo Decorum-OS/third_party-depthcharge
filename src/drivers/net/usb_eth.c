@@ -29,49 +29,49 @@
 #include "drivers/net/mii.h"
 #include "drivers/net/usb_eth.h"
 
-int usb_eth_read_reg(usbdev_t *dev, uint8_t request, uint16_t value,
+int usb_eth_read_reg(UsbDev *dev, uint8_t request, uint16_t value,
 			    uint16_t index, uint16_t length, void *data)
 {
-	dev_req_t dev_req;
-	dev_req.req_recp = dev_recp;
-	dev_req.req_type = vendor_type;
-	dev_req.data_dir = device_to_host;
+	UsbDevReq dev_req;
+	dev_req.req_recp = UsbDevRecp;
+	dev_req.req_type = UsbVendorType;
+	dev_req.data_dir = UsbDeviceToHost;
 	dev_req.bRequest = request;
 	dev_req.wValue = value;
 	dev_req.wIndex = index;
 	dev_req.wLength = length;
 
-	return (dev->controller->control(dev, IN, sizeof(dev_req), &dev_req,
-					 dev_req.wLength,
+	return (dev->controller->control(dev, UsbDirIn, sizeof(dev_req),
+					 &dev_req, dev_req.wLength,
 					 (uint8_t *)data) < 0);
 }
 
-int usb_eth_write_reg(usbdev_t *dev, uint8_t request, uint16_t value,
+int usb_eth_write_reg(UsbDev *dev, uint8_t request, uint16_t value,
 			    uint16_t index, uint16_t length, void *data)
 {
-	dev_req_t dev_req;
-	dev_req.req_recp = dev_recp;
-	dev_req.req_type = vendor_type;
-	dev_req.data_dir = host_to_device;
+	UsbDevReq dev_req;
+	dev_req.req_recp = UsbDevRecp;
+	dev_req.req_type = UsbVendorType;
+	dev_req.data_dir = UsbHostToDevice;
 	dev_req.bRequest = request;
 	dev_req.wValue = value;
 	dev_req.wIndex = index;
 	dev_req.wLength = length;
 
-	return (dev->controller->control(dev, OUT, sizeof(dev_req), &dev_req,
-					 dev_req.wLength,
+	return (dev->controller->control(dev, UsbDirOut, sizeof(dev_req),
+					 &dev_req, dev_req.wLength,
 					 (uint8_t *)data) < 0);
 }
 
-int usb_eth_init_endpoints(usbdev_t *dev, endpoint_t **in, int in_idx,
-				  endpoint_t **out, int out_idx)
+int usb_eth_init_endpoints(UsbDev *dev, UsbEndpoint **in, int in_idx,
+				  UsbEndpoint **out, int out_idx)
 {
 	*in = &dev->endpoints[in_idx];
 	*out = &dev->endpoints[out_idx];
 
 	if (dev->num_endp < in_idx || dev->num_endp < out_idx ||
-	    (*in)->type != BULK || (*out)->type != BULK ||
-	    (*in)->direction != IN || (*out)->direction != OUT) {
+	    (*in)->type != UsbEndpTypeBulk || (*out)->type != UsbEndpTypeBulk ||
+	    (*in)->direction != UsbDirIn || (*out)->direction != UsbDirOut) {
 		printf("Problem with the endpoints.\n");
 		return 1;
 	}
@@ -88,7 +88,7 @@ static int usb_eth_probe(GenericUsbDevice *dev)
 	int i;
 	UsbEthDevice *eth_dev;
 
-	device_descriptor_t *dd = (device_descriptor_t *)dev->dev->descriptor;
+	UsbDeviceDescriptor *dd = (UsbDeviceDescriptor *)dev->dev->descriptor;
 	list_for_each(eth_dev, usb_eth_drivers, list_node) {
 		for (i = 0; i < eth_dev->num_supported_ids; i++) {
 			if (dd->idVendor == eth_dev->supported_ids[i].vendor &&

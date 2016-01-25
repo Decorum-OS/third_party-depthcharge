@@ -166,10 +166,10 @@ static int board_setup(void)
 	leds = new_rialto_leds();
 	display_set_ops(&(leds->ops));
 
-	UsbHostController *usb_host1 = new_usb_hc(DWC2, 0xff540000);
+	UsbHostController *usb_host1 = new_usb_hc(UsbDwc2, 0xff540000);
 	list_insert_after(&usb_host1->list_node, &usb_host_controllers);
 
-	UsbHostController *usb_otg = new_usb_hc(DWC2, 0xff580000);
+	UsbHostController *usb_otg = new_usb_hc(UsbDwc2, 0xff580000);
 	list_insert_after(&usb_otg->list_node, &usb_host_controllers);
 
 	// Read the current value of the recovery button for confirmation

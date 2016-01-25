@@ -81,17 +81,17 @@ typedef struct {
 		     0x12
      } usbreg;
 
-     void uhci_reg_write32 (hci_t *ctrl, usbreg reg, uint32_t value);
-     uint32_t uhci_reg_read32 (hci_t *ctrl, usbreg reg);
-     void uhci_reg_write16 (hci_t *ctrl, usbreg reg, uint16_t value);
-     uint16_t uhci_reg_read16 (hci_t *ctrl, usbreg reg);
-     void uhci_reg_write8 (hci_t *ctrl, usbreg reg, uint8_t value);
-     uint8_t uhci_reg_read8 (hci_t *ctrl, usbreg reg);
+     void uhci_reg_write32 (UsbDevHc *ctrl, usbreg reg, uint32_t value);
+     uint32_t uhci_reg_read32 (UsbDevHc *ctrl, usbreg reg);
+     void uhci_reg_write16 (UsbDevHc *ctrl, usbreg reg, uint16_t value);
+     uint16_t uhci_reg_read16 (UsbDevHc *ctrl, usbreg reg);
+     void uhci_reg_write8 (UsbDevHc *ctrl, usbreg reg, uint8_t value);
+     uint8_t uhci_reg_read8 (UsbDevHc *ctrl, usbreg reg);
 
      typedef struct uhci {
 	     flistp_t *framelistptr;
 	     qh_t *qh_prei, *qh_intr, *qh_data, *qh_last;
-	     usbdev_t *roothub;
+	     UsbDev *roothub;
      } uhci_t;
 
 #define UHCI_INST(controller) ((uhci_t*)((controller)->instance))

@@ -30,7 +30,7 @@
 #include <usb/usb.h>
 
 static void
-usb_nop_destroy (usbdev_t *dev)
+usb_nop_destroy (UsbDev *dev)
 {
 	if (dev->descriptor != 0)
 		free (dev->descriptor);
@@ -41,13 +41,13 @@ usb_nop_destroy (usbdev_t *dev)
 }
 
 static void
-usb_nop_poll (usbdev_t *dev)
+usb_nop_poll (UsbDev *dev)
 {
 	return;
 }
 
 void
-usb_nop_init (usbdev_t *dev)
+usb_nop_init (UsbDev *dev)
 {
 	dev->descriptor = 0;
 	dev->destroy = usb_nop_destroy;

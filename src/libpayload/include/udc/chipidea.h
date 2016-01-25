@@ -32,6 +32,6 @@
 
 #include "udc.h"
 
-struct usbdev_ctrl *chipidea_init(device_descriptor_t *dd);
+struct usbdev_ctrl *chipidea_init(UsbDeviceDescriptor *dd);
 
 #endif

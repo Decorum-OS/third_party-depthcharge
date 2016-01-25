@@ -42,10 +42,10 @@ typedef struct {
 #define RH_INST(dev) ((rh_inst_t*)(dev)->data)
 
 static void
-uhci_rh_enable_port (usbdev_t *dev, int port)
+uhci_rh_enable_port (UsbDev *dev, int port)
 {
 	uint16_t value;
-	hci_t *controller = dev->controller;
+	UsbDevHc *controller = dev->controller;
 	if (port == 1)
 		port = PORTSC1;
 	else if (port == 2)
@@ -80,9 +80,9 @@ uhci_rh_enable_port (usbdev_t *dev, int port)
 
 /* disable root hub */
 static void
-uhci_rh_disable_port (usbdev_t *dev, int port)
+uhci_rh_disable_port (UsbDev *dev, int port)
 {
-	hci_t *controller = dev->controller;
+	UsbDevHc *controller = dev->controller;
 	if (port == 1)
 		port = PORTSC1;
 	else if (port == 2)
@@ -106,7 +106,7 @@ uhci_rh_disable_port (usbdev_t *dev, int port)
 }
 
 static void
-uhci_rh_scanport (usbdev_t *dev, int port)
+uhci_rh_scanport (UsbDev *dev, int port)
 {
 	int portsc, offset;
 	if (port == 1) {
@@ -135,14 +135,14 @@ uhci_rh_scanport (usbdev_t *dev, int port)
 		uhci_rh_disable_port (dev, port);
 		uhci_rh_enable_port (dev, port);
 
-		usb_speed speed = ((uhci_reg_read16 (dev->controller, portsc) >> 8) & 1);
+		UsbSpeed speed = ((uhci_reg_read16 (dev->controller, portsc) >> 8) & 1);
 
 		RH_INST (dev)->port[offset] = usb_attach_device(dev->controller, dev->address, portsc, speed);
 	}
 }
 
 static int
-uhci_rh_report_port_changes (usbdev_t *dev)
+uhci_rh_report_port_changes (UsbDev *dev)
 {
 	uint16_t stored, real;
 
@@ -176,7 +176,7 @@ uhci_rh_report_port_changes (usbdev_t *dev)
 }
 
 static void
-uhci_rh_destroy (usbdev_t *dev)
+uhci_rh_destroy (UsbDev *dev)
 {
 	usb_detach_device (dev->controller, 1);
 	usb_detach_device (dev->controller, 2);
@@ -186,7 +186,7 @@ uhci_rh_destroy (usbdev_t *dev)
 }
 
 static void
-uhci_rh_poll (usbdev_t *dev)
+uhci_rh_poll (UsbDev *dev)
 {
 	int port;
 	while ((port = uhci_rh_report_port_changes (dev)) != -1)
@@ -194,7 +194,7 @@ uhci_rh_poll (usbdev_t *dev)
 }
 
 void
-uhci_rh_init (usbdev_t *dev)
+uhci_rh_init (UsbDev *dev)
 {
 	dev->destroy = uhci_rh_destroy;
 	dev->poll = uhci_rh_poll;

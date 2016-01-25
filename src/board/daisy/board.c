@@ -103,9 +103,9 @@ static int board_setup(void)
 
 	power_set_ops(&exynos_power_ops);
 
-	UsbHostController *usb_drd = new_usb_hc(XHCI, 0x12000000);
-	UsbHostController *usb_host20 = new_usb_hc(EHCI, 0x12110000);
-	UsbHostController *usb_host11 = new_usb_hc(OHCI, 0x12120000);
+	UsbHostController *usb_drd = new_usb_hc(UsbXhci, 0x12000000);
+	UsbHostController *usb_host20 = new_usb_hc(UsbEhci, 0x12110000);
+	UsbHostController *usb_host11 = new_usb_hc(UsbOhci, 0x12120000);
 
 	list_insert_after(&usb_drd->list_node, &usb_host_controllers);
 	list_insert_after(&usb_host20->list_node, &usb_host_controllers);

@@ -55,7 +55,7 @@ typedef union {
 
 typedef struct {
 	void* queue;
-	hid_descriptor_t *descriptor;
+	UsbHidDescriptor *descriptor;
 
 	usb_hid_keyboard_event_t previous;
 	int lastkeypress;
@@ -65,16 +65,16 @@ typedef struct {
 #define HID_INST(dev) ((usbhid_inst_t*)(dev)->data)
 
 static void
-usb_hid_destroy (usbdev_t *dev)
+usb_hid_destroy (UsbDev *dev)
 {
 	if (HID_INST(dev)->queue) {
 		int i;
 		for (i = 0; i <= dev->num_endp; i++) {
 			if (dev->endpoints[i].endpoint == 0)
 				continue;
-			if (dev->endpoints[i].type != INTERRUPT)
+			if (dev->endpoints[i].type != UsbEndpTypeInterrupt)
 				continue;
-			if (dev->endpoints[i].direction != IN)
+			if (dev->endpoints[i].direction != UsbDirIn)
 				continue;
 			break;
 		}
@@ -344,7 +344,7 @@ usb_hid_process_keyboard_event(usbhid_inst_t *const inst,
 }
 
 static void
-usb_hid_poll (usbdev_t *dev)
+usb_hid_poll (UsbDev *dev)
 {
 	usb_hid_keyboard_event_t current;
 	const uint8_t *buf;
@@ -357,31 +357,31 @@ usb_hid_poll (usbdev_t *dev)
 }
 
 static void
-usb_hid_set_idle (usbdev_t *dev, interface_descriptor_t *interface, uint16_t duration)
+usb_hid_set_idle (UsbDev *dev, UsbInterfaceDescriptor *interface, uint16_t duration)
 {
-	dev_req_t dr;
-	dr.data_dir = host_to_device;
-	dr.req_type = class_type;
-	dr.req_recp = iface_recp;
+	UsbDevReq dr;
+	dr.data_dir = UsbHostToDevice;
+	dr.req_type = UsbClassType;
+	dr.req_recp = UsbIfaceRecp;
 	dr.bRequest = SET_IDLE;
 	dr.wValue = (duration >> 2) << 8;
 	dr.wIndex = interface->bInterfaceNumber;
 	dr.wLength = 0;
-	dev->controller->control (dev, OUT, sizeof (dev_req_t), &dr, 0, 0);
+	dev->controller->control(dev, UsbDirOut, sizeof(UsbDevReq), &dr, 0, 0);
 }
 
 static void
-usb_hid_set_protocol (usbdev_t *dev, interface_descriptor_t *interface, hid_proto proto)
+usb_hid_set_protocol (UsbDev *dev, UsbInterfaceDescriptor *interface, hid_proto proto)
 {
-	dev_req_t dr;
-	dr.data_dir = host_to_device;
-	dr.req_type = class_type;
-	dr.req_recp = iface_recp;
+	UsbDevReq dr;
+	dr.data_dir = UsbHostToDevice;
+	dr.req_type = UsbClassType;
+	dr.req_recp = UsbIfaceRecp;
 	dr.bRequest = SET_PROTOCOL;
 	dr.wValue = proto;
 	dr.wIndex = interface->bInterfaceNumber;
 	dr.wLength = 0;
-	dev->controller->control (dev, OUT, sizeof (dev_req_t), &dr, 0, 0);
+	dev->controller->control(dev, UsbDirOut, sizeof(UsbDevReq), &dr, 0, 0);
 }
 
 int usbhid_havechar (void)
@@ -432,7 +432,7 @@ static int usb_hid_set_layout (const char *country)
 }
 
 void
-usb_hid_init (usbdev_t *dev)
+usb_hid_init (UsbDev *dev)
 {
 
 	static int installed = 0;
@@ -441,8 +441,8 @@ usb_hid_init (usbdev_t *dev)
 		console_add_input_driver (&cons);
 	}
 
-	configuration_descriptor_t *cd = (configuration_descriptor_t*)dev->configuration;
-	interface_descriptor_t *interface = (interface_descriptor_t*)(((char *) cd) + cd->bLength);
+	UsbConfigurationDescriptor *cd = (UsbConfigurationDescriptor *)dev->configuration;
+	UsbInterfaceDescriptor *interface = (UsbInterfaceDescriptor *)(((char *) cd) + cd->bLength);
 
 	if (interface->bInterfaceSubClass == hid_subclass_boot) {
 		uint8_t countrycode;
@@ -461,11 +461,11 @@ usb_hid_init (usbdev_t *dev)
 			usb_hid_set_idle(dev, interface, KEYBOARD_REPEAT_MS);
 			usb_debug ("  activating...\n");
 
-			hid_descriptor_t *desc = malloc(sizeof(hid_descriptor_t));
-			if (!desc || get_descriptor(dev, gen_bmRequestType(
-				device_to_host, standard_type, iface_recp),
+			UsbHidDescriptor *desc = malloc(sizeof(UsbHidDescriptor));
+			if (!desc || usb_get_descriptor(dev, usb_gen_bmRequestType(
+				UsbDeviceToHost, UsbStandardType, UsbIfaceRecp),
 				0x21, 0, desc, sizeof(*desc)) != sizeof(*desc)) {
-				usb_debug ("get_descriptor(HID) failed\n");
+				usb_debug ("usb_get_descriptor(HID) failed\n");
 				usb_detach_device (dev->controller, dev->address);
 				return;
 			}
@@ -485,9 +485,10 @@ usb_hid_init (usbdev_t *dev)
 			dev->poll = usb_hid_poll;
 			int i;
 			for (i = 1; i < dev->num_endp; i++) {
-				if (dev->endpoints[i].type != INTERRUPT)
+				if (dev->endpoints[i].type !=
+						UsbEndpTypeInterrupt)
 					continue;
-				if (dev->endpoints[i].direction != IN)
+				if (dev->endpoints[i].direction != UsbDirIn)
 					continue;
 				break;
 			}

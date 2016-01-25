@@ -174,23 +174,23 @@ int usb_initialize(void)
 	return 0;
 }
 
-hci_t *usb_add_mmio_hc(hc_type type, void *bar)
+UsbDevHc *usb_add_mmio_hc(UsbHcType type, void *bar)
 {
 	switch (type) {
 #if CONFIG_USB_OHCI
-	case OHCI:
+	case UsbOhci:
 		return ohci_init((unsigned long)bar);
 #endif
 #if CONFIG_USB_EHCI
-	case EHCI:
+	case UsbEhci:
 		return ehci_init((unsigned long)bar);
 #endif
 #if CONFIG_USB_DWC2
-	case DWC2:
+	case UsbDwc2:
 		return dwc2_init(bar);
 #endif
 #if CONFIG_USB_XHCI
-	case XHCI:
+	case UsbXhci:
 		return xhci_init((unsigned long)bar);
 #endif
 	default:

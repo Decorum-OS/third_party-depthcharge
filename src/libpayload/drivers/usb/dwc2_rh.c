@@ -24,7 +24,7 @@
 #include "dwc2.h"
 
 static int
-dwc2_rh_port_status_changed(usbdev_t *const dev, const int port)
+dwc2_rh_port_status_changed(UsbDev *const dev, const int port)
 {
 	hprt_t hprt;
 	int changed;
@@ -43,7 +43,7 @@ dwc2_rh_port_status_changed(usbdev_t *const dev, const int port)
 }
 
 static int
-dwc2_rh_port_connected(usbdev_t *const dev, const int port)
+dwc2_rh_port_connected(UsbDev *const dev, const int port)
 {
 	hprt_t hprt;
 	dwc_ctrl_t *const dwc2 = DWC2_INST(dev->controller);
@@ -53,7 +53,7 @@ dwc2_rh_port_connected(usbdev_t *const dev, const int port)
 }
 
 static int
-dwc2_rh_port_in_reset(usbdev_t *const dev, const int port)
+dwc2_rh_port_in_reset(UsbDev *const dev, const int port)
 {
 	hprt_t hprt;
 	dwc_ctrl_t *const dwc2 = DWC2_INST(dev->controller);
@@ -63,7 +63,7 @@ dwc2_rh_port_in_reset(usbdev_t *const dev, const int port)
 }
 
 static int
-dwc2_rh_port_enabled(usbdev_t *const dev, const int port)
+dwc2_rh_port_enabled(UsbDev *const dev, const int port)
 {
 	hprt_t hprt;
 	dwc_ctrl_t *const dwc2 = DWC2_INST(dev->controller);
@@ -72,8 +72,8 @@ dwc2_rh_port_enabled(usbdev_t *const dev, const int port)
 	return hprt.prtena;
 }
 
-static usb_speed
-dwc2_rh_port_speed(usbdev_t *const dev, const int port)
+static UsbSpeed
+dwc2_rh_port_speed(UsbDev *const dev, const int port)
 {
 	hprt_t hprt;
 	dwc_ctrl_t *const dwc2 = DWC2_INST(dev->controller);
@@ -82,18 +82,18 @@ dwc2_rh_port_speed(usbdev_t *const dev, const int port)
 	if (hprt.prtena) {
 		switch (hprt.prtspd) {
 		case PRTSPD_HIGH:
-			return HIGH_SPEED;
+			return UsbHighSpeed;
 		case PRTSPD_FULL:
-			return FULL_SPEED;
+			return UsbFullSpeed;
 		case PRTSPD_LOW:
-			return LOW_SPEED;
+			return UsbLowSpeed;
 		}
 	}
 	return -1;
 }
 
 static int
-dwc2_rh_reset_port(usbdev_t *const dev, const int port)
+dwc2_rh_reset_port(UsbDev *const dev, const int port)
 {
 	hprt_t hprt;
 	dwc_ctrl_t *const dwc2 = DWC2_INST(dev->controller);
@@ -128,7 +128,7 @@ dwc2_rh_reset_port(usbdev_t *const dev, const int port)
 }
 
 static int
-dwc2_rh_enable_port(usbdev_t *const dev, const int port)
+dwc2_rh_enable_port(UsbDev *const dev, const int port)
 {
 	hprt_t hprt;
 	dwc_ctrl_t *const dwc2 = DWC2_INST(dev->controller);
@@ -142,7 +142,7 @@ dwc2_rh_enable_port(usbdev_t *const dev, const int port)
 }
 
 static int
-dwc2_rh_disable_port(usbdev_t *const dev, const int port)
+dwc2_rh_disable_port(UsbDev *const dev, const int port)
 {
 	hprt_t hprt;
 	dwc_ctrl_t *const dwc2 = DWC2_INST(dev->controller);
@@ -171,7 +171,7 @@ static const generic_hub_ops_t dwc2_rh_ops = {
 };
 
 void
-dwc2_rh_init(usbdev_t *dev)
+dwc2_rh_init(UsbDev *dev)
 {
 	dwc_ctrl_t *const dwc2 = DWC2_INST(dev->controller);
 

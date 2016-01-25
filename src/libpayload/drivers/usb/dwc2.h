@@ -21,7 +21,7 @@
 #define __DWC2_HCD_H__
 #include <usb/usb.h>
 
-hci_t *dwc2_init(void *bar);
-void dwc2_rh_init (usbdev_t *dev);
+UsbDevHc *dwc2_init(void *bar);
+void dwc2_rh_init (UsbDev *dev);
 
 #endif

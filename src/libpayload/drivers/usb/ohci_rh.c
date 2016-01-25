@@ -43,7 +43,7 @@ typedef struct {
 #define RH_INST(dev) ((rh_inst_t*)(dev)->data)
 
 static void
-ohci_rh_enable_port (usbdev_t *dev, int port)
+ohci_rh_enable_port (UsbDev *dev, int port)
 {
 	/* Reset RH port should hold 50ms with pulses of at least 10ms and
 	 * gaps of at most 3ms (usb20 spec 7.1.7.5).
@@ -83,7 +83,7 @@ ohci_rh_enable_port (usbdev_t *dev, int port)
 
 /* disable root hub */
 static void
-ohci_rh_disable_port (usbdev_t *dev, int port)
+ohci_rh_disable_port (UsbDev *dev, int port)
 {
 	if (RH_INST (dev)->port[port] != -1) {
 		usb_detach_device(dev->controller, RH_INST (dev)->port[port]);
@@ -100,7 +100,7 @@ ohci_rh_disable_port (usbdev_t *dev, int port)
 }
 
 static void
-ohci_rh_scanport (usbdev_t *dev, int port)
+ohci_rh_scanport (UsbDev *dev, int port)
 {
 	if (port >= RH_INST(dev)->numports) {
 		usb_debug("Invalid port %d\n", port);
@@ -128,12 +128,12 @@ ohci_rh_scanport (usbdev_t *dev, int port)
 		return;
 	}
 
-	usb_speed speed = (OHCI_INST(dev->controller)->opreg->HcRhPortStatus[port] & LowSpeedDeviceAttached) != 0;
+	UsbSpeed speed = (OHCI_INST(dev->controller)->opreg->HcRhPortStatus[port] & LowSpeedDeviceAttached) != 0;
 	RH_INST (dev)->port[port] = usb_attach_device(dev->controller, dev->address, port, speed);
 }
 
 static int
-ohci_rh_report_port_changes (usbdev_t *dev)
+ohci_rh_report_port_changes (UsbDev *dev)
 {
 	ohci_t *const ohcic = OHCI_INST (dev->controller);
 
@@ -153,7 +153,7 @@ ohci_rh_report_port_changes (usbdev_t *dev)
 }
 
 static void
-ohci_rh_destroy (usbdev_t *dev)
+ohci_rh_destroy (UsbDev *dev)
 {
 	int i;
 	for (i = 0; i < RH_INST (dev)->numports; i++)
@@ -162,7 +162,7 @@ ohci_rh_destroy (usbdev_t *dev)
 }
 
 static void
-ohci_rh_poll (usbdev_t *dev)
+ohci_rh_poll (UsbDev *dev)
 {
 	ohci_t *const ohcic = OHCI_INST (dev->controller);
 
@@ -180,7 +180,7 @@ ohci_rh_poll (usbdev_t *dev)
 }
 
 void
-ohci_rh_init (usbdev_t *dev)
+ohci_rh_init (UsbDev *dev)
 {
 	int i;
 

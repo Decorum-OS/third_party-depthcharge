@@ -36,19 +36,19 @@ static Smsc95xxDev smsc_dev;
  * The lower-level utilities
  */
 
-static int smsc95xx_read_reg(usbdev_t *dev, uint16_t index, uint32_t *data)
+static int smsc95xx_read_reg(UsbDev *dev, uint16_t index, uint32_t *data)
 {
 	return usb_eth_read_reg(dev, UsbVendorReqRead, 0,
 				index, sizeof(*data), data);
 }
 
-static int smsc95xx_write_reg(usbdev_t *dev, uint16_t index, uint32_t data)
+static int smsc95xx_write_reg(UsbDev *dev, uint16_t index, uint32_t data)
 {
 	return usb_eth_write_reg(dev, UsbVendorReqWrite, 0,
 				index, sizeof(data), &data);
 }
 
-static int smsc95xx_wait_for_phy(usbdev_t *dev)
+static int smsc95xx_wait_for_phy(UsbDev *dev)
 {
 	uint32_t val;
 	int i;
@@ -67,7 +67,7 @@ static int smsc95xx_wait_for_phy(usbdev_t *dev)
 static int smsc95xx_mdio_read(NetDevice *dev, uint8_t loc, uint16_t *val)
 {
 	GenericUsbDevice *gen_dev = (GenericUsbDevice *)dev->dev_data;
-	usbdev_t *usb_dev = gen_dev->dev;
+	UsbDev *usb_dev = gen_dev->dev;
 	uint32_t addr;
 	uint32_t data;
 
@@ -94,7 +94,7 @@ static int smsc95xx_mdio_read(NetDevice *dev, uint8_t loc, uint16_t *val)
 static int smsc95xx_mdio_write(NetDevice *dev, uint8_t loc, uint16_t val)
 {
 	GenericUsbDevice *gen_dev = (GenericUsbDevice *)dev->dev_data;
-	usbdev_t *usb_dev = gen_dev->dev;
+	UsbDev *usb_dev = gen_dev->dev;
 	uint32_t addr;
 
 	if (smsc95xx_wait_for_phy(usb_dev)) {
@@ -117,7 +117,7 @@ static int smsc95xx_mdio_write(NetDevice *dev, uint8_t loc, uint16_t val)
 	return 0;
 }
 
-static int smsc95xx_wait_eeprom(usbdev_t *dev)
+static int smsc95xx_wait_eeprom(UsbDev *dev)
 {
 	uint32_t val;
 	int i;
@@ -143,7 +143,7 @@ static int smsc95xx_wait_eeprom(usbdev_t *dev)
 	return 0;
 }
 
-static int smsc95xx_read_eeprom(usbdev_t *dev, uint32_t offset,
+static int smsc95xx_read_eeprom(UsbDev *dev, uint32_t offset,
 				uint32_t length, uint8_t *data)
 {
 	uint32_t val;
@@ -168,7 +168,7 @@ static int smsc95xx_read_eeprom(usbdev_t *dev, uint32_t offset,
 	return 0;
 }
 
-static int smsc95xx_init_reset(usbdev_t *usb_dev)
+static int smsc95xx_init_reset(UsbDev *usb_dev)
 {
 	uint32_t read_buf;
 	int timeout;
@@ -206,7 +206,7 @@ static int smsc95xx_init_reset(usbdev_t *usb_dev)
 	return 0;
 }
 
-static int smsc95xx_set_cfg(usbdev_t *usb_dev)
+static int smsc95xx_set_cfg(UsbDev *usb_dev)
 {
 	uint32_t read_buf;
 
@@ -231,7 +231,7 @@ static int smsc95xx_set_cfg(usbdev_t *usb_dev)
 	return 0;
 }
 
-static int smsc95xx_start(usbdev_t *usb_dev)
+static int smsc95xx_start(UsbDev *usb_dev)
 {
 	uint32_t read_buf;
 
@@ -256,7 +256,7 @@ static int smsc95xx_start(usbdev_t *usb_dev)
 
 static int smsc95xx_init(GenericUsbDevice *gen_dev)
 {
-	usbdev_t *usb_dev = gen_dev->dev;
+	UsbDev *usb_dev = gen_dev->dev;
 
 	printf("SMSC95xx: Initializing\n");
 
@@ -285,7 +285,7 @@ static int smsc95xx_init(GenericUsbDevice *gen_dev)
 static int smsc95xx_send(NetDevice *net_dev, void *buf, uint16_t len)
 {
 	GenericUsbDevice *gen_dev = (GenericUsbDevice *)net_dev->dev_data;
-	usbdev_t *usb_dev = gen_dev->dev;
+	UsbDev *usb_dev = gen_dev->dev;
 
 	uint32_t tx_cmd_a;
 	uint32_t tx_cmd_b;
@@ -318,7 +318,7 @@ static int smsc95xx_recv(NetDevice *net_dev, void *buf, uint16_t *len,
 			 int maxlen)
 {
 	GenericUsbDevice *gen_dev = (GenericUsbDevice *)net_dev->dev_data;
-	usbdev_t *usb_dev = gen_dev->dev;
+	UsbDev *usb_dev = gen_dev->dev;
 
 	uint32_t rx_status;
 	uint32_t packet_len;
@@ -368,7 +368,7 @@ static int smsc95xx_recv(NetDevice *net_dev, void *buf, uint16_t *len,
 static const uip_eth_addr *smsc95xx_get_mac(NetDevice *net_dev)
 {
 	GenericUsbDevice *gen_dev = (GenericUsbDevice *)net_dev->dev_data;
-	usbdev_t *usb_dev = gen_dev->dev;
+	UsbDev *usb_dev = gen_dev->dev;
 	uint32_t addrh;
 	uint32_t addrl;
 

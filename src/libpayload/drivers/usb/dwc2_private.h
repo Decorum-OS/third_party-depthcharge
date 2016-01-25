@@ -31,7 +31,7 @@ typedef struct dwc_ctrl {
 
 typedef struct {
 	uint8_t *data;
-	endpoint_t *endp;
+	UsbEndpoint *endp;
 	int reqsize;
 	uint32_t reqtiming;
 	uint32_t timestamp;

@@ -255,7 +255,7 @@
 	typedef struct ohci {
 		opreg_t *opreg;
 		hcca_t *hcca;
-		usbdev_t *roothub;
+		UsbDev *roothub;
 		ed_t *periodic_ed;
 #define DMA_SIZE (64 * 1024)
 		void *dma_buffer;

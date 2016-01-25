@@ -37,7 +37,7 @@
 struct usbdev_ctrl;
 
 struct usbdev_interface {
-	interface_descriptor_t descriptor;
+	UsbInterfaceDescriptor descriptor;
 	void (*init)(struct usbdev_ctrl *);
 
 	/**
@@ -45,8 +45,9 @@ struct usbdev_interface {
 	 *
 	 * @param ep endpoint the packet is for
 	 *
-	 * @param in_dir 1, if it's an IN or INTR transfer.
-	 *               0 for OUT, SETUP is handled in handle_setup
+	 * @param in_dir 1, if it's an UsbDirIn or INTR transfer.
+	 *               0 for UsbDirOut, UsbDirSetup is handled in
+	 *               handle_setup
 	 *
 	 * @param len Actual transfer length in bytes. Can differ from the
 	 *            scheduled length if the host requested a smaller
@@ -58,15 +59,15 @@ struct usbdev_interface {
 	/**
 	 * handle_setup: called by the controller driver for setup packets
 	 *
-	 * @param ep endpoint the SETUP request came up on
-	 * @param dr SETUP request data
+	 * @param ep endpoint the UsbDirSetup request came up on
+	 * @param dr UsbDirSetup request data
 	 */
-	int (*handle_setup)(struct usbdev_ctrl *, int ep, dev_req_t *dr);
-	endpoint_descriptor_t *eps;
+	int (*handle_setup)(struct usbdev_ctrl *, int ep, UsbDevReq *dr);
+	UsbEndpointDescriptor *eps;
 };
 
 struct usbdev_configuration {
-	configuration_descriptor_t descriptor;
+	UsbConfigurationDescriptor descriptor;
 	ListNode list_node;
 	struct usbdev_interface interfaces[];
 };
@@ -84,7 +85,7 @@ struct usbdev_ctrl {
 
 	ListNode configs;
 	int config_count;
-	device_descriptor_t device_descriptor;
+	UsbDeviceDescriptor device_descriptor;
 
 	int ep_halted[16][2];
 	int ep_mps[16][2];
@@ -167,6 +168,6 @@ void udc_add_gadget(struct usbdev_ctrl *this,
 	struct usbdev_configuration *config);
 void udc_add_strings(unsigned short id, unsigned char count,
 	const char *strings[]);
-void udc_handle_setup(struct usbdev_ctrl *this, int ep, dev_req_t *dr);
+void udc_handle_setup(struct usbdev_ctrl *this, int ep, UsbDevReq *dr);
 
 #endif

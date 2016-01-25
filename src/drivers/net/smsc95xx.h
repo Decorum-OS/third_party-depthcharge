@@ -127,8 +127,8 @@ enum {
 
 typedef struct Smsc95xxDev {
 	UsbEthDevice usb_eth_dev;
-	endpoint_t *bulk_in;
-	endpoint_t *bulk_out;
+	UsbEndpoint *bulk_in;
+	UsbEndpoint *bulk_out;
 	uip_eth_addr mac_addr;
 } Smsc95xxDev;
 

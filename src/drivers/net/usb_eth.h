@@ -38,11 +38,11 @@ typedef struct UsbEthDevice {
 
 extern ListNode usb_eth_drivers;
 
-int usb_eth_read_reg(usbdev_t *dev, uint8_t request, uint16_t value,
+int usb_eth_read_reg(UsbDev *dev, uint8_t request, uint16_t value,
 			    uint16_t index, uint16_t length, void *data);
-int usb_eth_write_reg(usbdev_t *dev, uint8_t request, uint16_t value,
+int usb_eth_write_reg(UsbDev *dev, uint8_t request, uint16_t value,
 			    uint16_t index, uint16_t length, void *data);
-int usb_eth_init_endpoints(usbdev_t *dev, endpoint_t **in, int in_idx,
-				  endpoint_t **out, int out_idx);
+int usb_eth_init_endpoints(UsbDev *dev, UsbEndpoint **in, int in_idx,
+				  UsbEndpoint **out, int out_idx);
 
 #endif /* __DRIVERS_NET_USB_ETH_H__ */

@@ -140,18 +140,18 @@ static void enable_interface(struct usbdev_ctrl *this, int iface_num)
  *
  * returns 1 if transfer was handled
  */
-static int setup_ep0(struct usbdev_ctrl *this, dev_req_t *dr)
+static int setup_ep0(struct usbdev_ctrl *this, UsbDevReq *dr)
 {
 	if ((dr->bmRequestType == 0x00) &&
-	    (dr->bRequest == SET_ADDRESS)) {
+	    (dr->bRequest == UsbReqSetAddress)) {
 		this->set_address(this, dr->wValue & 0x7f);
 
-		/* status phase IN */
+		/* status phase UsbDirIn */
 		this->enqueue_packet(this, 0, 1, NULL, 0, 0, 0);
 		return 1;
 	} else
 	if ((dr->bmRequestType == 0x00) &&
-	    (dr->bRequest == SET_CONFIGURATION)) {
+	    (dr->bRequest == UsbReqSetConfiguration)) {
 		struct usbdev_configuration *config =
 			fetch_config(this, dr->wValue);
 
@@ -164,7 +164,7 @@ static int setup_ep0(struct usbdev_ctrl *this, dev_req_t *dr)
 			return 1;
 		}
 
-		/* status phase IN */
+		/* status phase UsbDirIn */
 		this->enqueue_packet(this, 0, 1, NULL, 0, 0, 0);
 
 		this->current_config = config;
@@ -176,80 +176,80 @@ static int setup_ep0(struct usbdev_ctrl *this, dev_req_t *dr)
 		return 1;
 	} else
 	if ((dr->bmRequestType == 0x80) &&
-	    (dr->bRequest == GET_CONFIGURATION)) {
+	    (dr->bRequest == UsbReqGetConfiguration)) {
 		unsigned char *res = dma_malloc(1);
 		res[0] = this->current_config_id;
 
-		/* data phase IN */
+		/* data phase UsbDirIn */
 		this->enqueue_packet(this, 0, 1, res, min(1, dr->wLength),
 			0, 1);
 
-		/* status phase OUT */
+		/* status phase UsbDirOut */
 		this->enqueue_packet(this, 0, 0, NULL, 0, 0, 0);
 		return 1;
 	} else
-	// ENDPOINT_HALT
+	// UsbEndpointHalt
 	if ((dr->bmRequestType == 0x02) && // endpoint
-	    (dr->bRequest == CLEAR_FEATURE) &&
+	    (dr->bRequest == UsbReqClearFeature) &&
 	    (dr->wValue == 0)) {
 		int ep = dr->wIndex;
 		/* clear STALL */
 		this->stall(this, ep & 0xf, ep & 0x80, 0);
 
-		/* status phase IN */
+		/* status phase UsbDirIn */
 		this->enqueue_packet(this, 0, 1, NULL, 0, 0, 0);
 		return 1;
 	} else
-	// ENDPOINT_HALT
+	// UsbEndpointHalt
 	if ((dr->bmRequestType == 0x02) && // endpoint
-	    (dr->bRequest == SET_FEATURE) &&
+	    (dr->bRequest == UsbReqSetFeature) &&
 	    (dr->wValue == 0)) {
 		int ep = dr->wIndex;
 		/* set STALL */
 		this->stall(this, ep & 0xf, ep & 0x80, 1);
 
-		/* status phase IN */
+		/* status phase UsbDirIn */
 		this->enqueue_packet(this, 0, 1, NULL, 0, 0, 0);
 		return 1;
 	} else
-	// DEVICE_REMOTE_WAKEUP
+	// UsbDeviceRemoteWakeup
 	if ((dr->bmRequestType == 0x00) &&
-	    (dr->bRequest == CLEAR_FEATURE) &&
+	    (dr->bRequest == UsbReqClearFeature) &&
 	    (dr->wValue == 1)) {
 		this->remote_wakeup = 0;
 
-		/* status phase IN */
+		/* status phase UsbDirIn */
 		this->enqueue_packet(this, 0, 1, NULL, 0, 0, 0);
 		return 1;
 	} else
-	// DEVICE_REMOTE_WAKEUP
+	// UsbDeviceRemoteWakeup
 	if ((dr->bmRequestType == 0x00) &&
-	    (dr->bRequest == SET_FEATURE) &&
+	    (dr->bRequest == UsbReqSetFeature) &&
 	    (dr->wValue == 1)) {
 		this->remote_wakeup = 1;
 
-		/* status phase IN */
+		/* status phase UsbDirIn */
 		this->enqueue_packet(this, 0, 1, NULL, 0, 0, 0);
 		return 1;
 	} else
 	if ((dr->bmRequestType == 0x82) && // endpoint
-	    (dr->bRequest == GET_STATUS)) {
+	    (dr->bRequest == UsbReqGetStatus)) {
 		unsigned char *res = dma_malloc(2);
 		int ep = dr->wIndex;
 		/* is EP halted? */
 		res[0] = this->ep_halted[ep & 0xf][(ep & 0x80) ? 1 : 0];
 		res[1] = 0;
 
-		/* data phase IN */
+		/* data phase UsbDirIn */
 		this->enqueue_packet(this, 0, 1, res,
 			min(2, dr->wLength), 0, 1);
 
-		// status phase OUT
+		// status phase UsbDirOut
 		this->enqueue_packet(this, 0, 0, NULL, 0, 0, 0);
 		return 1;
 	} else
 	if ((dr->bmRequestType == 0x80) &&
-	    (dr->bRequest == GET_STATUS)) {
+	    (dr->bRequest == UsbReqGetStatus)) {
 		unsigned char *res = dma_malloc(2);
 		res[0] = 1; // self powered
 		if (this->remote_wakeup)
@@ -257,16 +257,16 @@ static int setup_ep0(struct usbdev_ctrl *this, dev_req_t *dr)
 
 		res[1] = 0;
 
-		/* data phase IN */
+		/* data phase UsbDirIn */
 		this->enqueue_packet(this, 0, 1, res,
 			min(2, dr->wLength), 0, 1);
 
-		// status phase OUT
+		// status phase UsbDirOut
 		this->enqueue_packet(this, 0, 0, NULL, 0, 0, 0);
 		return 1;
 	} else
 	if ((dr->bmRequestType == 0x80) &&
-	    (dr->bRequest == GET_DESCRIPTOR) &&
+	    (dr->bRequest == UsbReqGetDescriptor) &&
 	    ((dr->wValue & 0xff00) == 0x0200)) {
 		int i, j;
 		/* config descriptor #id
@@ -287,35 +287,35 @@ static int setup_ep0(struct usbdev_ctrl *this, dev_req_t *dr)
 		uint8_t *head = data;
 
 		memcpy(head, &config->descriptor,
-			sizeof(configuration_descriptor_t));
-		head += sizeof(configuration_descriptor_t);
+			sizeof(UsbConfigurationDescriptor));
+		head += sizeof(UsbConfigurationDescriptor);
 
 		for (i = 0; i < config->descriptor.bNumInterfaces; i++) {
 			memcpy(head, &config->interfaces[i].descriptor,
-				sizeof(interface_descriptor_t));
-			head += sizeof(interface_descriptor_t);
+				sizeof(UsbInterfaceDescriptor));
+			head += sizeof(UsbInterfaceDescriptor);
 			for (j = 0;
 			     j < config->interfaces[i].descriptor.bNumEndpoints;
 			     j++) {
 				memcpy(head, &config->interfaces[i].eps[j],
-					sizeof(endpoint_descriptor_t));
-				head += sizeof(endpoint_descriptor_t);
+					sizeof(UsbEndpointDescriptor));
+				head += sizeof(UsbEndpointDescriptor);
 			}
 		}
 		int size = config->descriptor.wTotalLength;
 		assert((head - data) == config->descriptor.wTotalLength);
 
-		/* data phase IN */
+		/* data phase UsbDirIn */
 		this->enqueue_packet(this, 0, 1, data,
 			min(size, dr->wLength),
 			zlp(this, 0, size, dr->wLength), 1);
 
-		/* status phase OUT */
+		/* status phase UsbDirOut */
 		this->enqueue_packet(this, 0, 0, NULL, 0, 0, 0);
 		return 1;
 	} else
 	if ((dr->bmRequestType == 0x80) &&
-	    (dr->bRequest == GET_DESCRIPTOR) &&
+	    (dr->bRequest == UsbReqGetDescriptor) &&
 	    ((dr->wValue & 0xff00) == 0x0300)) {
 		int id = (dr->wValue & 0xff);
 		if (id == 0) {
@@ -327,14 +327,14 @@ static int setup_ep0(struct usbdev_ctrl *this, dev_req_t *dr)
 			data[1] = 0x03; // string descriptor
 			data[2] = strings_lang_id & 0xff;
 			data[3] = strings_lang_id >> 8;
-			/* data phase IN */
+			/* data phase UsbDirIn */
 			this->enqueue_packet(this, 0, 1,
 				data,
 				min(data[0], dr->wLength),
 				zlp(this, 0, data[0], dr->wLength),
 				1);
 
-			/* status phase OUT */
+			/* status phase UsbDirOut */
 			this->enqueue_packet(this, 0, 0, NULL, 0, 0, 0);
 		} else {
 			if (strings_lang_id == 0)
@@ -358,31 +358,31 @@ static int setup_ep0(struct usbdev_ctrl *this, dev_req_t *dr)
 			for (i = 0; i < s_len; i++)
 				data[i * 2 + 2] = strings[id][i];
 
-			/* data phase IN */
+			/* data phase UsbDirIn */
 			this->enqueue_packet(this, 0, 1,
 				data,
 				min(d_len + 2, dr->wLength),
 				zlp(this, 0, d_len + 2, dr->wLength),
 				1);
 
-			/* status phase OUT */
+			/* status phase UsbDirOut */
 			this->enqueue_packet(this, 0, 0, NULL, 0, 0, 0);
 		}
 		return 1;
 	} else
 	if ((dr->bmRequestType == 0x80) &&
-	    (dr->bRequest == GET_DESCRIPTOR) &&
+	    (dr->bRequest == UsbReqGetDescriptor) &&
 	    ((dr->wValue & 0xff00) == 0x0100)) {
-		device_descriptor_t *dd = dma_malloc(sizeof(*dd));
+		UsbDeviceDescriptor *dd = dma_malloc(sizeof(*dd));
 		memcpy(dd, &this->device_descriptor, sizeof(*dd));
 		dd->bNumConfigurations = this->config_count;
 
-		/* data phase IN */
+		/* data phase UsbDirIn */
 		this->enqueue_packet(this, 0, 1, (void *)dd,
 			min(sizeof(*dd), dr->wLength),
 			zlp(this, 0, sizeof(*dd), dr->wLength), 1);
 
-		/* status phase OUT */
+		/* status phase UsbDirOut */
 		this->enqueue_packet(this, 0, 0, NULL, 0, 0, 0);
 		return 1;
 	}
@@ -395,18 +395,18 @@ void udc_add_gadget(struct usbdev_ctrl *this,
 	int i, size;
 	list_insert_after(&config->list_node, &this->configs);
 
-	size = sizeof(configuration_descriptor_t);
+	size = sizeof(UsbConfigurationDescriptor);
 
 	for (i = 0; i < config->descriptor.bNumInterfaces; i++) {
 		size += sizeof(config->interfaces[i].descriptor);
 		size += config->interfaces[i].descriptor.bNumEndpoints *
-			sizeof(endpoint_descriptor_t);
+			sizeof(UsbEndpointDescriptor);
 	}
 	config->descriptor.wTotalLength = size;
 	config->descriptor.bConfigurationValue = ++this->config_count;
 }
 
-void udc_handle_setup(struct usbdev_ctrl *this, int ep, dev_req_t *dr)
+void udc_handle_setup(struct usbdev_ctrl *this, int ep, UsbDevReq *dr)
 {
 	if ((ep == 0) && setup_ep0(this, dr))
 		return;

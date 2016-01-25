@@ -30,7 +30,7 @@
 ListNode generic_usb_drivers;
 ListNode usb_host_controllers;
 
-void usb_generic_create(usbdev_t *dev)
+void usb_generic_create(UsbDev *dev)
 {
 	// Allocate a structure to keep track of this device.
 	GenericUsbDevice *gdev = xmalloc(sizeof(*gdev));
@@ -51,7 +51,7 @@ void usb_generic_create(usbdev_t *dev)
 	free(gdev);
 }
 
-void usb_generic_remove(usbdev_t *dev)
+void usb_generic_remove(UsbDev *dev)
 {
 	// If this device was never claimed, ignore it.
 	if (!dev->data)
@@ -68,7 +68,7 @@ void usb_generic_remove(usbdev_t *dev)
 	dev->data = NULL;
 }
 
-UsbHostController *new_usb_hc(hc_type type, uintptr_t bar)
+UsbHostController *new_usb_hc(UsbHcType type, uintptr_t bar)
 {
 	UsbHostController *hc = xzalloc(sizeof(*hc));
 	hc->type = type;
@@ -90,8 +90,12 @@ static int dc_usb_shutdown(struct CleanupFunc *cleanup, CleanupType type)
 
 void dc_usb_initialize(void)
 {
-	static const char *const hc_types[] = {[UHCI] = "UHCI", [OHCI] = "OHCI",
-		[EHCI] = "EHCI", [XHCI] = "XHCI", [DWC2] = "DWC2"
+	static const char *const hc_types[] = {
+		[UsbUhci] = "UHCI",
+		[UsbOhci] = "OHCI",
+		[UsbEhci] = "EHCI",
+		[UsbXhci] = "XHCI",
+		[UsbDwc2] = "DWC2"
 	};
 	static int need_init = 1;
 	static CleanupFunc cleanup = {

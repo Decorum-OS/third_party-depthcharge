@@ -37,16 +37,16 @@
 #include "base/die.h"
 #include "base/xalloc.h"
 
-static void xhci_start (hci_t *controller);
-static void xhci_stop (hci_t *controller);
-static void xhci_reset (hci_t *controller);
-static void xhci_reinit (hci_t *controller);
-static void xhci_shutdown (hci_t *controller);
-static int xhci_bulk (endpoint_t *ep, int size, uint8_t *data, int finalize);
-static int xhci_control (usbdev_t *dev, direction_t dir, int drlen, void *devreq,
+static void xhci_start (UsbDevHc *controller);
+static void xhci_stop (UsbDevHc *controller);
+static void xhci_reset (UsbDevHc *controller);
+static void xhci_reinit (UsbDevHc *controller);
+static void xhci_shutdown (UsbDevHc *controller);
+static int xhci_bulk (UsbEndpoint *ep, int size, uint8_t *data, int finalize);
+static int xhci_control (UsbDev *dev, UsbDirection dir, int drlen, void *devreq,
 			 int dalen, uint8_t *data);
-static void* xhci_create_intr_queue (endpoint_t *ep, int reqsize, int reqcount, int reqtiming);
-static void xhci_destroy_intr_queue (endpoint_t *ep, void *queue);
+static void* xhci_create_intr_queue (UsbEndpoint *ep, int reqsize, int reqcount, int reqtiming);
+static void xhci_destroy_intr_queue (UsbEndpoint *ep, void *queue);
 static uint8_t* xhci_poll_intr_queue (void *queue);
 
 /*
@@ -148,15 +148,15 @@ xhci_wait_ready(xhci_t *const xhci)
 	return 0;
 }
 
-hci_t *
+UsbDevHc *
 xhci_init (unsigned long physical_bar)
 {
 	int i;
 
 	/* First, allocate and initialize static controller structures */
 
-	hci_t *const controller = new_controller();
-	controller->type		= XHCI;
+	UsbDevHc *const controller = new_controller();
+	controller->type		= UsbXhci;
 	controller->start		= xhci_start;
 	controller->stop		= xhci_stop;
 	controller->reset		= xhci_reset;
@@ -300,11 +300,11 @@ _free_xhci:
 }
 
 #if CONFIG_USB_PCI
-hci_t *
+UsbDevHc *
 xhci_pci_init (pcidev_t addr)
 {
 	uint32_t reg_addr;
-	hci_t *controller;
+	UsbDevHc *controller;
 
 	reg_addr = pci_read_config32 (addr, 0x10) & ~0xf;
 	if (pci_read_config32 (addr, 0x14) > 0) {
@@ -323,7 +323,7 @@ xhci_pci_init (pcidev_t addr)
 #endif
 
 static void
-xhci_reset(hci_t *const controller)
+xhci_reset(UsbDevHc *const controller)
 {
 	xhci_t *const xhci = XHCI_INST(controller);
 
@@ -349,7 +349,7 @@ xhci_reset(hci_t *const controller)
 }
 
 static void
-xhci_reinit (hci_t *controller)
+xhci_reinit (UsbDevHc *controller)
 {
 	xhci_t *const xhci = XHCI_INST(controller);
 
@@ -413,7 +413,7 @@ xhci_reinit (hci_t *controller)
 }
 
 static void
-xhci_shutdown(hci_t *const controller)
+xhci_shutdown(UsbDevHc *const controller)
 {
 	int i;
 
@@ -450,7 +450,7 @@ xhci_shutdown(hci_t *const controller)
 }
 
 static void
-xhci_start (hci_t *controller)
+xhci_start (UsbDevHc *controller)
 {
 	xhci_t *const xhci = XHCI_INST(controller);
 
@@ -460,7 +460,7 @@ xhci_start (hci_t *controller)
 }
 
 static void
-xhci_stop (hci_t *controller)
+xhci_stop (UsbDevHc *controller)
 {
 	xhci_t *const xhci = XHCI_INST(controller);
 
@@ -471,7 +471,7 @@ xhci_stop (hci_t *controller)
 }
 
 static int
-xhci_reset_endpoint(usbdev_t *const dev, endpoint_t *const ep)
+xhci_reset_endpoint(UsbDev *const dev, UsbEndpoint *const ep)
 {
 	xhci_t *const xhci = XHCI_INST(dev->controller);
 	const int slot_id = dev->address;
@@ -492,8 +492,8 @@ xhci_reset_endpoint(usbdev_t *const dev, endpoint_t *const ep)
 
 	/* Clear TT buffer for bulk and control endpoints behind a TT */
 	const int hub = dev->hub;
-	if (hub && dev->speed < HIGH_SPEED &&
-			dev->controller->devices[hub]->speed == HIGH_SPEED)
+	if (hub && dev->speed < UsbHighSpeed &&
+			dev->controller->devices[hub]->speed == UsbHighSpeed)
 		/* TODO */;
 
 	/* Reset transfer ring if the endpoint is in the right state */
@@ -589,7 +589,7 @@ xhci_enqueue_td(transfer_ring_t *const tr, const int ep, const size_t mps,
 		 * This is a workaround for Synopsys DWC3. If the ENT flag is
 		 * not set for the Normal and Data Stage TRBs. We get Event TRB
 		 * with length 0x20d from the controller when we enqueue a TRB
-		 * for the IN endpoint with length 0x200.
+		 * for the UsbDirIn endpoint with length 0x200.
 		 */
 		if (!length)
 			TRB_SET(ENT, trb, 1);
@@ -610,7 +610,7 @@ xhci_enqueue_td(transfer_ring_t *const tr, const int ep, const size_t mps,
 }
 
 static int
-xhci_control(usbdev_t *const dev, const direction_t dir,
+xhci_control(UsbDev *const dev, const UsbDirection dir,
 	     const int drlen, void *const devreq,
 	     const int dalen, unsigned char *const src)
 {
@@ -638,7 +638,7 @@ xhci_control(usbdev_t *const dev, const direction_t dir,
 			xhci_debug("Control transfer too large: %d\n", dalen);
 			return -1;
 		}
-		if (dir == OUT)
+		if (dir == UsbDirOut)
 			memcpy(data, src, dalen);
 	}
 
@@ -648,9 +648,10 @@ xhci_control(usbdev_t *const dev, const direction_t dir,
 	setup->ptr_low = ((uint32_t *)devreq)[0];
 	setup->ptr_high = ((uint32_t *)devreq)[1];
 	TRB_SET(TL, setup, 8);
-	TRB_SET(TRT, setup, (dalen)
-			? ((dir == OUT) ? TRB_TRT_OUT_DATA : TRB_TRT_IN_DATA)
-			: TRB_TRT_NO_DATA);
+	TRB_SET(TRT, setup,
+		(dalen) ? ((dir == UsbDirOut) ? TRB_TRT_OUT_DATA :
+			   TRB_TRT_IN_DATA) :
+			  TRB_TRT_NO_DATA);
 	TRB_SET(TT, setup, TRB_SETUP_STAGE);
 	TRB_SET(IDT, setup, 1);
 	TRB_SET(IOC, setup, 1);
@@ -659,14 +660,15 @@ xhci_control(usbdev_t *const dev, const direction_t dir,
 	/* Fill and enqueue data TRBs (if any) */
 	if (dalen) {
 		const unsigned mps = EC_GET(MPS, epctx);
-		const unsigned dt_dir = (dir == OUT) ? TRB_DIR_OUT : TRB_DIR_IN;
+		const unsigned dt_dir = (dir == UsbDirOut) ? TRB_DIR_OUT :
+					TRB_DIR_IN;
 		xhci_enqueue_td(tr, 1, mps, dalen, data, dt_dir);
 	}
 
 	/* Fill status TRB */
 	trb_t *const status = tr->cur;
 	xhci_clear_trb(status, tr->pcs);
-	TRB_SET(DIR, status, (dir == OUT) ? TRB_DIR_IN : TRB_DIR_OUT);
+	TRB_SET(DIR, status, (dir == UsbDirOut) ? TRB_DIR_IN : TRB_DIR_OUT);
 	TRB_SET(TT, status, TRB_STATUS_STAGE);
 	TRB_SET(IOC, status, 1);
 	xhci_enqueue_trb(tr);
@@ -700,14 +702,14 @@ xhci_control(usbdev_t *const dev, const direction_t dir,
 		}
 	}
 
-	if (dir == IN && data != src)
+	if (dir == UsbDirIn && data != src)
 		memcpy(src, data, transferred);
 	return transferred;
 }
 
 /* finalize == 1: if data is of packet aligned size, add a zero length packet */
 static int
-xhci_bulk(endpoint_t *const ep, const int size, uint8_t *const src,
+xhci_bulk(UsbEndpoint *const ep, const int size, uint8_t *const src,
 	  const int finalize)
 {
 	/* finalize: Hopefully the xHCI controller always does this.
@@ -732,7 +734,7 @@ xhci_bulk(endpoint_t *const ep, const int size, uint8_t *const src,
 			xhci_debug("Bulk transfer too large: %d\n", size);
 			return -1;
 		}
-		if (ep->direction == OUT)
+		if (ep->direction == UsbDirOut)
 			memcpy(data, src, size);
 	}
 
@@ -745,7 +747,8 @@ xhci_bulk(endpoint_t *const ep, const int size, uint8_t *const src,
 
 	/* Enqueue transfer and ring doorbell */
 	const unsigned mps = EC_GET(MPS, epctx);
-	const unsigned dir = (ep->direction == OUT) ? TRB_DIR_OUT : TRB_DIR_IN;
+	const unsigned dir = (ep->direction == UsbDirOut) ? TRB_DIR_OUT :
+			     TRB_DIR_IN;
 	xhci_enqueue_td(tr, ep_id, mps, size, data, dir);
 	xhci->dbreg[ep->dev->address] = ep_id;
 
@@ -766,7 +769,7 @@ xhci_bulk(endpoint_t *const ep, const int size, uint8_t *const src,
 		return ret;
 	}
 
-	if (ep->direction == IN && data != src)
+	if (ep->direction == UsbDirIn && data != src)
 		memcpy(src, data, ret);
 	return ret;
 }
@@ -785,7 +788,7 @@ xhci_next_trb(trb_t *cur, int *const pcs)
 
 /* create and hook-up an intr queue into device schedule */
 static void *
-xhci_create_intr_queue(endpoint_t *const ep,
+xhci_create_intr_queue(UsbEndpoint *const ep,
 		       const int reqsize, const int reqcount,
 		       const int reqtiming)
 {
@@ -870,7 +873,7 @@ _free_return:
 
 /* remove queue from device schedule, dropping all data that came in */
 static void
-xhci_destroy_intr_queue(endpoint_t *const ep, void *const q)
+xhci_destroy_intr_queue(UsbEndpoint *const ep, void *const q)
 {
 	xhci_t *const xhci = XHCI_INST(ep->dev->controller);
 	const int slot_id = ep->dev->address;
@@ -914,7 +917,7 @@ xhci_poll_intr_queue(void *const q)
 		return NULL;
 
 	intrq_t *const intrq = (intrq_t *)q;
-	endpoint_t *const ep = intrq->ep;
+	UsbEndpoint *const ep = intrq->ep;
 	xhci_t *const xhci = XHCI_INST(ep->dev->controller);
 
 	/* TODO: Reset interrupt queue if it gets halted? */

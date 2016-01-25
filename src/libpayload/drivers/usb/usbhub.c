@@ -32,8 +32,8 @@
 #include <usb/usb.h>
 #include "generic_hub.h"
 
-/* assume that host_to_device is overwritten if necessary */
-#define DR_PORT gen_bmRequestType(host_to_device, class_type, other_recp)
+/* assume that UsbHostToDevice is overwritten if necessary */
+#define DR_PORT usb_gen_bmRequestType(UsbHostToDevice, UsbClassType, UsbOtherRecp)
 /* status (and status change) bits */
 #define PORT_CONNECTION 0x1
 #define PORT_ENABLE 0x2
@@ -46,58 +46,58 @@
 #define SET_HUB_DEPTH 12
 
 static int
-usb_hub_port_status_changed(usbdev_t *const dev, const int port)
+usb_hub_port_status_changed(UsbDev *const dev, const int port)
 {
 	unsigned short buf[2];
-	int ret = get_status (dev, port, DR_PORT, sizeof(buf), buf);
+	int ret = usb_get_status (dev, port, DR_PORT, sizeof(buf), buf);
 	if (ret >= 0) {
 		ret = buf[1] & PORT_CONNECTION;
 		if (ret)
-			clear_feature (dev, port, SEL_C_PORT_CONNECTION,
-				       DR_PORT);
+			usb_clear_feature(dev, port, SEL_C_PORT_CONNECTION,
+					  DR_PORT);
 	}
 	return ret;
 }
 
 static int
-usb_hub_port_connected(usbdev_t *const dev, const int port)
+usb_hub_port_connected(UsbDev *const dev, const int port)
 {
 	unsigned short buf[2];
-	int ret = get_status (dev, port, DR_PORT, sizeof(buf), buf);
+	int ret = usb_get_status (dev, port, DR_PORT, sizeof(buf), buf);
 	if (ret >= 0)
 		ret = buf[0] & PORT_CONNECTION;
 	return ret;
 }
 
 static int
-usb_hub_port_in_reset(usbdev_t *const dev, const int port)
+usb_hub_port_in_reset(UsbDev *const dev, const int port)
 {
 	unsigned short buf[2];
-	int ret = get_status (dev, port, DR_PORT, sizeof(buf), buf);
+	int ret = usb_get_status (dev, port, DR_PORT, sizeof(buf), buf);
 	if (ret >= 0)
 		ret = buf[0] & PORT_RESET;
 	return ret;
 }
 
 static int
-usb_hub_port_enabled(usbdev_t *const dev, const int port)
+usb_hub_port_enabled(UsbDev *const dev, const int port)
 {
 	unsigned short buf[2];
-	int ret = get_status (dev, port, DR_PORT, sizeof(buf), buf);
+	int ret = usb_get_status (dev, port, DR_PORT, sizeof(buf), buf);
 	if (ret >= 0)
 		ret = buf[0] & PORT_ENABLE;
 	return ret;
 }
 
-static usb_speed
-usb_hub_port_speed(usbdev_t *const dev, const int port)
+static UsbSpeed
+usb_hub_port_speed(UsbDev *const dev, const int port)
 {
 	unsigned short buf[2];
-	int ret = get_status (dev, port, DR_PORT, sizeof(buf), buf);
+	int ret = usb_get_status (dev, port, DR_PORT, sizeof(buf), buf);
 	if (ret >= 0 && (buf[0] & PORT_ENABLE)) {
 		/* SuperSpeed hubs can only have SuperSpeed devices. */
-		if (dev->speed == SUPER_SPEED)
-			return SUPER_SPEED;
+		if (dev->speed == UsbSuperSpeed)
+			return UsbSuperSpeed;
 
 		/*[bit] 10  9  (USB 2.0 port status word)
 		 *      0   0  full speed
@@ -113,33 +113,34 @@ usb_hub_port_speed(usbdev_t *const dev, const int port)
 }
 
 static int
-usb_hub_enable_port(usbdev_t *const dev, const int port)
+usb_hub_enable_port(UsbDev *const dev, const int port)
 {
-	return set_feature(dev, port, SEL_PORT_POWER, DR_PORT);
+	return usb_set_feature(dev, port, SEL_PORT_POWER, DR_PORT);
 }
 
 static int
-usb_hub_start_port_reset(usbdev_t *const dev, const int port)
+usb_hub_start_port_reset(UsbDev *const dev, const int port)
 {
-	return set_feature (dev, port, SEL_PORT_RESET, DR_PORT);
+	return usb_set_feature (dev, port, SEL_PORT_RESET, DR_PORT);
 }
 
-static void usb_hub_set_hub_depth(usbdev_t *const dev)
+static void usb_hub_set_hub_depth(UsbDev *const dev)
 {
-	dev_req_t dr = {
-		.bmRequestType = gen_bmRequestType(host_to_device,
-						   class_type, dev_recp),
+	UsbDevReq dr = {
+		.bmRequestType = usb_gen_bmRequestType(UsbHostToDevice,
+						   UsbClassType, UsbDevRecp),
 		.bRequest = SET_HUB_DEPTH,
 		.wValue = 0,
 		.wIndex = 0,
 		.wLength = 0,
 	};
-	usbdev_t *parent = dev;
+	UsbDev *parent = dev;
 	while (parent->hub > 0) {
 		parent = dev->controller->devices[parent->hub];
 		dr.wValue++;
 	}
-	int ret = dev->controller->control(dev, OUT, sizeof(dr), &dr, 0, NULL);
+	int ret = dev->controller->control(dev, UsbDirOut, sizeof(dr),
+					   &dr, 0, NULL);
 	if (ret < 0)
 		usb_debug("Failed SET_HUB_DEPTH(%d) on hub %d: %d\n",
 			  dr.wValue, dev->address, ret);
@@ -159,18 +160,20 @@ static const generic_hub_ops_t usb_hub_ops = {
 };
 
 void
-usb_hub_init(usbdev_t *const dev)
+usb_hub_init(UsbDev *const dev)
 {
-	int type = dev->speed == SUPER_SPEED ? 0x2a : 0x29; /* similar enough */
-	hub_descriptor_t desc;	/* won't fit the whole thing, we don't care */
-	if (get_descriptor(dev, gen_bmRequestType(device_to_host, class_type,
-		dev_recp), type, 0, &desc, sizeof(desc)) != sizeof(desc)) {
+	int type = dev->speed == UsbSuperSpeed ? 0x2a : 0x29; /* similar enough */
+	UsbHubDescriptor desc;	/* won't fit the whole thing, we don't care */
+	if (usb_get_descriptor(dev, usb_gen_bmRequestType(UsbDeviceToHost,
+						      UsbClassType,
+						      UsbDevRecp),
+			       type, 0, &desc, sizeof(desc)) != sizeof(desc)) {
 		usb_debug("get_descriptor(HUB) failed\n");
 		usb_detach_device(dev->controller, dev->address);
 		return;
 	}
 
-	if (dev->speed == SUPER_SPEED)
+	if (dev->speed == UsbSuperSpeed)
 		usb_hub_set_hub_depth(dev);
 	generic_hub_init(dev, desc.bNbrPorts, &usb_hub_ops);
 }

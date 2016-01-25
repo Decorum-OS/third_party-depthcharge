@@ -26,11 +26,11 @@
 #include "base/die.h"
 #include "base/xalloc.h"
 
-static void dummy(hci_t *controller)
+static void dummy(UsbDevHc *controller)
 {
 }
 
-static void dwc2_reinit(hci_t *controller)
+static void dwc2_reinit(UsbDevHc *controller)
 {
 	dwc2_reg_t *reg = DWC2_REG(controller);
 	gusbcfg_t gusbcfg = { .d32 = 0 };
@@ -135,7 +135,7 @@ static void dwc2_reinit(hci_t *controller)
 	usb_debug("DWC2 init finished!\n");
 }
 
-static void dwc2_shutdown(hci_t *controller)
+static void dwc2_shutdown(UsbDevHc *controller)
 {
 	detach_controller(controller);
 	free(DWC2_INST(controller)->dma_buffer);
@@ -144,7 +144,7 @@ static void dwc2_shutdown(hci_t *controller)
 }
 
 /* Test root port device connect status */
-static int dwc2_disconnected(hci_t *controller)
+static int dwc2_disconnected(UsbDevHc *controller)
 {
 	dwc2_reg_t *reg = DWC2_REG(controller);
 	hprt_t hprt;
@@ -158,7 +158,7 @@ static int dwc2_disconnected(hci_t *controller)
  * or an error code if the transfer failed
  */
 static int
-wait_for_complete(endpoint_t *ep, uint32_t ch_num)
+wait_for_complete(UsbEndpoint *ep, uint32_t ch_num)
 {
 	hcint_t hcint;
 	hcchar_t hcchar;
@@ -221,7 +221,7 @@ wait_for_complete(endpoint_t *ep, uint32_t ch_num)
 }
 
 static int
-dwc2_do_xfer(endpoint_t *ep, int size, int pid, ep_dir_t dir,
+dwc2_do_xfer(UsbEndpoint *ep, int size, int pid, ep_dir_t dir,
 	     uint32_t ch_num, uint8_t *data_buf, int *short_pkt)
 {
 	uint32_t do_copy;
@@ -242,9 +242,10 @@ dwc2_do_xfer(endpoint_t *ep, int size, int pid, ep_dir_t dir,
 	packet_cnt = (packet_cnt == 0) ? 1 : packet_cnt;
 
 	/*
-	 * For an IN, this field is the buffer size that the application has
-	 * reserved for the transfer. The application should program this field
-	 * as integer multiple of the maximum packet size for IN transactions.
+	 * For an UsbDirIn, this field is the buffer size that the application
+	 * has reserved for the transfer. The application should program this
+	 * field as integer multiple of the maximum packet size for UsbDirIn
+	 * transactions.
 	 */
 	hctsiz.xfersize = (dir == EPDIR_OUT) ? size : inpkt_length;
 	hctsiz.pktcnt = packet_cnt;
@@ -258,7 +259,7 @@ dwc2_do_xfer(endpoint_t *ep, int size, int pid, ep_dir_t dir,
 	hcchar.devaddr = ep->dev->address;
 	hcchar.chdis = 0;
 	hcchar.chen = 1;
-	if (ep->dev->speed == LOW_SPEED)
+	if (ep->dev->speed == UsbLowSpeed)
 		hcchar.lspddev = 1;
 
 	if (size > DMA_SIZE) {
@@ -311,7 +312,7 @@ dwc2_do_xfer(endpoint_t *ep, int size, int pid, ep_dir_t dir,
 }
 
 static int
-dwc2_split_transfer(endpoint_t *ep, int size, int pid, ep_dir_t dir,
+dwc2_split_transfer(UsbEndpoint *ep, int size, int pid, ep_dir_t dir,
 		    uint32_t ch_num, uint8_t *data_buf, split_info_t *split,
 		    int *short_pkt)
 {
@@ -370,19 +371,19 @@ out:
 	return transferred;
 }
 
-static int dwc2_need_split(usbdev_t *dev, split_info_t *split)
+static int dwc2_need_split(UsbDev *dev, split_info_t *split)
 {
-	if (dev->speed == HIGH_SPEED)
+	if (dev->speed == UsbHighSpeed)
 		return 0;
 
-	if (closest_usb2_hub(dev, &split->hubaddr, &split->hubport))
+	if (usb_closest_usb2_hub(dev, &split->hubaddr, &split->hubport))
 		return 0;
 
 	return 1;
 }
 
 static int
-dwc2_transfer(endpoint_t *ep, int size, int pid, ep_dir_t dir, uint32_t ch_num,
+dwc2_transfer(UsbEndpoint *ep, int size, int pid, ep_dir_t dir, uint32_t ch_num,
 	      uint8_t *src, uint8_t skip_nak)
 {
 	split_info_t split;
@@ -425,13 +426,13 @@ nak_retry:
 }
 
 static int
-dwc2_bulk(endpoint_t *ep, int size, uint8_t *src, int finalize)
+dwc2_bulk(UsbEndpoint *ep, int size, uint8_t *src, int finalize)
 {
 	ep_dir_t data_dir;
 
-	if (ep->direction == IN)
+	if (ep->direction == UsbDirIn)
 		data_dir = EPDIR_IN;
-	else if (ep->direction == OUT)
+	else if (ep->direction == UsbDirOut)
 		data_dir = EPDIR_OUT;
 	else
 		return -1;
@@ -440,16 +441,16 @@ dwc2_bulk(endpoint_t *ep, int size, uint8_t *src, int finalize)
 }
 
 static int
-dwc2_control(usbdev_t *dev, direction_t dir, int drlen, void *setup,
+dwc2_control(UsbDev *dev, UsbDirection dir, int drlen, void *setup,
 		   int dalen, uint8_t *src)
 {
 	int ret = 0;
 	ep_dir_t data_dir;
-	endpoint_t *ep = &dev->endpoints[0];
+	UsbEndpoint *ep = &dev->endpoints[0];
 
-	if (dir == IN)
+	if (dir == UsbDirIn)
 		data_dir = EPDIR_IN;
-	else if (dir == OUT)
+	else if (dir == UsbDirOut)
 		data_dir = EPDIR_OUT;
 	else
 		return -1;
@@ -474,13 +475,13 @@ dwc2_control(usbdev_t *dev, direction_t dir, int drlen, void *setup,
 }
 
 static int
-dwc2_intr(endpoint_t *ep, int size, uint8_t *src)
+dwc2_intr(UsbEndpoint *ep, int size, uint8_t *src)
 {
 	ep_dir_t data_dir;
 
-	if (ep->direction == IN)
+	if (ep->direction == UsbDirIn)
 		data_dir = EPDIR_IN;
-	else if (ep->direction == OUT)
+	else if (ep->direction == UsbDirOut)
 		data_dir = EPDIR_OUT;
 	else
 		return -1;
@@ -492,7 +493,7 @@ static uint32_t dwc2_intr_get_timestamp(intr_queue_t *q)
 {
 	hprt_t hprt;
 	hfnum_t hfnum;
-	hci_t *controller = q->endp->dev->controller;
+	UsbDevHc *controller = q->endp->dev->controller;
 	dwc_ctrl_t *dwc2 = DWC2_INST(controller);
 	dwc2_reg_t *reg = DWC2_REG(controller);
 
@@ -517,7 +518,7 @@ static uint32_t dwc2_intr_get_timestamp(intr_queue_t *q)
 
 /* create and hook-up an intr queue into device schedule */
 static void *
-dwc2_create_intr_queue(endpoint_t *ep, const int reqsize,
+dwc2_create_intr_queue(UsbEndpoint *ep, const int reqsize,
 		       const int reqcount, const int reqtiming)
 {
 	intr_queue_t *q = (intr_queue_t *)xzalloc(sizeof(intr_queue_t));
@@ -531,7 +532,7 @@ dwc2_create_intr_queue(endpoint_t *ep, const int reqsize,
 }
 
 static void
-dwc2_destroy_intr_queue(endpoint_t *ep, void *_q)
+dwc2_destroy_intr_queue(UsbEndpoint *ep, void *_q)
 {
 	intr_queue_t *q = (intr_queue_t *)_q;
 
@@ -568,9 +569,9 @@ dwc2_poll_intr_queue(void *_q)
 		return NULL;
 }
 
-hci_t *dwc2_init(void *bar)
+UsbDevHc *dwc2_init(void *bar)
 {
-	hci_t *controller = new_controller();
+	UsbDevHc *controller = new_controller();
 	controller->instance = xzalloc(sizeof(dwc_ctrl_t));
 
 	DWC2_INST(controller)->dma_buffer = dma_malloc(DMA_SIZE);
@@ -579,7 +580,7 @@ hci_t *dwc2_init(void *bar)
 		goto free_dwc2;
 	}
 
-	controller->type = DWC2;
+	controller->type = UsbDwc2;
 	controller->start = dummy;
 	controller->stop = dummy;
 	controller->reset = dummy;
@@ -587,7 +588,7 @@ hci_t *dwc2_init(void *bar)
 	controller->shutdown = dwc2_shutdown;
 	controller->bulk = dwc2_bulk;
 	controller->control = dwc2_control;
-	controller->set_address = generic_set_address;
+	controller->set_address = usb_generic_set_address;
 	controller->finish_device_config = NULL;
 	controller->destroy_device = NULL;
 	controller->create_intr_queue = dwc2_create_intr_queue;

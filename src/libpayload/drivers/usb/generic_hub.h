@@ -36,27 +36,27 @@ typedef struct generic_hub_ops {
 	/* negative results denote an error */
 
 	/* returns 1 if the hub's status changed since the last call (optional) */
-	int (*hub_status_changed)(usbdev_t *);
+	int (*hub_status_changed)(UsbDev *);
 	/* returns 1 if the port's status changed since the last call */
-	int (*port_status_changed)(usbdev_t *, int port);
+	int (*port_status_changed)(UsbDev *, int port);
 	/* returns 1 if something is connected to the port */
-	int (*port_connected)(usbdev_t *, int port);
+	int (*port_connected)(UsbDev *, int port);
 	/* returns 1 if port is currently resetting */
-	int (*port_in_reset)(usbdev_t *, int port);
+	int (*port_in_reset)(UsbDev *, int port);
 	/* returns 1 if the port is enabled */
-	int (*port_enabled)(usbdev_t *, int port);
+	int (*port_enabled)(UsbDev *, int port);
 	/* returns speed if port is enabled, negative value if not */
-	usb_speed (*port_speed)(usbdev_t *, int port);
+	UsbSpeed (*port_speed)(UsbDev *, int port);
 
 	/* enables (powers up) a port (optional) */
-	int (*enable_port)(usbdev_t *, int port);
+	int (*enable_port)(UsbDev *, int port);
 	/* disables (powers down) a port (optional) */
-	int (*disable_port)(usbdev_t *, int port);
+	int (*disable_port)(UsbDev *, int port);
 	/* starts a port reset (required if reset_port is set to a generic one from below) */
-	int (*start_port_reset)(usbdev_t *, int port);
+	int (*start_port_reset)(UsbDev *, int port);
 
 	/* performs a port reset (optional, generic implementations below) */
-	int (*reset_port)(usbdev_t *, int port);
+	int (*reset_port)(UsbDev *, int port);
 } generic_hub_ops_t;
 
 typedef struct generic_hub {
@@ -71,15 +71,15 @@ typedef struct generic_hub {
 	void *data;
 } generic_hub_t;
 
-void generic_hub_destroy(usbdev_t *);
-int generic_hub_wait_for_port(usbdev_t *const dev, const int port,
+void generic_hub_destroy(UsbDev *);
+int generic_hub_wait_for_port(UsbDev *const dev, const int port,
 			      const int wait_for,
-			      int (*const port_op)(usbdev_t *, int),
+			      int (*const port_op)(UsbDev *, int),
 			      int timeout_steps, const int step_us);
-int  generic_hub_resetport(usbdev_t *, int port);
-int  generic_hub_scanport(usbdev_t *, int port);
+int  generic_hub_resetport(UsbDev *, int port);
+int  generic_hub_scanport(UsbDev *, int port);
 /* the provided generic_hub_ops struct has to be static */
-int generic_hub_init(usbdev_t *, int num_ports, const generic_hub_ops_t *);
+int generic_hub_init(UsbDev *, int num_ports, const generic_hub_ops_t *);
 
 #define GEN_HUB(usbdev) ((generic_hub_t *)(usbdev)->data)
 

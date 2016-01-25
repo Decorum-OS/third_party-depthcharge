@@ -34,7 +34,7 @@
 #include "generic_hub.h"
 
 void
-generic_hub_destroy(usbdev_t *const dev)
+generic_hub_destroy(UsbDev *const dev)
 {
 	generic_hub_t *const hub = GEN_HUB(dev);
 	if (!hub)
@@ -61,7 +61,7 @@ generic_hub_destroy(usbdev_t *const dev)
 }
 
 static int
-generic_hub_debounce(usbdev_t *const dev, const int port)
+generic_hub_debounce(UsbDev *const dev, const int port)
 {
 	generic_hub_t *const hub = GEN_HUB(dev);
 
@@ -94,9 +94,9 @@ generic_hub_debounce(usbdev_t *const dev, const int port)
 }
 
 int
-generic_hub_wait_for_port(usbdev_t *const dev, const int port,
+generic_hub_wait_for_port(UsbDev *const dev, const int port,
 			  const int wait_for,
-			  int (*const port_op)(usbdev_t *, int),
+			  int (*const port_op)(UsbDev *, int),
 			  int timeout_steps, const int step_us)
 {
 	int state;
@@ -113,7 +113,7 @@ generic_hub_wait_for_port(usbdev_t *const dev, const int port,
 }
 
 int
-generic_hub_resetport(usbdev_t *const dev, const int port)
+generic_hub_resetport(UsbDev *const dev, const int port)
 {
 	generic_hub_t *const hub = GEN_HUB(dev);
 
@@ -136,7 +136,7 @@ generic_hub_resetport(usbdev_t *const dev, const int port)
 }
 
 static int
-generic_hub_detach_dev(usbdev_t *const dev, const int port)
+generic_hub_detach_dev(UsbDev *const dev, const int port)
 {
 	generic_hub_t *const hub = GEN_HUB(dev);
 
@@ -147,7 +147,7 @@ generic_hub_detach_dev(usbdev_t *const dev, const int port)
 }
 
 static int
-generic_hub_attach_dev(usbdev_t *const dev, const int port)
+generic_hub_attach_dev(UsbDev *const dev, const int port)
 {
 	generic_hub_t *const hub = GEN_HUB(dev);
 
@@ -168,7 +168,7 @@ generic_hub_attach_dev(usbdev_t *const dev, const int port)
 				  "disabled after 10ms\n", port);
 	}
 
-	const usb_speed speed = hub->ops->port_speed(dev, port);
+	const UsbSpeed speed = hub->ops->port_speed(dev, port);
 	if (speed >= 0) {
 		usb_debug("generic_hub: Success at port %d\n", port);
 		if (hub->ops->reset_port)
@@ -181,7 +181,7 @@ generic_hub_attach_dev(usbdev_t *const dev, const int port)
 }
 
 int
-generic_hub_scanport(usbdev_t *const dev, const int port)
+generic_hub_scanport(UsbDev *const dev, const int port)
 {
 	generic_hub_t *const hub = GEN_HUB(dev);
 
@@ -203,7 +203,7 @@ generic_hub_scanport(usbdev_t *const dev, const int port)
 }
 
 static void
-generic_hub_poll(usbdev_t *const dev)
+generic_hub_poll(UsbDev *const dev)
 {
 	generic_hub_t *const hub = GEN_HUB(dev);
 	if (!hub)
@@ -227,7 +227,7 @@ generic_hub_poll(usbdev_t *const dev)
 }
 
 int
-generic_hub_init(usbdev_t *const dev, const int num_ports,
+generic_hub_init(UsbDev *const dev, const int num_ports,
 		 const generic_hub_ops_t *const ops)
 {
 	int port;

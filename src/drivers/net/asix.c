@@ -39,7 +39,7 @@ static AsixDev asix_dev;
  * Utility functions.
  */
 
-static int asix_write_gpio(usbdev_t *dev, uint16_t value)
+static int asix_write_gpio(UsbDev *dev, uint16_t value)
 {
 	if (usb_eth_write_reg(dev, GpioRegWrite, value, 0, 0, NULL)) {
 		printf("ASIX: Failed to set up GPIOs.\n");
@@ -48,7 +48,7 @@ static int asix_write_gpio(usbdev_t *dev, uint16_t value)
 	return 0;
 }
 
-static int asix_sw_reset(usbdev_t *dev, uint8_t bits)
+static int asix_sw_reset(UsbDev *dev, uint8_t bits)
 {
 	if (usb_eth_write_reg(dev, SoftResetRegWrite, bits, 0, 0, NULL)) {
 		printf("ASIX: Software reset failed.\n");
@@ -57,7 +57,7 @@ static int asix_sw_reset(usbdev_t *dev, uint8_t bits)
 	return 0;
 }
 
-static int asix_phy_addr(usbdev_t *dev)
+static int asix_phy_addr(UsbDev *dev)
 {
 	uint8_t phy_addr[2];
 	if (usb_eth_read_reg(dev, PhyAddrRegRead, 0, 0, sizeof(phy_addr),
@@ -68,7 +68,7 @@ static int asix_phy_addr(usbdev_t *dev)
 	return phy_addr[1];
 }
 
-static int asix_write_rx_ctl(usbdev_t *dev, uint16_t val)
+static int asix_write_rx_ctl(UsbDev *dev, uint16_t val)
 {
 	if (usb_eth_write_reg(dev, RxCtrlRegWrite, val, 0, 0, NULL)) {
 		printf("ASIX: Setting the rx control reg failed.\n");
@@ -77,7 +77,7 @@ static int asix_write_rx_ctl(usbdev_t *dev, uint16_t val)
 	return 0;
 }
 
-static int asix_set_sw_mii(usbdev_t *dev)
+static int asix_set_sw_mii(UsbDev *dev)
 {
 	if (usb_eth_write_reg(dev, SoftSerMgmtCtrlReg, 0, 0, 0, NULL)) {
 		printf("ASIX: Failed to enabled software MII access.\n");
@@ -86,7 +86,7 @@ static int asix_set_sw_mii(usbdev_t *dev)
 	return 0;
 }
 
-static int asix_set_hw_mii(usbdev_t *dev)
+static int asix_set_hw_mii(UsbDev *dev)
 {
 	if (usb_eth_write_reg(dev, HardSerMgmtCtrlReg, 0, 0, 0, NULL)) {
 		printf("ASIX: Failed to enabled software MII access.\n");
@@ -98,7 +98,7 @@ static int asix_set_hw_mii(usbdev_t *dev)
 static int asix_mdio_read(NetDevice *dev, uint8_t loc, uint16_t *val)
 {
 	GenericUsbDevice *gen_dev = (GenericUsbDevice *)dev->dev_data;
-	usbdev_t *usb_dev = gen_dev->dev;
+	UsbDev *usb_dev = gen_dev->dev;
 
 	if (asix_set_sw_mii(usb_dev) ||
 	    usb_eth_read_reg(usb_dev, PhyRegRead, asix_dev.phy_id,
@@ -114,7 +114,7 @@ static int asix_mdio_read(NetDevice *dev, uint8_t loc, uint16_t *val)
 static int asix_mdio_write(NetDevice *dev, uint8_t loc, uint16_t val)
 {
 	GenericUsbDevice *gen_dev = (GenericUsbDevice *)dev->dev_data;
-	usbdev_t *usb_dev = gen_dev->dev;
+	UsbDev *usb_dev = gen_dev->dev;
 
 	val = htole16(val);
 	if (asix_set_sw_mii(usb_dev) ||
@@ -144,7 +144,7 @@ static int asix_wait_for_phy(NetDevice *dev)
 	return 1;
 }
 
-static int asix_write_medium_mode(usbdev_t *dev, uint16_t mode)
+static int asix_write_medium_mode(UsbDev *dev, uint16_t mode)
 {
 	if (usb_eth_write_reg(dev, MedModeRegWrite, mode, 0, 0, NULL)) {
 		printf("ASIX: Failed to write medium mode %#x.\n", mode);
@@ -161,7 +161,7 @@ static int asix_write_medium_mode(usbdev_t *dev, uint16_t mode)
 
 static int asix_init(GenericUsbDevice *gen_dev)
 {
-	usbdev_t *usb_dev = gen_dev->dev;
+	UsbDev *usb_dev = gen_dev->dev;
 
 	if (usb_eth_init_endpoints(usb_dev, &asix_dev.bulk_in, 2,
 				   &asix_dev.bulk_out, 3)) {
@@ -215,7 +215,7 @@ static int asix_init(GenericUsbDevice *gen_dev)
 static int asix_send(NetDevice *net_dev, void *buf, uint16_t len)
 {
 	GenericUsbDevice *gen_dev = (GenericUsbDevice *)net_dev->dev_data;
-	usbdev_t *usb_dev = gen_dev->dev;
+	UsbDev *usb_dev = gen_dev->dev;
 
 	uint32_t packet_len;
 	static uint8_t msg[CONFIG_UIP_BUFSIZE + sizeof(packet_len)];
@@ -244,7 +244,7 @@ static int asix_send(NetDevice *net_dev, void *buf, uint16_t len)
 static int asix_recv(NetDevice *net_dev, void *buf, uint16_t *len, int maxlen)
 {
 	GenericUsbDevice *gen_dev = (GenericUsbDevice *)net_dev->dev_data;
-	usbdev_t *usb_dev = gen_dev->dev;
+	UsbDev *usb_dev = gen_dev->dev;
 
 	uint32_t packet_len;
 	static int32_t buf_size = 0;
@@ -292,7 +292,7 @@ static int asix_recv(NetDevice *net_dev, void *buf, uint16_t *len, int maxlen)
 static const uip_eth_addr *asix_get_mac(NetDevice *net_dev)
 {
 	GenericUsbDevice *gen_dev = (GenericUsbDevice *)net_dev->dev_data;
-	usbdev_t *usb_dev = gen_dev->dev;
+	UsbDev *usb_dev = gen_dev->dev;
 
 	if (usb_eth_read_reg(usb_dev, NodeIdRead, 0, 0, sizeof(uip_eth_addr),
 			&asix_dev.mac_addr)) {

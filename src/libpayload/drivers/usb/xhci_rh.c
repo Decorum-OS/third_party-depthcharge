@@ -35,7 +35,7 @@
 #include "xhci.h"
 
 static int
-xhci_rh_hub_status_changed(usbdev_t *const dev)
+xhci_rh_hub_status_changed(UsbDev *const dev)
 {
 	xhci_t *const xhci = XHCI_INST(dev->controller);
 	const int changed = !!(xhci->opreg->usbsts & USBSTS_PCD);
@@ -46,7 +46,7 @@ xhci_rh_hub_status_changed(usbdev_t *const dev)
 }
 
 static int
-xhci_rh_port_status_changed(usbdev_t *const dev, const int port)
+xhci_rh_port_status_changed(UsbDev *const dev, const int port)
 {
 	xhci_t *const xhci = XHCI_INST(dev->controller);
 	volatile uint32_t *const portsc = &xhci->opreg->prs[port - 1].portsc;
@@ -58,7 +58,7 @@ xhci_rh_port_status_changed(usbdev_t *const dev, const int port)
 }
 
 static int
-xhci_rh_port_connected(usbdev_t *const dev, const int port)
+xhci_rh_port_connected(UsbDev *const dev, const int port)
 {
 	xhci_t *const xhci = XHCI_INST(dev->controller);
 	volatile uint32_t *const portsc = &xhci->opreg->prs[port - 1].portsc;
@@ -67,7 +67,7 @@ xhci_rh_port_connected(usbdev_t *const dev, const int port)
 }
 
 static int
-xhci_rh_port_in_reset(usbdev_t *const dev, const int port)
+xhci_rh_port_in_reset(UsbDev *const dev, const int port)
 {
 	xhci_t *const xhci = XHCI_INST(dev->controller);
 	volatile uint32_t *const portsc = &xhci->opreg->prs[port - 1].portsc;
@@ -76,7 +76,7 @@ xhci_rh_port_in_reset(usbdev_t *const dev, const int port)
 }
 
 static int
-xhci_rh_port_enabled(usbdev_t *const dev, const int port)
+xhci_rh_port_enabled(UsbDev *const dev, const int port)
 {
 	xhci_t *const xhci = XHCI_INST(dev->controller);
 	volatile uint32_t *const portsc = &xhci->opreg->prs[port - 1].portsc;
@@ -84,8 +84,8 @@ xhci_rh_port_enabled(usbdev_t *const dev, const int port)
 	return !!(*portsc & PORTSC_PED);
 }
 
-static usb_speed
-xhci_rh_port_speed(usbdev_t *const dev, const int port)
+static UsbSpeed
+xhci_rh_port_speed(UsbDev *const dev, const int port)
 {
 	xhci_t *const xhci = XHCI_INST(dev->controller);
 	volatile uint32_t *const portsc = &xhci->opreg->prs[port - 1].portsc;
@@ -100,7 +100,7 @@ xhci_rh_port_speed(usbdev_t *const dev, const int port)
 }
 
 static int
-xhci_rh_reset_port(usbdev_t *const dev, const int port)
+xhci_rh_reset_port(UsbDev *const dev, const int port)
 {
 	xhci_t *const xhci = XHCI_INST(dev->controller);
 	volatile uint32_t *const portsc = &xhci->opreg->prs[port - 1].portsc;
@@ -120,7 +120,7 @@ xhci_rh_reset_port(usbdev_t *const dev, const int port)
 }
 
 static int
-xhci_rh_enable_port(usbdev_t *const dev, int port)
+xhci_rh_enable_port(UsbDev *const dev, int port)
 {
 	if (CONFIG_USB_XHCI_MTK_QUIRK) {
 		xhci_t *const xhci = XHCI_INST(dev->controller);
@@ -151,7 +151,7 @@ static const generic_hub_ops_t xhci_rh_ops = {
 };
 
 void
-xhci_rh_init (usbdev_t *dev)
+xhci_rh_init (UsbDev *dev)
 {
 	/* we can set them here because a root hub _really_ shouldn't
 	   appear elsewhere */

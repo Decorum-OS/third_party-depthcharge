@@ -70,7 +70,7 @@ static void clear_ep(struct chipidea_pdata *p, int endpoint, int in_dir)
 }
 
 static int chipidea_hw_init(struct usbdev_ctrl *this, void *_opreg,
-	const device_descriptor_t *dd)
+	const UsbDeviceDescriptor *dd)
 {
 	struct chipidea_opreg *opreg = _opreg;
 	struct chipidea_pdata *p = CI_PDATA(this);
@@ -284,7 +284,7 @@ static void handle_endpoint(struct usbdev_ctrl *this, int endpoint, int in_dir)
 
 static void start_setup(struct usbdev_ctrl *this, int ep)
 {
-	dev_req_t dr;
+	UsbDevReq dr;
 	struct chipidea_pdata *p = CI_PDATA(this);
 	struct qh *qh = get_qh(p, ep, 0);
 
@@ -480,7 +480,7 @@ static void chipidea_free(void *ptr)
 	free(ptr);
 }
 
-struct usbdev_ctrl *chipidea_init(device_descriptor_t *dd)
+struct usbdev_ctrl *chipidea_init(UsbDeviceDescriptor *dd)
 {
 	struct usbdev_ctrl *ctrl = calloc(1, sizeof(*ctrl));
 	if (ctrl == NULL)

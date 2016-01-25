@@ -172,7 +172,7 @@ typedef transfer_ring_t command_ring_t;
 #define SC_ROUTE_FIELD		f1		/* ROUTE - Route String */
 #define SC_ROUTE_START		0
 #define SC_ROUTE_LEN		20
-#define SC_SPEED1_FIELD		f1		/* SPEED - Port speed plus one (compared to usb_speed enum) */
+#define SC_SPEED1_FIELD		f1		/* SPEED - Port speed plus one (compared to UsbSpeed enum) */
 #define SC_SPEED1_START		20
 #define SC_SPEED1_LEN		4
 #define SC_MTT_FIELD		f1		/* MTT - Multi Transaction Translator */
@@ -304,7 +304,7 @@ typedef struct intrq {
 	size_t count;	/* The number of TRBs to fill at once */
 	trb_t *next;	/* The next TRB expected to be processed by the controller */
 	trb_t *ready;	/* The last TRB in the transfer ring processed by the controller */
-	endpoint_t *ep;
+	UsbEndpoint *ep;
 } intrq_t;
 
 typedef struct devinfo {
@@ -475,7 +475,7 @@ typedef struct xhci {
 	event_ring_t er;
 	volatile erst_entry_t *ev_ring_table;
 
-	usbdev_t *roothub;
+	UsbDev *roothub;
 
 	uint8_t max_slots_en;
 	devinfo_t *dev;	/* array of devinfos by slot_id */
@@ -488,9 +488,9 @@ typedef struct xhci {
 
 void *xhci_align(const size_t min_align, const size_t size);
 void xhci_init_cycle_ring(transfer_ring_t *, const size_t ring_size);
-usbdev_t *xhci_set_address (hci_t *, usb_speed speed, int hubport, int hubaddr);
-int xhci_finish_device_config(usbdev_t *);
-void xhci_destroy_dev(hci_t *, int slot_id);
+UsbDev *xhci_set_address (UsbDevHc *, UsbSpeed speed, int hubport, int hubaddr);
+int xhci_finish_device_config(UsbDev *);
+void xhci_destroy_dev(UsbDevHc *, int slot_id);
 
 void xhci_reset_event_ring(event_ring_t *);
 void xhci_advance_event_ring(xhci_t *);
@@ -513,8 +513,8 @@ int xhci_cmd_reset_endpoint(xhci_t *, int slot_id, int ep);
 int xhci_cmd_stop_endpoint(xhci_t *, int slot_id, int ep);
 int xhci_cmd_set_tr_dq(xhci_t *, int slot_id, int ep, trb_t *, int dcs);
 
-static inline int xhci_ep_id(const endpoint_t *const ep) {
-	return ((ep->endpoint & 0x7f) << 1) + (ep->direction == IN);
+static inline int xhci_ep_id(const UsbEndpoint *const ep) {
+	return ((ep->endpoint & 0x7f) << 1) + (ep->direction == UsbDirIn);
 }
 
 

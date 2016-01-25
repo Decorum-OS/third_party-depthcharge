@@ -89,8 +89,8 @@ static int board_setup(void)
 
 	power_set_ops(&exynos_power_ops);
 
-	UsbHostController *usb_drd0 = new_usb_hc(XHCI, 0x12000000);
-	UsbHostController *usb_drd1 = new_usb_hc(XHCI, 0x12400000);
+	UsbHostController *usb_drd0 = new_usb_hc(UsbXhci, 0x12000000);
+	UsbHostController *usb_drd1 = new_usb_hc(UsbXhci, 0x12400000);
 
 	set_usb_init_callback(usb_drd0, exynos5420_usbss_phy_tune);
 	/* DRD1 port has no SuperSpeed lines anyway */

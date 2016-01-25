@@ -48,7 +48,7 @@ typedef struct {
 #define RH_INST(dev) ((rh_inst_t*)(dev)->data)
 
 static void
-ehci_rh_destroy (usbdev_t *dev)
+ehci_rh_destroy (UsbDev *dev)
 {
 	int port;
 
@@ -66,7 +66,7 @@ ehci_rh_destroy (usbdev_t *dev)
 }
 
 static void
-ehci_rh_hand_over_port (usbdev_t *dev, int port)
+ehci_rh_hand_over_port (UsbDev *dev, int port)
 {
 	usb_debug("giving up port %x, it's USB1\n", port+1);
 
@@ -91,9 +91,9 @@ ehci_rh_hand_over_port (usbdev_t *dev, int port)
 }
 
 static void
-ehci_rh_scanport (usbdev_t *dev, int port)
+ehci_rh_scanport (UsbDev *dev, int port)
 {
-	usb_speed port_speed;
+	UsbSpeed port_speed;
 
 	if (RH_INST(dev)->devices[port]!=-1) {
 		usb_debug("Unregister device at port %x\n", port+1);
@@ -140,12 +140,12 @@ ehci_rh_scanport (usbdev_t *dev, int port)
 			return;
 		}
 		if (CONFIG_USB_EHCI_HOSTPC_ROOT_HUB_TT) {
-			port_speed = (usb_speed)
+			port_speed = (UsbSpeed)
 				((EHCI_INST(dev->controller)->operation->hostpc
 				>> 25) & 0x03);
 		} else {
 			usb_debug("port %x hosts a USB2 device\n", port+1);
-			port_speed = HIGH_SPEED;
+			port_speed = UsbHighSpeed;
 		}
 		RH_INST(dev)->devices[port] = usb_attach_device(dev->controller
 			, dev->address, port, port_speed);
@@ -155,7 +155,7 @@ ehci_rh_scanport (usbdev_t *dev, int port)
 }
 
 static int
-ehci_rh_report_port_changes (usbdev_t *dev)
+ehci_rh_report_port_changes (UsbDev *dev)
 {
 	int i;
 	for (i=0; i<RH_INST(dev)->n_ports; i++) {
@@ -166,7 +166,7 @@ ehci_rh_report_port_changes (usbdev_t *dev)
 }
 
 static void
-ehci_rh_poll (usbdev_t *dev)
+ehci_rh_poll (UsbDev *dev)
 {
 	int port;
 	while ((port = ehci_rh_report_port_changes (dev)) != -1)
@@ -175,7 +175,7 @@ ehci_rh_poll (usbdev_t *dev)
 
 
 void
-ehci_rh_init (usbdev_t *dev)
+ehci_rh_init (UsbDev *dev)
 {
 	int i;
 	dev->destroy = ehci_rh_destroy;
@@ -200,7 +200,7 @@ ehci_rh_init (usbdev_t *dev)
 	}
 	mdelay(20); // ehci spec 2.3.9
 
-	dev->speed = HIGH_SPEED;
+	dev->speed = UsbHighSpeed;
 	dev->address = 0;
 	dev->hub = -1;
 	dev->port = -1;

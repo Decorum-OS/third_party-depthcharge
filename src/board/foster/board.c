@@ -136,7 +136,7 @@ static int board_setup(void)
 			  &removable_block_dev_controllers);
 
 	/* Careful: the EHCI base is at offset 0x100 from the SoC's IP base */
-	UsbHostController *usbd = new_usb_hc(EHCI, 0x7d000100);
+	UsbHostController *usbd = new_usb_hc(UsbEhci, 0x7d000100);
 
 	list_insert_after(&usbd->list_node, &usb_host_controllers);
 

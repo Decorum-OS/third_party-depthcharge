@@ -74,17 +74,17 @@ static void dump_td(uint32_t addr)
 	usb_debug("+---------------------------------------------------+\n");
 }
 
-static void ehci_start (hci_t *controller)
+static void ehci_start (UsbDevHc *controller)
 {
 	EHCI_INST(controller)->operation->usbcmd |= HC_OP_RS;
 }
 
-static void ehci_stop (hci_t *controller)
+static void ehci_stop (UsbDevHc *controller)
 {
 	EHCI_INST(controller)->operation->usbcmd &= ~HC_OP_RS;
 }
 
-static void ehci_reset (hci_t *controller)
+static void ehci_reset (UsbDevHc *controller)
 {
 	short count = 0;
 	ehci_stop(controller);
@@ -103,7 +103,7 @@ static void ehci_reset (hci_t *controller)
 	usb_debug("ehci_reset(): reset failed!\n");
 }
 
-static void ehci_reinit (hci_t *controller)
+static void ehci_reinit (UsbDevHc *controller)
 {
 }
 
@@ -129,7 +129,7 @@ static int ehci_set_periodic_schedule(ehci_t *ehcic, int enable)
 	return 0;
 }
 
-static void ehci_shutdown (hci_t *controller)
+static void ehci_shutdown (UsbDevHc *controller)
 {
 	detach_controller(controller);
 
@@ -300,18 +300,18 @@ static int ehci_process_async_schedule(
 	return result;
 }
 
-static int ehci_bulk (endpoint_t *ep, int size, uint8_t *src, int finalize)
+static int ehci_bulk (UsbEndpoint *ep, int size, uint8_t *src, int finalize)
 {
 	int result = 0;
 	uint8_t *end = src + size;
 	int remaining = size;
 	int endp = ep->endpoint & 0xf;
-	int pid = (ep->direction==IN)?EHCI_IN:EHCI_OUT;
+	int pid = (ep->direction == UsbDirIn) ? EHCI_IN : EHCI_OUT;
 
 	int hubaddr = 0, hubport = 0;
 	if (ep->dev->speed < 2) {
 		/* we need a split transaction */
-		if (closest_usb2_hub(ep->dev, &hubaddr, &hubport))
+		if (usb_closest_usb2_hub(ep->dev, &hubaddr, &hubport))
 			return -1;
 	}
 
@@ -390,7 +390,7 @@ oom:
 
 
 /* FIXME: Handle control transfers as 3 QHs, so the 2nd stage can be >0x4000 bytes */
-static int ehci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup,
+static int ehci_control (UsbDev *dev, UsbDirection dir, int drlen, void *setup,
 			 int dalen, uint8_t *src)
 {
 	uint8_t *data = src;
@@ -403,7 +403,7 @@ static int ehci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup,
 	int hubaddr = 0, hubport = 0, non_hs_ctrl_ep = 0;
 	if (dev->speed < 2) {
 		/* we need a split transaction */
-		if (closest_usb2_hub(dev, &hubaddr, &hubport))
+		if (usb_closest_usb2_hub(dev, &hubaddr, &hubport))
 			return -1;
 		non_hs_ctrl_ep = 1;
 	}
@@ -418,7 +418,7 @@ static int ehci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup,
 			usb_debug("EHCI control transfer too large for DMA buffer: %d\n", drlen + dalen);
 			return -1;
 		}
-		if (dir == OUT)
+		if (dir == UsbDirOut)
 			memcpy(data, src, dalen);
 	}
 
@@ -450,7 +450,8 @@ static int ehci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup,
 		memset((void *)cur, 0, sizeof(qtd_t));
 		cur->token = QTD_ACTIVE |
 			(toggle?QTD_TOGGLE_DATA1:0) |
-			(((dir == OUT)?EHCI_OUT:EHCI_IN) << QTD_PID_SHIFT) |
+			(((dir == UsbDirOut) ? EHCI_OUT:EHCI_IN) <<
+			 QTD_PID_SHIFT) |
 			(3 << QTD_CERR_SHIFT);
 		if (fill_td(cur, data, dalen) != dalen) {
 			usb_debug("ERROR: couldn't send the entire control payload\n");
@@ -467,7 +468,7 @@ static int ehci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup,
 	memset((void *)cur, 0, sizeof(qtd_t));
 	cur->token = QTD_ACTIVE |
 		(toggle?QTD_TOGGLE_DATA1:QTD_TOGGLE_DATA0) |
-		((dir == OUT)?EHCI_IN:EHCI_OUT) << QTD_PID_SHIFT |
+		((dir == UsbDirOut)?EHCI_IN:EHCI_OUT) << QTD_PID_SHIFT |
 		(0 << QTD_CERR_SHIFT);
 	fill_td(cur, NULL, 0);
 	cur->next_qtd = 0 | QTD_TERMINATE;
@@ -493,7 +494,7 @@ static int ehci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup,
 			EHCI_INST(dev->controller), qh, head);
 	if (result >= 0) {
 		result = dalen - result;
-		if (dir == IN && data != src)
+		if (dir == UsbDirIn && data != src)
 			memcpy(src, data, result);
 	}
 
@@ -521,7 +522,7 @@ typedef struct {
 	intr_qtd_t		*tail;
 	intr_qtd_t		*spare;
 	uint8_t			*data;
-	endpoint_t		*endp;
+	UsbEndpoint		*endp;
 	int			reqsize;
 } intr_queue_t;
 
@@ -530,8 +531,8 @@ static void fill_intr_queue_td(
 		intr_qtd_t *const intr_qtd,
 		uint8_t *const data)
 {
-	const int pid = (intrq->endp->direction == IN) ? EHCI_IN
-		: (intrq->endp->direction == OUT) ? EHCI_OUT
+	const int pid = (intrq->endp->direction == UsbDirIn) ? EHCI_IN
+		: (intrq->endp->direction == UsbDirOut) ? EHCI_OUT
 		: EHCI_SETUP;
 	const int cerr = (intrq->endp->dev->speed < 2) ? 1 : 0;
 
@@ -549,10 +550,10 @@ static void fill_intr_queue_td(
 	intrq->endp->toggle ^= 1;
 }
 
-static void ehci_destroy_intr_queue(endpoint_t *const, void *const);
+static void ehci_destroy_intr_queue(UsbEndpoint *const, void *const);
 
 static void *ehci_create_intr_queue(
-		endpoint_t *const ep,
+		UsbEndpoint *const ep,
 		const int reqsize,
 		int reqcount,
 		const int reqtiming)
@@ -570,7 +571,7 @@ static void *ehci_create_intr_queue(
 	int hubaddr = 0, hubport = 0;
 	if (ep->dev->speed < 2) {
 		/* we need a split transaction */
-		if (closest_usb2_hub(ep->dev, &hubaddr, &hubport))
+		if (usb_closest_usb2_hub(ep->dev, &hubaddr, &hubport))
 			return NULL;
 	}
 
@@ -651,7 +652,7 @@ static void *ehci_create_intr_queue(
 	return intrq;
 }
 
-static void ehci_destroy_intr_queue(endpoint_t *const ep, void *const queue)
+static void ehci_destroy_intr_queue(UsbEndpoint *const ep, void *const queue)
 {
 	intr_queue_t *const intrq = (intr_queue_t *)queue;
 
@@ -726,13 +727,13 @@ static uint8_t *ehci_poll_intr_queue(void *const queue)
 	return ret;
 }
 
-hci_t *
+UsbDevHc *
 ehci_init (unsigned long physical_bar)
 {
 	int i;
-	hci_t *controller = new_controller ();
+	UsbDevHc *controller = new_controller ();
 	controller->instance = xzalloc(sizeof (ehci_t));
-	controller->type = EHCI;
+	controller->type = UsbEhci;
 	controller->start = ehci_start;
 	controller->stop = ehci_stop;
 	controller->reset = ehci_reset;
@@ -740,7 +741,7 @@ ehci_init (unsigned long physical_bar)
 	controller->shutdown = ehci_shutdown;
 	controller->bulk = ehci_bulk;
 	controller->control = ehci_control;
-	controller->set_address = generic_set_address;
+	controller->set_address = usb_generic_set_address;
 	controller->finish_device_config = NULL;
 	controller->destroy_device = NULL;
 	controller->create_intr_queue = ehci_create_intr_queue;
@@ -807,10 +808,10 @@ ehci_init (unsigned long physical_bar)
 }
 
 #if CONFIG_USB_PCI
-hci_t *
+UsbDevHc *
 ehci_pci_init (pcidev_t addr)
 {
-	hci_t *controller;
+	UsbDevHc *controller;
 	uint32_t reg_base;
 
 	uint32_t pci_command = pci_read_config32(addr, PciConfCommand);

@@ -36,8 +36,8 @@
 typedef struct {
 	unsigned int blocksize;
 	unsigned int numblocks;
-	endpoint_t *bulk_in;
-	endpoint_t *bulk_out;
+	UsbEndpoint *bulk_in;
+	UsbEndpoint *bulk_out;
 	uint8_t usbdisk_created;
 	int8_t ready;
 	uint8_t lun;
@@ -59,9 +59,9 @@ typedef enum {
 	cbw_direction_data_out = 0
 } cbw_direction;
 
-int readwrite_blocks_512(usbdev_t *dev, int start, int n, cbw_direction dir,
+int readwrite_blocks_512(UsbDev *dev, int start, int n, cbw_direction dir,
 			 uint8_t *buf);
-int readwrite_blocks(usbdev_t *dev, int start, int n, cbw_direction dir,
+int readwrite_blocks(UsbDev *dev, int start, int n, cbw_direction dir,
 		     uint8_t *buf);
 
 #endif /* __DRIVERS_STORAGE_USBMSC_H__ */

@@ -36,15 +36,15 @@
 #include "base/die.h"
 #include "base/xalloc.h"
 
-static void ohci_start (hci_t *controller);
-static void ohci_stop (hci_t *controller);
-static void ohci_reset (hci_t *controller);
-static void ohci_shutdown (hci_t *controller);
-static int ohci_bulk (endpoint_t *ep, int size, uint8_t *data, int finalize);
-static int ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *devreq,
+static void ohci_start (UsbDevHc *controller);
+static void ohci_stop (UsbDevHc *controller);
+static void ohci_reset (UsbDevHc *controller);
+static void ohci_shutdown (UsbDevHc *controller);
+static int ohci_bulk (UsbEndpoint *ep, int size, uint8_t *data, int finalize);
+static int ohci_control (UsbDev *dev, UsbDirection dir, int drlen, void *devreq,
 			 int dalen, uint8_t *data);
-static void* ohci_create_intr_queue (endpoint_t *ep, int reqsize, int reqcount, int reqtiming);
-static void ohci_destroy_intr_queue (endpoint_t *ep, void *queue);
+static void* ohci_create_intr_queue (UsbEndpoint *ep, int reqsize, int reqcount, int reqtiming);
+static void ohci_destroy_intr_queue (UsbEndpoint *ep, void *queue);
 static uint8_t* ohci_poll_intr_queue (void *queue);
 static int ohci_process_done_queue(ohci_t *ohci, int spew_debug);
 
@@ -122,7 +122,7 @@ dump_ed (ed_t *cur)
 #endif
 
 static void
-ohci_reset (hci_t *controller)
+ohci_reset (UsbDevHc *controller)
 {
 	if (controller == NULL)
 		return;
@@ -134,7 +134,7 @@ ohci_reset (hci_t *controller)
 }
 
 static void
-ohci_reinit (hci_t *controller)
+ohci_reinit (UsbDevHc *controller)
 {
 }
 
@@ -168,14 +168,14 @@ static const char *direction[] = {
 };
 #endif
 
-hci_t *
+UsbDevHc *
 ohci_init (unsigned long physical_bar)
 {
 	int i;
 
-	hci_t *controller = new_controller ();
+	UsbDevHc *controller = new_controller ();
 	controller->instance = xzalloc(sizeof (ohci_t));
-	controller->type = OHCI;
+	controller->type = UsbOhci;
 	controller->start = ohci_start;
 	controller->stop = ohci_stop;
 	controller->reset = ohci_reset;
@@ -183,7 +183,7 @@ ohci_init (unsigned long physical_bar)
 	controller->shutdown = ohci_shutdown;
 	controller->bulk = ohci_bulk;
 	controller->control = ohci_control;
-	controller->set_address = generic_set_address;
+	controller->set_address = usb_generic_set_address;
 	controller->finish_device_config = NULL;
 	controller->destroy_device = NULL;
 	controller->create_intr_queue = ohci_create_intr_queue;
@@ -249,7 +249,7 @@ ohci_init (unsigned long physical_bar)
 }
 
 #if CONFIG_USB_PCI
-hci_t *
+UsbDevHc *
 ohci_pci_init (pcidev_t addr)
 {
 	uint32_t reg_base;
@@ -264,7 +264,7 @@ ohci_pci_init (pcidev_t addr)
 #endif
 
 static void
-ohci_shutdown (hci_t *controller)
+ohci_shutdown (UsbDevHc *controller)
 {
 	if (controller == 0)
 		return;
@@ -277,19 +277,19 @@ ohci_shutdown (hci_t *controller)
 }
 
 static void
-ohci_start (hci_t *controller)
+ohci_start (UsbDevHc *controller)
 {
 	OHCI_INST (controller)->opreg->HcControl |= PeriodicListEnable;
 }
 
 static void
-ohci_stop (hci_t *controller)
+ohci_stop (UsbDevHc *controller)
 {
 	OHCI_INST (controller)->opreg->HcControl &= ~PeriodicListEnable;
 }
 
 static int
-wait_for_ed(usbdev_t *dev, ed_t *head, int pages)
+wait_for_ed(UsbDev *dev, ed_t *head, int pages)
 {
 	/* wait for results */
 	/* TOTEST: how long to wait?
@@ -348,7 +348,7 @@ ohci_free_ed (ed_t *const head)
 }
 
 static int
-ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup, int dalen,
+ohci_control (UsbDev *dev, UsbDirection dir, int drlen, void *setup, int dalen,
 	      unsigned char *src)
 {
 	uint8_t *data = src;
@@ -366,7 +366,7 @@ ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup, int dalen,
 			usb_debug("OHCI control transfer too large for DMA buffer: %d\n", drlen + dalen);
 			return -1;
 		}
-		if (dir == OUT)
+		if (dir == UsbDirOut)
 			memcpy(data, src, dalen);
 	}
 
@@ -398,7 +398,8 @@ ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup, int dalen,
 		/* Advance to the new TD. */
 		cur = next;
 
-		cur->config = (dir == IN ? TD_DIRECTION_IN : TD_DIRECTION_OUT) |
+		cur->config = (dir == UsbDirIn ? TD_DIRECTION_IN :
+			       TD_DIRECTION_OUT) |
 			TD_DELAY_INTERRUPT_NOINTR |
 			TD_TOGGLE_FROM_ED |
 			TD_CC_NOACCESS;
@@ -431,7 +432,7 @@ ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup, int dalen,
 	cur->next_td = (uintptr_t)next_td;
 	/* Advance to the new TD. */
 	cur = next_td;
-	cur->config = (dir == IN ? TD_DIRECTION_OUT : TD_DIRECTION_IN) |
+	cur->config = (dir == UsbDirIn ? TD_DIRECTION_OUT : TD_DIRECTION_IN) |
 		TD_DELAY_INTERRUPT_ZERO | /* Write done head after this TD. */
 		TD_TOGGLE_FROM_TD |
 		TD_TOGGLE_DATA1 |
@@ -479,7 +480,7 @@ ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup, int dalen,
 
 	if (result >= 0) {
 		result = dalen - result;
-		if (dir == IN && data != src)
+		if (dir == UsbDirIn && data != src)
 			memcpy(src, data, result);
 	}
 
@@ -488,7 +489,7 @@ ohci_control (usbdev_t *dev, direction_t dir, int drlen, void *setup, int dalen,
 
 /* finalize == 1: if data is of packet aligned size, add a zero length packet */
 static int
-ohci_bulk (endpoint_t *ep, int dalen, uint8_t *src, int finalize)
+ohci_bulk (UsbEndpoint *ep, int dalen, uint8_t *src, int finalize)
 {
 	int i;
 	td_t *cur, *next;
@@ -502,7 +503,7 @@ ohci_bulk (endpoint_t *ep, int dalen, uint8_t *src, int finalize)
 			usb_debug("OHCI bulk transfer too large for DMA buffer: %d\n", dalen);
 			return -1;
 		}
-		if (ep->direction == OUT)
+		if (ep->direction == UsbDirOut)
 			memcpy(data, src, dalen);
 	}
 
@@ -525,7 +526,7 @@ ohci_bulk (endpoint_t *ep, int dalen, uint8_t *src, int finalize)
 	for (i = 0; i < td_count; ++i) {
 		/* Advance to next TD. */
 		cur = next;
-		cur->config = (ep->direction == IN ? TD_DIRECTION_IN : TD_DIRECTION_OUT) |
+		cur->config = (ep->direction == UsbDirIn ? TD_DIRECTION_IN : TD_DIRECTION_OUT) |
                         TD_DELAY_INTERRUPT_NOINTR |
                         TD_TOGGLE_FROM_ED |
                         TD_CC_NOACCESS;
@@ -572,7 +573,8 @@ ohci_bulk (endpoint_t *ep, int dalen, uint8_t *src, int finalize)
 	memset((void*)head, 0, sizeof(*head));
 	head->config = (ep->dev->address << ED_FUNC_SHIFT) |
 		((ep->endpoint & 0xf) << ED_EP_SHIFT) |
-		(((ep->direction==IN)?OHCI_IN:OHCI_OUT) << ED_DIR_SHIFT) |
+		(((ep->direction == UsbDirIn) ? OHCI_IN : OHCI_OUT) <<
+		  ED_DIR_SHIFT) |
 		(ep->dev->speed?ED_LOWSPEED:0) |
 		(ep->maxpacketsize << ED_MPS_SHIFT);
 	head->tail_pointer = (uintptr_t)cur;
@@ -602,7 +604,7 @@ ohci_bulk (endpoint_t *ep, int dalen, uint8_t *src, int finalize)
 
 	if (result >= 0) {
 		result = dalen - result;
-		if (ep->direction == IN && data != src)
+		if (ep->direction == UsbDirIn && data != src)
 			memcpy(src, data, result);
 	}
 
@@ -625,7 +627,7 @@ struct _intr_queue {
 	struct _intrq_td	*tail;
 	uint8_t			*data;
 	int			reqsize;
-	endpoint_t		*endp;
+	UsbEndpoint		*endp;
 	unsigned int		remaining_tds;
 	int			destroy;
 };
@@ -641,7 +643,7 @@ ohci_fill_intrq_td(intrq_td_t *const td, intr_queue_t *const intrq,
 {
 	memset(td, 0, sizeof(*td));
 	td->td.config = TD_QUEUETYPE_INTR |
-		(intrq->endp->direction == IN
+		(intrq->endp->direction == UsbDirIn
 			? TD_DIRECTION_IN : TD_DIRECTION_OUT) |
 		TD_DELAY_INTERRUPT_ZERO |
 		TD_TOGGLE_FROM_ED |
@@ -654,7 +656,7 @@ ohci_fill_intrq_td(intrq_td_t *const td, intr_queue_t *const intrq,
 
 /* create and hook-up an intr queue into device schedule */
 static void *
-ohci_create_intr_queue(endpoint_t *const ep, const int reqsize,
+ohci_create_intr_queue(UsbEndpoint *const ep, const int reqsize,
 		       const int reqcount, const int reqtiming)
 {
 	int i;
@@ -695,7 +697,7 @@ ohci_create_intr_queue(endpoint_t *const ep, const int reqsize,
 	/* Initialize ED. */
 	intrq->ed.config =  (ep->dev->address << ED_FUNC_SHIFT) |
 		((ep->endpoint & 0xf) << ED_EP_SHIFT) |
-		(((ep->direction == IN) ? OHCI_IN : OHCI_OUT) << ED_DIR_SHIFT) |
+		(((ep->direction == UsbDirIn) ? OHCI_IN : OHCI_OUT) << ED_DIR_SHIFT) |
 		(ep->dev->speed ? ED_LOWSPEED : 0) |
 		(ep->maxpacketsize << ED_MPS_SHIFT);
 	intrq->ed.tail_pointer = (uintptr_t)last_td;
@@ -727,7 +729,7 @@ ohci_create_intr_queue(endpoint_t *const ep, const int reqsize,
 
 /* remove queue from device schedule, dropping all data that came in */
 static void
-ohci_destroy_intr_queue(endpoint_t *const ep, void *const q_)
+ohci_destroy_intr_queue(UsbEndpoint *const ep, void *const q_)
 {
 	intr_queue_t *const intrq = (intr_queue_t *)q_;
 

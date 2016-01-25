@@ -57,7 +57,7 @@ xhci_get_rh_port(xhci_t *const xhci, const int hubport, const int hubaddr)
 }
 
 static int
-xhci_get_tt(xhci_t *const xhci, const usb_speed speed,
+xhci_get_tt(xhci_t *const xhci, const UsbSpeed speed,
 	    const int hubport, const int hubaddr,
 	    int *const tt, int *const tt_port)
 {
@@ -66,8 +66,8 @@ xhci_get_tt(xhci_t *const xhci, const usb_speed speed,
 	const slotctx_t *const slot = xhci->dev[hubaddr].ctx.slot;
 	if ((*tt = SC_GET(TTID, slot))) {
 		*tt_port = SC_GET(TTPORT, slot);
-	} else if (speed < HIGH_SPEED &&
-			SC_GET(SPEED1, slot) - 1 == HIGH_SPEED) {
+	} else if (speed < UsbHighSpeed &&
+			SC_GET(SPEED1, slot) - 1 == UsbHighSpeed) {
 		*tt = hubaddr;
 		*tt_port = hubport;
 	}
@@ -123,13 +123,13 @@ xhci_make_inputctx(const size_t ctxsize)
 	return ic;
 }
 
-usbdev_t *
-xhci_set_address (hci_t *controller, usb_speed speed, int hubport, int hubaddr)
+UsbDev *
+xhci_set_address (UsbDevHc *controller, UsbSpeed speed, int hubport, int hubaddr)
 {
 	xhci_t *const xhci = XHCI_INST(controller);
 	const size_t ctxsize = CTXSIZE(xhci);
 	devinfo_t *di = NULL;
-	usbdev_t *dev = NULL;
+	UsbDev *dev = NULL;
 	int i;
 
 	inputctx_t *const ic = xhci_make_inputctx(ctxsize);
@@ -215,13 +215,17 @@ xhci_set_address (hci_t *controller, usb_speed speed, int hubport, int hubaddr)
 	dev->endpoints[0].dev = dev;
 	dev->endpoints[0].endpoint = 0;
 	dev->endpoints[0].toggle = 0;
-	dev->endpoints[0].direction = SETUP;
-	dev->endpoints[0].type = CONTROL;
+	dev->endpoints[0].direction = UsbDirSetup;
+	dev->endpoints[0].type = UsbEndpTypeControl;
 
 	uint8_t buf[8];
-	if (get_descriptor(dev, gen_bmRequestType(device_to_host, standard_type,
-		dev_recp), DT_DEV, 0, buf, sizeof(buf)) != sizeof(buf)) {
-		usb_debug("first get_descriptor(DT_DEV) failed\n");
+	if (usb_get_descriptor(dev,
+			       usb_gen_bmRequestType(UsbDeviceToHost,
+						 UsbStandardType,
+						 UsbDevRecp),
+			       UsbDescTypeDev, 0, buf,
+			       sizeof(buf)) != sizeof(buf)) {
+		usb_debug("first usb_get_descriptor(UsbDescTypeDev) failed\n");
 		goto _disable_return;
 	}
 
@@ -264,13 +268,15 @@ _free_ic_return:
 }
 
 static int
-xhci_finish_hub_config(usbdev_t *const dev, inputctx_t *const ic)
+xhci_finish_hub_config(UsbDev *const dev, inputctx_t *const ic)
 {
-	int type = dev->speed == SUPER_SPEED ? 0x2a : 0x29; /* similar enough */
-	hub_descriptor_t desc;
+	int type = dev->speed == UsbSuperSpeed ? 0x2a : 0x29; /* similar enough */
+	UsbHubDescriptor desc;
 
-	if (get_descriptor(dev, gen_bmRequestType(device_to_host, class_type,
-		dev_recp), type, 0, &desc, sizeof(desc)) != sizeof(desc)) {
+	if (usb_get_descriptor(dev, usb_gen_bmRequestType(UsbDeviceToHost,
+							  UsbClassType,
+							  UsbDevRecp),
+			       type, 0, &desc, sizeof(desc)) != sizeof(desc)) {
 		xhci_debug("Failed to fetch hub descriptor\n");
 		return COMMUNICATION_ERROR;
 	}
@@ -278,7 +284,7 @@ xhci_finish_hub_config(usbdev_t *const dev, inputctx_t *const ic)
 	SC_SET(HUB,	ic->dev.slot, 1);
 	SC_SET(MTT,	ic->dev.slot, 0); /* No support for Multi-TT */
 	SC_SET(NPORTS,	ic->dev.slot, desc.bNbrPorts);
-	if (dev->speed == HIGH_SPEED)
+	if (dev->speed == UsbHighSpeed)
 		SC_SET(TTT, ic->dev.slot,
 		       (desc.wHubCharacteristics >> 5) & 0x0003);
 
@@ -286,13 +292,13 @@ xhci_finish_hub_config(usbdev_t *const dev, inputctx_t *const ic)
 }
 
 static size_t
-xhci_bound_interval(const endpoint_t *const ep)
+xhci_bound_interval(const UsbEndpoint *const ep)
 {
-	if (	(ep->dev->speed == LOW_SPEED &&
-			(ep->type == ISOCHRONOUS ||
-			 ep->type == INTERRUPT)) ||
-		(ep->dev->speed == FULL_SPEED &&
-			 ep->type == INTERRUPT))
+	if (	(ep->dev->speed == UsbLowSpeed &&
+			(ep->type == UsbEndpTypeIsochronous ||
+			 ep->type == UsbEndpTypeInterrupt)) ||
+		(ep->dev->speed == UsbFullSpeed &&
+			 ep->type == UsbEndpTypeInterrupt))
 	{
 		if (ep->interval < 3)
 			return 3;
@@ -311,7 +317,7 @@ xhci_bound_interval(const endpoint_t *const ep)
 }
 
 static int
-xhci_finish_ep_config(const endpoint_t *const ep, inputctx_t *const ic)
+xhci_finish_ep_config(const UsbEndpoint *const ep, inputctx_t *const ic)
 {
 	xhci_t *const xhci = XHCI_INST(ep->dev->controller);
 	const int ep_id = xhci_ep_id(ep);
@@ -340,14 +346,21 @@ xhci_finish_ep_config(const endpoint_t *const ep, inputctx_t *const ic)
 	epctx->tr_dq_high	= 0;
 	EC_SET(INTVAL,	epctx, xhci_bound_interval(ep));
 	EC_SET(CERR,	epctx, 3);
-	EC_SET(TYPE,	epctx, ep->type | ((ep->direction != OUT) << 2));
+	EC_SET(TYPE,	epctx, ep->type | ((ep->direction != UsbDirOut) << 2));
 	EC_SET(MPS,	epctx, ep->maxpacketsize);
 	EC_SET(DCS,	epctx, 1);
 	size_t avrtrb;
 	switch (ep->type) {
-		case BULK: case ISOCHRONOUS:	avrtrb = 3 * 1024; break;
-		case INTERRUPT:			avrtrb =     1024; break;
-		default:			avrtrb =        8; break;
+		case UsbEndpTypeBulk:
+		case UsbEndpTypeIsochronous:
+			avrtrb = 3 * 1024;
+			break;
+		case UsbEndpTypeInterrupt:
+			avrtrb = 1024;
+			break;
+		default:
+			avrtrb = 8;
+			break;
 	}
 	EC_SET(AVRTRB,	epctx, avrtrb);
 	EC_SET(MXESIT,  epctx, EC_GET(MPS, epctx) * EC_GET(MBS, epctx));
@@ -366,7 +379,7 @@ xhci_finish_ep_config(const endpoint_t *const ep, inputctx_t *const ic)
 }
 
 int
-xhci_finish_device_config(usbdev_t *const dev)
+xhci_finish_device_config(UsbDev *const dev)
 {
 	xhci_t *const xhci = XHCI_INST(dev->controller);
 	int slot_id = dev->address;
@@ -433,7 +446,7 @@ _free_return:
 }
 
 void
-xhci_destroy_dev(hci_t *const controller, const int slot_id)
+xhci_destroy_dev(UsbDevHc *const controller, const int slot_id)
 {
 	xhci_t *const xhci = XHCI_INST(controller);
 
