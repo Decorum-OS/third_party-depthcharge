@@ -1,4 +1,5 @@
 import argparse
+import os
 
 from imagelib.components import Area
 from imagelib.components import Cbfs
@@ -7,6 +8,7 @@ from imagelib.components import File
 from imagelib.components import Fmap
 from imagelib.components import Fwid
 from imagelib.components import Gbb
+from imagelib.components import Ifd
 from imagelib.components import Index
 from imagelib.components import Sha256
 from imagelib.components import Vblock
@@ -42,11 +44,15 @@ class Image(Area):
             ).size(192 * KB)
         ).size(960 * KB)
 
-    def __init__(self, serial, size):
-        self.dc_bin = File("depthcharge/depthcharge.payload")
+    def __init__(self, serial, size, gbb_flags=None):
+        self.dc_bin = File(os.path.join("depthcharge", "depthcharge.payload"))
         self.ec_bin = File("ec.RW.bin")
-        self.pd_bin = File("samus_pd/ec.RW.bin")
+        self.pd_bin = File(os.path.join("samus_pd", "ec.RW.bin"))
         self.refcode = File("refcode.stage")
+        priv_dir = os.path.join("coreboot-private", "3rdparty", "blobs",
+                                "mainboard", "google", "samus")
+        self.ifd = File(os.path.join(priv_dir, "descriptor.bin"))
+        self.me = File(os.path.join(priv_dir, "me.bin"))
 
         if serial:
             self.coreboot = File("coreboot.rom.serial")
@@ -60,12 +66,7 @@ class Image(Area):
         self.fmap = Fmap(size)
         fmap = self.fmap
 
-        si_all = fmap.section("SI_ALL",
-            fmap.section("SI_DESC").size(4 * KB),
-            fmap.section("SI_ME").expand()
-        ).size(2 * MB)
-
-        si_bios = fmap.section("SI_BIOS",
+        self.si_bios = fmap.section("SI_BIOS",
             Area(
                 self.build_rw(fmap, "_A"),
                 self.build_rw(fmap, "_B"),
@@ -97,17 +98,40 @@ class Image(Area):
                         fmap.section("RO_FRID_PAD").expand().fill(0xff)
                     ).size(4 * KB),
                     fmap.section("GBB",
-                        Gbb(hwid="SAMUS TEST 8028").expand()
+                        Gbb(hwid="SAMUS TEST 8028", flags=gbb_flags).expand()
                     ).expand(),
                     fmap.section("BOOT_STUB",
-                        self.coreboot
+                        #self.coreboot
                     ).size(1 * MB)
                 ).expand()
             ).size(2 * MB)
         ).size(6 * MB)
 
-        super(Image, self).__init__(si_all, si_bios)
+        self.si_desc = fmap.section("SI_DESC", self.ifd).size(4 * KB)
+        self.si_me = fmap.section("SI_ME", self.me)
+
+        # This part of the FMAP is odd because it covers two parts of the IFD
+        # but not the whole thing. It doesn't sit inside the IFD because that
+        # would imply it sits within one of it's regions, and it doesn't sit
+        # outside of the IFD because it doesn't cover all of it. It will have
+        # to be handled specially in the Image's "place" function.
+        self.si_all = fmap.section("SI_ALL")
+
+        ifd = Ifd(self.si_desc).expand()
+        ifd.region("me", self.si_me)
+        ifd.region("bios", self.si_bios)
+
+        super(Image, self).__init__(ifd)
         self.size(size)
+
+    def place(self, offset, size):
+        super(Image, self).place(offset, size)
+
+        # Manually place the "SI_ALL" fmap region over the IFD descriptor and
+        # ME region.
+        offset = self.si_desc.placed_offset
+        size = self.si_desc.placed_size + self.si_me.placed_size
+        self.si_all.place(0, size)
 
 
 def prepare(layout_args):
@@ -119,6 +143,21 @@ def prepare(layout_args):
     parser.add_argument('--size', dest='size', required=True, type=int,
                         help='Size of the image in MB')
 
+    parser.add_argument('--dev-gbb', dest='dev_gbb', action='store_true',
+                        default=False,
+                        help='Enable developer friendly gbb flags')
+
     options = parser.parse_args(layout_args)
 
-    return Image(serial=options.serial, size=options.size * MB)
+    gbb_flags = None
+    if options.dev_gbb:
+        gbb_flags = (
+            Gbb.DevScreenShortDelay |
+            Gbb.ForceDevSwitchOn |
+            Gbb.ForceDevBootUsb |
+            Gbb.DisableFwRollbackCheck
+        )
+
+    return Image(serial=options.serial,
+                 size=options.size * MB,
+                 gbb_flags=gbb_flags)
