@@ -6,6 +6,21 @@ import os
 import tempfile
 
 class Gbb(Area):
+    DevScreenShortDelay = 0x00000001
+    LoadOptionRoms = 0x00000002
+    EnableAlternateOs = 0x00000004
+    ForceDevSwitchOn = 0x00000008
+    ForceDevBootUsb = 0x00000010
+    DisableFwRollbackCheck = 0x00000020
+    EnterTriggersTonorm = 0x00000040
+    ForceDevBootLegacy = 0x00000080
+    FaftKeyOverride = 0x00000100
+    DisableEcSoftwareSync = 0x00000200
+    DefaultDevBootLegacy = 0x00000400
+    DisablePdSoftwareSync = 0x00000800
+    ForceDevBootFastbootFullCap = 0x00002000
+
+
     def __init__(self, hwid, flags=None, bmpfv=None,
                  rootkey=None, recoverykey=None):
         super(Gbb, self).__init__()
