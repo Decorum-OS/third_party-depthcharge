@@ -24,14 +24,20 @@ class CStruct(object):
     __metaclass__ = MetaCStruct
     struct_members = ()
 
+    def __init__(self, buf=None):
+        if buf is not None:
+            self.unpack(buf)
+
     def unpack(self, buf):
         values = struct.unpack(self.struct_fmt, buf)
-        names = (name for char, name in self.struct_members)
+        # Skip "x" members which are padding bytes.
+        names = (name for char, name in self.struct_members if 'x' not in char)
         for name, value in zip(names, values):
             setattr(self, name, value)
 
     def pack(self):
-        names = (name for char, name in self.struct_members)
+        # Skip "x" members which are padding bytes.
+        names = (name for char, name in self.struct_members if 'x' not in char)
         values = (getattr(self, name) for name in names)
         return struct.pack(self.struct_fmt, *values)
 
