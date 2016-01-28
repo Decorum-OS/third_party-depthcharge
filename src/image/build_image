@@ -1,0 +1,35 @@
+#!/usr/bin/python
+
+import argparse
+import importlib
+
+import imagelib.layout
+import imagelib.layout.samus
+
+parser = argparse.ArgumentParser(
+    description='Build a firmware image from its components')
+
+parser.add_argument('--layout', '-l', dest='layout', default=None,
+		    help='Layout to use for this image')
+parser.add_argument('-o', dest='output_file', default='image.bin',
+                    type=argparse.FileType('wb', 0),
+		    help='Output image file name')
+
+def main():
+    (options, layout_args) = parser.parse_known_args()
+    if not options.layout:
+        raise RuntimeError('No layout specified')
+    layout = options.layout
+
+    if not layout in imagelib.layout.layouts:
+        raise RuntimeError('Layout %s is unrecognized.' % layout)
+
+    layout_module = importlib.import_module('.' + layout, 'imagelib.layout')
+
+    image = layout_module.prepare(layout_args)
+
+    options.output_file.write(image.build())
+    options.output_file.close()
+
+if __name__ == '__main__':
+    main()
