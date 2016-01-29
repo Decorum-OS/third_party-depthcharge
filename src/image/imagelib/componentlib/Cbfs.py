@@ -70,9 +70,8 @@ class Cbfs(Area):
         self._align = align
         return self
 
-    def place(self, offset, size):
-        self.placed_offset = offset
-        self.placed_size = size
+    def place_children(self, offset, size):
+        pass
 
     def write(self):
         h, path = tempfile.mkstemp()

@@ -29,10 +29,7 @@ class Area(object):
         self.place(0, self._size)
         return self.write()
 
-    def place(self, offset, size):
-        self.placed_offset = offset
-        self.placed_size = size
-
+    def place_children(self, offset, size):
         start = []
         end = []
         expanding = None
@@ -58,6 +55,12 @@ class Area(object):
         for item, size in zip(self._items, sizes):
             item.place(pos, size)
             pos += size
+
+    def place(self, offset, size):
+        self.placed_offset = offset
+        self.placed_size = size
+
+        self.place_children(offset, size)
 
     def write(self):
         fill = 0xff

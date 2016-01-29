@@ -51,10 +51,7 @@ class Ifd(Area):
 
         return self
 
-    def place(self, offset, size):
-        self.placed_offset = offset
-        self.placed_size = size
-
+    def place_children(self, offset, size):
         if offset != 0:
             raise ValueError("The intel firmware descriptor must be at the" +
                              "start of the image.")

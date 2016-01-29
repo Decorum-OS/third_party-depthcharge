@@ -38,9 +38,8 @@ class Gbb(Area):
             recoverykey = File("recovery_key.vbpubk")
         self._recoverykey = recoverykey
 
-    def place(self, offset, size):
-        self.placed_offset = offset
-        self.placed_size = size
+    def place_children(self, offset, size):
+        pass
 
     def write(self):
         gbb, gbbp = tempfile.mkstemp()

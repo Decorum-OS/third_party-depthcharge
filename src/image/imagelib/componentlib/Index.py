@@ -22,9 +22,9 @@ class Index(Area):
             size = ((size + 3) & ~3)
         self.size(size)
 
-    def place(self, offset, size):
-        return super(Index, self).place(offset + self.index_size,
-                                        size - self.index_size)
+    def place_children(self, offset, size):
+        return super(Index, self).place_children(
+            offset + self.index_size, size - self.index_size)
 
     def write(self):
         header = IndexHeader()
