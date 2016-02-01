@@ -42,9 +42,49 @@ class CStruct(object):
         return struct.pack(self.struct_fmt, *values)
 
 
-def pad_buf(buf, size, fill):
-    if len(buf) < size:
-        buf += struct.pack("B", fill) * (size - len(buf))
-    return buf
+class Buffer(object):
+    def __init__(self, *args, **kwargs):
+        if (any(arg in kwargs for arg in ("fill", "size", "base")) or
+            len(args) > 1):
+            self._init_with_three_args(*args, **kwargs)
+        else:
+            self._init_with_one_arg(*args, **kwargs)
+        self._buf = struct.pack("B", self._fill) * self._size
 
-__all__ = ["KB", "MB", "CStruct", "pad_buf"]
+    def _init_with_two_args(self, fill, size, base=0):
+        self._fill = fill
+        self._size = size
+        self._base = base
+
+    def _init_with_one_arg(self, area):
+        self._fill = area.get_fill_byte()
+        self._size = area.placed_size
+        self._base = area.placed_offset
+
+    def fill(self):
+        return self._fill
+
+    def size(self):
+        return self._size
+
+    def data(self):
+        return self._buf
+
+    def inject(self, data, offset, length):
+        offset -= self._base
+        data_size = len(data)
+
+        if data_size != length:
+            raise ValueError("Attempting to write %d into a %d byte buffer." %
+                             (data_size, length))
+
+        if offset + length > self._size:
+            raise ValueError("Write beyond the end of the buffer.")
+
+        self._buf = self._buf[:offset] + data + self._buf[offset + length:]
+
+    def inject_areas(self, *areas):
+        for area in areas:
+            self.inject(area.write(), area.placed_offset, area.placed_size)
+
+__all__ = ["KB", "MB", "CStruct", "Buffer"]

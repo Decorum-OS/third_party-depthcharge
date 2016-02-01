@@ -4,8 +4,9 @@ from imagelib.tools.Cbfstool import Cbfstool
 import os
 import tempfile
 
-class CbfsFile(object):
+class CbfsFile(Area):
     def __init__(self, name, data, t):
+        super(CbfsFile, self).__init__(data)
         self._name = name
         self._data = data
         self._t = t
@@ -22,8 +23,9 @@ class CbfsFile(object):
         cbfstool.add(path, self._name, self._t, self._base)
         os.remove(path)
 
-class CbfsPayload(object):
+class CbfsPayload(Area):
     def __init__(self, name, data):
+        super(CbfsPayload, self).__init__(data)
         self._name = name
         self._data = data
         self._base = None
@@ -71,13 +73,11 @@ class Cbfs(Area):
         return self
 
     def place_children(self):
-        pass
+        for child in self.children:
+            child.place(0, child.computed_min_size)
 
     def compute_min_size_content(self):
-        if self._base:
-            return self._base.compute_min_size()
-        else:
-            return 0
+        return self._base.compute_min_size() if self._base else 0
 
     def write(self):
         h, path = tempfile.mkstemp()

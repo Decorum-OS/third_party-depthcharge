@@ -16,20 +16,21 @@ from imagelib.util import KB
 class Image(Area):
     model = "Google_Samus"
 
-    def build_rw(self, fmap, suffix):
-        verified_rw = Index(
+    def build_verified_rw(self):
+        return Index(
             File(self.dc_bin), Sha256(File(self.ec_bin)),
             Sha256(File(self.pd_bin)), File(self.ramstage),
             File(self.refcode)
-        )
+        ).fill(0xff)
 
+    def build_rw(self, fmap, suffix):
         fmap = self.fmap
 
         return fmap.section("RW_SECTION" + suffix,
             fmap.section("VBLOCK" + suffix,
-                Vblock(verified_rw).expand()
+                Vblock(self.build_verified_rw())
             ).size(64 * KB),
-            fmap.section("FW_MAIN" + suffix, verified_rw).expand(),
+            fmap.section("FW_MAIN" + suffix, self.build_verified_rw()).expand(),
             Area(
                 fmap.section("PD_MAIN" + suffix,
                     Index(File(self.pd_bin))
@@ -93,7 +94,7 @@ class Image(Area):
                         fmap.section("FMAP", fmap).size(2 * KB),
                         fmap.section("RO_FRID",
                             Fwid(self.model)
-                        ).size(64).fill(0),
+                        ).size(64).fill(0x00),
                         fmap.section("RO_FRID_PAD").expand().fill(0xff)
                     ).size(4 * KB),
                     fmap.section("GBB",
@@ -122,6 +123,7 @@ class Image(Area):
 
         super(Image, self).__init__(ifd)
         self.size(size)
+        self.fill(0x00)
 
     def place(self, offset, size):
         super(Image, self).place(offset, size)

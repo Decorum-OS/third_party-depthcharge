@@ -23,7 +23,6 @@ class Gbb(Area):
 
     def __init__(self, hwid, flags=None, bmpfv=None,
                  rootkey=None, recoverykey=None):
-        super(Gbb, self).__init__()
         self._hwid = hwid
         if flags is None:
             flags = 0
@@ -37,6 +36,18 @@ class Gbb(Area):
         if recoverykey is None:
             recoverykey = File("recovery_key.vbpubk")
         self._recoverykey = recoverykey
+
+        self._data = None
+
+        super(Gbb, self).__init__(bmpfv, rootkey, recoverykey)
+
+
+    def compute_min_size_content(self):
+        return 0
+
+    def place_children(self):
+        for child in self.children:
+            child.place(0, child.computed_min_size)
 
     def write(self):
         gbb, gbbp = tempfile.mkstemp()
@@ -63,4 +74,5 @@ class Gbb(Area):
 
         for path in gbbp, bmpfvp, rootkeyp, recoverykeyp:
             os.remove(path)
+
         return buf

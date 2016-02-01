@@ -64,9 +64,7 @@ class Fmap(Area):
     def write(self):
         def compare(a, b):
             res = a.placed_offset - b.placed_offset
-            if res:
-                return res
-            return b.placed_size - a.placed_size
+            return res if res else b.placed_size - a.placed_size
 
         ordered = sorted(self.sections, cmp=compare)
         fmap = self.header.pack()

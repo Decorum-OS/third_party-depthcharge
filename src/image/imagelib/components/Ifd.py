@@ -1,6 +1,6 @@
 from Area import Area
+from imagelib.util import Buffer
 from imagelib.util import CStruct
-from imagelib.util import pad_buf
 
 import copy
 
@@ -30,31 +30,30 @@ class Ifd(Area):
     MaxRegions = len(regions_template)
 
     def __init__(self, descriptor):
-        super(Ifd, self).__init__()
-
         self.descriptor = descriptor
         self.regions = copy.deepcopy(Ifd.regions_template)
+
+        super(Ifd, self).__init__(descriptor)
 
     def region(self, tag, item):
         # Find the region of interest.
         if tag not in self.region_map:
-            raise KeyError("Unknown firmware descriptor region %s.", tag)
+            raise KeyError("Unknown firmware descriptor region %s." % tag)
         region = self.regions[self.region_map[tag]]
 
         # Make sure writing to it is sensible.
         if region.fixed:
-            raise ValueError("Firmware descriptor region %s is fixed.", tag)
+            raise ValueError("Firmware descriptor region %s is fixed." % tag)
         # TODO check whether the region has any space in it.
+
+        if region.item:
+            raise ValueError("Region '%s' already has an item assigned." % tag)
 
         # Record that this region is supposed to be filled with "item".
         region.item = item
 
+        self.add_child(item)
         return self
-
-    def compute_min_size_content(self):
-        items = list((region.item for region in self.regions if region.item))
-        items.append(self.descriptor)
-        return sum(item.computed_min_size for item in items)
 
     def place_children(self):
         if self.placed_offset != 0:
@@ -62,7 +61,7 @@ class Ifd(Area):
                              "start of the image.")
 
         # Place the descriptor blob.
-        self.descriptor.place(0, self.descriptor._size)
+        self.descriptor.place(0, self.descriptor.computed_min_size)
         buf = self.descriptor.write()
 
         # Find the actual descriptor data structure.
@@ -94,26 +93,6 @@ class Ifd(Area):
                 raise ValueError("Can't put data into unused section %s (%s)" %
                                  (region.tag, region.description))
             region.item.place(base, size)
-
-    def write(self):
-        # Initially fill the buffer with the fill value.
-        fill = 0xff
-        if self._fill is not None:
-            fill = self._fill
-        buf = bytearray(pad_buf("", self.placed_size, fill))
-
-        # Inject the descriptor.
-        descriptor_data = self.descriptor.write()
-        buf[:len(descriptor_data)] = descriptor_data
-
-        # Inject data into regions that have items assigned.
-        for region in self.regions:
-            if not region.item:
-                continue
-            offset, size = region.item.placed_offset, region.item.placed_size
-            data = region.item.write()
-            buf[offset:offset + size] = region.item.write()
-        return buf
 
 
 class FlashDescriptor(CStruct):

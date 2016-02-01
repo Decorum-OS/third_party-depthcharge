@@ -1,6 +1,4 @@
-from imagelib.util import pad_buf
-
-import struct
+from imagelib.util import Buffer
 
 class Area(object):
     def __init__(self, *args):
@@ -12,6 +10,7 @@ class Area(object):
         self._expand_weight = None
         self._shrink = None
 
+        self.computed_fill_byte = None
         self.computed_min_size = None
         self.placed_size = None
         self.placed_offset = None
@@ -39,7 +38,7 @@ class Area(object):
 
     def get_fill_byte(self):
         """Returns the configured fill byte, if any."""
-        return self._fill
+        return self.computed_fill_byte
 
     def get_fixed_size(self):
         """Returns the configured fixed size, if any."""
@@ -47,6 +46,10 @@ class Area(object):
 
 
     # Methods for configuring an Area.
+
+    def add_child(self, child):
+        """Append a child to the list of children."""
+        self.children += (child,)
 
     def expand(self, weight=1):
         """Expand to fill the available space within the containing Area. If
@@ -71,9 +74,9 @@ class Area(object):
         return self
 
     def fill(self, fill):
-        """Set the fill byte for this Area. This setting is propogated down
+        """Set the fill byte for this Area. This setting is propagated down
            the heirarchy unless explicitly overridden, at which point the
-           new fill byte will be propogated.
+           new fill byte will be propagated.
         """
         self._fill = fill
         return self
@@ -92,7 +95,7 @@ class Area(object):
         return self
 
 
-    # Interface for working with a hierarchy of objects.
+    # Interface for processing with a hierarchy of objects.
 
     def _ensure_params_are_set(self, *params):
         """Make sure all the parameters which should be set by a certain
@@ -109,23 +112,18 @@ class Area(object):
         """Size, place, and write out a buffer with the contents of this
            Area.
         """
+        self.propagate_fill_byte(0xff)
+        self._ensure_params_are_set("computed_fill_byte")
         self.compute_min_size()
         self._ensure_params_are_set("computed_min_size")
         self.place(0, self._size)
         self._ensure_params_are_set("placed_offset", "placed_size")
         return self.write()
 
-    def place(self, offset, size):
-        """Define the location and size of this Area within the image, and
-           then propogate that to its children.
-        """
-        if self.placed_offset is not None or self.placed_size is not None:
-            raise ValueError("Area %s was already placed." % self)
-
-        self.placed_offset = offset
-        self.placed_size = size
-
-        self.place_children()
+    def propagate_fill_byte(self, default):
+        self.computed_fill_byte = default if self._fill is None else self._fill
+        for child in self.children:
+            child.propagate_fill_byte(self.computed_fill_byte)
 
     def compute_min_size(self):
         """Determine the minimum size this Area needs, based on how it was
@@ -151,6 +149,17 @@ class Area(object):
 
         return self.computed_min_size
 
+    def place(self, offset, size):
+        """Define the location and size of this Area within the image, and
+           then propagate that to its children.
+        """
+        if self.placed_offset is not None or self.placed_size is not None:
+            raise ValueError("Area %s was already placed." % self)
+
+        self.placed_offset = offset
+        self.placed_size = size
+
+        self.place_children()
 
     # Methods a subclass of Area can override to change how it composes itself
     # from its component parts.
@@ -182,13 +191,6 @@ class Area(object):
             pos += size
 
     def write(self):
-        fill = 0xff
-        if self._fill is not None:
-            fill = self._fill
-        buf = ""
-        for child in self.children:
-            rel_offset = child.placed_offset - self.placed_offset
-            new_buf = child.write()
-            buf += pad_buf(new_buf, child.placed_size, fill)
-        buf = pad_buf(buf, self.placed_size, fill)
-        return buf
+        buf = Buffer(self)
+        buf.inject_areas(*self.children)
+        return buf.data()

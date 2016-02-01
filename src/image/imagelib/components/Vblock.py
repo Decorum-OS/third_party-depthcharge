@@ -8,21 +8,32 @@ import tempfile
 class Vblock(Area):
     def __init__(self, to_sign, keyblock=None, signprivate=None, version=1,
                  kernelkey=None, flags=None):
-        super(Vblock, self).__init__()
-        self._to_sign = to_sign
+
         if keyblock is None:
             keyblock = File("firmware.keyblock")
         self._keyblock = keyblock
+
         if signprivate is None:
             signprivate = File("firmware_data_key.vbprivk")
         self._signprivate = signprivate
-        self._version = version
+
         if kernelkey is None:
             kernelkey = File("kernel_subkey.vbpubk")
         self._kernelkey = kernelkey
-        self._flags = flags
 
-    def write(self):
+        self._to_sign = to_sign
+        self._version = version
+        self._flags = flags
+        self._data = None
+
+        super(Vblock, self).__init__(keyblock, signprivate, kernelkey, to_sign)
+
+        self.shrink()
+
+    def _generate_vblock(self):
+        for child in self.children:
+            child.place(0, child.computed_min_size)
+
         vblock, vblockp = tempfile.mkstemp()
         to_sign, to_signp = tempfile.mkstemp()
         keyblock, keyblockp = tempfile.mkstemp()
@@ -44,9 +55,19 @@ class Vblock(Area):
         vbutil.vblock(vblockp, keyblockp, signprivatep, self._version, to_signp,
                       kernelkeyp, self._flags)
 
-        buf = vblock.read()
+        self._data = vblock.read()
         vblock.close()
 
         for path in vblockp, to_signp, keyblockp, signprivatep, kernelkeyp:
             os.remove(path)
-        return buf
+
+    def compute_min_size_content(self):
+        if not self._data:
+            self._generate_vblock()
+        return len(self._data)
+
+    def place_children(self):
+        pass
+
+    def write(self):
+        return self._data
