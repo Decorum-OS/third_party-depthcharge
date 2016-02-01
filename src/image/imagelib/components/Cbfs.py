@@ -1,5 +1,5 @@
 from Area import Area
-from imagelib.tools import Cbfstool
+from imagelib.tools.Cbfstool import Cbfstool
 
 import os
 import tempfile

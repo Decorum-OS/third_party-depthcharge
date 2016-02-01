@@ -1,5 +1,5 @@
 from Area import Area
-from imagelib.tools import ChromeosVersion
+from imagelib.tools.ChromeosVersion import ChromeosVersion
 
 class Fwid(Area):
     _versions = None

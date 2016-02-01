@@ -1,6 +1,6 @@
 from Area import Area
 from File import File
-from imagelib.tools import GbbUtility
+from imagelib.tools.GbbUtility import GbbUtility
 
 import os
 import tempfile

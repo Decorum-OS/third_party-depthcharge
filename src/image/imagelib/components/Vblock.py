@@ -1,6 +1,6 @@
 from Area import Area
 from File import File
-from imagelib.tools import VbutilFirmware
+from imagelib.tools.VbutilFirmware import VbutilFirmware
 
 import os
 import tempfile

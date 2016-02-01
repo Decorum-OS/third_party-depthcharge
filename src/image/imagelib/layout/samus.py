@@ -1,17 +1,15 @@
 import argparse
 import os
 
-from imagelib.components import Area
-from imagelib.components import Cbfs
-from imagelib.components import CbfsPayload
-from imagelib.components import File
-from imagelib.components import Fmap
-from imagelib.components import Fwid
-from imagelib.components import Gbb
-from imagelib.components import Ifd
-from imagelib.components import Index
-from imagelib.components import Sha256
-from imagelib.components import Vblock
+from imagelib.components.Area import Area
+from imagelib.components.File import File
+from imagelib.components.Fmap import Fmap
+from imagelib.components.Fwid import Fwid
+from imagelib.components.Gbb import Gbb
+from imagelib.components.Ifd import Ifd
+from imagelib.components.Index import Index
+from imagelib.components.Sha256 import Sha256
+from imagelib.components.Vblock import Vblock
 from imagelib.util import MB
 from imagelib.util import KB
 
