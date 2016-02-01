@@ -51,8 +51,13 @@ class Ifd(Area):
 
         return self
 
-    def place_children(self, offset, size):
-        if offset != 0:
+    def compute_min_size_content(self):
+        items = list((region.item for region in self.regions if region.item))
+        items.append(self.descriptor)
+        return sum(item.computed_min_size for item in items)
+
+    def place_children(self):
+        if self.placed_offset != 0:
             raise ValueError("The intel firmware descriptor must be at the" +
                              "start of the image.")
 

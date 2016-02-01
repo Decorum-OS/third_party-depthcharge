@@ -55,7 +55,7 @@ class Cbfs(Area):
 
     def base(self, base):
         self._base = base
-        self.size(base._size)
+        self.shrink()
         return self
 
     def bootblock(self, bootblock):
@@ -70,8 +70,14 @@ class Cbfs(Area):
         self._align = align
         return self
 
-    def place_children(self, offset, size):
+    def place_children(self):
         pass
+
+    def compute_min_size_content(self):
+        if self._base:
+            return self._base.compute_min_size()
+        else:
+            return 0
 
     def write(self):
         h, path = tempfile.mkstemp()
@@ -85,8 +91,8 @@ class Cbfs(Area):
                     raise ValueError("No bootblock specified")
                 cbfstool.create(path, self.placed_size, self._bootblock,
                                 self._arch, self._align, self._offset)
-            for item in self._items:
-                item.install(cbfstool)
+            for child in self.children:
+                child.install(cbfstool)
             f.seek(0)
             buf = f.read()
         os.remove(path)

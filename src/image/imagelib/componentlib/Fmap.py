@@ -49,13 +49,16 @@ class Fmap(Area):
         header.nareas = 0
         self.header = header
 
-        self.size(header.struct_len)
+        self.shrink()
+
+    def compute_min_size_content(self):
+        return (self.header.struct_len +
+                len(self.sections) * FmapArea.struct_len)
 
     def section(self, name, *args):
         section = Section(name, *args)
         self.sections.append(section)
         self.header.nareas += 1
-        self.size(self._size + FmapArea.struct_len)
         return section
 
     def write(self):

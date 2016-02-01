@@ -20,8 +20,9 @@ class Image(Area):
 
     def build_rw(self, fmap, suffix):
         verified_rw = Index(
-            self.dc_bin, Sha256(self.ec_bin), Sha256(self.pd_bin),
-            self.ramstage, self.refcode
+            File(self.dc_bin), Sha256(File(self.ec_bin)),
+            Sha256(File(self.pd_bin)), File(self.ramstage),
+            File(self.refcode)
         )
 
         fmap = self.fmap
@@ -33,10 +34,10 @@ class Image(Area):
             fmap.section("FW_MAIN" + suffix, verified_rw).expand(),
             Area(
                 fmap.section("PD_MAIN" + suffix,
-                    Index(self.pd_bin)
+                    Index(File(self.pd_bin))
                 ).size(64 * KB),
                 fmap.section("EC_MAIN" + suffix,
-                    Index(self.ec_bin)
+                    Index(File(self.ec_bin))
                 ).expand(),
                 fmap.section("RW_FWID" + suffix,
                     Fwid(self.model)
@@ -45,23 +46,23 @@ class Image(Area):
         ).size(960 * KB)
 
     def __init__(self, serial, size, gbb_flags=None):
-        self.dc_bin = File(os.path.join("depthcharge", "depthcharge.payload"))
-        self.ec_bin = File("ec.RW.bin")
-        self.pd_bin = File(os.path.join("samus_pd", "ec.RW.bin"))
-        self.refcode = File("refcode.stage")
+        self.dc_bin = os.path.join("depthcharge", "depthcharge.payload")
+        self.ec_bin = "ec.RW.bin"
+        self.pd_bin = os.path.join("samus_pd", "ec.RW.bin")
+        self.refcode = "refcode.stage"
         priv_dir = os.path.join("coreboot-private", "3rdparty", "blobs",
                                 "mainboard", "google", "samus")
-        self.ifd = File(os.path.join(priv_dir, "descriptor.bin"))
-        self.me = File(os.path.join(priv_dir, "me.bin"))
+        self.ifd = os.path.join(priv_dir, "descriptor.bin")
+        self.me = os.path.join(priv_dir, "me.bin")
 
         if serial:
-            self.coreboot = File("coreboot.rom.serial")
-            self.ramstage = File("ramstage.stage.serial")
-            self.legacy = File("seabios.cbfs.serial")
+            self.coreboot = "coreboot.rom.serial"
+            self.ramstage = "ramstage.stage.serial"
+            self.legacy = "seabios.cbfs.serial"
         else:
-            self.coreboot = File("coreboot.rom")
-            self.ramstage = File("ramstage.stage")
-            self.legacy = File("seabios.cbfs")
+            self.coreboot = "coreboot.rom"
+            self.ramstage = "ramstage.stage"
+            self.legacy = "seabios.cbfs"
 
         self.fmap = Fmap(size)
         fmap = self.fmap
@@ -81,7 +82,7 @@ class Image(Area):
             ).size(2 * MB),
 
             fmap.section("RW_LEGACY",
-                self.legacy.expand()
+                File(self.legacy)
             ).size(2 * MB),
 
             fmap.section("WP_RO",
@@ -107,8 +108,8 @@ class Image(Area):
             ).size(2 * MB)
         ).size(6 * MB)
 
-        self.si_desc = fmap.section("SI_DESC", self.ifd).size(4 * KB)
-        self.si_me = fmap.section("SI_ME", self.me)
+        self.si_desc = fmap.section("SI_DESC", File(self.ifd)).size(4 * KB)
+        self.si_me = fmap.section("SI_ME", File(self.me)).expand()
 
         # This part of the FMAP is odd because it covers two parts of the IFD
         # but not the whole thing. It doesn't sit inside the IFD because that
