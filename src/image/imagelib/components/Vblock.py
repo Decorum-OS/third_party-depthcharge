@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from Area import Area
+from Area import DerivedArea
 from File import File
 from imagelib.tools.VbutilFirmware import VbutilFirmware
 
 import os
 import tempfile
 
-class Vblock(Area):
+class Vblock(DerivedArea):
     def __init__(self, to_sign, keyblock=None, signprivate=None, version=1,
                  kernelkey=None, flags=None):
 
@@ -45,9 +45,6 @@ class Vblock(Area):
         self.shrink()
 
     def _generate_vblock(self):
-        for child in self.children:
-            child.place(0, child.computed_min_size)
-
         vblock, vblockp = tempfile.mkstemp()
         to_sign, to_signp = tempfile.mkstemp()
         keyblock, keyblockp = tempfile.mkstemp()
@@ -76,12 +73,9 @@ class Vblock(Area):
             os.remove(path)
 
     def compute_min_size_content(self):
-        if not self._data:
+        if not self.handle_children():
             self._generate_vblock()
         return len(self._data)
-
-    def place_children(self):
-        pass
 
     def write(self):
         return self._data

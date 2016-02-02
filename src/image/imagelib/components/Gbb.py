@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from Area import Area
+from Area import DerivedArea
 from File import File
 from imagelib.tools.GbbUtility import GbbUtility
 
 import os
 import tempfile
 
-class Gbb(Area):
+class Gbb(DerivedArea):
     DevScreenShortDelay = 0x00000001
     LoadOptionRoms = 0x00000002
     EnableAlternateOs = 0x00000004
@@ -54,14 +54,6 @@ class Gbb(Area):
         self._data = None
 
         super(Gbb, self).__init__(bmpfv, rootkey, recoverykey)
-
-
-    def compute_min_size_content(self):
-        return 0
-
-    def place_children(self):
-        for child in self.children:
-            child.place(0, child.computed_min_size)
 
     def write(self):
         gbb, gbbp = tempfile.mkstemp()

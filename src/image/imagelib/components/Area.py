@@ -208,3 +208,36 @@ class Area(object):
         buf = Buffer(self)
         buf.inject_areas(*self.children)
         return buf.data()
+
+
+class DerivedArea(Area):
+    """A base class for Areas which have children but don't put those children
+       directly in their portion of the image. When asked to compute the
+       minimum size of the area's contents, it will find the minimal size of
+       the children, and place them as if they were at the start of their own
+       image with minimal size.
+    """
+
+    def __init__(self, *args):
+        super(DerivedArea, self).__init__(*args)
+        self._children_handled = False
+
+    def handle_children(self):
+        """Sizes and places this Area's children. Returns whether that had
+           been done already.
+        """
+        if self._children_handled:
+            return True
+
+        for child in self.children:
+            child.place(0, child.computed_min_size)
+
+        self._children_handled = True
+        return False
+
+    def compute_min_size_content(self):
+        self.handle_children()
+        return 0
+
+    def place_children(self):
+        pass
