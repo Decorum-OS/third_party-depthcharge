@@ -35,7 +35,7 @@ class Cbfstool(Tool):
 
     def add(self, f, name, t, base=None):
         args = [self.cmd, self.base, "add", "-f", f, "-n", name,
-                "-t", "%d" % t]
+                "-t", str(t)]
         if base is not None:
             args.extend(["-b", "%d"])
         ret, stdout = self.run(args)
