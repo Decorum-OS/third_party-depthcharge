@@ -26,7 +26,6 @@ parser = argparse.ArgumentParser(
 parser.add_argument('--layout', '-l', dest='layout', default=None,
 		    help='Layout to use for this image')
 parser.add_argument('-o', dest='output_file', default='image.bin',
-                    type=argparse.FileType('wb', 0),
 		    help='Output image file name')
 
 def main():
@@ -42,8 +41,8 @@ def main():
 
     image = layout_module.prepare(layout_args)
 
-    options.output_file.write(image.build())
-    options.output_file.close()
+    with open(options.output_file, mode="wb", buffering=0) as output:
+        output.write(image.build())
 
 if __name__ == '__main__':
     main()
