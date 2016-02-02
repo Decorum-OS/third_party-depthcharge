@@ -16,7 +16,7 @@ import argparse
 import os
 
 from imagelib.components.Area import Area
-from imagelib.components.File import File
+from imagelib.components.File import File, PartialFile
 from imagelib.components.Fmap import Fmap
 from imagelib.components.Fwid import Fwid
 from imagelib.components.Gbb import Gbb
@@ -115,7 +115,7 @@ class Image(Area):
                         Gbb(hwid="SAMUS TEST 8028", flags=gbb_flags).expand()
                     ).expand(),
                     fmap.section("BOOT_STUB",
-                        #self.coreboot
+                        PartialFile(self.coreboot, 7 * MB, 1 * MB)
                     ).size(1 * MB)
                 ).expand()
             ).size(2 * MB)
