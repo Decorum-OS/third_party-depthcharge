@@ -26,27 +26,39 @@ default_path = path_seperator.join(default_roots)
 
 roots = os.getenv("BUILD_IMAGE_PATH", default_path).split(path_seperator)
 
-class File(Area):
-    def __init__(self, filename):
-        super(File, self).__init__()
+def read_file(filename):
+    # Figure out where the file is.
+    paths = [os.path.join(root, filename) for root in roots]
+    hits = [path for path in paths if os.path.isfile(path)]
+    if len(hits) == 0:
+        raise RuntimeError("File %s not found" % filename)
+    elif len(hits) > 1:
+        print "Warning: More than one %s found" % filename
+        print hits
 
-        self.filename = filename
+    # Read its data.
+    with open(hits[0], "rb") as f:
+        return f.read()
 
-        # Figure out where the file is.
-        paths = [os.path.join(root, filename) for root in roots]
-        hits = [path for path in paths if os.path.isfile(path)]
-        if len(hits) == 0:
-            raise RuntimeError("File %s not found" % filename)
-        elif len(hits) > 1:
-            print "Warning: More than one %s found" % filename
-            print hits
-
-        # Read its data.
-        with open(hits[0], "rb") as f:
-            self._data = f.read()
-
-        # Our size was determined by what was in the file.
-        self.size(len(self._data))
+class FileBase(Area):
+    def __init__(self, data):
+        super(FileBase, self).__init__()
+        self.data = data
+        self.size(len(data))
 
     def write(self):
-        return self._data
+        return self.data
+
+class File(FileBase):
+    def __init__(self, filename):
+        data = read_file(filename)
+        super(File, self).__init__(data)
+
+class PartialFile(FileBase):
+    def __init__(self, filename, start, size):
+        data = read_file(filename)
+        length = len(data)
+        if start < 0 or start >= length or start + size > length or size < 0:
+            raise ValueError("Start and/or size of partial file are out " +
+                             "of bounds")
+        super(PartialFile, self).__init__(data[start:start + size])
