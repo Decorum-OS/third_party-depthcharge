@@ -16,7 +16,15 @@ from Area import Area
 
 import os
 
-roots = ["/build/samus/firmware/", "/usr/share/vboot/devkeys/"]
+path_seperator = ":"
+
+default_roots = (
+    os.path.join("usr", "share", "vboot", "devkeys"),
+    os.getcwd()
+)
+default_path = path_seperator.join(default_roots)
+
+roots = os.getenv("BUILD_IMAGE_PATH", default_path).split(path_seperator)
 
 class File(Area):
     def __init__(self, filename):
