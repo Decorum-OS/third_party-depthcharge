@@ -43,9 +43,10 @@ class Ifd(Area):
 
     MaxRegions = len(regions_template)
 
-    def __init__(self, descriptor):
+    def __init__(self, descriptor, version=1):
         self.descriptor = descriptor
         self.regions = copy.deepcopy(Ifd.regions_template)
+        self.version = version
 
         super(Ifd, self).__init__(descriptor)
 
@@ -78,16 +79,8 @@ class Ifd(Area):
         self.descriptor.place(0, self.descriptor.computed_min_size)
         buf = self.descriptor.write()
 
-        # Find the actual descriptor data structure.
-        fd_offset = next((offset for offset in xrange(0, len(buf), 4) if
-                          buf[offset:offset + 4] == "\x5a\xa5\xf0\x0f"), None)
-        if fd_offset is None:
-            raise ValueError("No firmware descriptor found in the " +
-                             "descriptor blob")
-
-        # Unpack it.
-        fd_buf = buf[fd_offset:fd_offset + FlashDescriptor.struct_len]
-        fd = FlashDescriptor(fd_buf)
+        # Find the actual descriptor data structure and unpack it.
+        fd = _find_descriptor_struct(buf)
 
         # Locate the regions data structure and unpack it.
         region_offset = ((fd.flmap0 >> 16) & 0xff) << 4
@@ -100,13 +93,39 @@ class Ifd(Area):
             if not region.item:
                 continue
             region_val = getattr(regions, "flreg%d" % idx)
-            base = (region_val & 0x7fff) << 12
-            limit = ((region_val & 0x7fff0000) >> 4) | 0xfff
+            mask = 0xfff if self.version == 1 else 0x7fff
+            base = (region_val & mask) << 12
+            limit = ((region_val & mask << 16) >> 4) | 0xfff
             size = limit - base + 1
             if size <= 0:
                 raise ValueError("Can't put data into unused section %s (%s)" %
                                  (region.tag, region.description))
             region.item.place(base, size)
+
+    def _unlock_descriptor(self, data):
+        """Unlock the firmware descriptor and ME region"""
+        # Find and unpack the descriptor.
+        fd = _find_descriptor_struct(data)
+
+        fmba_offset = (fd.flmap1 & 0xff) << 4
+        fmba_buf = data[fmba_offset:fmba_offset + Master.struct_len]
+        fmba = Master(fmba_buf)
+
+        if self.version == 1:
+            fmba.flmstr1 = 0xffff0000
+            fmba.flmstr2 = 0xffff0000
+            fmba.flmstr3 = 0x08080118
+        else:
+            fmba.flmstr1 = 0xffffff00 | (fmba.flmstr1 & 0xff)
+            fmba.flmstr2 = 0xffffff00 | (fmba.flmstr2 & 0xff)
+            fmba.flmstr3 = 0xffffff00 | (fmba.flmstr3 & 0xff)
+
+        return (data[:fmba_offset] + fmba.pack() +
+                data[fmba_offset + Master.struct_len:])
+
+    def write(self):
+        data = super(Ifd, self).write()
+        return self._unlock_descriptor(data)
 
 
 class FlashDescriptor(CStruct):
@@ -118,6 +137,17 @@ class FlashDescriptor(CStruct):
         ("%dx" % (0xefc - 0x20), ""), # Reserved
         ("L", "flumap1")
     )
+
+def _find_descriptor_struct(buf):
+    fd_offset = next((offset for offset in xrange(0, len(buf), 4) if
+                      buf[offset:offset + 4] == "\x5a\xa5\xf0\x0f"), None)
+    if fd_offset is None:
+        raise ValueError("No firmware descriptor found in the " +
+                         "descriptor blob")
+    fd_buf = buf[fd_offset:fd_offset + FlashDescriptor.struct_len]
+    fd = FlashDescriptor(fd_buf)
+    return fd
+
 
 class Regions(CStruct):
     struct_members = (
