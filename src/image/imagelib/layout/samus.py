@@ -16,6 +16,7 @@ import argparse
 import os
 
 from imagelib.components.Area import Area
+from imagelib.components.Cbfs import Cbfs, CbfsPayload, CbfsFile
 from imagelib.components.File import File, PartialFile
 from imagelib.components.Fmap import Fmap
 from imagelib.components.Fwid import Fwid
@@ -60,6 +61,8 @@ class Image(Area):
 
     def __init__(self, serial, size, gbb_flags=None):
         self.dc_bin = os.path.join("depthcharge", "depthcharge.payload")
+        self.dc_elf = os.path.join("depthcharge", "depthcharge.elf")
+        self.dtb = os.path.join("dts", "fmap.dts")
         self.ec_bin = "ec.RW.bin"
         self.pd_bin = os.path.join("samus_pd", "ec.RW.bin")
         self.refcode = "refcode.stage"
@@ -115,7 +118,14 @@ class Image(Area):
                         Gbb(hwid="SAMUS TEST 8028", flags=gbb_flags).expand()
                     ).expand(),
                     fmap.section("BOOT_STUB",
-                        PartialFile(self.coreboot, 7 * MB, 1 * MB)
+                        Cbfs(
+                            CbfsFile(
+                                "u-boot.dtb", File(self.dtb), "mrc_cache"
+                            ),
+                            CbfsPayload(
+                                "fallback/payload", File(self.dc_elf)
+                            ).compression("lzma")
+                        ).base(PartialFile(self.coreboot, 7 * MB, 1 * MB))
                     ).size(1 * MB)
                 ).expand()
             ).size(2 * MB)
