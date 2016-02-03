@@ -23,23 +23,25 @@ import imagelib.layout.samus
 parser = argparse.ArgumentParser(
     description='Build a firmware image from its components')
 
-parser.add_argument('--layout', '-l', dest='layout', default=None,
-		    help='Layout to use for this image')
 parser.add_argument('-o', dest='output_file', default='image.bin',
 		    help='Output image file name')
 
+subparsers = parser.add_subparsers(title='Layouts', dest='layout',
+                                   help='layout help')
+
 def main():
-    (options, layout_args) = parser.parse_known_args()
-    if not options.layout:
-        raise RuntimeError('No layout specified')
-    layout = options.layout
+    layouts = {}
+    for layout in imagelib.layout.layouts:
+        layouts[layout] = importlib.import_module('.' + layout,
+                                                  'imagelib.layout')
 
-    if not layout in imagelib.layout.layouts:
-        raise RuntimeError('Layout %s is unrecognized.' % layout)
+    for name, layout in layouts.iteritems():
+        subparser = subparsers.add_parser(name, help='%s help' % name)
+        layout.add_arguments(subparser)
 
-    layout_module = importlib.import_module('.' + layout, 'imagelib.layout')
+    options = parser.parse_args()
 
-    image = layout_module.prepare(layout_args)
+    image = layouts[options.layout].prepare(options)
 
     with open(options.output_file, mode="wb", buffering=0) as output:
         output.write(image.build())
