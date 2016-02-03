@@ -155,7 +155,7 @@ def add_arguments(parser):
                         help='Enable developer friendly gbb flags')
 
     parser.add_argument('--size', dest='size', required=True, type=int,
-                        help='Size of the image in MB')
+                        help='Size of the image in KB')
 
     parser.add_argument('--model', dest='model', required=True,
                         help='Model name to use in firmware IDs')
@@ -195,5 +195,5 @@ def prepare(options):
             "legacy": "seabios.cbfs.serial",
         })
 
-    return Image(paths=paths, model=options.model, size=options.size * MB,
+    return Image(paths=paths, model=options.model, size=options.size * KB,
                  gbb_flags=gbb_flags)
