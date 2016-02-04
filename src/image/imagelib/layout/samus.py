@@ -167,8 +167,8 @@ def add_arguments(parser):
 def prepare(options):
     gbb_flags = None
     paths = {
-        "dc_bin": os.path.join("depthcharge", "depthcharge.payload"),
-        "dc_elf": os.path.join("depthcharge", "depthcharge.elf"),
+        "dc_bin": "cb_payload.payload",
+        "dc_elf": "cb_payload.elf",
         "dtb": os.path.join("dts", "fmap.dts"),
         "ec": "ec.RW.bin",
         "pd": os.path.join("samus_pd", "ec.RW.bin"),
@@ -190,14 +190,14 @@ def prepare(options):
 
     if options.dev:
         paths.update({
-            "dc_bin": os.path.join("depthcharge", "dev.payload"),
-            "dc_elf": os.path.join("depthcharge", "dev.elf"),
+            "dc_bin": "cb_dev.payload",
+            "dc_elf": "cb_dev.elf",
         })
 
     if options.netboot:
         paths.update({
-            "dc_bin": os.path.join("depthcharge", "netboot.payload"),
-            "dc_elf": os.path.join("depthcharge", "netboot.elf"),
+            "dc_bin": "netboot.payload",
+            "dc_elf": "netboot.elf",
         })
 
     if options.serial:

@@ -22,6 +22,45 @@ config FMAP_OFFSET
 	  for, so if the address isn't correct the system won't boot.
 
 choice
+	prompt "Image size"
+        help
+          The size of the image to build, if building a complete image.
+
+config IMAGE_SIZE_256KB
+	bool "256 KB"
+
+config IMAGE_SIZE_512KB
+	bool "512 KB"
+
+config IMAGE_SIZE_1MB
+	bool "1 MB"
+
+config IMAGE_SIZE_2MB
+	bool "2 MB"
+
+config IMAGE_SIZE_4MB
+	bool "4 MB"
+
+config IMAGE_SIZE_8MB
+	bool "8 MB"
+
+config IMAGE_SIZE_16MB
+	bool "16 MB"
+
+endchoice
+
+config IMAGE_SIZE_KB
+	int
+        default 256   if IMAGE_SIZE_256KB
+        default 512   if IMAGE_SIZE_512KB
+	default 1024  if IMAGE_SIZE_1MB
+	default 2048  if IMAGE_SIZE_2MB
+	default 4096  if IMAGE_SIZE_4MB
+	default 8192  if IMAGE_SIZE_8MB
+        default 16384 if IMAGE_SIZE_16MB
+
+
+choice
 	prompt "Boot plan"
 	help
 	  Different ways of arranging depthcharge into modules. Which one to
@@ -34,4 +73,15 @@ config BOOTPLAN_CB_SPLIT_PAYLOAD
 config BOOTPLAN_CB_PAYLOAD
 	bool "Coreboot payload (coreboot selects firmware)"
 
+config BOOTPLAN_CB_IMAGE
+	bool "Coreboot based image (coreboot selects firmware)"
+
 endchoice
+
+config BOOTPLAN_CB_IMAGE_MODEL
+	string "Model name for this board"
+	depends on BOOTPLAN_CB_IMAGE
+
+config BOOTPLAN_CB_IMAGE_LAYOUT
+	string "Layout to use for the image"
+	depends on BOOTPLAN_CB_IMAGE
