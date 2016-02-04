@@ -151,8 +151,12 @@ def add_arguments(parser):
     parser.add_argument('--serial', dest='serial', action='store_true',
                         default=False, help='Enable serial output')
 
-    parser.add_argument('--dev', dest='dev', action='store_true', default=False,
-                        help='Enable developer friendly gbb flags')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--dev', dest='dev', action='store_true', default=False,
+                       help='Enable developer friendly gbb flags')
+
+    group.add_argument('--netboot', dest='netboot', action='store_true',
+                       default=False, help='Build a netbooting image')
 
     parser.add_argument('--size', dest='size', required=True, type=int,
                         help='Size of the image in KB')
@@ -176,16 +180,24 @@ def prepare(options):
         "legacy": "seabios.cbfs",
     }
 
-    if options.dev:
+    if options.dev or options.netboot:
         gbb_flags = (
             Gbb.DevScreenShortDelay |
             Gbb.ForceDevSwitchOn |
             Gbb.ForceDevBootUsb |
             Gbb.DisableFwRollbackCheck
         )
+
+    if options.dev:
         paths.update({
             "dc_bin": os.path.join("depthcharge", "dev.payload"),
             "dc_elf": os.path.join("depthcharge", "dev.elf"),
+        })
+
+    if options.netboot:
+        paths.update({
+            "dc_bin": os.path.join("depthcharge", "netboot.payload"),
+            "dc_elf": os.path.join("depthcharge", "netboot.elf"),
         })
 
     if options.serial:
