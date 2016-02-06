@@ -12,9 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import textwrap
+
 from imagelib.util import Buffer
 
 class Area(object):
+    LOG_WRAP_WIDTH = 78
+    LOG_INDENT_STEP = 4
+
     def __init__(self, *args):
         super(Area, self).__init__()
         self.children = args
@@ -122,15 +127,18 @@ class Area(object):
         for child in self.children:
             child._ensure_params_are_set(*params)
 
-    def build(self):
+    def build(self, log_file=None):
         """Size, place, and write out a buffer with the contents of this
            Area.
         """
+        self.log(log_file, "Layout populated")
         self.propagate_fill_byte(0xff)
         self._ensure_params_are_set("computed_fill_byte")
         self.compute_min_size()
+        self.log(log_file, "Minimum size computed")
         self._ensure_params_are_set("computed_min_size")
         self.place(0, self._size)
+        self.log(log_file, "Areas placed")
         self._ensure_params_are_set("placed_offset", "placed_size")
         return self.write()
 
@@ -210,6 +218,100 @@ class Area(object):
         return buf.data()
 
 
+    # Logging support. These can be overridden as well.
+
+    def log(self, log_file, title):
+        """Generate log output for the hierarchy rooted at this object, and
+           write the log to the provided file. A header with a descriptive
+           title will be output before the actual output.
+        """
+        log_text = (
+"""{bar}
+# {title:{width}} #
+{bar}
+
+{area}
+
+""")
+
+        log_text = log_text.format(title=title, width=self.LOG_WRAP_WIDTH - 4,
+                                   bar="#" * self.LOG_WRAP_WIDTH,
+                                   area=self.log_area())
+        if log_file:
+            log_file.write(log_text)
+
+    def log_area(self, indent=""):
+        """Return log output corresponding to this particular Area, including
+           its properties and children.
+        """
+        name = self.log_area_name()
+        properties = self.log_area_properties()
+        content = self.log_area_content(indent)
+
+        if properties:
+            name = name + "("
+            properties = properties + ")"
+        log_text = "\n".join(
+            textwrap.wrap(name + properties, width=self.LOG_WRAP_WIDTH,
+                          initial_indent=indent,
+                          subsequent_indent=indent + " " * (len(name))))
+        if content:
+            log_text += "\n{indent}{{\n{content}\n{indent}}}".format(
+                indent=indent, content=content)
+        return log_text
+
+    def log_area_name(self):
+        """Returns the name of this Area. It defaults to the current class,
+           and can be overridden if something else would be more appropriate.
+        """
+        return type(self).__name__
+
+    def log_get_additional_properties(self):
+        """Return a list of any additional property strings that should be
+           included for this area. This can be overridden to augment the
+           default set without entirely replacing log_area_properties.
+        """
+        return []
+
+    def log_area_properties(self):
+        """Return a string representing the properties of this particular
+           Area. If you want to print additional properties beyond the
+           defaults, you can override log_get_additional_properties.
+        """
+        properties = []
+
+        if None not in (self.placed_offset, self.placed_size):
+            properties.append(
+                "[{:#x} -> {:#x})".format(
+                    self.placed_offset, self.placed_offset + self.placed_size))
+
+        if self._fill is not None:
+            properties.append("fill={:#02x}".format(self._fill))
+
+        if self._size is not None:
+            properties.append("fixed_size={:#x}".format(self._size))
+        elif self.computed_min_size is not None:
+            properties.append("min_size={:#x}".format(self.computed_min_size))
+
+        if self._expand_weight is not None:
+            properties.append("expand_weight={}".format(self._expand_weight))
+
+        if self._shrink is not None:
+            properties.append("shrinking")
+
+        properties.extend(self.log_get_additional_properties())
+        return ", ".join(properties)
+
+    def log_area_content(self, indent):
+        """Return a string representing the content of this Area. The default
+           is to just output each of the children in succession with
+           appropriate indentation, but this method can be overriden to
+           encode the children differently, or even not at all.
+        """
+        indent += " " * self.LOG_INDENT_STEP
+        return "\n".join(child.log_area(indent) for child in self.children)
+
+
 class DerivedArea(Area):
     """A base class for Areas which have children but don't put those children
        directly in their portion of the image. When asked to compute the
@@ -241,3 +343,6 @@ class DerivedArea(Area):
 
     def place_children(self):
         pass
+
+    def log_area_content(self, indent):
+        return ""
