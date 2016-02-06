@@ -59,6 +59,10 @@ config IMAGE_SIZE_KB
 	default 8192  if IMAGE_SIZE_8MB
         default 16384 if IMAGE_SIZE_16MB
 
+config BUILD_IMAGE_LAYOUT
+	string "Layout to use for the image"
+        default ""
+
 
 choice
 	prompt "Boot plan"
@@ -80,8 +84,4 @@ endchoice
 
 config BOOTPLAN_CB_IMAGE_MODEL
 	string "Model name for this board"
-	depends on BOOTPLAN_CB_IMAGE
-
-config BOOTPLAN_CB_IMAGE_LAYOUT
-	string "Layout to use for the image"
 	depends on BOOTPLAN_CB_IMAGE

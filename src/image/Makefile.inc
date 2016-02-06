@@ -27,7 +27,8 @@ image_obj=$(obj)/image
 build_image = $(obj)/image/build_image
 BUILD_IMAGE_OPTS = --verbose --log-file $@.log -o $@
 BUILD_IMAGE = BUILD_IMAGE_PATH="${BUILD_IMAGE_PATH}:$(module_obj)" \
-	$(build_image) $(BUILD_IMAGE_OPTS)
+	$(build_image) $(BUILD_IMAGE_OPTS) $(CONFIG_BUILD_IMAGE_LAYOUT) \
+        $(BUILD_IMAGE_LAYOUT_OPTS)
 imagelib_files = $(shell find $(src)/src/image/ -name '*.py')
 $(build_image): $(subst $(obj),$(src)/src,$(build_image)) $(imagelib_files)
 	$(warning $+)
@@ -97,9 +98,9 @@ ifeq ($(CONFIG_BOOTPLAN_CB_IMAGE),y)
 
 image-y += image.bin image.serial.bin image.dev.bin image.net.bin
 
-BUILD_IMAGE_OPTS += $(CONFIG_BOOTPLAN_CB_IMAGE_LAYOUT) \
-		--size=$(CONFIG_IMAGE_SIZE_KB) \
-		--model=$(CONFIG_BOOTPLAN_CB_IMAGE_MODEL)
+BUILD_IMAGE_LAYOUT_OPTS = \
+	--size=$(CONFIG_IMAGE_SIZE_KB) \
+	--model=$(CONFIG_BOOTPLAN_CB_IMAGE_MODEL)
 
 $(image_obj)/image.bin: $(build_image) \
 	$$(module_obj)/cb_payload.elf $$(module_obj)/cb_payload.payload
