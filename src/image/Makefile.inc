@@ -25,8 +25,9 @@ image_obj=$(obj)/image
 
 
 build_image = $(obj)/image/build_image
+BUILD_IMAGE_OPTS = --verbose --log-file $@.log -o $@
 BUILD_IMAGE = BUILD_IMAGE_PATH="${BUILD_IMAGE_PATH}:$(module_obj)" \
-	$(build_image)
+	$(build_image) $(BUILD_IMAGE_OPTS)
 imagelib_files = $(shell find $(src)/src/image/ -name '*.py')
 $(build_image): $(subst $(obj),$(src)/src,$(build_image)) $(imagelib_files)
 	$(warning $+)
@@ -96,28 +97,28 @@ ifeq ($(CONFIG_BOOTPLAN_CB_IMAGE),y)
 
 image-y += image.bin image.serial.bin image.dev.bin image.net.bin
 
-common_options = $(CONFIG_BOOTPLAN_CB_IMAGE_LAYOUT) \
+BUILD_IMAGE_OPTS += $(CONFIG_BOOTPLAN_CB_IMAGE_LAYOUT) \
 		--size=$(CONFIG_IMAGE_SIZE_KB) \
 		--model=$(CONFIG_BOOTPLAN_CB_IMAGE_MODEL)
 
 $(image_obj)/image.bin: $(build_image) \
 	$$(module_obj)/cb_payload.elf $$(module_obj)/cb_payload.payload
 	@printf "    BUILD_IMAGE $(subst $(obj)/,,$@)\n"
-	$(Q)$(BUILD_IMAGE) -o $@ $(common_options)
+	$(Q)$(BUILD_IMAGE)
 
 $(image_obj)/image.serial.bin: $(build_image) \
 	$$(module_obj)/cb_payload.elf $$(module_obj)/cb_payload.payload
 	@printf "    BUILD_IMAGE $(subst $(obj)/,,$@)\n"
-	$(Q)$(BUILD_IMAGE) -o $@ $(common_options) --serial
+	$(Q)$(BUILD_IMAGE) --serial
 
 $(image_obj)/image.dev.bin: $(build_image) \
 	$$(module_obj)/cb_dev.elf $$(module_obj)/cb_dev.payload
 	@printf "    BUILD_IMAGE $(subst $(obj)/,,$@)\n"
-	$(Q)$(BUILD_IMAGE) -o $@ $(common_options) --serial --dev
+	$(Q)$(BUILD_IMAGE) --serial --dev
 
 $(image_obj)/image.net.bin: $(build_image) \
 	$$(module_obj)/netboot.elf $$(module_obj)/netboot.payload
 	@printf "    BUILD_IMAGE $(subst $(obj)/,,$@)\n"
-	$(Q)$(BUILD_IMAGE) -o $@ $(common_options) --serial --netboot
+	$(Q)$(BUILD_IMAGE) --serial --netboot
 
 endif # CONFIG_BOOTPLAN_CB_IMAGE
