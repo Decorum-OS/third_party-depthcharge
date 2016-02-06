@@ -107,9 +107,6 @@ class Image(Area):
                     ).expand(),
                     fmap.section("BOOT_STUB",
                         Cbfs(
-                            CbfsFile(
-                                "u-boot.dtb", File(paths["dtb"]), "mrc_cache"
-                            ),
                             CbfsPayload(
                                 "fallback/payload", File(paths["dc_elf"])
                             ).compression("lzma")
@@ -169,7 +166,6 @@ def prepare(options):
     paths = {
         "dc_bin": "cb_payload.payload",
         "dc_elf": "cb_payload.elf",
-        "dtb": os.path.join("dts", "fmap.dts"),
         "ec": "ec.RW.bin",
         "pd": os.path.join("samus_pd", "ec.RW.bin"),
         "refcode": "refcode.stage",
