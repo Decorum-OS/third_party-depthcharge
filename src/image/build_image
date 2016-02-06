@@ -16,6 +16,7 @@
 
 import argparse
 import importlib
+import sys
 
 import imagelib.layout
 import imagelib.layout.samus
@@ -24,7 +25,13 @@ parser = argparse.ArgumentParser(
     description='Build a firmware image from its components')
 
 parser.add_argument('-o', dest='output_file', default='image.bin',
-		    help='Output image file name')
+                    help='Output image file name')
+
+parser.add_argument('--verbose', dest='verbose', default=False,
+                    action='store_true',
+                    help='Enable verbose logging output')
+parser.add_argument('--log-file', dest='log_file', default='',
+                    help='File to write logging output to')
 
 subparsers = parser.add_subparsers(title='Layouts', dest='layout',
                                    help='layout help')
@@ -43,8 +50,15 @@ def main():
 
     image = layouts[options.layout].prepare(options)
 
+    if options.verbose and options.log_file:
+        with open(options.log_file, mode="wb", buffering=0) as log_file:
+            image_data = image.build(log_file)
+    else:
+        log_file = sys.stdout if options.verbose else None
+        image_data = image.build(log_file)
+
     with open(options.output_file, mode="wb", buffering=0) as output:
-        output.write(image.build())
+        output.write(image_data)
 
 if __name__ == '__main__':
     main()
