@@ -44,6 +44,12 @@ class Section(Area):
         self._flags = flags
         return self
 
+    def log_area_name(self):
+        return "Fmap[%s]" % self._label
+
+    def log_get_additional_properties(self):
+        return ["flags={:#04x}".format(self._flags)]
+
 class Fmap(Area):
     Static = 1 << 0
     Compressed = 1 << 1
@@ -93,3 +99,6 @@ class Fmap(Area):
             fmap += area.pack()
 
         return fmap
+
+    def log_get_additional_properties(self):
+        return ["image_size={:#x}".format(self.header.size)]
