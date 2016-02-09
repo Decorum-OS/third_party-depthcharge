@@ -27,3 +27,6 @@ class Fwid(Area):
 
     def write(self):
         return self._version
+
+    def log_area_content(self, indent):
+        return self.log_wrap(indent, "\"" + self._version + "\"")
