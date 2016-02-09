@@ -127,6 +127,9 @@ class Ifd(Area):
         data = super(Ifd, self).write()
         return self._unlock_descriptor(data)
 
+    def log_get_additional_properties(self):
+        return ["version=%d" % self.version]
+
 
 class FlashDescriptor(CStruct):
     struct_members = (
