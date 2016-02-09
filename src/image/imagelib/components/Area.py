@@ -240,21 +240,32 @@ class Area(object):
         if log_file:
             log_file.write(log_text)
 
+    def log_wrap(self, indent, *args, **kwargs):
+        """A utility wrapper for textwrap.wrap. Probably not useful to
+           override.
+        """
+        kwargs["width"] = self.LOG_WRAP_WIDTH
+        kwargs.setdefault("initial_indent", indent)
+        kwargs.setdefault("subsequent_indent", indent)
+        return "\n".join(textwrap.wrap(*args, **kwargs))
+
+    def log_step_indent(self, indent):
+        """A utility wrapper to increase an indent prefix by one level."""
+        return indent + " " * self.LOG_INDENT_STEP
+
     def log_area(self, indent=""):
         """Return log output corresponding to this particular Area, including
            its properties and children.
         """
         name = self.log_area_name()
         properties = self.log_area_properties()
-        content = self.log_area_content(indent)
+        content = self.log_area_content(self.log_step_indent(indent))
 
         if properties:
             name = name + "("
             properties = properties + ")"
-        log_text = "\n".join(
-            textwrap.wrap(name + properties, width=self.LOG_WRAP_WIDTH,
-                          initial_indent=indent,
-                          subsequent_indent=indent + " " * (len(name))))
+        log_text = self.log_wrap(indent, name + properties,
+                                 subsequent_indent=indent + " " * (len(name)))
         if content:
             log_text += "\n{indent}{{\n{content}\n{indent}}}".format(
                 indent=indent, content=content)
@@ -308,7 +319,6 @@ class Area(object):
            appropriate indentation, but this method can be overriden to
            encode the children differently, or even not at all.
         """
-        indent += " " * self.LOG_INDENT_STEP
         return "\n".join(child.log_area(indent) for child in self.children)
 
 
@@ -346,3 +356,9 @@ class DerivedArea(Area):
 
     def log_area_content(self, indent):
         return ""
+
+    def log_child_props(self, indent, child_props):
+        """Log children with labels in front of them."""
+        return "\n\n".join("{}{}:\n{}".format(indent, label,
+                                              child.log_area(indent))
+                           for label, child in child_props.iteritems())
