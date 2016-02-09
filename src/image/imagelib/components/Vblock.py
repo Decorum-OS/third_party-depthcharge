@@ -14,10 +14,8 @@
 
 from Area import DerivedArea
 from File import File
+from imagelib.tools.Tool import FileHarness
 from imagelib.tools.VbutilFirmware import VbutilFirmware
-
-import os
-import tempfile
 
 class Vblock(DerivedArea):
     def __init__(self, to_sign, keyblock=None, signprivate=None, version=1,
@@ -45,32 +43,16 @@ class Vblock(DerivedArea):
         self.shrink()
 
     def _generate_vblock(self):
-        vblock, vblockp = tempfile.mkstemp()
-        to_sign, to_signp = tempfile.mkstemp()
-        keyblock, keyblockp = tempfile.mkstemp()
-        signprivate, signprivatep = tempfile.mkstemp()
-        kernelkey, kernelkeyp = tempfile.mkstemp()
-        vblock, to_sign, keyblock, signprivate, kernelkey = (
-            os.fdopen(f, "w+b") for f in (
-                vblock, to_sign, keyblock, signprivate, kernelkey
-            )
-        )
-
-        to_sign.write(self._to_sign.write())
-        keyblock.write(self._keyblock.write())
-        signprivate.write(self._signprivate.write())
-        kernelkey.write(self._kernelkey.write())
-        for f in to_sign, keyblock, signprivate, kernelkey:
-            f.close()
         vbutil = VbutilFirmware()
-        vbutil.vblock(vblockp, keyblockp, signprivatep, self._version, to_signp,
-                      kernelkeyp, self._flags)
+        with FileHarness(None, self._to_sign.write(), self._keyblock.write(),
+                         self._signprivate.write(),
+                         self._kernelkey.write()) as files:
+            vblock, to_sign, keyblock, signprivate, kernelkey = files
+            vbutil.vblock(vblock, keyblock, signprivate, self._version,
+                          to_sign, kernelkey, self._flags)
 
-        self._data = vblock.read()
-        vblock.close()
-
-        for path in vblockp, to_signp, keyblockp, signprivatep, kernelkeyp:
-            os.remove(path)
+            with open(vblock, "rb") as data:
+                self._data = data.read()
 
     def compute_min_size_content(self):
         if not self.handle_children():
@@ -79,3 +61,18 @@ class Vblock(DerivedArea):
 
     def write(self):
         return self._data
+
+    def log_get_additional_properties(self):
+        props = ["version={}".format(self._version)]
+        if self._flags is not None:
+            props.append("flags={}".format(self._flags))
+        return props
+
+    def log_area_content(self, indent):
+        child_props = {
+            "Key block": self._keyblock,
+            "Private key": self._signprivate,
+            "Kernel key": self._kernelkey,
+            "Signed data": self._to_sign,
+        }
+        return self.log_child_props(indent, child_props)
