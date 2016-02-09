@@ -41,24 +41,35 @@ def read_file(filename):
         return f.read()
 
 class FileBase(Area):
-    def __init__(self, data):
+    def __init__(self, filename, data):
         super(FileBase, self).__init__()
+        self.filename = filename
         self.data = data
         self.size(len(data))
 
     def write(self):
         return self.data
 
+    def log_area_name(self):
+        name = super(FileBase, self).log_area_name()
+        return name + "[%s]" % self.filename
+
 class File(FileBase):
     def __init__(self, filename):
         data = read_file(filename)
-        super(File, self).__init__(data)
+        super(File, self).__init__(filename, data)
 
 class PartialFile(FileBase):
     def __init__(self, filename, start, size):
+        self.extra_props = ["start={:#x}".format(start),
+                            "size={:#x}".format(size)]
+
         data = read_file(filename)
         length = len(data)
         if start < 0 or start >= length or start + size > length or size < 0:
             raise ValueError("Start and/or size of partial file are out " +
                              "of bounds")
-        super(PartialFile, self).__init__(data[start:start + size])
+        super(PartialFile, self).__init__(filename, data[start:start + size])
+
+    def log_get_additional_properties(self):
+        return self.extra_props
