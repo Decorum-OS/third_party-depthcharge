@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import copy
+import os
 import subprocess
+import tempfile
 
 
 class Tool(object):
@@ -30,3 +33,28 @@ class Tool(object):
         if verbose:
             print stdout
         return p.returncode, stdout
+
+class FileHarness(object):
+    def __init__(self, *data):
+        self._data = data
+
+        self._paths = []
+
+    def __enter__(self):
+        for data in self._data:
+            descriptor, path = tempfile.mkstemp()
+            self._paths.append(path)
+            if data is not None:
+                with os.fdopen(descriptor, "w+b") as handle:
+                    handle.write(data)
+
+        return copy.copy(self._paths)
+
+    def __exit__(self, type, value, tb):
+        for path in self._paths:
+            try:
+                os.remove(path)
+            except Exception as e:
+                print "Error exiting {}: {}".format(
+                    self.__class__.__name__, e)
+        return False
