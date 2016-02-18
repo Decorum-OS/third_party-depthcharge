@@ -60,7 +60,7 @@ class Buffer(object):
     def __init__(self, *args, **kwargs):
         if (any(arg in kwargs for arg in ("fill", "size", "base")) or
             len(args) > 1):
-            self._init_with_three_args(*args, **kwargs)
+            self._init_with_two_args(*args, **kwargs)
         else:
             self._init_with_one_arg(*args, **kwargs)
         self._buf = struct.pack("B", self._fill) * self._size
