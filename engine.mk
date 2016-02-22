@@ -59,7 +59,9 @@ LINK_FLAGS = $(ARCH_LINK_FLAGS) $(ABI_FLAGS) -fuse-ld=bfd -nostdlib \
 	-Wl,--gc-sections -Wl,-Map=$@.map -static
 CFLAGS = $(ARCH_CFLAGS) -Wall -Werror $(INCLUDE_DIRS) -include $(obj)/config.h \
 	-std=gnu99 $(ABI_FLAGS) -ffunction-sections -fdata-sections \
-	-ggdb3 -nostdinc -nostdlib -fno-stack-protector -fno-common
+	-ggdb3 -nostdinc -nostdlib -fno-stack-protector -fno-common \
+	-MT $(@) -MMD -MP -MF $(@:.o=.Td)
+POSTCOMPILE = mv -f $(@:.o=.Td) $(@:.o=.d)
 
 ifneq ($(SOURCE_DEBUG),)
 CFLAGS += -O0 -g
@@ -148,6 +150,7 @@ de$(EMPTY)fine $(1)-objs_$(2)_template
 $(obj)/$$(1).$(1).o: src/$$(1).$(2) $(KCONFIG_AUTOHEADER) $(4)
 	@printf "    CC         $$$$(subst $$$$(obj)/,,$$$$(@))\n"
 	$(Q)$(CC) $(3) -MMD $$$$(CFLAGS) -c -o $$$$@ $$$$<
+	$$$$(POSTCOMPILE)
 en$(EMPTY)def
 end$(EMPTY)if
 endef
