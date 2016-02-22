@@ -116,6 +116,12 @@ class Area(object):
 
     # Interface for processing with a hierarchy of objects.
 
+    def _call_on_tree(self, func_name):
+        for child in self.children:
+            child._call_on_tree(func_name)
+        func = getattr(self, func_name)
+        func()
+
     def _ensure_params_are_set(self, *params):
         """Make sure all the parameters which should be set by a certain
            point have been.
@@ -127,19 +133,47 @@ class Area(object):
         for child in self.children:
             child._ensure_params_are_set(*params)
 
+    def post_config_hook(self):
+        """Called after the layout is configured, but before any processing."""
+        pass
+
+    def post_fill_byte_hook(self):
+        """Called after the fill byte values have been propogated through the
+           tree
+        """
+        pass
+
+    def post_min_size_hook(self):
+        """Called after minimum sizes have been computed."""
+        pass
+
+    def post_place_hook(self):
+        """Called after Areas final position and size have been computed."""
+        pass
+
     def build(self, log_file=None):
         """Size, place, and write out a buffer with the contents of this
            Area.
         """
         self.log(log_file, "Layout populated")
+        self._call_on_tree("post_config_hook")
+
+        # Propogate fill byte values through the tree.
         self.propagate_fill_byte(0xff)
         self._ensure_params_are_set("computed_fill_byte")
+        self._call_on_tree("post_fill_byte_hook")
+
+        # Compute the minimum size required for Areas.
         self.compute_min_size()
-        self.log(log_file, "Minimum size computed")
         self._ensure_params_are_set("computed_min_size")
+        self.log(log_file, "Minimum size computed")
+        self._call_on_tree("post_min_size_hook")
+
+        # Place Areas in their final positions.
         self.place(0, self._size)
-        self.log(log_file, "Areas placed")
         self._ensure_params_are_set("placed_offset", "placed_size")
+        self.log(log_file, "Areas placed")
+        self._call_on_tree("post_place_hook")
         return self.write()
 
     def propagate_fill_byte(self, default):
@@ -160,8 +194,8 @@ class Area(object):
 
         if self._size is not None:
             if self._size < min_size_content:
-                raise ValueError("Area's contents take up %d bytes, which " +
-                                 "is too big to fit in %d bytes" %
+                raise ValueError(("Area's contents take up %d bytes, which " +
+                                  "is too big to fit in %d bytes") %
                                  (min_size_content, self._size))
             self.computed_min_size = self._size
         elif self._shrink or self._expand_weight is not None:
