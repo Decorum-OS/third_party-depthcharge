@@ -28,24 +28,23 @@ from imagelib.components.Vblock import Vblock
 from imagelib.util import MB
 from imagelib.util import KB
 
-class VerifiedRw(Index):
-    """The stuff in the RW section that gets verified"""
-    def __init__(self, paths):
-        super(VerifiedRw, self).__init__(
-            File(paths["dc_bin"]), Sha256(File(paths["ec"])),
-            Sha256(File(paths["pd"])), File(paths["ramstage"]),
-            File(paths["refcode"])
-        )
-        self.fill(0xff)
-
 class RwArea(Area):
     """An RW section of the image"""
     def __init__(self, paths, model, fmap, suffix):
+        vblock = Vblock()
         super(RwArea, self).__init__(
-            fmap.section("VBLOCK" + suffix,
-                Vblock(VerifiedRw(paths))
-            ).size(64 * KB),
-            fmap.section("FW_MAIN" + suffix, VerifiedRw(paths)).expand(),
+            fmap.section("VBLOCK" + suffix, vblock).size(64 * KB),
+            fmap.section("FW_MAIN" + suffix,
+                vblock.signed(
+                    Index(
+                        File(paths["dc_bin"]),
+                        Sha256(File(paths["ec"])),
+                        Sha256(File(paths["pd"])),
+                        File(paths["ramstage"]),
+                        File(paths["refcode"])
+                    ).fill(0xff)
+                ).shrink()
+            ).expand(),
             Area(
                 fmap.section("PD_MAIN" + suffix,
                     Index(File(paths["pd"]))

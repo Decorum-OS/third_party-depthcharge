@@ -27,24 +27,21 @@ from imagelib.components.Vblock import Vblock
 from imagelib.util import MB
 from imagelib.util import KB
 
-class VerifiedRw(Directory):
-    """The stuff in the RW section that gets verified"""
-    def __init__(self, paths, name=None):
-        super(VerifiedRw, self).__init__(name,
-            Region("MAIN", File(paths["dc_bin"])).shrink(),
-            Region("EC_HASH", Sha256(File(paths["ec"]))).shrink(),
-            Region("PD_HASH", Sha256(File(paths["pd"]))).shrink(),
-            Region("RAMSTAGE", File(paths["ramstage"])).shrink(),
-            Region("REFCODE", File(paths["refcode"])).shrink()
-        )
-        self.shrink()
-
 class RwArea(Directory):
     """An RW section of the image"""
     def __init__(self, name, paths, model):
+        vblock = Vblock()
         super(RwArea, self).__init__(name,
-            Region("VBLOCK", Vblock(VerifiedRw(paths))).size(64 * KB),
-            VerifiedRw(paths, "VERIFIED").expand(),
+            Region("VBLOCK", vblock).size(64 * KB),
+            vblock.signed(
+                Directory("VERIFIED",
+                    Region("MAIN", File(paths["dc_bin"])).shrink(),
+                    Region("EC_HASH", Sha256(File(paths["ec"]))).shrink(),
+                    Region("PD_HASH", Sha256(File(paths["pd"]))).shrink(),
+                    Region("RAMSTAGE", File(paths["ramstage"])).shrink(),
+                    Region("REFCODE", File(paths["refcode"])).shrink()
+                ).shrink()
+            ).shrink(),
             Region("PD", File(paths["pd"])).shrink(),
             Region("EC", File(paths["ec"])).shrink(),
             Region("FWID", Fwid(model)).size(64).fill(0x00)

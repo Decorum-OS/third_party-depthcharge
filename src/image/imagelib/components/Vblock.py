@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from Area import DerivedArea
+from Area import Area, DerivedArea
 from File import File
 from imagelib.tools.Tool import FileHarness
 from imagelib.tools.VbutilFirmware import VbutilFirmware
 
 class Vblock(DerivedArea):
-    def __init__(self, to_sign, keyblock=None, signprivate=None, version=1,
+    def __init__(self, keyblock=None, signprivate=None, version=1,
                  kernelkey=None, flags=None):
 
         if keyblock is None:
@@ -33,18 +33,31 @@ class Vblock(DerivedArea):
             kernelkey = File("kernel_subkey.vbpubk")
         self._kernelkey = kernelkey
 
-        self._to_sign = to_sign
         self._version = version
         self._flags = flags
         self._data = None
 
-        super(Vblock, self).__init__(keyblock, signprivate, kernelkey, to_sign)
+        super(Vblock, self).__init__(keyblock, signprivate, kernelkey)
+
+        self._to_sign = None
 
         self.shrink()
 
-    def _generate_vblock(self):
+    def signed(self, *args, **kwargs):
+        class SignedArea(Area):
+            """Area which caches its write data."""
+            def write(self):
+                if not hasattr(self, "_vblock_signed_data"):
+                    self._vblock_signed_data = super(SignedArea, self).write()
+                return self._vblock_signed_data
+
+        assert self._to_sign is None
+        self._to_sign = SignedArea(*args, **kwargs)
+        return self._to_sign
+
+    def _generate_vblock(self, to_sign):
         vbutil = VbutilFirmware()
-        with FileHarness(None, self._to_sign.write(), self._keyblock.write(),
+        with FileHarness(None, to_sign, self._keyblock.write(),
                          self._signprivate.write(),
                          self._kernelkey.write()) as files:
             vblock, to_sign, keyblock, signprivate, kernelkey = files
@@ -52,14 +65,18 @@ class Vblock(DerivedArea):
                           to_sign, kernelkey, self._flags)
 
             with open(vblock, "rb") as data:
-                self._data = data.read()
+                return data.read()
 
     def compute_min_size_content(self):
         if not self.handle_children():
-            self._generate_vblock()
-        return len(self._data)
+            # Generate a dummy vblock which signs nothing to see how big the
+            # file is.
+            self._dummy_vblock = self._generate_vblock("test")
+        return len(self._dummy_vblock)
 
     def write(self):
+        if self._data is None:
+            self._data = self._generate_vblock(self._to_sign.write())
         return self._data
 
     def log_get_additional_properties(self):
@@ -73,6 +90,8 @@ class Vblock(DerivedArea):
             "Key block": self._keyblock,
             "Private key": self._signprivate,
             "Kernel key": self._kernelkey,
-            "Signed data": self._to_sign,
         }
+        if self._to_sign:
+            child_props["Signed data"] = self._to_sign
+
         return self.log_child_props(indent, child_props)
