@@ -29,21 +29,43 @@ from imagelib.util import KB
 
 class RwArea(Directory):
     """An RW section of the image"""
-    def __init__(self, name, paths, model):
+    def __init__(self, rw_name, model, signed_files, verified_files):
         vblock = Vblock()
-        super(RwArea, self).__init__(name,
-            Region("VBLOCK", vblock).size(64 * KB),
+
+        signed = []
+        unsigned = []
+
+        # Signed files are entirely in the area signed by the vblock. They
+        # are definitely required for boot, and so loading/hashing them
+        # seperately doesn't save any work and makes things more complicated.
+        for name, path in signed_files.iteritems():
+            signed.append(Region(name, File(path)).shrink())
+
+        # Files which are just verified (a slight abuse of terminology) have
+        # their hash signed, but the data itself is not loaded or hashed
+        # until and if it's needed. This saves a lot of access to the flash
+        # and hashing of data if a component might not actually be used on
+        # a particular boot.
+        for name, path in verified_files.iteritems():
+            signed.append(Region(name, Sha256(File(path))).shrink())
+            unsigned.append(Region(name, File(path)).shrink())
+
+        # Because python won't let us put the FWID after expanding unsigned,
+        # we have to lump it into the unsigned list.
+        unsigned.append(Region("FWID", Fwid(model)).shrink())
+
+        # Data in an RW area is structured as follows:
+        # VBLOCK - a region which contains the vblock
+        # VERIFIED - a directory which contains all signed data/hashes. A hash
+        #            of a file is stored with the same name as the file itself.
+        # [various] - the verified files
+        # FWID - the ID of this RW firmware version
+        super(RwArea, self).__init__(rw_name,
+            Region("VBLOCK", vblock).shrink(),
             vblock.signed(
-                Directory("VERIFIED",
-                    Region("MAIN", File(paths["dc_bin"])).shrink(),
-                    Region("EC_HASH", Sha256(File(paths["ec"]))).shrink(),
-                    Region("PD_HASH", Sha256(File(paths["pd"]))).shrink(),
-                    Region("REFCODE", File(paths["refcode"])).shrink()
-                ).shrink()
+                Directory("VERIFIED", *signed).shrink()
             ).shrink(),
-            Region("PD", File(paths["pd"])).shrink(),
-            Region("EC", File(paths["ec"])).shrink(),
-            Region("FWID", Fwid(model)).shrink()
+            *unsigned
         )
         self.expand()
 
@@ -51,6 +73,19 @@ class Image(RootDirectory):
     model = "Google_Samus"
 
     def __init__(self, paths, model, size, gbb_flags=None):
+        # The main firmware blob which starts RW execution and the Intel
+        # reference code are necessarily used during an RW boot.
+        signed = {
+            "MAIN": paths["dc_bin"],
+            "REFCODE": paths["refcode"]
+        }
+        # The EC and PD firmware images are used if those components need to
+        # be updated or their RW image has been damaged somehow.
+        verified = {
+            "EC": paths["ec"],
+            "PD": paths["pd"]
+        }
+
         si_bios = Area(
             Directory("RW",
                 Directory("LEGACY").size(2 * MB),
@@ -58,8 +93,8 @@ class Image(RootDirectory):
                 Region("ELOG").size(16 * KB),
                 Directory("SCRATCH").size(16 * KB),
                 Region("VPD").size(8 * KB),
-                RwArea("A", paths, model).expand(),
-                RwArea("B", paths, model).expand()
+                RwArea("A", model, signed, verified).expand(),
+                RwArea("B", model, signed, verified).expand()
             ).size(size / 2),
             DirectoryTable(),
             Directory("RO",
