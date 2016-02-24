@@ -102,8 +102,8 @@ class Image(RootDirectory):
                     Gbb(hwid="SAMUS TEST 8028", flags=gbb_flags).expand()
                 ).expand(),
                 Region("VPD").size(16 * KB),
-                Region("FWID", Fwid(self.model)).size(64).fill(0x00),
-                Directory("BOOTSTUB").size(1 * MB)
+                Region("FWID", Fwid(self.model)).shrink(),
+                Directory("BOOTSTUB").shrink()
             ).expand(),
         ).expand()
 
