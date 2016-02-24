@@ -38,13 +38,12 @@ class RwArea(Directory):
                     Region("MAIN", File(paths["dc_bin"])).shrink(),
                     Region("EC_HASH", Sha256(File(paths["ec"]))).shrink(),
                     Region("PD_HASH", Sha256(File(paths["pd"]))).shrink(),
-                    Region("RAMSTAGE", File(paths["ramstage"])).shrink(),
                     Region("REFCODE", File(paths["refcode"])).shrink()
                 ).shrink()
             ).shrink(),
             Region("PD", File(paths["pd"])).shrink(),
             Region("EC", File(paths["ec"])).shrink(),
-            Region("FWID", Fwid(model)).size(64).fill(0x00)
+            Region("FWID", Fwid(model)).shrink()
         )
         self.expand()
 
@@ -111,7 +110,6 @@ def prepare(options):
         "refcode": "refcode.stage",
         "ifd": "descriptor.bin",
         "me": "me.bin",
-        "ramstage": "ramstage.stage",
     }
 
     if options.dev or options.netboot:
@@ -133,9 +131,7 @@ def prepare(options):
         })
 
     if options.serial:
-        paths.update({
-            "ramstage": "ramstage.stage.serial",
-        })
+        pass
 
     return Image(paths=paths, model=options.model, size=options.size * KB,
                  gbb_flags=gbb_flags)
