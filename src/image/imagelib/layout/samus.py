@@ -86,9 +86,7 @@ class Image(RootDirectory):
 
         si_bios = Area(
             Directory("RW",
-                Directory("LEGACY").size(2 * MB),
                 Region("MRCCACHE").size(64 * KB),
-                Region("ELOG").size(16 * KB),
                 Directory("SCRATCH").size(16 * KB),
                 Region("VPD").size(8 * KB),
                 RwArea("A", model, signed, verified).expand(),
