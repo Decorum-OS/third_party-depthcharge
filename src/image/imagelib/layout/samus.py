@@ -70,8 +70,6 @@ class RwArea(Directory):
         self.expand()
 
 class Image(RootDirectory):
-    model = "Google_Samus"
-
     def __init__(self, paths, model, size, gbb_flags=None):
         # The main firmware blob which starts RW execution and the Intel
         # reference code are necessarily used during an RW boot.
@@ -102,7 +100,7 @@ class Image(RootDirectory):
                     Gbb(hwid="SAMUS TEST 8028", flags=gbb_flags).expand()
                 ).expand(),
                 Region("VPD").size(16 * KB),
-                Region("FWID", Fwid(self.model)).shrink(),
+                Region("FWID", Fwid(model)).shrink(),
                 Directory("BOOTSTUB").shrink()
             ).expand(),
         ).expand()
