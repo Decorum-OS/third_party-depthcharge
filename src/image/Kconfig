@@ -80,8 +80,15 @@ config BOOTPLAN_CB_PAYLOAD
 config BOOTPLAN_CB_IMAGE
 	bool "Coreboot based image (coreboot selects firmware)"
 
+config BOOTPLAN_FSP
+	bool "Image based on Intel's firmware support package."
+
 endchoice
 
 config BOOTPLAN_CB_IMAGE_MODEL
 	string "Model name for this board"
 	depends on BOOTPLAN_CB_IMAGE
+
+config BOOTPLAN_FSP_MODEL
+	string "Model name for this board"
+	depends on BOOTPLAN_FSP

@@ -27,7 +27,7 @@ image_obj=$(obj)/image
 build_image = $(obj)/image/build_image
 BUILD_IMAGE_OPTS = --verbose --log-file $@.log -o $@
 BUILD_IMAGE = BUILD_IMAGE_PATH="${BUILD_IMAGE_PATH}:$(module_obj)" \
-	$(build_image) $(BUILD_IMAGE_OPTS) $(CONFIG_BUILD_IMAGE_LAYOUT) \
+	$(build_image) $(BUILD_IMAGE_OPTS) $(BUILD_IMAGE_LAYOUT) \
         $(BUILD_IMAGE_LAYOUT_OPTS)
 imagelib_files = $(shell find $(src)/src/image/ -name '*.py')
 $(build_image): $(subst $(obj),$(src)/src,$(build_image)) $(imagelib_files)
@@ -96,11 +96,33 @@ endif # CONFIG_BOOTPLAN_CB_PAYLOAD
 
 ifeq ($(CONFIG_BOOTPLAN_CB_IMAGE),y)
 
-image-y += image.bin image.serial.bin image.dev.bin image.net.bin
+BUILD_IMAGE_LAYOUT = samus_cb
 
 BUILD_IMAGE_LAYOUT_OPTS = \
 	--size=$(CONFIG_IMAGE_SIZE_KB) \
 	--model=$(CONFIG_BOOTPLAN_CB_IMAGE_MODEL)
+
+STANDARD_IMAGES=y
+
+endif # CONFIG_BOOTPLAN_CB_IMAGE
+
+
+ifeq ($(CONFIG_BOOTPLAN_FSP),y)
+
+BUILD_IMAGE_LAYOUT = samus
+
+BUILD_IMAGE_LAYOUT_OPTS = \
+	--size=$(CONFIG_IMAGE_SIZE_KB) \
+	--model=$(CONFIG_BOOTPLAN_FSP_MODEL)
+
+STANDARD_IMAGES=y
+
+endif # CONFIG_BOOTPLAN_FSP
+
+
+ifeq ($(STANDARD_IMAGES),y)
+
+image-y += image.bin image.serial.bin image.dev.bin image.net.bin
 
 $(image_obj)/image.bin: $(build_image) \
 	$$(module_obj)/cb_payload.elf $$(module_obj)/cb_payload.payload
@@ -122,4 +144,4 @@ $(image_obj)/image.net.bin: $(build_image) \
 	@printf "    BUILD_IMAGE $(subst $(obj)/,,$@)\n"
 	$(Q)$(BUILD_IMAGE) --serial --netboot
 
-endif # CONFIG_BOOTPLAN_CB_IMAGE
+endif # STANDARD_IMAGES
