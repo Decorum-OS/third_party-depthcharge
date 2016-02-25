@@ -89,10 +89,6 @@ config BOOTPLAN_CB_IMAGE_MODEL
 	string "Model name for this board"
 	depends on BOOTPLAN_CB_IMAGE
 
-config BOOTPLAN_FSP_MODEL
-	string "Model name for this board"
-	depends on BOOTPLAN_FSP
-
 config BOOTPLAN_FSP_ECS
         string "RW EC images which are managed with EC software sync"
         depends on BOOTPLAN_FSP
@@ -100,3 +96,11 @@ config BOOTPLAN_FSP_ECS
           The names are really the names of the directories the EC images are
           in. The actual file used is called ec.RW.bin within those
           directories. The names are separated by : characters.
+
+config BOOTPLAN_FSP_HWID
+	string "The hardware ID stored in the GBB"
+        depends on BOOTPLAN_FSP
+
+config BOOTPLAN_FSP_MODEL
+	string "Model name for this board"
+	depends on BOOTPLAN_FSP

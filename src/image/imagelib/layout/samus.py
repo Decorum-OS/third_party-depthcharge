@@ -80,7 +80,7 @@ class RwArea(Directory):
         self.expand()
 
 class Image(RootDirectory):
-    def __init__(self, paths, model, size, gbb_flags=None, ecs=[]):
+    def __init__(self, paths, model, size, hwid, gbb_flags=None, ecs=[]):
         # The main firmware blob which starts RW execution and the Intel
         # reference code are necessarily used during an RW boot.
         signed = {
@@ -108,7 +108,7 @@ class Image(RootDirectory):
             DirectoryTable(),
             Directory("RO",
                 Region("GBB",
-                    Gbb(hwid=Gbb.hwid("SAMUS TEST"), flags=gbb_flags).expand()
+                    Gbb(hwid=Gbb.hwid(hwid), flags=gbb_flags).expand()
                 ).expand(),
                 Region("VPD").size(16 * KB),
                 Region("FWID", Fwid(model)).shrink(),
@@ -149,6 +149,9 @@ def add_arguments(parser):
                         help=('Images for devices which support ' +
                               'EC software sync'))
 
+    parser.add_argument('--hwid', dest='hwid', required=True,
+                        help='Hardware ID to put in the GBB')
+
 def prepare(options):
     gbb_flags = None
     paths = {
@@ -180,6 +183,7 @@ def prepare(options):
         pass
 
     ecs = options.ecs.split(':') if options.ecs else []
+    hwid = options.hwid
 
     return Image(paths=paths, model=options.model, size=options.size * KB,
-                 gbb_flags=gbb_flags, ecs=ecs)
+                 gbb_flags=gbb_flags, ecs=ecs, hwid=hwid)
