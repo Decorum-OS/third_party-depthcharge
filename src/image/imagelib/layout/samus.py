@@ -27,6 +27,17 @@ from imagelib.components.Vblock import Vblock
 from imagelib.util import MB
 from imagelib.util import KB
 
+def _dict_to_dir(d, leaf=lambda x: File(x)):
+    """Expand a nested dictionary into a dcdir directory."""
+    ret = []
+    for name, entry in sorted(d.iteritems()):
+        if isinstance(entry, dict):
+            sub_entries = _dict_to_dir(entry, leaf)
+            ret.append(Directory(name, *sub_entries).shrink())
+        else:
+            ret.append(Region(name, leaf(entry)).shrink())
+    return ret
+
 class RwArea(Directory):
     """An RW section of the image"""
     def __init__(self, rw_name, model, signed_files, verified_files):
@@ -38,17 +49,16 @@ class RwArea(Directory):
         # Signed files are entirely in the area signed by the vblock. They
         # are definitely required for boot, and so loading/hashing them
         # seperately doesn't save any work and makes things more complicated.
-        for name, path in signed_files.iteritems():
-            signed.append(Region(name, File(path)).shrink())
+        signed += _dict_to_dir(signed_files)
 
         # Files which are just verified (a slight abuse of terminology) have
         # their hash signed, but the data itself is not loaded or hashed
         # until and if it's needed. This saves a lot of access to the flash
         # and hashing of data if a component might not actually be used on
         # a particular boot.
-        for name, path in verified_files.iteritems():
-            signed.append(Region(name, Sha256(File(path))).shrink())
-            unsigned.append(Region(name, File(path)).shrink())
+        signed += _dict_to_dir(verified_files,
+                               leaf=lambda x: Sha256(File(x)))
+        unsigned += _dict_to_dir(verified_files)
 
         # Because python won't let us put the FWID after expanding unsigned,
         # we have to lump it into the unsigned list.
@@ -70,18 +80,21 @@ class RwArea(Directory):
         self.expand()
 
 class Image(RootDirectory):
-    def __init__(self, paths, model, size, gbb_flags=None):
+    def __init__(self, paths, model, size, gbb_flags=None, ecs=[]):
         # The main firmware blob which starts RW execution and the Intel
         # reference code are necessarily used during an RW boot.
         signed = {
             "MAIN": paths["dc_bin"],
             "REFCODE": paths["refcode"]
         }
-        # The EC and PD firmware images are used if those components need to
-        # be updated or their RW image has been damaged somehow.
+        # The EC images (main EC and PD RW firmwares, for instance) are used
+        # if those components need to be updated or their RW image has been
+        # damaged somehow.
         verified = {
-            "EC": paths["ec"],
-            "PD": paths["pd"]
+            "EC": {
+                str(idx): os.path.join(name, "ec.RW.bin")
+                    for idx, name in enumerate(ecs)
+            }
         }
 
         si_bios = Area(
@@ -132,12 +145,14 @@ def add_arguments(parser):
     parser.add_argument('--model', dest='model', required=True,
                         help='Model name to use in firmware IDs')
 
+    parser.add_argument('--ecs', dest='ecs', default=None,
+                        help=('Images for devices which support ' +
+                              'EC software sync'))
+
 def prepare(options):
     gbb_flags = None
     paths = {
         "dc_bin": "cb_payload.payload",
-        "ec": "ec.RW.bin",
-        "pd": os.path.join("samus_pd", "ec.RW.bin"),
         "refcode": "refcode.stage",
         "ifd": "descriptor.bin",
         "me": "me.bin",
@@ -164,5 +179,7 @@ def prepare(options):
     if options.serial:
         pass
 
+    ecs = options.ecs.split(':') if options.ecs else []
+
     return Image(paths=paths, model=options.model, size=options.size * KB,
-                 gbb_flags=gbb_flags)
+                 gbb_flags=gbb_flags, ecs=ecs)
