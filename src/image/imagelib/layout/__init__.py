@@ -1,5 +1,5 @@
 layouts = [
-    "samus",
+    "fsp",
     "samus_cb"
 ]
 
