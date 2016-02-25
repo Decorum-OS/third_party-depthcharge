@@ -17,6 +17,8 @@ from File import File
 from imagelib.tools.GbbUtility import GbbUtility
 from imagelib.tools.Tool import FileHarness
 
+import binascii
+
 class Gbb(DerivedArea):
     # The flags in this dictionary will be turned into independent members of
     # the class programatically after the class definition is complete.
@@ -36,6 +38,11 @@ class Gbb(DerivedArea):
         "ForceDevBootFastbootFullCap": 0x00002000,
     }
 
+
+    @staticmethod
+    def hwid(hwid):
+        checksum = (binascii.crc32(hwid) & 0xffffffff) % 10000
+        return "%s %d" % (hwid, checksum)
 
     def __init__(self, hwid, flags=None, bmpfv=None,
                  rootkey=None, recoverykey=None):

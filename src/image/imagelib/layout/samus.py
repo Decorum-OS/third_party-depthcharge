@@ -108,7 +108,7 @@ class Image(RootDirectory):
             DirectoryTable(),
             Directory("RO",
                 Region("GBB",
-                    Gbb(hwid="SAMUS TEST 8028", flags=gbb_flags).expand()
+                    Gbb(hwid=Gbb.hwid("SAMUS TEST"), flags=gbb_flags).expand()
                 ).expand(),
                 Region("VPD").size(16 * KB),
                 Region("FWID", Fwid(model)).shrink(),
