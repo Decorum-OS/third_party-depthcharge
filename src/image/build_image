@@ -19,7 +19,6 @@ import importlib
 import sys
 
 import imagelib.layout
-import imagelib.layout.samus
 
 parser = argparse.ArgumentParser(
     description='Build a firmware image from its components')
