@@ -24,6 +24,7 @@ from imagelib.components.Gbb import Gbb
 from imagelib.components.Ifd import Ifd
 from imagelib.components.Sha256 import Sha256
 from imagelib.components.Vblock import Vblock
+from imagelib.components.X86 import Reljump
 from imagelib.util import MB
 from imagelib.util import KB
 
@@ -97,6 +98,8 @@ class Image(RootDirectory):
             }
         }
 
+        backjump = Reljump()
+
         si_bios = Area(
             Directory("RW",
                 Region("MRCCACHE").size(64 * KB),
@@ -112,7 +115,11 @@ class Image(RootDirectory):
                 ).expand(),
                 Region("VPD").size(16 * KB),
                 Region("FWID", Fwid(model)).shrink(),
-                Directory("BOOTSTUB").shrink()
+                Directory("FIRMWARE",
+                    backjump.target_marker(),
+                    Region("REAL").size(1)
+                ).shrink(),
+                Area(backjump).size(0x10).fill(0x00)
             ).expand(),
         ).expand()
 
