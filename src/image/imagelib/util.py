@@ -16,6 +16,7 @@ import struct
 
 KB = 2 ** 10
 MB = 2 ** 20
+GB = 2 ** 30
 
 
 # This class and metaclass make it easier to define and access structures
