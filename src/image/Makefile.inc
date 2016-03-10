@@ -102,6 +102,13 @@ BUILD_IMAGE_LAYOUT_OPTS = \
 	--size=$(CONFIG_IMAGE_SIZE_KB) \
 	--model=$(CONFIG_BOOTPLAN_CB_IMAGE_MODEL)
 
+modules: $$(module_obj)/cb_payload.elf
+modules: $$(module_obj)/cb_payload.payload
+modules: $$(module_obj)/cb_dev.elf
+modules: $$(module_obj)/cb_dev.payload
+modules: $$(module_obj)/netboot.elf
+modules: $$(module_obj)/netboot.payload
+
 STANDARD_IMAGES=y
 
 endif # CONFIG_BOOTPLAN_CB_IMAGE
@@ -117,6 +124,10 @@ BUILD_IMAGE_LAYOUT_OPTS = \
 	--ecs=$(CONFIG_BOOTPLAN_FSP_ECS) \
 	--hwid=$(CONFIG_BOOTPLAN_FSP_HWID)
 
+modules: $$(module_obj)/cb_payload.payload
+modules: $$(module_obj)/cb_dev.payload
+modules: $$(module_obj)/netboot.payload
+
 STANDARD_IMAGES=y
 
 endif # CONFIG_BOOTPLAN_FSP
@@ -126,23 +137,24 @@ ifeq ($(STANDARD_IMAGES),y)
 
 image-y += image.bin image.serial.bin image.dev.bin image.net.bin
 
-$(image_obj)/image.bin: $(build_image) \
-	$$(module_obj)/cb_payload.elf $$(module_obj)/cb_payload.payload
+.PHONY: modules
+$(addprefix $(image_obj)/,$(image-y)): modules
+
+$(addprefix $(image_obj)/,$(image-y)): $(build_image)
+
+$(image_obj)/image.bin:
 	@printf "    BUILD_IMAGE $(subst $(obj)/,,$@)\n"
 	$(Q)$(BUILD_IMAGE)
 
-$(image_obj)/image.serial.bin: $(build_image) \
-	$$(module_obj)/cb_payload.elf $$(module_obj)/cb_payload.payload
+$(image_obj)/image.serial.bin:
 	@printf "    BUILD_IMAGE $(subst $(obj)/,,$@)\n"
 	$(Q)$(BUILD_IMAGE) --serial
 
-$(image_obj)/image.dev.bin: $(build_image) \
-	$$(module_obj)/cb_dev.elf $$(module_obj)/cb_dev.payload
+$(image_obj)/image.dev.bin:
 	@printf "    BUILD_IMAGE $(subst $(obj)/,,$@)\n"
 	$(Q)$(BUILD_IMAGE) --serial --dev
 
-$(image_obj)/image.net.bin: $(build_image) \
-	$$(module_obj)/netboot.elf $$(module_obj)/netboot.payload
+$(image_obj)/image.net.bin:
 	@printf "    BUILD_IMAGE $(subst $(obj)/,,$@)\n"
 	$(Q)$(BUILD_IMAGE) --serial --netboot
 
