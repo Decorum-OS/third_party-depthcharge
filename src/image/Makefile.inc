@@ -27,6 +27,9 @@ image_obj=$(obj)/image
 build_image = $(obj)/image/build_image
 BUILD_IMAGE_OPTS = --verbose --log-file $@.log -o $@
 BUILD_IMAGE = BUILD_IMAGE_PATH="${BUILD_IMAGE_PATH}:$(module_obj)" \
+        CC="$(CC)" \
+        LINK_FLAGS="$(LINK_FLAGS)" \
+        OBJCOPY="$(OBJCOPY)" \
 	$(build_image) $(BUILD_IMAGE_OPTS) $(BUILD_IMAGE_LAYOUT) \
         $(BUILD_IMAGE_LAYOUT_OPTS)
 imagelib_files = $(shell find $(src)/src/image/ -name '*.py')
@@ -127,6 +130,8 @@ BUILD_IMAGE_LAYOUT_OPTS = \
 modules: $$(module_obj)/cb_payload.payload
 modules: $$(module_obj)/cb_dev.payload
 modules: $$(module_obj)/netboot.payload
+
+modules: $$(module_obj)/fsp_real.mod
 
 STANDARD_IMAGES=y
 

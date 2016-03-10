@@ -25,8 +25,8 @@ from imagelib.components.Ifd import Ifd
 from imagelib.components.Sha256 import Sha256
 from imagelib.components.Vblock import Vblock
 from imagelib.components.X86 import Reljump
-from imagelib.util import MB
-from imagelib.util import KB
+from imagelib.components.Xip import Xip
+from imagelib.util import KB, MB, GB
 
 def _dict_to_dir(d, leaf=lambda x: File(x)):
     """Expand a nested dictionary into a dcdir directory."""
@@ -117,7 +117,9 @@ class Image(RootDirectory):
                 Region("FWID", Fwid(model)).shrink(),
                 Directory("FIRMWARE",
                     backjump.target_marker(),
-                    Region("REAL").size(1)
+                    Region("REAL",
+                        Xip(File(paths["real"])).image_base(4 * GB - size)
+                    ).shrink()
                 ).shrink(),
                 Area(backjump).size(0x10).fill(0x00)
             ).expand(),
@@ -166,6 +168,7 @@ def prepare(options):
         "refcode": "refcode.stage",
         "ifd": "descriptor.bin",
         "me": "me.bin",
+        "real": "fsp_real.mod",
     }
 
     if options.dev or options.netboot:
