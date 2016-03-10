@@ -151,3 +151,18 @@ mod-cb_dev_rw-ldopts = $(DONT_GC_NETBOOT)
 module-y += netboot
 mod-netboot-y += netboot.c
 mod-netboot-libs += $(common-objects) $(net-objects)
+
+
+
+# Firmware support package oriented modules.
+
+module-y += fsp_real
+mod-fsp_real-y += fsp_real.S
+mod-fsp_real-ldscript += $(src)/src/module/fsp_real.ldscript
+mod-fsp_real-ldopts += -Wl,--relocatable -Wl,-d -Wl,--warn-common
+mod-fsp_real-ldopts += -Wl,--no-gc-sections
+
+# Copy fsp_real.elf.tmp to the less ephemeral sounding fsp_real.mod.
+$(module_obj)/fsp_real.mod: $(module_obj)/fsp_real.elf.tmp
+	@printf "    OBJCOPY    $(subst $(obj)/,,$@)\n"
+	$(Q)$(OBJCOPY) $< $@
