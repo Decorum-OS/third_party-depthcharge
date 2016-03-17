@@ -36,7 +36,7 @@
 	addr32 lgdtl %cs:(gdt_ptr - 0xffff0000)
 
 	/* Do a long jump to switch to 32 bit protected mode. */
-	ljmpl $0x8,$0f
+	ljmpl $0x8, $0f
 
 .code32
 0:
