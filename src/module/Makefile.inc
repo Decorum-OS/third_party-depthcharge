@@ -15,6 +15,8 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
+subdirs-y += cb fsp
+
 depthcharge-y += module.c
 
 DEFAULT_LDSCRIPT = $(src)/src/module/depthcharge.ldscript
@@ -65,21 +67,13 @@ $(module_obj)/%.bin: $(module_obj)/%.elf
 	@printf "    LZMA       $(subst $(obj)/,,$@)\n"
 	$(Q)$(LZMA) --stdout $@.tmp > $@
 
-CBFS_ARCH-$(CONFIG_ARCH_X86) = x86
-CBFS_ARCH-$(CONFIG_ARCH_ARM_V7) = arm
-CBFS_ARCH-$(CONFIG_ARCH_ARM_V8) = arm64
+.PRECIOUS: $(module_obj)/%.elf $(module_obj)/%.map $(module_obj)/%.bin
 
-$(module_obj)/%.payload: $(module_obj)/%.elf
-	@printf "    PAYLOAD    $(subst $(obj)/,,$@)\n"
-	$(Q)-rm -f $*.rom $*.bb
-	$(Q)dd if=/dev/zero of=$*.bb bs=512 count=1
-	$(Q)cbfstool $*.rom create -m $(CBFS_ARCH-y) -s 1024K -B $*.bb
-	$(Q)cbfstool $*.rom add-payload -f $< -n dc.elf -c lzma
-	$(Q)cbfstool $*.rom extract -n dc.elf -f $@
-	$(Q)rm -f $*.rom $*.bb
-
-.PRECIOUS: $(module_obj)/%.elf $(module_obj)/%.map
-.PRECIOUS: $(module_obj)/%.bin $(module_obj)/%.payload
+# By default, just copy any .elf.tmp file to its .mod counterpart. This can
+# be overridden if more processing is necessary.
+$(module_obj)/%.mod: $(module_obj)/%.elf.tmp
+	@printf "    OBJCOPY    $(subst $(obj)/,,$@)\n"
+	$(Q)$(OBJCOPY) $< $@
 
 module-handler= \
 	$(call add-class,mod-$2) \
@@ -88,6 +82,18 @@ module-handler= \
 	$(eval mod-$2-ldscript ?= $$(DEFAULT_LDSCRIPT))
 
 $(call add-special-class,module)
+
+
+
+DONT_GC_NETBOOT = -Wl,-u,netboot_entry
+
+LIBPAYLOAD_OBJECTS += $(libc-objs) $(libcbfs-objs) $(liblzma-objs)
+LIBPAYLOAD_OBJECTS += $(liblz4-objs) $(head.o-objs)
+
+COMMON_OBJECTS = $(depthcharge-objs) $(VB_LIB) $(LIBPAYLOAD_OBJECTS)
+
+NET_OBJECTS = $(netboot-objs) $(net-objs) $(uip-objs)
+DEV_OBJECTS = $(NET_OBJECTS) $(dev-objs) $(gdb-objs)
 
 
 
@@ -109,60 +115,6 @@ $(module_obj)/trampoline.mod: $(module_obj)/trampoline.elf.tmp
 		--keep-global-symbol=trampoline_stack
 
 
-
-DONT_GC_NETBOOT = -Wl,-u,netboot_entry
-
-libpayload-objects += $(libc-objs) $(libcbfs-objs) $(liblzma-objs)
-libpayload-objects += $(liblz4-objs) $(head.o-objs)
-
-common-objects = $(depthcharge-objs) $(VB_LIB) $(libpayload-objects)
-
-net-objects = $(netboot-objs) $(net-objs) $(uip-objs)
-dev-objects = $(net-objects) $(dev-objs) $(gdb-objs)
-
-
-module-y += cb_payload
-mod-cb_payload-y += cb_payload.c
-mod-cb_payload-libs += $(common-objects) $(unified-objs)
-
-module-y += cb_dev
-mod-cb_dev-y += $(mod-cb_payload-y)
-mod-cb_dev-libs += $(mod-cb_payload-libs) $(dev-objects)
-mod-cb_dev-ldopts = $(DONT_GC_NETBOOT)
-
-module-y += cb_readonly
-mod-cb_readonly-y += cb_readonly.c
-mod-cb_readonly-libs += $(common-objects) $(readonly-objs) $(TRAMPOLINE)
-
-module-y += cb_dev_ro
-mod-cb_dev_ro-y += $(mod-cb_readonly-y)
-mod-cb_dev_ro-libs += $(mod-cb_readonly-libs) $(dev-objects)
-mod-cb_dev_ro-ldopts = $(DONT_GC_NETBOOT)
-
-module-y += cb_readwrite
-mod-cb_readwrite-y += cb_readwrite.c
-mod-cb_readwrite-libs += $(common-objects) $(readwrite-objs)
-
-module-y += cb_dev_rw
-mod-cb_dev_rw-y += $(mod-cb_readwrite-y)
-mod-cb_dev_rw-libs += $(mod-cb_readwrite-libs) $(dev-objects)
-mod-cb_dev_rw-ldopts = $(DONT_GC_NETBOOT)
-
 module-y += netboot
 mod-netboot-y += netboot.c
-mod-netboot-libs += $(common-objects) $(net-objects)
-
-
-
-# Firmware support package oriented modules.
-
-module-y += fsp_real
-mod-fsp_real-y += fsp_real.S
-mod-fsp_real-ldscript += $(src)/src/module/fsp_real.ldscript
-mod-fsp_real-ldopts += -Wl,--relocatable -Wl,-d -Wl,--warn-common
-mod-fsp_real-ldopts += -Wl,--no-gc-sections
-
-# Copy fsp_real.elf.tmp to the less ephemeral sounding fsp_real.mod.
-$(module_obj)/fsp_real.mod: $(module_obj)/fsp_real.elf.tmp
-	@printf "    OBJCOPY    $(subst $(obj)/,,$@)\n"
-	$(Q)$(OBJCOPY) $< $@
+mod-netboot-libs += $(COMMON_OBJECTS) $(NET_OBJECTS)
