@@ -138,6 +138,21 @@ STANDARD_IMAGES=y
 endif # CONFIG_BOOTPLAN_FSP
 
 
+ifeq ($(CONFIG_BOOTPLAN_QEMU_X86),y)
+
+BUILD_IMAGE_LAYOUT = qemu-x86
+
+BUILD_IMAGE_LAYOUT_OPTS = \
+	--size=$(CONFIG_IMAGE_SIZE_KB) \
+	--hwid=$(CONFIG_IMAGE_HWID)
+
+modules: $$(module_obj)/qemu_x86_entry.mod
+
+STANDARD_IMAGES=y
+
+endif # CONFIG_BOOTPLAN_QEMU_X86
+
+
 ifeq ($(STANDARD_IMAGES),y)
 
 image-y += image.bin image.serial.bin image.dev.bin image.net.bin

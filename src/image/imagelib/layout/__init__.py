@@ -1,5 +1,6 @@
 layouts = [
     "fsp",
+    "qemu-x86",
     "samus_cb"
 ]
 

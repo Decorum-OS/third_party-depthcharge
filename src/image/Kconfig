@@ -87,11 +87,15 @@ config BOOTPLAN_CB_IMAGE
 config BOOTPLAN_FSP
 	bool "Image based on Intel's firmware support package."
 
+config BOOTPLAN_QEMU_X86
+	bool "Basic x86 image suitable for booting on QEMU."
+
 endchoice
 
 config BOOTPLAN_CB_IMAGE_MODEL
 	string "Model name for this board"
 	depends on BOOTPLAN_CB_IMAGE
+
 
 config BOOTPLAN_FSP_ECS
         string "RW EC images which are managed with EC software sync"

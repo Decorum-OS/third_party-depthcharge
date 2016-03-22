@@ -15,7 +15,7 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-subdirs-y += cb fsp
+subdirs-y += cb fsp qemu
 
 depthcharge-y += module.c
 
