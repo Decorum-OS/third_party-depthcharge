@@ -34,7 +34,6 @@ BUILD_IMAGE = BUILD_IMAGE_PATH="${BUILD_IMAGE_PATH}:$(module_obj)" \
         $(BUILD_IMAGE_LAYOUT_OPTS)
 imagelib_files = $(shell find $(src)/src/image/ -name '*.py')
 $(build_image): $(subst $(obj),$(src)/src,$(build_image)) $(imagelib_files)
-	$(warning $+)
 	@printf "    CP         $(subst $(obj)/,,$@)\n"
 	$(Q)cp $< $@
 	$(Q)cp -a $(src)/src/image/imagelib $(obj)/image/imagelib
