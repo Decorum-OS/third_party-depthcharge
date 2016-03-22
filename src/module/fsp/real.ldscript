@@ -29,20 +29,14 @@
 SECTIONS
 {
 	.load : {
-		*(.text)
-		*(.text.*)
-		*(.rodata)
-		*(.rodata.*)
-		*(.data)
-		*(.data.*)
-		*(.got)
-		*(.got.*)
+		*(.text .text.*)
+		*(.rodata .rodata.*)
+		*(.data .data.*)
+		*(.got .got.*)
 	}
 	.noload : {
-		*(.bss)
-		*(.bss.*)
-		*(.sbss)
-		*(.sbss.*)
+		*(.bss .bss.*)
+		*(.sbss .sbss.*)
 		*(COMMON)
 	}
 
