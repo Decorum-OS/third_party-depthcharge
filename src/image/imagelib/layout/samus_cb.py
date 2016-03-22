@@ -62,7 +62,7 @@ class RwArea(Area):
 class Image(Area):
     model = "Google_Samus"
 
-    def __init__(self, paths, model, size, gbb_flags=None):
+    def __init__(self, paths, model, size, hwid, gbb_flags=None):
         self.fmap = Fmap(size)
         fmap = self.fmap
 
@@ -102,7 +102,7 @@ class Image(Area):
                         fmap.section("RO_FRID_PAD").expand().fill(0xff)
                     ).size(4 * KB),
                     fmap.section("GBB",
-                        Gbb(hwid="SAMUS TEST 8028", flags=gbb_flags).expand()
+                        Gbb(hwid=Gbb.hwid(hwid), flags=gbb_flags).expand()
                     ).expand(),
                     fmap.section("BOOT_STUB",
                         Cbfs(
@@ -160,6 +160,9 @@ def add_arguments(parser):
     parser.add_argument('--model', dest='model', required=True,
                         help='Model name to use in firmware IDs')
 
+    parser.add_argument('--hwid', dest='hwid', required=True,
+                        help='Hardware ID to put in the GBB')
+
 def prepare(options):
     gbb_flags = None
     paths = {
@@ -202,5 +205,7 @@ def prepare(options):
             "legacy": "seabios.cbfs.serial",
         })
 
+    hwid = options.hwid
+
     return Image(paths=paths, model=options.model, size=options.size * KB,
-                 gbb_flags=gbb_flags)
+                 gbb_flags=gbb_flags, hwid=hwid)

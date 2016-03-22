@@ -59,6 +59,10 @@ config IMAGE_SIZE_KB
 	default 8192  if IMAGE_SIZE_8MB
         default 16384 if IMAGE_SIZE_16MB
 
+config IMAGE_HWID
+	string "The hardware ID stored in the GBB"
+	default ""
+
 config BUILD_IMAGE_LAYOUT
 	string "Layout to use for the image"
         default ""
@@ -96,10 +100,6 @@ config BOOTPLAN_FSP_ECS
           The names are really the names of the directories the EC images are
           in. The actual file used is called ec.RW.bin within those
           directories. The names are separated by : characters.
-
-config BOOTPLAN_FSP_HWID
-	string "The hardware ID stored in the GBB"
-        depends on BOOTPLAN_FSP
 
 config BOOTPLAN_FSP_MODEL
 	string "Model name for this board"

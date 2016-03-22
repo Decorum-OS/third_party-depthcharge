@@ -103,6 +103,7 @@ BUILD_IMAGE_LAYOUT = samus_cb
 
 BUILD_IMAGE_LAYOUT_OPTS = \
 	--size=$(CONFIG_IMAGE_SIZE_KB) \
+	--hwid=$(CONFIG_IMAGE_HWID) \
 	--model=$(CONFIG_BOOTPLAN_CB_IMAGE_MODEL)
 
 modules: $$(module_obj)/cb_payload.elf
@@ -123,9 +124,9 @@ BUILD_IMAGE_LAYOUT = fsp
 
 BUILD_IMAGE_LAYOUT_OPTS = \
 	--size=$(CONFIG_IMAGE_SIZE_KB) \
+	--hwid=$(CONFIG_IMAGE_HWID) \
 	--model=$(CONFIG_BOOTPLAN_FSP_MODEL) \
-	--ecs=$(CONFIG_BOOTPLAN_FSP_ECS) \
-	--hwid=$(CONFIG_BOOTPLAN_FSP_HWID)
+	--ecs=$(CONFIG_BOOTPLAN_FSP_ECS)
 
 modules: $$(module_obj)/cb_payload.payload
 modules: $$(module_obj)/cb_dev.payload
