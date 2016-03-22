@@ -20,6 +20,7 @@ _linker_script_template = """
 SECTIONS {{
 	. = {base:#x};
 	.load : {{ *(.load) }}
+	.noload : {{ *(.noload) }}
 
 	/DISCARD/ : {{ *(*) }}
 }}
