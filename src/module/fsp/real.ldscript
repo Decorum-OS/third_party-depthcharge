@@ -38,6 +38,13 @@ SECTIONS
 		*(.got)
 		*(.got.*)
 	}
+	.noload : {
+		*(.bss)
+		*(.bss.*)
+		*(.sbss)
+		*(.sbss.*)
+		*(COMMON)
+	}
 
 	/* Discard everything else. */
 	/DISCARD/ : {
