@@ -16,7 +16,7 @@
 ##
 
 module-y += qemu_x86_entry
-mod-qemu_x86_entry-y += entry.S util.S
+mod-qemu_x86_entry-y += elf.S entry.S util.S
 mod-qemu_x86_entry-ldscript += $(src)/src/module/qemu/x86/entry.ldscript
 mod-qemu_x86_entry-ldopts += -Wl,--relocatable -Wl,-d -Wl,--warn-common
 mod-qemu_x86_entry-ldopts += -Wl,--no-gc-sections

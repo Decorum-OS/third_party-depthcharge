@@ -146,8 +146,7 @@ find_in_dir:
 	/* The pointer is type 1. */
 
 	/* Move the offset into %eax. */
-	mov $0, %eax
-	mov 12(%edi), %al
+	movzbl 12(%edi), %eax
 	shl $8, %eax
 	mov 11(%edi), %al
 	shl $8, %eax
@@ -159,8 +158,7 @@ find_in_dir:
 	mov $0, %esi
 
 	/* Load the size into %edx. */
-	mov $0, %edx
-	mov 15(%edi), %dl
+	movzbl 15(%edi), %edx
 	shl $8, %edx
 	mov 14(%edi), %dl
 	shl $8, %edx
@@ -201,8 +199,7 @@ find_in_dir:
 
 .Lnot_yet:
 	/* Compute the size of the pointer in %ebx. */
-	mov $0, %ebx
-	mov 9(%edi), %bl
+	movzbl 9(%edi), %ebx
 	inc %ebx
 	shl $3, %ebx
 	/* Account for the label size. */
