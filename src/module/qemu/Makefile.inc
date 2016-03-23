@@ -20,3 +20,7 @@ mod-qemu_x86_entry-y += x86_entry.S
 mod-qemu_x86_entry-ldscript += $(src)/src/module/qemu/entry.ldscript
 mod-qemu_x86_entry-ldopts += -Wl,--relocatable -Wl,-d -Wl,--warn-common
 mod-qemu_x86_entry-ldopts += -Wl,--no-gc-sections
+
+module-y += qemu_firmware_select
+mod-qemu_firmware_select-y += firmware_select.c
+mod-qemu_firmware_select-libs += $(COMMON_OBJECTS)
