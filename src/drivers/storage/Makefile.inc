@@ -27,6 +27,6 @@ depthcharge-$(CONFIG_DRIVER_STORAGE_MSHC_S5P) += s5p_mshc.c
 depthcharge-$(CONFIG_DRIVER_STORAGE_NVME) += nvme.c
 depthcharge-$(CONFIG_DRIVER_STORAGE_SDHCI) += sdhci.c mem_sdhci.c
 depthcharge-$(CONFIG_DRIVER_STORAGE_SDHCI_PCI) += pci_sdhci.c
-depthcharge-y += usb.c
+depthcharge-$(CONFIG_DRIVER_STORAGE_USB) += usb.c
 
 libc-$(CONFIG_USB_MSC) += usbmsc.c

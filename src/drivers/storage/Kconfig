@@ -68,3 +68,8 @@ config DRIVER_STORAGE_SDHCI_PCI
 	depends on DRIVER_STORAGE_SDHCI
 	bool "PCI SDHCI based eMMC/SD driver"
 	default n
+
+config DRIVER_STORAGE_USB
+	depends on USB
+	bool "USB based storage"
+	default n
