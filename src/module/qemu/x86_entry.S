@@ -37,8 +37,6 @@
 .endm
 
 
-.align 16
-
 /*
  * The entry point, which starts in 16 bit real mode with standard but odd
  * segment configuration. The base of most segments is 0, but the base of the
@@ -84,11 +82,9 @@
 	mov $0f, %esp
 	jmp find_in_dir
 0:
-	/* "RO" should be a directory. */
-	jnc halt
-	/* Make sure something was found. */
-	cmp $0, %eax
-	je halt
+	mov %eax, %ecx
+	jecxz .Lfile_not_found
+	jnc .Lfile_not_a_directory
 
 	mov %eax, %edi
 	mov_string_const %eax, 'F', 'I', 'R', 'M'
@@ -96,9 +92,9 @@
 	mov $0f, %esp
 	jmp find_in_dir
 0:
-	jnc halt
-	cmp $0, %eax
-	je halt
+	mov %eax, %ecx
+	jecxz .Lfile_not_found
+	jnc .Lfile_not_a_directory
 
 	mov %eax, %edi
 	mov_string_const %eax, 'F', 'W', ' ', 'S'
@@ -106,14 +102,92 @@
 	mov $0f, %esp
 	jmp find_in_dir
 0:
-	/* The region should be a file this time. */
-	jc halt
-	cmp $0, %eax
-	je halt
+	mov %eax, %ecx
+	jecxz .Lfile_not_found
+	jc .Lfile_not_a_file
 
+	/* We should never get to the end of the module. */
+	mov $.Lend_of_module_msg, %esi
+	jmp fatal
+
+.Lfile_not_found:
+	mov $.Lfile_not_found_msg, %esi
+	jmp fatal
+
+.Lfile_not_a_directory:
+	mov $.Lfile_not_a_directory_msg, %esi
+	jmp fatal
+
+.Lfile_not_a_file:
+	mov $.Lfile_not_a_file_msg, %esi
+	jmp fatal
+
+
+
+/*
+ * halt
+ * Halt the CPU.
+ */
 halt:
+	cli
 	hlt
 	jmp halt
+
+
+/*
+ * uart_send_char
+ * Send a character on the UART, presumed to be at address 0x3fd.
+ *
+ * Inputs:
+ * %bl - The character to send.
+ * %esp - The return address.
+ *
+ * Clobbers:
+ * %eax, %edx, %eflags
+ */
+uart_send_char:
+	/* Wait for the last character to be sent. */
+	mov $0x3fd, %edx
+0:
+	in %dx, %al
+	bt $0x6, %eax
+	jnc 0b
+
+	/* Send the next character. */
+	mov %bl, %al
+	mov $0x3f8, %edx
+	out %al, %dx
+
+	jmp *%esp
+
+
+
+/*
+ * fatal
+ * Print an error message and halt the machine.
+ *
+ * Inputs:
+ * %esi - A pointer to the error message string.
+ *
+ * Clobbers:
+ * We're halting, so it doesn't matter.
+ */
+fatal:
+	/* Check to see if we're at the end of the string. */
+	cmpb $0, (%esi)
+
+	/* If we are, then halt. */
+	je halt
+
+	/* We're not, so we need to send a character. */
+	mov $0f, %esp
+	mov (%esi), %bl
+	jmp uart_send_char
+0:
+
+	/* Start again, but one character farther in. */
+	inc %esi
+	jmp fatal
 
 
 
@@ -268,3 +342,13 @@ find_in_dir:
 	.byte  0b11001111   /* G(1) B(1) 0 0 limit 19:16 */
 	.byte  0x0          /* base 31:24 */
 .Lgdt_end:
+
+.Lfile_not_found_msg:
+	.asciz "Firmware select module not found.\n"
+.Lfile_not_a_directory_msg:
+	.asciz "Fould a file when expecting a directory.\n"
+.Lfile_not_a_file_msg:
+	.asciz "Found a directory when expecting a file.\n"
+
+.Lend_of_module_msg:
+	.asciz "Reached the end of the entry module.\n"
