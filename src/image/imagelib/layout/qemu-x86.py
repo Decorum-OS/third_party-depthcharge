@@ -106,6 +106,7 @@ class Image(RootDirectory):
                 Region("VPD").size(16 * KB),
                 Region("FWID", Fwid(model)).shrink(),
                 Directory("FIRMWARE",
+                    Region("FW SEL", File("qemu_firmware_select.elf")).shrink(),
                     backjump.target_marker(),
                     Region("ENTRY",
                         Xip(File(paths["entry"])).image_base(4 * GB - size)
