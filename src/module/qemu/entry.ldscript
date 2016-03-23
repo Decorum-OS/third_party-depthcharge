@@ -27,16 +27,22 @@
 
 SECTIONS
 {
-	.load : {
-		*(.entry*)
-		*(.text*)
-		*(.rodata*)
-		*(.data*)
-		*(.got*)
+	.load BLOCK(16) : {
+		*(.entry .entry.*)
+		. = ALIGN(16);
+		*(.text .text.*)
+		. = ALIGN(16);
+		*(.rodata .rodata.*)
+		. = ALIGN(16);
+		*(.data .data.*)
+		. = ALIGN(16);
+		*(.got .got.*)
 	}
-	.noload : {
-		*(.bss*)
-		*(.sbss*)
+	.noload BLOCK(16) : {
+		*(.bss .bss.*)
+		. = ALIGN(16);
+		*(.sbss .sbss.*)
+		. = ALIGN(16);
 		*(COMMON)
 	}
 
