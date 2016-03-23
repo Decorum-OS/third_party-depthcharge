@@ -15,8 +15,8 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-subdirs-y += x86
-
-module-y += qemu_firmware_select
-mod-qemu_firmware_select-y += firmware_select.c
-mod-qemu_firmware_select-libs += $(COMMON_OBJECTS)
+module-y += qemu_x86_entry
+mod-qemu_x86_entry-y += entry.S util.S
+mod-qemu_x86_entry-ldscript += $(src)/src/module/qemu/x86/entry.ldscript
+mod-qemu_x86_entry-ldopts += -Wl,--relocatable -Wl,-d -Wl,--warn-common
+mod-qemu_x86_entry-ldopts += -Wl,--no-gc-sections
