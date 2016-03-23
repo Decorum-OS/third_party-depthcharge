@@ -20,8 +20,6 @@
  * MA 02111-1307 USA
  */
 
-.align 16
-
 .text
 .code16
 	/* Disable interrupts. */
