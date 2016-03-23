@@ -30,9 +30,6 @@
 #include <exception.h>
 #include <libpayload.h>
 
-unsigned long loader_eax;  /**< The value of EAX passed from the loader */
-unsigned long loader_ebx;  /**< The value of EBX passed from the loader */
-
 /**
  * This is our C entry function - set up the system
  * and jump into the payload entry point.

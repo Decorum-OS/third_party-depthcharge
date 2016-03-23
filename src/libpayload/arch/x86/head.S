@@ -50,10 +50,6 @@ _entry:
 	/* Store current stack pointer. */
 	movl %esp, %esi
 
-	/* Store EAX and EBX */
-	movl %eax,loader_eax
-	movl %ebx,loader_ebx
-
 	/* Clear the bss */
 	cld
 	movl $.bss, %edi
