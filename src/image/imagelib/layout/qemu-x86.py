@@ -89,7 +89,11 @@ class Image(RootDirectory):
         verified = {
         }
 
+        self.image_base = 4 * GB - size
+
         backjump = Reljump()
+        xip_entry = Xip(File(paths["entry"])).image_base(self.image_base)
+        dcdir_table = DirectoryTable()
 
         super(Image, self).__init__(
             Directory("RW",
@@ -98,7 +102,7 @@ class Image(RootDirectory):
                 RwArea("A", model, signed, verified).expand(),
                 RwArea("B", model, signed, verified).expand()
             ).size(size / 2),
-            DirectoryTable(),
+            dcdir_table,
             Directory("RO",
                 Region("GBB",
                     Gbb(hwid=Gbb.hwid(hwid), flags=gbb_flags).expand()
@@ -108,9 +112,7 @@ class Image(RootDirectory):
                 Directory("FIRMWARE",
                     Region("FW SEL", File("qemu_firmware_select.elf")).shrink(),
                     backjump.target_marker(),
-                    Region("ENTRY",
-                        Xip(File(paths["entry"])).image_base(4 * GB - size)
-                    ).shrink()
+                    Region("ENTRY", xip_entry).shrink()
                 ).shrink(),
                 Area(backjump).size(0x10).fill(0x00)
             ).expand()
@@ -118,6 +120,15 @@ class Image(RootDirectory):
 
         self.big_pointer()
         self.size(size)
+
+        self.xip_entry = xip_entry
+        self.dcdir_table = dcdir_table
+
+    def post_place_hook(self):
+        # Once we know where the base dcdir table will be, set a symbol to
+        # its address in the real mode entry point.
+        anchor_addr = self.image_base + self.dcdir_table.placed_offset
+        self.xip_entry.symbols_add(dcdir_anchor_addr=anchor_addr)
 
 
 def add_arguments(parser):
