@@ -59,9 +59,16 @@
 
 	/* Look up the next stage of firmware to run in memory. */
 
-	/* Load the dcdir root base into esi. */
-	mov _dcdir_anchor_addr + 12, %esi
-	mov $_dcdir_anchor_addr + 16, %edi
+	/*
+	 * The dcdir_anchor_addr symbol points to the anchor structure in
+	 * the memory mapped image of the ROM. It's computed and injected
+	 * when the final firmware image is constructed by build_image.
+	 * Use it to load the root directory base into %esi, and put the
+	 * address of the root directory table immediately after the anchor
+	 * in %edi.
+	 */
+	mov dcdir_anchor_addr + 12, %esi
+	mov $dcdir_anchor_addr + 16, %edi
 	mov_string_const %eax, 'R', 'O'
 	mov_string_const %edx
 	mov $0f, %esp

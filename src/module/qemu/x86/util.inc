@@ -20,9 +20,6 @@
  * MA 02111-1307 USA
  */
 
-/* Hard code anchor location for now. */
-.set _dcdir_anchor_addr, 0x100000000 - 0x400000
-
 /*
  * mov_string_const
  * Move up to 4 ASCII characters into a register.
