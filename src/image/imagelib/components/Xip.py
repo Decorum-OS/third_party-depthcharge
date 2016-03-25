@@ -41,6 +41,25 @@ class Xip(DerivedArea):
         self._extra_symbols = {}
         self.shrink()
 
+    def symbols_append(self, name, value):
+        """When linking, set symbol "name" to the value "value"."""
+        self._extra_symbols[name] = value
+
+    def symbols_extend(self, symbols):
+        """When linking, set symbols using the dict "symbols". The key in the
+           dict is the name of the symbol, and the value is the value mapped
+           to by "name".
+        """
+        for name, value in symbols.iteritems():
+            self.symbols_append(name, value)
+
+    def symbols_add(self, **kwargs):
+        """When linking, set symbols whos names are the name of keyword
+           arguments to this function, and whos values are what those
+           arguments are set to.
+        """
+        self.symbols_extend(kwargs)
+
     def image_base(self, new_image_base):
         """Set the address the base of the image is mapped to."""
         self._image_base = new_image_base
@@ -63,7 +82,13 @@ class Xip(DerivedArea):
         with FileHarness(None, None, linker_script,
                          self._data.write()) as [binary, elf, script, partial]:
             # Do the final link to prepare the image for its new home.
-            gcc.link(elf, partial, "-T", script, "-Wl,--no-gc-sections")
+            args = [partial, "-T", script, "-Wl,--no-gc-sections"]
+            # Add in the extra symbols we've been supplied.
+            defsym_template = "-Wl,--defsym=\"{name}\"={value:#x}"
+            for name, value in self._extra_symbols.iteritems():
+                args.append(defsym_template.format(name=name, value=value))
+            gcc.link(elf, *args)
+
             # Convert it to a flat binary.
             objcopy.copy(elf, binary, "-O", "binary")
             with open(binary, "rb") as data:
