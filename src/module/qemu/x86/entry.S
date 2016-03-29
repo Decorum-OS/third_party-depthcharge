@@ -59,16 +59,25 @@
 
 	/* Look up the next stage of firmware to run in memory. */
 
+	mov $0f, %esp
+	jmp find_dcdir_anchor
+0:
+	cmp $0, %edi
+	jne 0f
+
+	mov $.Lanchor_not_found_msg, %esi
+	jmp fatal
+
+0:
 	/*
-	 * The dcdir_anchor_addr symbol points to the anchor structure in
-	 * the memory mapped image of the ROM. It's computed and injected
-	 * when the final firmware image is constructed by build_image.
-	 * Use it to load the root directory base into %esi, and put the
+	 * %edi should currently point to the location of the anchor
+	 * structure. Load the root directory base into %esi, and put the
 	 * address of the root directory table immediately after the anchor
 	 * in %edi.
 	 */
-	mov dcdir_anchor_addr + 12, %esi
-	mov $dcdir_anchor_addr + 16, %edi
+	mov 12(%edi), %esi
+	add $16, %edi
+
 	mov_string_const %eax, 'R', 'O'
 	mov_string_const %edx
 	mov $0f, %esp
@@ -155,3 +164,6 @@
 
 .Lend_of_module_msg:
 	.asciz "Reached the end of the entry module.\n"
+
+.Lanchor_not_found_msg:
+	.asciz "The dcdir anchor was not found in the image.\n"

@@ -20,6 +20,8 @@
  * MA 02111-1307 USA
  */
 
+#include "module/qemu/x86/util.inc"
+
 .text
 .code32
 
@@ -64,6 +66,43 @@ uart_send_char:
 
 
 /*
+ * puts
+ * Print a string to the UART.
+ *
+ * Inputs:
+ * %esi - A pointer to the string to print.
+ * %esp - The return address.
+ *
+ * Clobbers:
+ * %eax, %ebx, %edx, %eflags (by way of uart_send_char)
+ * %ecx
+ */
+.global puts
+puts:
+	mov %esp, %ecx
+
+.Lnext_char:
+	/* Check to see if we're at the end of the string. */
+	cmpb $0, (%esi)
+	jne 0f
+
+	/* If we're done, return to the caller. */
+	jmp *%ecx
+
+0:
+	/* Send the current character. */
+	mov $1f, %esp
+	mov (%esi), %bl
+	jmp uart_send_char
+1:
+
+	/* Start again, but one character farther in. */
+	inc %esi
+	jmp .Lnext_char
+
+
+
+/*
  * fatal
  * Print an error message and halt the machine.
  *
@@ -75,21 +114,85 @@ uart_send_char:
  */
 .global fatal
 fatal:
-	/* Check to see if we're at the end of the string. */
-	cmpb $0, (%esi)
+	mov $halt, %esp
+	jmp puts
 
-	/* If we are, then halt. */
-	je halt
 
-	/* We're not, so we need to send a character. */
+
+/*
+ * find_dcdir_anchor
+ * Search for the dcdir anchor structure. Start at an expected address, and
+ * if that fails, scan for it in the rest of the image.
+ *
+ * The dcdir_anchor_addr symbol points to the anchor structure in the memory
+ * mapped image of the ROM. It's computed and injected when the final
+ * firmware image is constructed by build_image. rom_image_base is set to the
+ * start of the memory mapped ROM image and is set up similarly.
+ *
+ * Inputs:
+ * %esp - The return address.
+ *
+ * Outputs:
+ * %edi - Where the anchor was found, or zero if it wasn't.
+ *
+ * Clobbers:
+ * %eax, %ebx, %ecx, %edx, %esi, %eflags (by way of puts)
+ * %ebp, %edi
+ */
+.global find_dcdir_anchor
+find_dcdir_anchor:
+	mov %esp, %ebp
+	mov $dcdir_anchor_addr, %edi
+
+	mov_string_const %eax, 'D', 'C', ' ', 'D'
+	cmp %eax, (%edi)
+	jne .Lanchor_not_where_expected
+	mov_string_const %eax, 'I', 'R'
+	cmp %ax, 4(%edi)
+	jne .Lanchor_not_where_expected
+	mov %edi, %eax
+	sub $rom_image_base, %eax
+	cmpl %eax, 8(%edi)
+	jne .Lanchor_not_where_expected
+	/* The anchor was where we expected. Leave its address in %edi. */
+	jmp *%ebp
+
+.Lanchor_not_where_expected:
+	mov $.Lanchor_not_where_expected_msg, %esi
 	mov $0f, %esp
-	mov (%esi), %bl
-	jmp uart_send_char
+	jmp puts
 0:
 
-	/* Start again, but one character farther in. */
-	inc %esi
-	jmp fatal
+	/* Scan for the DCDIR anchor structure. */
+	mov_string_const %eax, 'D', 'C', ' ', 'D'
+	mov_string_const %edx, 'I', 'R'
+	mov $0, %edi
+
+.Lscanning_loop:
+	sub $16, %edi
+	/* Check to see if we've gone passed the end of the image. */
+	cmpl $rom_image_base, %edi
+	jge 0f
+
+	/* We're out of spots to look. No anchor was found. */
+	mov $0, %edi
+	jmp *%ebp
+
+0:
+	/* Check whether the anchor magic value is present. */
+	cmp %eax, (%edi)
+	jne .Lscanning_loop
+	cmp %dx, 4(%edi)
+	jne .Lscanning_loop
+
+	/* Compute the current offset in the image. */
+	mov %edi, %ecx
+	sub $rom_image_base, %ecx
+	cmp %ecx, 8(%edi)
+	jne .Lscanning_loop
+
+	/* The anchor was found! Leave the pointer to it in %edi. */
+	jmp *%ebp
 
 
 
@@ -215,3 +318,8 @@ find_in_dir:
 .Lnot_found:
 	mov $0, %eax
 	jmp *%esp
+
+.data
+
+.Lanchor_not_where_expected_msg:
+	.asciz "WARNING: The dcdir anchor was not at the expected address.\nScanning...\n"

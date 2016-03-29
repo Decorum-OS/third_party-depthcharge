@@ -128,7 +128,8 @@ class Image(RootDirectory):
         # Once we know where the base dcdir table will be, set a symbol to
         # its address in the real mode entry point.
         anchor_addr = self.image_base + self.dcdir_table.placed_offset
-        self.xip_entry.symbols_add(dcdir_anchor_addr=anchor_addr)
+        self.xip_entry.symbols_add(dcdir_anchor_addr=anchor_addr,
+                                   rom_image_base=self.image_base)
 
 
 def add_arguments(parser):
