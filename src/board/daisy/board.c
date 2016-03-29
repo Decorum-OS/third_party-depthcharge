@@ -23,6 +23,7 @@
 #include "base/init_funcs.h"
 #include "base/io.h"
 #include "board/board.h"
+#include "board/board_helpers.h"
 #include "board/daisy/i2c_arb.h"
 #include "boot/fit.h"
 #include "drivers/bus/i2c/s3c24x0.h"
@@ -113,9 +114,6 @@ static int board_setup(void)
 	return 0;
 }
 
-PowerOps *board_power(void)
-{
-	return &exynos_power_ops;
-}
+PUB_STAT(power, &exynos_power_ops)
 
 INIT_FUNC(board_setup);

@@ -22,6 +22,7 @@
 #include "base/io.h"
 #include "base/xalloc.h"
 #include "board/board.h"
+#include "board/board_helpers.h"
 #include "boot/fit.h"
 #include "boot/ramoops.h"
 #include "drivers/bus/i2c/rockchip.h"
@@ -142,21 +143,9 @@ RialtoDisplayOps *new_rialto_leds(void) {
 	return leds;
 }
 
-static inline I2cOps *get_i2c0(void)
-{
-	static I2cOps *i2c0 = NULL;
-	if (!i2c0)
-		i2c0 = &new_rockchip_i2c((void *)0xff650000)->ops;
-	return i2c0;
-}
+PRIV_DYN(i2c0, &new_rockchip_i2c((void *)0xff650000)->ops)
 
-static inline PowerOps *get_pmic(void)
-{
-	static PowerOps *pmic = NULL;
-	if (!pmic)
-		pmic = &new_rk808_pmic(get_i2c0(), 0x1b)->ops;
-	return pmic;
-}
+PRIV_DYN(pmic, &new_rk808_pmic(get_i2c0(), 0x1b)->ops)
 
 static int board_setup(void)
 {
@@ -199,13 +188,7 @@ static int board_setup(void)
 	return 0;
 }
 
-PowerOps *board_power(void)
-{
-	static PowerOps *power = NULL;
-	if (!power)
-		power = &new_sysinfo_reset_power_ops(get_pmic(),
-			new_rk_gpio_output_from_coreboot)->ops;
-	return power;
-}
+PUB_DYN(power, &new_sysinfo_reset_power_ops(get_pmic(),
+		new_rk_gpio_output_from_coreboot)->ops)
 
 INIT_FUNC(board_setup);

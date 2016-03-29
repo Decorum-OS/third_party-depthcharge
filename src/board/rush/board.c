@@ -26,6 +26,7 @@
 #include "base/init_funcs.h"
 #include "base/xalloc.h"
 #include "board/board.h"
+#include "board/board_helpers.h"
 #include "boot/fit.h"
 #include "drivers/bus/spi/tegra.h"
 #include "drivers/bus/i2c/tegra.h"
@@ -118,24 +119,12 @@ static void choose_devicetree_by_boardid(void)
 	}
 }
 
-static inline I2cOps *get_pwr_i2c(void)
-{
-	static I2cOps *pwr_i2c = NULL;
-	if (!pwr_i2c)
-		pwr_i2c = &new_tegra_i2c((void *)0x7000d000, 5,
-					 (void *)CLK_RST_H_RST_SET,
-					 (void *)CLK_RST_H_RST_CLR,
-					 CLK_H_I2C5)->ops;
-	return pwr_i2c;
-}
+PRIV_DYN(pwr_i2c, &new_tegra_i2c((void *)0x7000d000, 5,
+				 (void *)CLK_RST_H_RST_SET,
+				 (void *)CLK_RST_H_RST_CLR,
+				 CLK_H_I2C5)->ops)
 
-static inline As3722Pmic *get_pmic(void)
-{
-	static As3722Pmic *pmic = NULL;
-	if (!pmic)
-		pmic = new_as3722_pmic(get_pwr_i2c(), 0x40);
-	return pmic;
-}
+PRIV_DYN(pmic, new_as3722_pmic(get_pwr_i2c(), 0x40))
 
 static int board_setup(void)
 {
@@ -250,11 +239,5 @@ static int display_setup(void)
 
 INIT_FUNC(display_setup);
 
-PowerOps *board_power(void)
-{
-	static PowerOps *power = NULL;
-	if (!power)
-		power = &new_sysinfo_reset_power_ops(&get_pmic()->ops,
-			new_tegra_gpio_output_from_coreboot)->ops;
-	return power;
-}
+PUB_DYN(power, &new_sysinfo_reset_power_ops(&get_pmic()->ops,
+		new_tegra_gpio_output_from_coreboot)->ops)

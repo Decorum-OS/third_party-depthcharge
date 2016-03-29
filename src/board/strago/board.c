@@ -24,6 +24,7 @@
 
 #include "base/init_funcs.h"
 #include "board/board.h"
+#include "board/board_helpers.h"
 #include "board/strago/device_nvs.h"
 #include "drivers/bus/i2c/designware.h"
 #include "drivers/bus/i2s/baytrail/max98090.h"
@@ -99,9 +100,6 @@ static int board_setup(void)
 	return 0;
 }
 
-PowerOps *board_power(void)
-{
-	return &baytrail_power_ops;
-}
+PUB_STAT(power, &baytrail_power_ops)
 
 INIT_FUNC(board_setup);

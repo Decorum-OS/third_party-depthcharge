@@ -25,6 +25,7 @@
 
 #include "base/init_funcs.h"
 #include "board/board.h"
+#include "board/board_helpers.h"
 #include "boot/fit.h"
 #include "drivers/bus/spi/tegra.h"
 #include "drivers/bus/i2c/tegra.h"
@@ -81,17 +82,10 @@ const char *hardware_name(void)
 	return "dragon";
 }
 
-static TegraI2c *get_i2c6(void)
-{
-	static TegraI2c *i2c6;
-
-	if (i2c6 == NULL)
-		i2c6 = new_tegra_i2c((void *)I2C6_BASE, 6,
-					(void *)CLK_RST_X_RST_SET,
-					(void *)CLK_RST_X_RST_CLR,
-					CLK_X_I2C6);
-	return i2c6;
-}
+PRIV_DYN(i2c6, &new_tegra_i2c((void *)I2C6_BASE, 6,
+			      (void *)CLK_RST_X_RST_SET,
+			      (void *)CLK_RST_X_RST_CLR,
+			      CLK_X_I2C6)->ops)
 
 static BlockDevCtrlr *bcb_bdev_ctrlr;
 
@@ -120,24 +114,12 @@ static void flash_params_override(void)
 	lib_sysinfo.spi_flash.erase_cmd = SPI_FLASH_BLOCK_ERASE_64KB;
 }
 
-static inline I2cOps *get_pwr_i2c(void)
-{
-	static I2cOps *pwr_i2c = NULL;
-	if (!pwr_i2c)
-		pwr_i2c = &new_tegra_i2c((void *)0x7000d000, 5,
-					 (void *)CLK_RST_H_RST_SET,
-					 (void *)CLK_RST_H_RST_CLR,
-					 CLK_H_I2C5)->ops;
-	return pwr_i2c;
-}
+PRIV_DYN(pwr_i2c, &new_tegra_i2c((void *)0x7000d000, 5,
+				 (void *)CLK_RST_H_RST_SET,
+				 (void *)CLK_RST_H_RST_CLR,
+				 CLK_H_I2C5)->ops)
 
-static inline PowerOps *get_pmic(void)
-{
-	static PowerOps *pmic = NULL;
-	if (!pmic)
-		pmic = &new_max77620_pmic(get_pwr_i2c(), 0x3c)->ops;
-	return pmic;
-}
+PRIV_DYN(pmic, &new_max77620_pmic(get_pwr_i2c(), 0x3c)->ops)
 
 static int board_setup(void)
 {
@@ -201,8 +183,8 @@ static int board_setup(void)
 	TegraAudioHub *ahub = new_tegra_audio_hub(xbar, apbif, i2s1);
 	I2sSource *i2s_source = new_i2s_source(&i2s1->ops, 48000, 2, 16000);
 	SoundRoute *sound_route = new_sound_route(&i2s_source->ops);
-	TegraI2c *i2c6 = get_i2c6();
-	rt5677Codec *codec = new_rt5677_codec(&i2c6->ops, RT5677_DEV_NUM, 16, 48000, 256, 1, 0);
+	rt5677Codec *codec = new_rt5677_codec(get_i2c6(), RT5677_DEV_NUM,
+	                                      16, 48000, 256, 1, 0);
 	list_insert_after(&ahub->component.list_node, &sound_route->components);
 	list_insert_after(&codec->component.list_node, &sound_route->components);
 
@@ -234,7 +216,6 @@ static int smaug_backlight_update(DisplayOps *me, uint8_t enable)
 		{0x00, 0x00},	/* backlight off */
 	};
 
-	TegraI2c *backlight_i2c = get_i2c6();
 	const struct bl_reg *current;
 	size_t size, i;
 
@@ -247,8 +228,7 @@ static int smaug_backlight_update(DisplayOps *me, uint8_t enable)
 	}
 
 	for (i = 0; i < size; ++i) {
-		i2c_writeb(&backlight_i2c->ops, 0x2c, current->reg,
-				current->val);
+		i2c_writeb(get_i2c6(), 0x2c, current->reg, current->val);
 		++current;
 	}
 	return 0;
@@ -273,11 +253,5 @@ static int display_setup(void)
 
 INIT_FUNC(display_setup);
 
-PowerOps *board_power(void)
-{
-	static PowerOps *power = NULL;
-	if (!power)
-		power = &new_sysinfo_reset_power_ops(get_pmic(),
-			new_tegra_gpio_output_from_coreboot)->ops;
-	return power;
-}
+PUB_DYN(power, &new_sysinfo_reset_power_ops(get_pmic(),
+		new_tegra_gpio_output_from_coreboot)->ops)

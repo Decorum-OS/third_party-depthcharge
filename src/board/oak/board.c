@@ -25,6 +25,7 @@
 
 #include "base/init_funcs.h"
 #include "board/board.h"
+#include "board/board_helpers.h"
 #include "boot/fit.h"
 #include "boot/ramoops.h"
 #include "drivers/bus/i2c/mtk_i2c.h"
@@ -52,12 +53,6 @@ static int board_setup(void)
 	return 0;
 }
 
-PowerOps *board_power(void)
-{
-	static PowerOps *power = NULL;
-	if (!power)
-		power = &new_mt6397_power(0x1000D000, 0x10007000)->ops;
-	return power;
-}
+PUB_DYN(power, &new_mt6397_power(0x1000D000, 0x10007000)->ops)
 
 INIT_FUNC(board_setup);

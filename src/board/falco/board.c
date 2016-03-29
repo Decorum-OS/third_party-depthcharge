@@ -25,6 +25,7 @@
 #include "base/init_funcs.h"
 #include "base/list.h"
 #include "board/board.h"
+#include "board/board_helpers.h"
 #include "drivers/ec/cros/lpc.h"
 #include "drivers/flash/flash.h"
 #include "drivers/flash/memmapped.h"
@@ -66,9 +67,6 @@ static int board_setup(void)
 	return 0;
 }
 
-PowerOps *board_power(void)
-{
-	return &pch_power_ops;
-}
+PUB_STAT(power, &pch_power_ops)
 
 INIT_FUNC(board_setup);
