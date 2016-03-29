@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,32 +20,11 @@
  * MA 02111-1307 USA
  */
 
-#include <assert.h>
-#include <libpayload.h>
+#ifndef __BOARD_BOARD_H__
+#define __BOARD_BOARD_H__
 
-#include "base/cleanup_funcs.h"
-#include "board/board.h"
 #include "drivers/power/power.h"
 
-int cold_reboot(void)
-{
-	PowerOps *power_ops = board_power();
-	assert(power_ops->cold_reboot);
+PowerOps *board_power(void);
 
-	if (run_cleanup_funcs(CleanupOnReboot))
-		return -1;
-
-	printf("Rebooting...\n");
-	return power_ops->cold_reboot(power_ops);
-}
-
-int power_off(void)
-{
-	PowerOps *power_ops = board_power();
-	assert(power_ops->power_off);
-
-	if (run_cleanup_funcs(CleanupOnPowerOff))
-		return -1;
-
-	return power_ops->power_off(power_ops);
-}
+#endif /* __BOARD_BOARD_H__ */

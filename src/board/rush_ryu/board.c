@@ -24,6 +24,7 @@
 #include <libpayload.h>
 
 #include "base/init_funcs.h"
+#include "board/board.h"
 #include "boot/fit.h"
 #include "drivers/bus/spi/tegra.h"
 #include "drivers/bus/i2c/tegra.h"
@@ -80,6 +81,25 @@ static void choose_devicetree_by_boardid(void)
 	fit_set_compat(compat);
 }
 
+static inline I2cOps *get_pwr_i2c(void)
+{
+	static I2cOps *pwr_i2c = NULL;
+	if (!pwr_i2c)
+		pwr_i2c = &new_tegra_i2c((void *)0x7000d000, 5,
+					 (void *)CLK_RST_H_RST_SET,
+					 (void *)CLK_RST_H_RST_CLR,
+					 CLK_H_I2C5)->ops;
+	return pwr_i2c;
+}
+
+static inline PowerOps *get_pmic(void)
+{
+	static PowerOps *pmic = NULL;
+	if (!pmic)
+		pmic = &new_tps65913_pmic(get_pwr_i2c(), 0x58)->ops;
+	return pmic;
+}
+
 static int board_setup(void)
 {
 	sysinfo_install_flags(new_tegra_gpio_input_from_coreboot);
@@ -115,16 +135,6 @@ static int board_setup(void)
 
 	CrosEcI2cBus *cros_ec_i2c_bus = new_cros_ec_i2c_bus(&ec_i2c->ops, 0x1E);
 	cros_ec_set_bus(&cros_ec_i2c_bus->ops);
-
-	TegraI2c *pwr_i2c = new_tegra_i2c((void *)0x7000d000, 5,
-					  (void *)CLK_RST_H_RST_SET,
-					  (void *)CLK_RST_H_RST_CLR,
-					  CLK_H_I2C5);
-
-	Tps65913Pmic *pmic = new_tps65913_pmic(&pwr_i2c->ops, 0x58);
-	SysinfoResetPowerOps *power = new_sysinfo_reset_power_ops(&pmic->ops,
-			new_tegra_gpio_output_from_coreboot);
-	power_set_ops(&power->ops);
 
 	/* sdmmc4 */
 	TegraMmcHost *emmc = new_tegra_mmc_host(0x700b0600, 8, 0, NULL, NULL);
@@ -235,3 +245,12 @@ static int display_setup(void)
 }
 
 INIT_FUNC(display_setup);
+
+PowerOps *board_power(void)
+{
+	static PowerOps *power = NULL;
+	if (!power)
+		power = &new_sysinfo_reset_power_ops(get_pmic(),
+			new_tegra_gpio_output_from_coreboot)->ops;
+	return power;
+}

@@ -23,6 +23,7 @@
 #include <libpayload.h>
 
 #include "base/init_funcs.h"
+#include "board/board.h"
 #include "drivers/flash/flash.h"
 #include "drivers/flash/memmapped.h"
 #include "drivers/power/pch.h"
@@ -30,18 +31,22 @@
 #include "drivers/storage/ahci.h"
 #include "drivers/gpio/sysinfo.h"
 #include "drivers/storage/blockdev.h"
+
 static int board_setup(void)
 {
 	sysinfo_install_flags(NULL);
 
 	flash_set_ops(&new_mem_mapped_flash(0xff800000, 0x800000)->ops);
 
-	power_set_ops(&baytrail_power_ops);
-
 	AhciCtrlr *ahci = new_ahci_ctrlr(PCI_DEV(0, 19, 0));
 	list_insert_after(&ahci->ctrlr.list_node, &fixed_block_dev_controllers);
 
 	return 0;
+}
+
+PowerOps *board_power(void)
+{
+	return &baytrail_power_ops;
 }
 
 INIT_FUNC(board_setup);

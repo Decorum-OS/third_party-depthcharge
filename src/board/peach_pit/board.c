@@ -21,6 +21,7 @@
  */
 
 #include "base/init_funcs.h"
+#include "board/board.h"
 #include "boot/fit.h"
 #include "drivers/bus/i2c/exynos5_usi.h"
 #include "drivers/bus/i2s/exynos5/exynos5.h"
@@ -87,8 +88,6 @@ static int board_setup(void)
 	list_insert_after(&sd_card->mmc.ctrlr.list_node,
 			  &removable_block_dev_controllers);
 
-	power_set_ops(&exynos_power_ops);
-
 	UsbHostController *usb_drd0 = new_usb_hc(UsbXhci, 0x12000000);
 	UsbHostController *usb_drd1 = new_usb_hc(UsbXhci, 0x12400000);
 
@@ -99,6 +98,11 @@ static int board_setup(void)
 	list_insert_after(&usb_drd1->list_node, &usb_host_controllers);
 
 	return 0;
+}
+
+PowerOps *board_power(void)
+{
+	return &exynos_power_ops;
 }
 
 INIT_FUNC(board_setup);

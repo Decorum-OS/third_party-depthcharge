@@ -42,6 +42,22 @@
 #include "drivers/video/rockchip.h"
 #include "vboot/util/flag.h"
 
+static inline I2cOps *get_i2c0(void)
+{
+	static I2cOps *i2c0 = NULL;
+	if (!i2c0)
+		i2c0 = &new_rockchip_i2c((void *)0xff650000)->ops;
+	return i2c0;
+}
+
+static inline PowerOps *get_pmic(void)
+{
+	static PowerOps *pmic = NULL;
+	if (!pmic)
+		pmic = &new_rk808_pmic(get_i2c0(), 0x1b)->ops;
+	return pmic;
+}
+
 static int board_setup(void)
 {
 	RkSpi *spi2 = new_rockchip_spi(0xff130000);
@@ -66,12 +82,6 @@ static int board_setup(void)
 	list_insert_after(&codec->component.list_node,
 			  &sound_route->components);
 	sound_set_ops(&sound_route->ops);
-
-	RkI2c *i2c0 = new_rockchip_i2c((void *)0xff650000);
-	Rk808Pmic *pmic = new_rk808_pmic(&i2c0->ops, 0x1b);
-	SysinfoResetPowerOps *power = new_sysinfo_reset_power_ops(&pmic->ops,
-			new_rk_gpio_output_from_coreboot);
-	power_set_ops(&power->ops);
 
 	DwmciHost *emmc = new_rkdwmci_host(0xff0f0000, 594000000, 8, 0, NULL);
 	list_insert_after(&emmc->mmc.ctrlr.list_node,
@@ -100,6 +110,15 @@ static int board_setup(void)
 	}
 
 	return 0;
+}
+
+PowerOps *board_power(void)
+{
+	static PowerOps *power = NULL;
+	if (!power)
+		power = &new_sysinfo_reset_power_ops(get_pmic(),
+			new_rk_gpio_output_from_coreboot)->ops;
+	return power;
 }
 
 INIT_FUNC(board_setup);

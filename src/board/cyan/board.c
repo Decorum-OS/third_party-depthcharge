@@ -23,6 +23,7 @@
 #include <pci.h>
 
 #include "base/init_funcs.h"
+#include "board/board.h"
 #include "board/cyan/device_nvs.h"
 #include "drivers/bus/i2c/designware.h"
 #include "drivers/bus/i2s/braswell/max98090.h"
@@ -68,8 +69,6 @@ static int board_setup(void)
 #endif
 
 	flash_set_ops(&new_mem_mapped_flash(0xff800000, 0x800000)->ops);
-
-	power_set_ops(&braswell_power_ops);
 
 	uintptr_t lpe_mmio = nvs->lpe_bar0;
 	if (!nvs->lpe_en) {
@@ -127,6 +126,11 @@ static int board_setup(void)
 	list_insert_after(&usb_host1->list_node, &usb_host_controllers);
 
 	return 0;
+}
+
+PowerOps *board_power(void)
+{
+	return &braswell_power_ops;
 }
 
 INIT_FUNC(board_setup);

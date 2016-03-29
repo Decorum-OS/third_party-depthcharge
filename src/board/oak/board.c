@@ -24,6 +24,7 @@
 #include <libpayload.h>
 
 #include "base/init_funcs.h"
+#include "board/board.h"
 #include "boot/fit.h"
 #include "boot/ramoops.h"
 #include "drivers/bus/i2c/mtk_i2c.h"
@@ -48,10 +49,15 @@ static int board_setup(void)
 				   ST_MODE, 100, 0);
 	tpm_set_ops(&new_slb9635_i2c(&i2c2->ops, 0x20)->base.ops);
 
-	Mt6397Pmic *pmic = new_mt6397_power(0x1000D000, 0x10007000);
-	power_set_ops(&pmic->ops);
-
 	return 0;
+}
+
+PowerOps *board_power(void)
+{
+	static PowerOps *power = NULL;
+	if (!power)
+		power = &new_mt6397_power(0x1000D000, 0x10007000)->ops;
+	return power;
 }
 
 INIT_FUNC(board_setup);

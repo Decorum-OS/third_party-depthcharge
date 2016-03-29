@@ -24,6 +24,7 @@
 
 #include "base/init_funcs.h"
 #include "base/list.h"
+#include "board/board.h"
 #include "drivers/ec/cros/lpc.h"
 #include "drivers/flash/flash.h"
 #include "drivers/flash/memmapped.h"
@@ -56,11 +57,14 @@ static int board_setup(void)
 	AhciCtrlr *ahci = new_ahci_ctrlr(PCI_DEV(0, 31, 2));
 	list_insert_after(&ahci->ctrlr.list_node, &fixed_block_dev_controllers);
 
-	power_set_ops(&pch_power_ops);
-
 	tpm_set_ops(&new_lpc_tpm((void *)(uintptr_t)0xfed40000)->ops);
 
 	return 0;
+}
+
+PowerOps *board_power(void)
+{
+	return &pch_power_ops;
 }
 
 INIT_FUNC(board_setup);

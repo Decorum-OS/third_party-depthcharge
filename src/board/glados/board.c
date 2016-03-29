@@ -27,6 +27,7 @@
 
 #include "base/init_funcs.h"
 #include "base/list.h"
+#include "board/board.h"
 #include "drivers/bus/i2c/designware.h"
 #include "drivers/bus/i2c/i2c.h"
 #include "drivers/ec/cros/lpc.h"
@@ -69,9 +70,6 @@ static int board_setup(void)
 	/* SPI TPM memory mapped to act like LPC TPM */
 	tpm_set_ops(&new_lpc_tpm((void *)(uintptr_t)0xfed40000)->ops);
 
-	/* PCH Power */
-	power_set_ops(&skylake_power_ops);
-
 	/* eMMC */
 	SdhciHost *emmc = new_pci_sdhci_host(PCI_DEV(0, 0x1e, 4),
 			SDHCI_PLATFORM_NO_EMMC_HS200,
@@ -108,6 +106,11 @@ static int board_setup(void)
 	sound_set_ops(&sound->ops);
 
 	return 0;
+}
+
+PowerOps *board_power(void)
+{
+	return &skylake_power_ops;
 }
 
 INIT_FUNC(board_setup);

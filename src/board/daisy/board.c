@@ -22,6 +22,7 @@
 
 #include "base/init_funcs.h"
 #include "base/io.h"
+#include "board/board.h"
 #include "board/daisy/i2c_arb.h"
 #include "boot/fit.h"
 #include "drivers/bus/i2c/s3c24x0.h"
@@ -101,8 +102,6 @@ static int board_setup(void)
 	list_insert_after(&sd_card->mmc.ctrlr.list_node,
 			  &removable_block_dev_controllers);
 
-	power_set_ops(&exynos_power_ops);
-
 	UsbHostController *usb_drd = new_usb_hc(UsbXhci, 0x12000000);
 	UsbHostController *usb_host20 = new_usb_hc(UsbEhci, 0x12110000);
 	UsbHostController *usb_host11 = new_usb_hc(UsbOhci, 0x12120000);
@@ -112,6 +111,11 @@ static int board_setup(void)
 	list_insert_after(&usb_host11->list_node, &usb_host_controllers);
 
 	return 0;
+}
+
+PowerOps *board_power(void)
+{
+	return &exynos_power_ops;
 }
 
 INIT_FUNC(board_setup);

@@ -23,6 +23,7 @@
 #include <pci.h>
 
 #include "base/init_funcs.h"
+#include "board/board.h"
 #include "board/strago/device_nvs.h"
 #include "drivers/bus/i2c/designware.h"
 #include "drivers/bus/i2s/baytrail/max98090.h"
@@ -65,7 +66,6 @@ static int board_setup(void)
 
 	flash_set_ops(&new_mem_mapped_flash(0xff800000, 0x800000)->ops);
 
-	power_set_ops(&baytrail_power_ops);
 	tpm_set_ops(&new_lpc_tpm((void *)0xfed40000)->ops);
 
 	SdhciHost *emmc, *sd;
@@ -97,6 +97,11 @@ static int board_setup(void)
 	list_insert_after(&usb_host1->list_node, &usb_host_controllers);
 
 	return 0;
+}
+
+PowerOps *board_power(void)
+{
+	return &baytrail_power_ops;
 }
 
 INIT_FUNC(board_setup);

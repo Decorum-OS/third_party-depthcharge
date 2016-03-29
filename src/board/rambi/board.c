@@ -23,6 +23,7 @@
 #include <pci.h>
 
 #include "base/init_funcs.h"
+#include "board/board.h"
 #include "board/rambi/device_nvs.h"
 #include "drivers/bus/i2c/designware.h"
 #include "drivers/bus/i2s/baytrail/max98090.h"
@@ -85,8 +86,6 @@ static int board_setup(void)
 			  &sound_route->components);
 	sound_set_ops(&sound_route->ops);
 
-	power_set_ops(&baytrail_power_ops);
-
 	tpm_set_ops(&new_lpc_tpm((void *)0xfed40000)->ops);
 
 	/* Initialize eMMC and SD ports in ACPI or PCI mode */
@@ -113,6 +112,11 @@ static int board_setup(void)
 			  &removable_block_dev_controllers);
 
 	return 0;
+}
+
+PowerOps *board_power(void)
+{
+	return &baytrail_power_ops;
 }
 
 INIT_FUNC(board_setup);
