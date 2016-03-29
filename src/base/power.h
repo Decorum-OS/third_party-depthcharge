@@ -20,13 +20,13 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __DRIVERS_POWER_POWER_H__
-#define __DRIVERS_POWER_POWER_H__
+#ifndef __BASE_POWER_H__
+#define __BASE_POWER_H__
 
-typedef struct PowerOps
-{
-	int (*cold_reboot)(struct PowerOps *me);
-	int (*power_off)(struct PowerOps *me);
-} PowerOps;
+/* Cold reboot the machine */
+int cold_reboot(void);
 
-#endif /* __DRIVERS_POWER_POWER_H__ */
+/* Power off the machine */
+int power_off(void);
+
+#endif /* __BASE_POWER_H__ */

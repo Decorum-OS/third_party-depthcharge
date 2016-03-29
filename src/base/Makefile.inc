@@ -28,6 +28,7 @@ depthcharge-y += hexdump.c
 depthcharge-y += init_funcs.c
 depthcharge-y += ipchecksum.c
 depthcharge-y += list.c
+depthcharge-y += power.c
 depthcharge-y += queue.c
 depthcharge-y += ranges.c
 depthcharge-y += state_machine.c

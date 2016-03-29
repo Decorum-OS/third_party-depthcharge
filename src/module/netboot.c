@@ -25,9 +25,9 @@
 #include <vboot_api.h>
 
 #include "base/init_funcs.h"
+#include "base/power.h"
 #include "base/timestamp.h"
 #include "drivers/input/input.h"
-#include "drivers/power/power.h"
 #include "drivers/net/net.h"
 #include "drivers/timer/timer.h"
 #include "drivers/video/display.h"

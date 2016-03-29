@@ -26,11 +26,11 @@
 #include <vboot_api.h>
 #include <vboot_nvstorage.h>
 
+#include "base/power.h"
 #include "base/timestamp.h"
 #include "boot/commandline.h"
 #include "drivers/flash/flash.h"
 #include "drivers/input/input.h"
-#include "drivers/power/power.h"
 #include "drivers/storage/blockdev.h"
 #include "image/fmap.h"
 #include "image/index.h"
