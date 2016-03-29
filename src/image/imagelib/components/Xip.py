@@ -84,7 +84,7 @@ class Xip(DerivedArea):
             # Do the final link to prepare the image for its new home.
             args = [partial, "-T", script, "-Wl,--no-gc-sections"]
             # Add in the extra symbols we've been supplied.
-            defsym_template = "-Wl,--defsym=\"{name}\"={value:#x}"
+            defsym_template = "-Wl,--defsym={name}={value:#x}"
             for name, value in self._extra_symbols.iteritems():
                 args.append(defsym_template.format(name=name, value=value))
             gcc.link(elf, *args)
