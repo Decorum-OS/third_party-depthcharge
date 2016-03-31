@@ -19,10 +19,6 @@ config DRIVER_GPIO_BAYTRAIL
 	default n
 	select DRIVER_GPIO_PCH
 
-config DRIVER_GPIO_BRASWELL
-	bool "Intel Braswell GPIO driver"
-	default n
-
 config DRIVER_GPIO_EXYNOS5250
 	bool "Exynos 5250 GPIO driver"
 	default n

@@ -15,7 +15,7 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-subdirs-y += baytrail braswell broadwell exynos5 tegra
+subdirs-y += baytrail broadwell exynos5 tegra
 
 depthcharge-$(CONFIG_DRIVER_BUS_I2S_MT8173) += mt8173.c
 depthcharge-$(CONFIG_DRIVER_BUS_I2S_ROCKCHIP) += rockchip.c
