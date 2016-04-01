@@ -26,6 +26,12 @@ config DRIVER_POWER_EXYNOS
 	help
 	  Reboot or power off using registers in an Exynos SOC.
 
+config DRIVER_POWER_MAX77620
+	bool "MAX77620 PMIC power management"
+	default n
+	help
+	  Reboot or power off using the MAX77620 PMIC.
+
 config DRIVER_POWER_PCH
 	bool "Intel chipset power management"
 	default n
@@ -33,20 +39,14 @@ config DRIVER_POWER_PCH
 	help
 	  Reboot or power off using registers in the Intel chipset.
 
-config DRIVER_POWER_TPS65913
-	bool "TPS65913 PMIC power management"
-	default n
-	help
-	  Reboot or power off using the TPS65913 PMIC.
-
-config DRIVER_POWER_MAX77620
-	bool "MAX77620 PMIC power management"
-	default n
-	help
-	  Reboot or power off using the MAX77620 PMIC.
-
 config DRIVER_POWER_RK808
 	bool "RK808 PMIC power management"
 	default n
 	help
 	  power off using the RK808 PMIC.
+
+config DRIVER_POWER_TPS65913
+	bool "TPS65913 PMIC power management"
+	default n
+	help
+	  Reboot or power off using the TPS65913 PMIC.
