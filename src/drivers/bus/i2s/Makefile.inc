@@ -17,5 +17,4 @@
 
 subdirs-y += baytrail broadwell exynos5 tegra
 
-depthcharge-$(CONFIG_DRIVER_BUS_I2S_MT8173) += mt8173.c
 depthcharge-$(CONFIG_DRIVER_BUS_I2S_ROCKCHIP) += rockchip.c
