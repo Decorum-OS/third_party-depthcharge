@@ -171,11 +171,11 @@ typedef struct DwmciHost {
 	int initialized;
 	int removable;
 
-	GpioOps *cd_gpio;/*if NULL,use internal card detect,
-				else use gpio detect*/
+	// If NULL use internal card detect, else use gpio detect.
+	GpioOps *cd_gpio;
+
+	// By default uses the CLKDIV register.
 	void (*set_clk)(struct DwmciHost *me, unsigned int freq);
-				/*default use CLKDIV register,and can be
-				overridden by the caller */
 } DwmciHost;
 
 typedef struct {
