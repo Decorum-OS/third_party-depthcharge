@@ -164,9 +164,6 @@ detect_special_flags() {
 	x64)
 		;;
 	arm64)
-		testld "$GCC" "$CFLAGS_GCC" "${GCCPREFIX}ld${LINKER_SUFFIX}" \
-		  "$LDFLAGS --fix-cortex-a53-843419" && \
-		  LDFLAGS_ARM64_A53_ERRATUM_843419+=" --fix-cortex-a53-843419"
 		;;
 	mipsel)
 		testcc "$GCC" "$CFLAGS_GCC -mno-abicalls -fno-pic" && \
@@ -198,9 +195,6 @@ COMPILER_RT_FLAGS_${TARCH}:=${CC_RT_EXTRA_GCC}
 CPP_${TARCH}:=${GCCPREFIX}cpp
 AS_${TARCH}:=${GCCPREFIX}as ${ASFLAGS}
 LD_${TARCH}:=${GCCPREFIX}ld${LINKER_SUFFIX} ${LDFLAGS}
-ifeq (\$(CONFIG_ARM64_A53_ERRATUM_843419)\$(CONFIG_LP_ARM64_A53_ERRATUM_843419),y)
-LD_${TARCH}+=${LDFLAGS_ARM64_A53_ERRATUM_843419}
-endif
 NM_${TARCH}:=${GCCPREFIX}nm
 OBJCOPY_${TARCH}:=${GCCPREFIX}objcopy
 OBJDUMP_${TARCH}:=${GCCPREFIX}objdump

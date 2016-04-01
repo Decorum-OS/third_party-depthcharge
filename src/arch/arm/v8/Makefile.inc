@@ -30,10 +30,4 @@ src-includes-y += includes
 
 ARCH_CFLAGS += -mgeneral-regs-only
 
-ifeq ($(CONFIG_ARM64_A53_ERRATUM_843419),y)
-ifeq ($(call tryldoption,-Wl,--fix-cortex-a53-843419),0)
-ARCH_LINK_FLAGS += -Wl,--fix-cortex-a53-843419
-endif
-endif
-
 TC_ARCH = arm64

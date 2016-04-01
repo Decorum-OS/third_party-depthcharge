@@ -17,7 +17,6 @@
 
 depthcharge-$(CONFIG_DRIVER_TIMER_DUMMY) += dummy.c
 depthcharge-$(CONFIG_DRIVER_TIMER_MCT) += mct.c
-depthcharge-$(CONFIG_DRIVER_TIMER_MEDIATEK) += mediatek.c
 depthcharge-$(CONFIG_DRIVER_TIMER_RDTSC) += rdtsc.c
 depthcharge-$(CONFIG_DRIVER_TIMER_ROCKCHIP) += rockchip.c
 depthcharge-$(CONFIG_DRIVER_TIMER_TEGRA_1US) += tegra_1us.c

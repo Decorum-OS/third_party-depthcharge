@@ -58,20 +58,3 @@ config DRIVER_TIMER_ROCKCHIP_ADDRESS
 	hex "Rockchip timer base address"
 	depends on DRIVER_TIMER_ROCKCHIP
 	default 0xff810020
-
-
-config DRIVER_TIMER_MEDIATEK
-	bool "MediaTek MT8173 timer driver"
-	default n
-
-config DRIVER_TIMER_MEDIATEK_HZ
-	int "MediaTek general purpose timer frequency"
-	depends on DRIVER_TIMER_MEDIATEK
-	default 13000000
-
-config DRIVER_TIMER_MEDIATEK_ADDRESS
-	hex "MTK general purpose timer register address"
-	depends on DRIVER_TIMER_MEDIATEK
-	default 0x10008048
-	help
-	  Address of the register to read the FREERUN-mode timer value.
