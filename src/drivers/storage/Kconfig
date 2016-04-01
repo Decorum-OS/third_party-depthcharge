@@ -44,10 +44,6 @@ config DRIVER_STORAGE_MSHC_S5P
 	bool "S5P MSHC/MMC driver"
 	default n
 
-config DRIVER_STORAGE_NVME
-	bool "NVMe driver"
-	default n
-
 config DRIVER_STORAGE_SDHCI
 	depends on DRIVER_STORAGE_MMC
 	bool "SDHCI specification compliant eMMC/SD driver"

@@ -23,7 +23,6 @@ depthcharge-$(CONFIG_DRIVER_STORAGE_MMC_DW) += dw_mmc.c
 depthcharge-$(CONFIG_DRIVER_STORAGE_MMC_ROCKCHIP) += rk_mmc.c
 depthcharge-$(CONFIG_DRIVER_STORAGE_MMC_TEGRA) += tegra_mmc.c bouncebuf.c
 depthcharge-$(CONFIG_DRIVER_STORAGE_MSHC_S5P) += s5p_mshc.c
-depthcharge-$(CONFIG_DRIVER_STORAGE_NVME) += nvme.c
 depthcharge-$(CONFIG_DRIVER_STORAGE_SDHCI) += sdhci.c mem_sdhci.c
 depthcharge-$(CONFIG_DRIVER_STORAGE_SDHCI_PCI) += pci_sdhci.c
 depthcharge-$(CONFIG_DRIVER_STORAGE_USB) += usb.c
