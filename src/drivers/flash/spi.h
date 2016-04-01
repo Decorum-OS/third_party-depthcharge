@@ -41,4 +41,4 @@ typedef struct
 
 SpiFlash *new_spi_flash(SpiOps *spi);
 
-#endif /* __DRIVERS_FLASH_FLASH_H__ */
+#endif /* __DRIVERS_FLASH_SPI_H__ */
