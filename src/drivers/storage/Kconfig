@@ -34,11 +34,6 @@ config DRIVER_STORAGE_MMC_DW_EXYNOS
 	bool "DesignWare MMC driver for Exynos"
 	default n
 
-config DRIVER_STORAGE_MMC_MT8173
-	depends on DRIVER_STORAGE_MMC
-	bool "MTK MMC driver"
-	default n
-
 config DRIVER_STORAGE_MMC_ROCKCHIP
         select DRIVER_STORAGE_MMC_DW
         bool "ROCKCHIP MMC driver"
