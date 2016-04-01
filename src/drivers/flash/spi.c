@@ -283,7 +283,7 @@ static int spi_flash_write(FlashOps *me, const void *buffer,
 static int spi_flash_erase(FlashOps *me, uint32_t start, uint32_t size)
 {
 	SpiFlash *flash = container_of(me, SpiFlash, ops);
-	uint32_t sector_size = me->sector_size;
+	uint32_t sector_size = flash->sector_size;
 
 	if ((start % sector_size) || (size % sector_size)) {
 		printf("%s: Erase not %u aligned, start=%u size=%u\n",
@@ -306,19 +306,18 @@ SpiFlash *new_spi_flash(SpiOps *spi)
 	uint32_t sector_size = lib_sysinfo.spi_flash.sector_size;
 	uint8_t erase_cmd = lib_sysinfo.spi_flash.erase_cmd;
 
-	SpiFlash *flash = xmalloc(sizeof(*flash));
-	memset(flash, 0, sizeof(*flash));
+	SpiFlash *flash = xzalloc(sizeof(*flash));
 	flash->ops.read = spi_flash_read;
 	flash->ops.write = spi_flash_write;
 	flash->ops.erase = spi_flash_erase;
-	flash->ops.sector_size = sector_size;
-	assert(rom_size == ALIGN_DOWN(rom_size, sector_size));
-	flash->ops.sector_count = rom_size / sector_size;
 	flash->spi = spi;
-	flash->rom_size = rom_size;
+	// Provide sufficient alignment on the cache buffer so that the
+	// underlying SPI controllers can perform optimal DMA transfers.
+	flash->cache = xmemalign(1 * KiB, rom_size);
+
 	flash->erase_cmd = erase_cmd;
-	/* Provide sufficient alignment on the cache buffer so that the
-	 * underlying SPI controllers can perform optimal DMA transfers. */
-	flash->cache = xmemalign(1*KiB, rom_size);
+	flash->sector_size = sector_size;
+	assert(rom_size == ALIGN_DOWN(rom_size, sector_size));
+	flash->rom_size = rom_size;
 	return flash;
 }

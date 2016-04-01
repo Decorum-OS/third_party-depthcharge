@@ -34,9 +34,11 @@ typedef struct
 {
 	FlashOps ops;
 	SpiOps *spi;
-	uint32_t rom_size;
-	uint8_t erase_cmd;
 	uint8_t *cache;
+
+	uint8_t erase_cmd;
+	uint32_t sector_size;
+	uint32_t rom_size;
 } SpiFlash;
 
 SpiFlash *new_spi_flash(SpiOps *spi);
