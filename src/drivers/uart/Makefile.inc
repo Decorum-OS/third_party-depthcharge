@@ -15,6 +15,6 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-depthcharge-$(CONFIG_DRIVER_SERIAL_8250) += 8250.c
-depthcharge-$(CONFIG_DRIVER_SERIAL_8250_MMIO32) += 8250_mmio32.c
-depthcharge-$(CONFIG_DRIVER_SERIAL_S5P) += s5p.c
+depthcharge-$(CONFIG_DRIVER_UART_8250) += 8250.c
+depthcharge-$(CONFIG_DRIVER_UART_8250_MMIO32) += 8250_mmio32.c
+depthcharge-$(CONFIG_DRIVER_UART_S5P) += s5p.c

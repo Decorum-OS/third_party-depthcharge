@@ -14,15 +14,15 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-config DRIVER_SERIAL_8250
-	bool "8250, 16450, 16550, 16550A compatible serial port driver"
+config DRIVER_UART_8250
+	bool "8250, 16450, 16550, 16550A compatible UART driver"
 	default y if ARCH_X86
 	default n if !ARCH_X86
 
-config DRIVER_SERIAL_S5P
-	bool "Exynos SOC, S5P compatible serial port driver"
+config DRIVER_UART_S5P
+	bool "Exynos SOC, S5P compatible UART driver"
 	default n
 
-config DRIVER_SERIAL_8250_MMIO32
-	bool "Memory-mapped 8250-compatible serial port driver with 32-bit regs"
+config DRIVER_UART_8250_MMIO32
+	bool "Memory-mapped 8250-compatible UART driver with 32-bit regs"
 	default n
