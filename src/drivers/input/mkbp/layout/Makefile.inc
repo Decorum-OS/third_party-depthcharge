@@ -16,4 +16,3 @@
 ##
 
 depthcharge-$(CONFIG_DRIVER_INPUT_MKBP_LAYOUT_US) += us.c
-depthcharge-$(CONFIG_DRIVER_INPUT_MKBP_LAYOUT_DE) += de.c

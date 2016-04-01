@@ -24,7 +24,4 @@ choice
 config DRIVER_INPUT_MKBP_LAYOUT_US
 	bool "US"
 
-config DRIVER_INPUT_MKBP_LAYOUT_DE
-	bool "DE"
-
 endchoice
