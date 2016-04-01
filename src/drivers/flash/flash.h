@@ -35,11 +35,6 @@ typedef struct FlashOps
 	/* Return the number of successfully erased bytes.
 	 * Offset and size must be erase_size-aligned. */
 	int (*erase)(struct FlashOps *me, uint32_t offset, uint32_t size);
-	/* Check if soft write-protect bit is set. */
-	int (*is_wp_enabled)(struct FlashOps *me);
-	int (*write_status)(struct FlashOps *me, uint8_t status);
-	/* Reads status and returns -1 on error, status reg value on success. */
-	int (*read_status)(struct FlashOps *me);
 	/* Granularity and alignment of erases */
 	uint32_t sector_size;
 	/* Total number of sectors present */
@@ -51,19 +46,6 @@ void flash_set_ops(FlashOps *ops);
 void *flash_read(uint32_t offset, uint32_t size);
 int flash_write(uint32_t offset, uint32_t size, const void *buffer);
 int flash_erase(uint32_t offset, uint32_t size);
-uint32_t flash_sector_size(void);
-int flash_rewrite(uint32_t start, uint32_t length, const void *buffer);
-int flash_write_status(uint8_t status);
-int flash_read_status(void);
-int flash_is_wp_enabled(void);
-
-/* Functions operating on passed in ops */
-void *flash_read_ops(FlashOps *ops, uint32_t offset, uint32_t size);
-int flash_write_ops(FlashOps *ops, uint32_t offset, uint32_t size,
-		    const void *buffer);
-int flash_erase_ops(FlashOps *ops, uint32_t offset, uint32_t size);
-int flash_rewrite_ops(FlashOps *ops, uint32_t start, uint32_t length,
-		      const void *buffer);
 
 
 #endif /* __DRIVERS_FLASH_FLASH_H__ */
