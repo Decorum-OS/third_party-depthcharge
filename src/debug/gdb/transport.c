@@ -54,7 +54,6 @@ static int gdb_raw_getchar(void)
 
 void gdb_transport_init(void)
 {
-	//console_remove_output_driver(serial_putchar);
 }
 
 void gdb_transport_teardown(void)

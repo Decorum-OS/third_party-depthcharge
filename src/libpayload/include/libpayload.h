@@ -180,7 +180,6 @@ int putchar(unsigned int c);
 int puts(const char *s);
 int havekey(void);
 int getchar(void);
-int getchar_timeout(int *ms);
 console_input_type last_key_input_type(void);
 
 struct console_input_driver;
@@ -200,7 +199,6 @@ struct console_output_driver {
 
 void console_add_output_driver(struct console_output_driver *out);
 void console_add_input_driver(struct console_input_driver *in);
-int console_remove_output_driver(void *function);
 
 /** @} */
 

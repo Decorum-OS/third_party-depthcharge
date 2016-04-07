@@ -119,7 +119,6 @@ void gdb_exit(int8_t exit_status)
 	gdb_message_encode_bytes(&reply, &exit_status, 1);
 	gdb_send_reply(&reply);
 
-	console_remove_output_driver(&gdb_output_write);
 	gdb_transport_teardown();
 	gdb_state.connected = 0;
 	printf("Detached from GDB connection.\n");

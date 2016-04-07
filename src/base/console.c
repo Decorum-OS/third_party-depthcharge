@@ -79,23 +79,6 @@ void console_add_input_driver(struct console_input_driver *in)
 	console_in = in;
 }
 
-/*
- * For when you really need to silence an output driver (e.g. to avoid ugly
- * recursions). Takes the pointer of either of the two output functions, since
- * the struct console_output_driver itself is often static and inaccessible.
- */
-int console_remove_output_driver(void *function)
-{
-	struct console_output_driver **out;
-	for (out = &console_out; *out; out = &(*out)->next)
-		if ((*out)->putchar == function || (*out)->write == function) {
-			*out = (*out)->next;
-			return 1;
-		}
-
-	return 0;
-}
-
 void console_write(const void *buffer, size_t count)
 {
 	const char *ptr;
@@ -152,22 +135,6 @@ int getchar(void)
 				return in->getchar();
 			}
 	}
-}
-
-int getchar_timeout(int *ms)
-{
-	while (*ms > 0) {
-		if (havekey())
-			return getchar();
-
-		mdelay(100);
-		*ms -= 100;
-	}
-
-	if (*ms < 0)
-		*ms = 0;
-
-	return 0;
 }
 
 console_input_type last_key_input_type(void)
