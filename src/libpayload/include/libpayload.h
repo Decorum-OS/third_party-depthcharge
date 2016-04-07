@@ -176,10 +176,6 @@ typedef enum {
 } console_input_type;
 
 void console_write(const void *buffer, size_t count);
-int putchar(unsigned int c);
-int puts(const char *s);
-int havekey(void);
-int getchar(void);
 console_input_type last_key_input_type(void);
 
 struct console_input_driver;

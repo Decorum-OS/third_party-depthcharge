@@ -54,4 +54,9 @@ int vsprintf(char *str, const char *fmt, va_list ap);
 int vprintf(const char *fmt, va_list ap);
 /** @} */
 
+int putchar(unsigned int c);
+int puts(const char *s);
+int havekey(void);
+int getchar(void);
+
 #endif
