@@ -184,8 +184,6 @@ int getchar(void);
 int getchar_timeout(int *ms);
 console_input_type last_key_input_type(void);
 
-extern int last_putchar;
-
 struct console_input_driver;
 struct console_input_driver {
 	struct console_input_driver *next;
