@@ -16,5 +16,4 @@
 ##
 
 depthcharge-$(CONFIG_DRIVER_UART_8250) += 8250.c
-depthcharge-$(CONFIG_DRIVER_UART_8250_MMIO32) += 8250_mmio32.c
 depthcharge-$(CONFIG_DRIVER_UART_S5P) += s5p.c

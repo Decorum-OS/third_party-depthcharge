@@ -1,7 +1,5 @@
 /*
- * This file is part of the libpayload project.
- *
- * Copyright (C) 2008 Advanced Micro Devices, Inc.
+ * Copyright 2016 Google Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -28,34 +26,39 @@
  */
 
 #include <libpayload.h>
-#include <coreboot_tables.h>
 
-/**
- * This is a global structure that is used through the library - we set it
- * up initially with some dummy values - hopefully they will be overridden.
- */
-struct sysinfo_t lib_sysinfo = {
-	.cpu_khz = 0,
-	.ser_ioport = 0x3f8,
+#include "board/board.h"
+#include "drivers/uart/uart.h"
+
+static int have_char(void)
+{
+	UartOps *uart = board_debug_uart();
+	return uart->have_char(uart);
+}
+
+static int get_char(void)
+{
+	UartOps *uart = board_debug_uart();
+	return uart->get_char(uart);
+}
+
+static void put_char(unsigned int c)
+{
+	UartOps *uart = board_debug_uart();
+	return uart->put_char(uart, c);
+}
+
+static struct console_input_driver consin = {
+	.havekey = &have_char,
+	.getchar = &get_char
 };
 
-int lib_get_sysinfo(void)
+static struct console_output_driver consout = {
+	.putchar = &put_char
+};
+
+void serial_console_init(void)
 {
-	/* Get information from the coreboot tables if they exist. */
-	int ret = get_coreboot_info(&lib_sysinfo);
-
-	if (!lib_sysinfo.n_memranges) {
-		/* If we can't get a good memory range, use the default. */
-		lib_sysinfo.n_memranges = 2;
-
-		lib_sysinfo.memrange[0].base = 0;
-		lib_sysinfo.memrange[0].size = 640 * 1024;
-		lib_sysinfo.memrange[0].type = CB_MEM_RAM;
-
-		lib_sysinfo.memrange[1].base = 1024 * 1024;
-		lib_sysinfo.memrange[1].size = 31 * 1024 * 1024;
-		lib_sysinfo.memrange[1].type = CB_MEM_RAM;
-	}
-
-	return ret;
+	console_add_input_driver(&consin);
+	console_add_output_driver(&consout);
 }

@@ -1,6 +1,5 @@
 /*
- * This file is part of the libpayload project.
- *
+ * Copyright 2016 Google Inc.
  * Copyright (C) 2008 Advanced Micro Devices, Inc.
  * Copyright (C) 2008 Ulf Jordan <jordan@chalmers.se>
  *
@@ -28,130 +27,218 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
+#include <stdint.h>
 
-#define IOBASE lib_sysinfo.serial->baseaddr
-#define MEMBASE ((void *)(uintptr_t)IOBASE)
+#include "arch/io.h"
+#include "base/container_of.h"
+#include "base/xalloc.h"
+#include "drivers/uart/8250.h"
 
-static int serial_hardware_is_present = 0;
-static int serial_is_mem_mapped = 0;
-
-static uint8_t serial_read_reg(int offset)
-{
-	offset *= lib_sysinfo.serial->regwidth;
-
-#if CONFIG_IO_ADDRESS_SPACE
-	if (!serial_is_mem_mapped)
-		return inb(IOBASE + offset);
-	else
-#endif
-		return readb(MEMBASE + offset);
-}
-
-static void serial_write_reg(uint8_t val, int offset)
-{
-	offset *= lib_sysinfo.serial->regwidth;
-
-#if CONFIG_IO_ADDRESS_SPACE
-	if (!serial_is_mem_mapped)
-		outb(val, IOBASE + offset);
-	else
-#endif
-		writeb(val, MEMBASE + offset);
-}
-
-static void serial_hardware_init(int speed, int word_bits,
-				 int parity, int stop_bits)
-{
-	unsigned char reg;
-
-	/* Disable interrupts. */
-	serial_write_reg(0, 0x01);
-
-	/* Assert RTS and DTR. */
-	serial_write_reg(3, 0x04);
-
-	/* Set the divisor latch. */
-	reg = serial_read_reg(0x03);
-	serial_write_reg(reg | 0x80, 0x03);
-
-	/* Write the divisor. */
-	uint16_t divisor = 115200 / speed;
-	serial_write_reg(divisor & 0xFF, 0x00);
-	serial_write_reg(divisor >> 8, 0x01);
-
-	/* Restore the previous value of the divisor.
-	 * And set 8 bits per character */
-	serial_write_reg((reg & ~0x80) | 3, 0x03);
-}
-
-static struct console_input_driver consin = {
-	.havekey = &serial_havechar,
-	.getchar = &serial_getchar
+enum {
+	THR = 0, // Transmitter holding buffer.
+	RBR = 0, // Receiver buffer.
+	DLL = 0, // Divisor latch low byte.
+	IER = 1, // Interrupt enable register.
+	DLH = 1, // Divisor latch high byte.
+	IIR = 2, // Interrupt identification register.
+	FCR = 2, // FIFO control register.
+	LCR = 3, // Line control register.
+	MCR = 4, // Modem control register.
+	LSR = 5, // Line status register.
+	MSR = 6, // Modem status register.
+	SR = 7   // Scratch register.
 };
 
-static struct console_output_driver consout = {
-	.putchar = &serial_putchar
+enum {
+	LSR_DR = 0x1 << 0, // Data ready.
+	LSR_OE = 0x1 << 1, // Overrun.
+	LSR_PE = 0x1 << 2, // Parity error.
+	LSR_FE = 0x1 << 3, // Framing error.
+	LSR_BI = 0x1 << 4, // Break.
+	LSR_THRE = 0x1 << 5, // Xmit holding register empty.
+	LSR_TEMT = 0x1 << 6, // Xmitter empty.
+	LSR_ERR = 0x1 << 7 // Error.
 };
 
-void serial_init(void)
+enum {
+	LCR_WORD_LENGTH_MASK = 0x3 << 0,
+	LCR_5_BITS = 0x0 << 0,
+	LCR_6_BITS = 0x1 << 0,
+	LCR_7_BITS = 0x2 << 0,
+	LCR_8_BITS = 0x3 << 0,
+
+	LCR_ONE_STOP_BIT = 0x0 << 2,
+	LCR_TWO_STOP_BITS = 0x1 << 2,
+
+	LCR_PARITY_MASK = 0x7 << 3,
+	LCR_NO_PARITY = 0x0 << 3,
+	LCR_ODD_PARITY = 0x1 << 3,
+	LCR_EVEN_PARITY = 0x3 << 3,
+	LCR_MARK = 0x5 << 3,
+	LCR_SPACE = 0x7 << 3,
+
+	LCR_BREAK_ENABLE = 0x1 << 6,
+	LCR_DIVISOR_LATCH = 0x1 << 7
+};
+
+static void uart8250_init(Uart8250 *uart, int speed, int word_bits,
+					  int parity, int stop_bits)
 {
-	if (!lib_sysinfo.serial)
-		return;
+	uint8_t reg;
 
-	serial_is_mem_mapped =
-		(lib_sysinfo.serial->type == CB_SERIAL_TYPE_MEMORY_MAPPED);
-
-	if (!serial_is_mem_mapped) {
-#if CONFIG_IO_ADDRESS_SPACE
-		if ((inb(IOBASE + 0x05) == 0xFF) &&
-				(inb(IOBASE + 0x06) == 0xFF)) {
-			printf("IO space mapped serial not present.");
-			return;
-		}
-#else
-		printf("IO space mapped serial not supported.");
+	if (uart->read_reg(uart, LSR) == 0xff &&
+	    uart->read_reg(uart, MSR) == 0xff) {
+		uart->state = Uart8250NotPresent;
 		return;
-#endif
+	} else {
+		uart->state = Uart8250Present;
 	}
 
-	if (CONFIG_SERIAL_SET_SPEED)
-		serial_hardware_init(CONFIG_SERIAL_BAUD_RATE, 8, 0, 1);
-}
-
-void serial_console_init(void)
-{
-	if (!lib_sysinfo.serial)
+	if (!CONFIG_SERIAL_SET_SPEED)
 		return;
 
-	serial_init();
+	// Disable interrupts.
+	uart->write_reg(uart, 0, IER);
 
-	console_add_input_driver(&consin);
-	console_add_output_driver(&consout);
-	serial_hardware_is_present = 1;
+	// Assert RTS and DTR.
+	uart->write_reg(uart, 3, MCR);
+
+	reg = uart->read_reg(uart, LCR);
+	uart->write_reg(uart, reg | LCR_DIVISOR_LATCH, LCR);
+
+	// Write the divisor.
+	uint16_t divisor = 115200 / speed;
+	uart->write_reg(uart, divisor & 0xFF, DLL);
+	uart->write_reg(uart, divisor >> 8, DLH);
+
+	uart->write_reg(uart, (reg & ~LCR_DIVISOR_LATCH) | LCR_8_BITS, LCR);
 }
 
-void serial_putchar(unsigned int c)
+
+static void put_char(UartOps *me, uint8_t c)
 {
-	if (!serial_hardware_is_present)
+	Uart8250 *uart = container_of(me, Uart8250, ops);
+
+	if (uart->state == Uart8250Uninitialized)
+		uart8250_init(uart, CONFIG_SERIAL_BAUD_RATE, 8, 0, 1);
+
+	if (uart->state != Uart8250Present)
 		return;
-	while ((serial_read_reg(0x05) & 0x20) == 0) ;
-	serial_write_reg(c, 0x00);
+
+	while ((uart->read_reg(uart, LSR) & LSR_THRE) == 0)
+	{;}
+
+	uart->write_reg(uart, c, THR);
 	if (c == '\n')
-		serial_putchar('\r');
+		me->put_char(me, '\r');
 }
 
-int serial_havechar(void)
+static int have_char(UartOps *me)
 {
-	if (!serial_hardware_is_present)
+	Uart8250 *uart = container_of(me, Uart8250, ops);
+
+	if (uart->state == Uart8250Uninitialized)
+		uart8250_init(uart, CONFIG_SERIAL_BAUD_RATE, 8, 0, 1);
+
+	if (uart->state != Uart8250Present)
 		return 0;
-	return serial_read_reg(0x05) & 0x01;
+
+	return uart->read_reg(uart, LSR) & LSR_DR;
 }
 
-int serial_getchar(void)
+static int get_char(UartOps *me)
 {
-	if (!serial_hardware_is_present)
+	Uart8250 *uart = container_of(me, Uart8250, ops);
+
+	if (uart->state == Uart8250Uninitialized)
+		uart8250_init(uart, CONFIG_SERIAL_BAUD_RATE, 8, 0, 1);
+
+	if (uart->state != Uart8250Present)
 		return -1;
-	while (!serial_havechar()) ;
-	return serial_read_reg(0x00);
+
+	while (!me->have_char(me))
+	{;}
+
+	return uart->read_reg(uart, RBR);
+}
+
+
+static void uart_8250_fill_in(Uart8250 *uart, Uart8250ReadRegFunc read_reg,
+					      Uart8250WriteRegFunc write_reg)
+{
+	uart->ops.put_char = &put_char;
+	uart->ops.have_char = &have_char;
+	uart->ops.get_char = &get_char;
+
+	uart->read_reg = read_reg;
+	uart->write_reg = write_reg;
+}
+
+
+#if CONFIG_IO_ADDRESS_SPACE
+static uint8_t read_reg_io(Uart8250 *me, int index)
+{
+	Uart8250Io *uart = container_of(me, Uart8250Io, uart);
+	return inb(uart->base + index);
+}
+
+static void write_reg_io(Uart8250 *me, uint8_t val, int index)
+{
+	Uart8250Io *uart = container_of(me, Uart8250Io, uart);
+	outb(val, uart->base + index);
+}
+
+Uart8250Io *new_uart_8250_io(uint16_t base)
+{
+	Uart8250Io *uart = xzalloc(sizeof(*uart));
+	uart_8250_fill_in(&uart->uart, &read_reg_io, &write_reg_io);
+	uart->base = base;
+
+	return uart;
+}
+#endif
+
+
+static uint8_t read_reg_mem(Uart8250 *me, int index)
+{
+	Uart8250Mem *uart = container_of(me, Uart8250Mem, uart);
+	return readb((uint8_t *)uart->base + index * uart->stride);
+}
+
+static void write_reg_mem(Uart8250 *me, uint8_t val, int index)
+{
+	Uart8250Mem *uart = container_of(me, Uart8250Mem, uart);
+	writeb(val, (uint8_t *)uart->base + index * uart->stride);
+}
+
+Uart8250Mem *new_uart_8250_mem(uintptr_t base, int stride)
+{
+	Uart8250Mem *uart = xzalloc(sizeof(*uart));
+	uart_8250_fill_in(&uart->uart, &read_reg_mem, &write_reg_mem);
+	uart->base = base;
+	uart->stride = stride;
+
+	return uart;
+}
+
+
+static uint8_t read_reg_mem32(Uart8250 *me, int index)
+{
+	Uart8250Mem32 *uart = container_of(me, Uart8250Mem32, uart);
+	return (uint8_t)readl((uint8_t *)uart->base + index * sizeof(uint32_t));
+}
+
+static void write_reg_mem32(Uart8250 *me, uint8_t val, int index)
+{
+	Uart8250Mem32 *uart = container_of(me, Uart8250Mem32, uart);
+	writel(val, (uint8_t *)uart->base + index * sizeof(uint32_t));
+}
+
+Uart8250Mem32 *new_uart_8250_mem32(uintptr_t base)
+{
+	Uart8250Mem32 *uart = xzalloc(sizeof(*uart));
+	uart_8250_fill_in(&uart->uart, &read_reg_mem32, &write_reg_mem32);
+	uart->base = base;
+
+	return uart;
 }

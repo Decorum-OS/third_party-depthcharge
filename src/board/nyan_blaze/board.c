@@ -48,6 +48,7 @@
 #include "drivers/power/sysinfo.h"
 #include "drivers/tpm/slb9635_i2c.h"
 #include "drivers/tpm/tpm.h"
+#include "drivers/uart/8250.h"
 #include "vboot/util/flag.h"
 
 enum {
@@ -196,5 +197,7 @@ static int board_setup(void)
 
 PUB_DYN(power, &new_sysinfo_reset_power_ops(&get_pmic()->ops,
 		new_tegra_gpio_output_from_coreboot)->ops)
+
+PUB_DYN(debug_uart, &new_uart_8250_mem(0x70006000, 1)->uart.ops)
 
 INIT_FUNC(board_setup);

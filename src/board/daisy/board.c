@@ -43,6 +43,7 @@
 #include "drivers/storage/exynos_mshc.h"
 #include "drivers/tpm/slb9635_i2c.h"
 #include "drivers/tpm/tpm.h"
+#include "drivers/uart/s5p.h"
 #include "vboot/util/flag.h"
 
 static uint32_t *i2c_cfg = (uint32_t *)(0x10050000 + 0x234);
@@ -115,5 +116,7 @@ static int board_setup(void)
 }
 
 PUB_STAT(power, &exynos_power_ops)
+
+PUB_DYN(debug_uart, &new_uart_s5p(0x12c00000 + 3 * 0x10000)->ops)
 
 INIT_FUNC(board_setup);

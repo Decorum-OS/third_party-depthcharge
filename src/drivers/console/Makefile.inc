@@ -1,5 +1,5 @@
 ##
-## Copyright 2015 Google Inc.  All rights reserved.
+## Copyright 2016 Google Inc.
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -12,12 +12,7 @@
 ##
 ## You should have received a copy of the GNU General Public License
 ## along with this program; if not, write to the Free Software
-## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+##
 
-config DRIVER_UART_8250
-	bool "8250, 16450, 16550, 16550A compatible UART driver"
-	default n
-
-config DRIVER_UART_S5P
-	bool "Exynos SOC, S5P compatible UART driver"
-	default n
+depthcharge-$(CONFIG_SERIAL_CONSOLE) += uart.c

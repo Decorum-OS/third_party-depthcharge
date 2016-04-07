@@ -127,17 +127,7 @@ int keyboard_getchar(void);
 int keyboard_set_layout(char *country);
 /** @} */
 
-/**
- * @defgroup serial Serial functions
- * @ingroup input
- * @{
- */
-void serial_init(void);
 void serial_console_init(void);
-void serial_putchar(unsigned int c);
-int serial_havechar(void);
-int serial_getchar(void);
-/** @} */
 
 /**
  * @defgroup video Video functions

@@ -23,8 +23,10 @@
 #ifndef __BOARD_BOARD_H__
 #define __BOARD_BOARD_H__
 
+#include "drivers/uart/uart.h"
 #include "drivers/power/power.h"
 
+UartOps *board_debug_uart(void);
 PowerOps *board_power(void);
 
 #endif /* __BOARD_BOARD_H__ */

@@ -38,6 +38,7 @@
 #include "drivers/storage/blockdev.h"
 #include "drivers/tpm/lpc.h"
 #include "drivers/tpm/tpm.h"
+#include "drivers/uart/8250.h"
 #include "vboot/util/flag.h"
 
 static int board_setup(void)
@@ -64,5 +65,7 @@ static int board_setup(void)
 }
 
 PUB_STAT(power, &pch_power_ops)
+
+PUB_DYN(debug_uart, &new_uart_8250_io(0x3f8)->uart.ops)
 
 INIT_FUNC(board_setup);

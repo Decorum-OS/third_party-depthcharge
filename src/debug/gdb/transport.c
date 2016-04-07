@@ -19,6 +19,7 @@
 #include <endian.h>
 #include <libpayload.h>
 
+#include "board/board.h"
 #include "debug/gdb/gdb_int.h"
 #include "drivers/timer/timer.h"
 
@@ -35,23 +36,25 @@ static const char input_underrun[] = "GDB input message truncated (bug or "
 
 static void gdb_raw_putchar(uint8_t c)
 {
-	serial_putchar(c);
+	UartOps *uart = board_debug_uart();
+	uart->put_char(uart, c);
 }
 
 static int gdb_raw_getchar(void)
 {
-	uint64_t start = timer_us(0);
+	UartOps *uart = board_debug_uart();
 
-	while (!serial_havechar())
+	uint64_t start = timer_us(0);
+	while (!uart->have_char(uart))
 		if (timer_us(start) > timeout_us)
 			return -1;
 
-	return serial_getchar();
+	return uart->get_char(uart);
 }
 
 void gdb_transport_init(void)
 {
-	console_remove_output_driver(serial_putchar);
+	//console_remove_output_driver(serial_putchar);
 }
 
 void gdb_transport_teardown(void)

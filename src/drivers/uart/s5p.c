@@ -25,10 +25,14 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
 #include <stdint.h>
 
-struct s5p_uart
+#include "arch/io.h"
+#include "base/container_of.h"
+#include "base/xalloc.h"
+#include "drivers/uart/s5p.h"
+
+typedef struct
 {
 	uint32_t ulcon;		// line control
 	uint32_t ucon;		// control
@@ -45,62 +49,53 @@ struct s5p_uart
 	uint32_t uintp;		// interrupt pending
 	uint32_t uints;		// interrupt source
 	uint32_t uintm;		// interrupt mask
-};
+} S5pRegs;
 
-static struct s5p_uart *uart_regs;
-
-void serial_putchar(unsigned int c)
+static void put_char(UartOps *me, uint8_t c)
 {
 	const uint32_t TxFifoFullBit = (0x1 << 24);
 
-	while (readl(&uart_regs->ufstat) & TxFifoFullBit)
+	UartS5p *uart = container_of(me, UartS5p, ops);
+	S5pRegs *regs = (S5pRegs *)uart->base;
+
+	while (readl(&regs->ufstat) & TxFifoFullBit)
 	{;}
 
-	writeb(c, &uart_regs->utxh);
+	writeb(c, &regs->utxh);
 	if (c == '\n')
-		serial_putchar('\r');
+		me->put_char(me, '\r');
 }
 
-int serial_havechar(void)
+static int have_char(UartOps *me)
 {
 	const uint32_t DataReadyMask = (0xf << 0) | (0x1 << 8);
 
-	return (readl(&uart_regs->ufstat) & DataReadyMask) != 0;
+	UartS5p *uart = container_of(me, UartS5p, ops);
+	S5pRegs *regs = (S5pRegs *)uart->base;
+
+	return (readl(&regs->ufstat) & DataReadyMask) != 0;
 }
 
-int serial_getchar(void)
+static int get_char(UartOps *me)
 {
-	while (!serial_havechar())
+	while (!me->have_char(me))
 	{;}
 
-	return readb(&uart_regs->urxh);
+	UartS5p *uart = container_of(me, UartS5p, ops);
+	S5pRegs *regs = (S5pRegs *)uart->base;
+
+	return readb(&regs->urxh);
 }
 
-static struct console_output_driver s5p_serial_output =
+UartS5p *new_uart_s5p(uintptr_t base)
 {
-	.putchar = &serial_putchar
-};
+	UartS5p *uart = xzalloc(sizeof(*uart));
 
-static struct console_input_driver s5p_serial_input =
-{
-	.havekey = &serial_havechar,
-	.getchar = &serial_getchar
-};
+	uart->ops.put_char = &put_char;
+	uart->ops.have_char = &have_char;
+	uart->ops.get_char = &get_char;
 
-void serial_init(void)
-{
-	if (!lib_sysinfo.serial || !lib_sysinfo.serial->baseaddr)
-		return;
+	uart->base = base;
 
-	uart_regs = (struct s5p_uart *)lib_sysinfo.serial->baseaddr;
-}
-
-void serial_console_init(void)
-{
-	serial_init();
-
-	if (uart_regs) {
-		console_add_output_driver(&s5p_serial_output);
-		console_add_input_driver(&s5p_serial_input);
-	}
+	return uart;
 }

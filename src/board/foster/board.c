@@ -27,26 +27,27 @@
 #include "board/board.h"
 #include "board/board_helpers.h"
 #include "boot/fit.h"
-#include "drivers/bus/spi/tegra.h"
 #include "drivers/bus/i2c/tegra.h"
+#include "drivers/bus/spi/tegra.h"
 #include "drivers/bus/usb/usb.h"
+#include "drivers/dma/tegra_apb.h"
+#include "drivers/ec/cros/i2c.h"
+#include "drivers/flash/spi.h"
 #include "drivers/gpio/gpio.h"
 #include "drivers/gpio/sysinfo.h"
 #include "drivers/gpio/tegra.h"
-#include "drivers/dma/tegra_apb.h"
-#include "drivers/flash/spi.h"
-#include "drivers/power/sysinfo.h"
 #include "drivers/power/max77620.h"
-#include "drivers/tpm/slb9635_i2c.h"
-#include "drivers/tpm/tpm.h"
-#include "drivers/storage/tegra_mmc.h"
-#include "drivers/video/display.h"
-#include "drivers/ec/cros/i2c.h"
-#include "vboot/util/flag.h"
-#include "drivers/video/tegra132.h"
+#include "drivers/power/sysinfo.h"
 #include "drivers/sound/i2s.h"
 #include "drivers/sound/rt5677.h"
 #include "drivers/sound/tegra_ahub.h"
+#include "drivers/storage/tegra_mmc.h"
+#include "drivers/tpm/slb9635_i2c.h"
+#include "drivers/tpm/tpm.h"
+#include "drivers/uart/8250.h"
+#include "drivers/video/display.h"
+#include "drivers/video/tegra132.h"
+#include "vboot/util/flag.h"
 
 enum {
 	CLK_RST_BASE = 0x60006000,
@@ -240,3 +241,5 @@ INIT_FUNC(display_setup);
 
 PUB_DYN(power, &new_sysinfo_reset_power_ops(get_pmic(),
 		new_tegra_gpio_output_from_coreboot)->ops)
+
+PUB_DYN(debug_uart, &new_uart_8250_mem32(0x70006000)->uart.ops)

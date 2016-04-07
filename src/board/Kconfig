@@ -71,6 +71,9 @@ endif
 if BOARD = "peppy"
 source src/board/peppy/Kconfig
 endif
+if BOARD = "qemu-x86"
+source src/board/qemu-x86/Kconfig
+endif
 if BOARD = "rambi"
 source src/board/rambi/Kconfig
 endif

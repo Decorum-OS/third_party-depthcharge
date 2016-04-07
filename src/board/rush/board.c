@@ -31,20 +31,21 @@
 #include "drivers/bus/spi/tegra.h"
 #include "drivers/bus/i2c/tegra.h"
 #include "drivers/bus/usb/usb.h"
+#include "drivers/dma/tegra_apb.h"
+#include "drivers/ec/cros/spi.h"
+#include "drivers/flash/spi.h"
 #include "drivers/gpio/gpio.h"
 #include "drivers/gpio/sysinfo.h"
 #include "drivers/gpio/tegra.h"
-#include "drivers/dma/tegra_apb.h"
-#include "drivers/flash/spi.h"
 #include "drivers/power/as3722.h"
 #include "drivers/power/sysinfo.h"
-#include "drivers/tpm/slb9635_i2c.h"
-#include "drivers/tpm/tpm.h"
-#include "drivers/storage/tegra_mmc.h"
-#include "drivers/ec/cros/spi.h"
 #include "drivers/sound/i2s.h"
 #include "drivers/sound/max98090.h"
 #include "drivers/sound/tegra_ahub.h"
+#include "drivers/storage/tegra_mmc.h"
+#include "drivers/tpm/slb9635_i2c.h"
+#include "drivers/tpm/tpm.h"
+#include "drivers/uart/8250.h"
 #include "drivers/video/display.h"
 #include "drivers/video/tegra132.h"
 
@@ -241,3 +242,5 @@ INIT_FUNC(display_setup);
 
 PUB_DYN(power, &new_sysinfo_reset_power_ops(&get_pmic()->ops,
 		new_tegra_gpio_output_from_coreboot)->ops)
+
+PUB_DYN(debug_uart, &new_uart_8250_mem(0x70006000, 1)->uart.ops)
