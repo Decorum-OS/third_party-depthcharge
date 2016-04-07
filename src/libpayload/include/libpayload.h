@@ -175,7 +175,6 @@ typedef enum {
 	CONSOLE_INPUT_TYPE_USB,
 } console_input_type;
 
-void console_init(void);
 void console_write(const void *buffer, size_t count);
 int putchar(unsigned int c);
 int puts(const char *s);

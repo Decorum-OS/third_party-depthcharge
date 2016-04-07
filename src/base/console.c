@@ -96,18 +96,6 @@ int console_remove_output_driver(void *function)
 	return 0;
 }
 
-void console_init(void)
-{
-	if (CONFIG_VIDEO_CONSOLE)
-		video_console_init();
-	if (CONFIG_SERIAL_CONSOLE)
-		serial_console_init();
-	if (CONFIG_PC_KEYBOARD)
-		keyboard_init();
-	if (CONFIG_CBMEM_CONSOLE)
-		cbmem_console_init();
-}
-
 void console_write(const void *buffer, size_t count)
 {
 	const char *ptr;
