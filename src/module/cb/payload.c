@@ -27,7 +27,7 @@
 #include "arch/sign_of_life.h"
 #include "base/init_funcs.h"
 #include "base/timestamp.h"
-#include "drivers/input/input.h"
+#include "drivers/keyboard/keyboard.h"
 #include "vboot/stages.h"
 #include "vboot/util/commonparams.h"
 #include "vboot/util/flag.h"

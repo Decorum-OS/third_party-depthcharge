@@ -1,5 +1,5 @@
 ##
-## Copyright 2013 Google Inc.  All rights reserved.
+## Copyright 2012 Google Inc.
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -12,15 +12,7 @@
 ##
 ## You should have received a copy of the GNU General Public License
 ## along with this program; if not, write to the Free Software
-## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+##
 
-choice
-	prompt "MKBP keymatrix"
-	depends on DRIVER_INPUT_MKBP
-	help
-	  Maps the keymatrix expressed in columns and rows into scancodes.
-
-config DRIVER_INPUT_MKBP_KEYMATRIX_STANDARD
-	bool "Standard ChromeOS"
-
-endchoice
+depthcharge-$(CONFIG_DRIVER_KEYBOARD_MKBP_LAYOUT_US) += us.c

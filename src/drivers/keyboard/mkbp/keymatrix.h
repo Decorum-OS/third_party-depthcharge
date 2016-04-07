@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Google Inc.
+ * Copyright 2013 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,21 +20,17 @@
  * MA 02111-1307 USA
  *
  */
-#ifndef __DRIVERS_INPUT_INPUT_H__
-#define __DRIVERS_INPUT_INPUT_H__
+#ifndef __DRIVERS_KEYBOARD_MKBP_KEYMATRIX_H__
+#define __DRIVERS_KEYBOARD_MKBP_KEYMATRIX_H__
 
-#include "base/list.h"
+#include <stdint.h>
 
-typedef struct OnDemandInput {
-	void (*init)(void);
-	int need_init;
+typedef struct MkbpKeymatrix {
+	int rows;
+	int cols;
+	uint16_t **scancodes;
+} MkbpKeymatrix;
 
-	ListNode list_node;
-} OnDemandInput;
+extern MkbpKeymatrix mkbp_keymatrix;
 
-extern ListNode on_demand_input_devices;
-
-void input_enable(void);
-void input_init(void);
-
-#endif /* __DRIVERS_INPUT_INPUT_H__ */
+#endif /* __DRIVERS_KEYBOARD_MKBP_KEYMATRIX_H__ */

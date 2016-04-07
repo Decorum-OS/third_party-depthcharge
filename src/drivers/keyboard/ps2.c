@@ -24,7 +24,7 @@
 
 #include "base/init_funcs.h"
 #include "base/cleanup_funcs.h"
-#include "drivers/input/input.h"
+#include "drivers/keyboard/keyboard.h"
 
 static int dc_keyboard_install_on_demand_input(void)
 {

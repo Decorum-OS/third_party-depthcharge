@@ -23,7 +23,7 @@
 
 #include <keycodes.h>
 
-#include "drivers/input/mkbp/layout.h"
+#include "drivers/keyboard/mkbp/layout.h"
 
 MkbpLayout mkbp_keyboard_layout = {
 {	// No modifier

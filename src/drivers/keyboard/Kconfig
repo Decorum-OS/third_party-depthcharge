@@ -14,7 +14,7 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-config DRIVER_INPUT_PS2
+config DRIVER_KEYBOARD_PS2
 	bool "PS2 keyboard"
 	default n
 	help
@@ -22,7 +22,7 @@ config DRIVER_INPUT_PS2
 	  traditional PCs. The actual support is provided by libpayload, this
 	  just makes it an input source as far as depthcharge is concerned.
 
-config DRIVER_INPUT_USB
+config DRIVER_KEYBOARD_USB
 	bool "USB keyboard"
 	default n
 	help
@@ -30,16 +30,16 @@ config DRIVER_INPUT_USB
 	  this just makes it an input source as far as depthcharge is
 	  concerned.
 
-config DRIVER_INPUT_MKBP
+config DRIVER_KEYBOARD_MKBP
 	bool "ChromeOS EC based keyboard"
 	default n
 	help
 	  A simplified keymatrix keyboard implemented with the ChromeOS EC.
 
-config DRIVER_INPUT_PSEUDO
+config DRIVER_KEYBOARD_PSEUDO
 	bool "ChromeOS Pseudo keyboard"
 	default n
 	help
 	  A pseudo keyboard driver for embedded systems with other forms of input.
 
-source src/drivers/input/mkbp/Kconfig
+source src/drivers/keyboard/mkbp/Kconfig

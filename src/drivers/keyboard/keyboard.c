@@ -24,7 +24,7 @@
 #include <assert.h>
 #include <libpayload.h>
 
-#include "drivers/input/input.h"
+#include "drivers/keyboard/keyboard.h"
 
 ListNode on_demand_input_devices;
 

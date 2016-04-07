@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Google Inc.
+ * Copyright 2012 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -10,7 +10,7 @@
  * the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
- * but without any warranty; without even the implied warranty of
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
@@ -18,28 +18,23 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
+ *
  */
+#ifndef __DRIVERS_KEYBOARD_KEYBOARD_H__
+#define __DRIVERS_KEYBOARD_KEYBOARD_H__
 
-#include "base/init_funcs.h"
-#include "drivers/bus/usb/usb.h"
-#include "drivers/input/input.h"
+#include "base/list.h"
 
-static void usb_input_init(void)
-{
-	dc_usb_initialize();
-	usb_poll();
-}
+typedef struct OnDemandInput {
+	void (*init)(void);
+	int need_init;
 
-static int dc_usb_install_on_demand_input(void)
-{
-	static OnDemandInput dev =
-	{
-		&usb_input_init,
-		1
-	};
+	ListNode list_node;
+} OnDemandInput;
 
-	list_insert_after(&dev.list_node, &on_demand_input_devices);
-	return 0;
-}
+extern ListNode on_demand_input_devices;
 
-INIT_FUNC(dc_usb_install_on_demand_input);
+void input_enable(void);
+void input_init(void);
+
+#endif /* __DRIVERS_KEYBOARD_KEYBOARD_H__ */

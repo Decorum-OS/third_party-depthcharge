@@ -28,9 +28,9 @@
 
 #include "base/init_funcs.h"
 #include "drivers/ec/cros/ec.h"
-#include "drivers/input/input.h"
-#include "drivers/input/mkbp/keymatrix.h"
-#include "drivers/input/mkbp/layout.h"
+#include "drivers/keyboard/keyboard.h"
+#include "drivers/keyboard/mkbp/keymatrix.h"
+#include "drivers/keyboard/mkbp/layout.h"
 
 typedef enum Modifier {
 	ModifierNone = 0x0,

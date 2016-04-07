@@ -21,7 +21,7 @@
  *
  */
 
-#include "drivers/input/mkbp/keymatrix.h"
+#include "drivers/keyboard/mkbp/keymatrix.h"
 
 enum {
 	Rows = 8,

@@ -20,17 +20,26 @@
  * MA 02111-1307 USA
  *
  */
-#ifndef __DRIVERS_INPUT_MKBP_KEYMATRIX_H__
-#define __DRIVERS_INPUT_MKBP_KEYMATRIX_H__
+#ifndef __DRIVERS_KEYBOARD_MKBP_LAYOUT_H__
+#define __DRIVERS_KEYBOARD_MKBP_LAYOUT_H__
 
 #include <stdint.h>
 
-typedef struct MkbpKeymatrix {
-	int rows;
-	int cols;
-	uint16_t **scancodes;
-} MkbpKeymatrix;
+enum {
+	MkbpLayoutNoMod,
+	MkbpLayoutShift,
+	MkbpLayoutAlt,
+	MkbpLayoutShiftAlt,
 
-extern MkbpKeymatrix mkbp_keymatrix;
+	MkbpLayoutMax
+};
 
-#endif /* __DRIVERS_INPUT_MKBP_KEYMATRIX_H__ */
+enum {
+	MkbpLayoutSize = 0x57
+};
+
+typedef uint16_t MkbpLayout[MkbpLayoutMax][MkbpLayoutSize];
+
+extern MkbpLayout mkbp_keyboard_layout;
+
+#endif /* __DRIVERS_KEYBOARD_MKBP_LAYOUT_H__ */

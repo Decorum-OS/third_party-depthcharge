@@ -10,7 +10,7 @@
  * the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * but without any warranty; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
@@ -18,28 +18,28 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
- *
  */
-#ifndef __DRIVERS_INPUT_MKBP_LAYOUT_H__
-#define __DRIVERS_INPUT_MKBP_LAYOUT_H__
 
-#include <stdint.h>
+#include "base/init_funcs.h"
+#include "drivers/bus/usb/usb.h"
+#include "drivers/keyboard/keyboard.h"
 
-enum {
-	MkbpLayoutNoMod,
-	MkbpLayoutShift,
-	MkbpLayoutAlt,
-	MkbpLayoutShiftAlt,
+static void usb_input_init(void)
+{
+	dc_usb_initialize();
+	usb_poll();
+}
 
-	MkbpLayoutMax
-};
+static int dc_usb_install_on_demand_input(void)
+{
+	static OnDemandInput dev =
+	{
+		&usb_input_init,
+		1
+	};
 
-enum {
-	MkbpLayoutSize = 0x57
-};
+	list_insert_after(&dev.list_node, &on_demand_input_devices);
+	return 0;
+}
 
-typedef uint16_t MkbpLayout[MkbpLayoutMax][MkbpLayoutSize];
-
-extern MkbpLayout mkbp_keyboard_layout;
-
-#endif /* __DRIVERS_INPUT_MKBP_LAYOUT_H__ */
+INIT_FUNC(dc_usb_install_on_demand_input);

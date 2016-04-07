@@ -15,6 +15,4 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-subdirs-y += keymatrix layout
-
-depthcharge-$(CONFIG_DRIVER_INPUT_MKBP) += keyboard.c
+depthcharge-$(CONFIG_DRIVER_KEYBOARD_MKBP_KEYMATRIX_STANDARD) += standard.c

@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef __DRIVERS_INPUT_PSEUDO_KEYBOARD_H__
-#define __DRIVERS_INPUT_PSEUDO_KEYBOARD_H__
+#ifndef __DRIVERS_KEYBOARD_PSEUDO_KEYBOARD_H__
+#define __DRIVERS_KEYBOARD_PSEUDO_KEYBOARD_H__
 
 typedef enum Modifier {
 	MODIFIER_NONE = 0x0,
@@ -73,4 +73,4 @@ struct pk_sm_desc {
 void mainboard_keyboard_init(struct pk_sm_desc *desc);
 int mainboard_read_input(void);
 
-#endif /* __DRIVERS_INPUT_PSEUDO_KEYBOARD_H__ */
+#endif /* __DRIVERS_KEYBOARD_PSEUDO_KEYBOARD_H__ */
