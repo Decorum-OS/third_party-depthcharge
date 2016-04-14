@@ -22,13 +22,15 @@
  */
 
 #include <assert.h>
-#include <keycodes.h>
 #include <libpayload.h>
 #include <stdint.h>
 
+#include "base/container_of.h"
 #include "base/init_funcs.h"
+#include "base/keycodes.h"
 #include "drivers/ec/cros/ec.h"
 #include "drivers/keyboard/keyboard.h"
+#include "drivers/keyboard/mkbp/keyboard.h"
 #include "drivers/keyboard/mkbp/keymatrix.h"
 #include "drivers/keyboard/mkbp/layout.h"
 
@@ -39,15 +41,13 @@ typedef enum Modifier {
 	ModifierShift = 0x4
 } Modifier;
 
-static int read_scancodes(Modifier *modifiers, uint8_t *codes, int max_codes)
+static int read_scancodes(MkbpKeyboard *keyboard, Modifier *modifiers,
+			  uint8_t *codes, int max_codes)
 {
-	static struct cros_ec_keyscan last_scan;
-	static struct cros_ec_keyscan scan;
-
 	assert(modifiers);
 	*modifiers = ModifierNone;
 
-	if (cros_ec_scan_keyboard(&scan)) {
+	if (cros_ec_scan_keyboard(&keyboard->scan)) {
 		printf("Key matrix scan failed.\n");
 		return 0;
 	}
@@ -70,9 +70,9 @@ static int read_scancodes(Modifier *modifiers, uint8_t *codes, int max_codes)
 	for (int pos = 0; pos < num_keys; pos += 8) {
 		int byte = pos / 8;
 
-		uint8_t last_data = last_scan.data[byte];
-		uint8_t data = scan.data[byte];
-		last_scan.data[byte] = data;
+		uint8_t last_data = keyboard->last_scan.data[byte];
+		uint8_t data = keyboard->scan.data[byte];
+		keyboard->last_scan.data[byte] = data;
 
 		// Only a few bits are going to be set at any one time.
 		if (!data)
@@ -139,31 +139,23 @@ static int read_scancodes(Modifier *modifiers, uint8_t *codes, int max_codes)
 	return total;
 }
 
-enum {
-	KeyFifoSize = 16
-};
-
-uint16_t key_fifo[KeyFifoSize];
-int fifo_offset;
-int fifo_size;
-
-static void add_key(uint16_t key)
+static void add_key(MkbpKeyboard *keyboard, uint16_t key)
 {
 	// Don't do anything if there isn't enough space.
-	if (fifo_size == ARRAY_SIZE(key_fifo))
+	if (keyboard->fifo_size == ARRAY_SIZE(keyboard->key_fifo))
 		return;
 
-	key_fifo[fifo_size++] = key;
+	keyboard->key_fifo[keyboard->fifo_size++] = key;
 }
 
-static void more_keys(void)
+static void more_keys(MkbpKeyboard *keyboard)
 {
 	// No more keys until you finish the ones you've got.
-	if (fifo_offset < fifo_size)
+	if (keyboard->fifo_offset < keyboard->fifo_size)
 		return;
 
 	// FIFO empty, reinitialize it back to its default state.
-	fifo_offset = fifo_size = 0;
+	keyboard->fifo_offset = keyboard->fifo_size = 0;
 
 	// If the EC doesn't assert its interrupt line, it has no more keys.
 	if (!cros_ec_interrupt_pending())
@@ -172,7 +164,8 @@ static void more_keys(void)
 	// Get scancodes from the EC.
 	uint8_t scancodes[KeyFifoSize];
 	Modifier modifiers;
-	int count = read_scancodes(&modifiers, scancodes, KeyFifoSize);
+	int count = read_scancodes(keyboard, &modifiers, scancodes,
+				   KeyFifoSize);
 
 	// Figure out which layout to use based on the modifiers.
 	int map;
@@ -193,13 +186,13 @@ static void more_keys(void)
 
 		// Handle arrow keys.
 		if (code == 0x6c)
-			add_key(KEY_DOWN);
+			add_key(keyboard, KEY_DOWN);
 		else if (code == 0x6a)
-			add_key(KEY_RIGHT);
+			add_key(keyboard, KEY_RIGHT);
 		else if (code == 0x67)
-			add_key(KEY_UP);
+			add_key(keyboard, KEY_UP);
 		else if (code == 0x69)
-			add_key(KEY_LEFT);
+			add_key(keyboard, KEY_LEFT);
 
 		// Make sure the next check will prevent us from recognizing
 		// this key twice.
@@ -221,47 +214,32 @@ static void more_keys(void)
 				 (ascii >= 'A' && ascii <= 'Z')))
 			ascii &= 0x1f;
 
-		add_key(ascii);
+		add_key(keyboard, ascii);
 	}
 }
 
-static int mkbp_keyboard_havekey(void)
+static int mkbp_keyboard_have_char(KeyboardOps *me)
 {
+	MkbpKeyboard *keyboard = container_of(me, MkbpKeyboard, ops);
+
 	// Get more keys if we need them.
-	more_keys();
+	more_keys(keyboard);
 
-	return fifo_offset < fifo_size;
+	return keyboard->fifo_offset < keyboard->fifo_size;
 }
 
-static int mkbp_keyboard_getchar(void)
+static int mkbp_keyboard_get_char(KeyboardOps *me)
 {
-	while (!mkbp_keyboard_havekey());
+	MkbpKeyboard *keyboard = container_of(me, MkbpKeyboard, ops);
 
-	return key_fifo[fifo_offset++];
+	while (!mkbp_keyboard_have_char(me));
+
+	return keyboard->key_fifo[keyboard->fifo_offset++];
 }
 
-static struct console_input_driver mkbp_keyboard =
-{
-	NULL,
-	&mkbp_keyboard_havekey,
-	&mkbp_keyboard_getchar
+MkbpKeyboard mkbp_keyboard = {
+	.ops = {
+		.get_char = &mkbp_keyboard_get_char,
+		.have_char = &mkbp_keyboard_have_char
+	}
 };
-
-static void mkbp_keyboard_init(void)
-{
-	console_add_input_driver(&mkbp_keyboard);
-}
-
-static int dc_mkbp_install_on_demand_input(void)
-{
-	static OnDemandInput dev =
-	{
-		&mkbp_keyboard_init,
-		1
-	};
-
-	list_insert_after(&dev.list_node, &on_demand_input_devices);
-	return 0;
-}
-
-INIT_FUNC(dc_mkbp_install_on_demand_input);

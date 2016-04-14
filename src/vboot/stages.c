@@ -141,7 +141,7 @@ int vboot_do_init_out_flags(uint32_t out_flags)
 	 */
 	if (out_flags & (VB_INIT_OUT_ENABLE_DEVELOPER |
 			 VB_INIT_OUT_ENABLE_RECOVERY))
-		input_enable();
+		keyboard_prepare();
 
 	vboot_out_flags = out_flags;
 

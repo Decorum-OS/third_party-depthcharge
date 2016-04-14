@@ -31,6 +31,8 @@
 #include "drivers/flash/spi.h"
 #include "drivers/gpio/rockchip.h"
 #include "drivers/gpio/sysinfo.h"
+#include "drivers/keyboard/dynamic.h"
+#include "drivers/keyboard/mkbp/keyboard.h"
 #include "drivers/power/rk808.h"
 #include "drivers/power/sysinfo.h"
 #include "drivers/storage/dw_mmc.h"
@@ -107,5 +109,8 @@ PUB_DYN(power, &new_sysinfo_reset_power_ops(get_pmic(),
 		new_rk_gpio_output_from_coreboot)->ops)
 
 PUB_DYN(debug_uart, &new_uart_8250_mem32(0xff690000)->uart.ops)
+
+PUB_ARR(keyboards, &mkbp_keyboard.ops,
+		   &dynamic_keyboards.ops);
 
 INIT_FUNC(board_setup);

@@ -31,8 +31,6 @@
 
 libc-$(CONFIG_PCI) += pci.c
 
-libc-$(CONFIG_PC_KEYBOARD) += keyboard.c
-
 libc-$(CONFIG_CBMEM_CONSOLE) += cbmem_console.c
 
 libc-$(CONFIG_NVRAM) += nvram.c
@@ -66,7 +64,6 @@ libc-$(CONFIG_USB_XHCI) += usb/xhci_devconf.c
 libc-$(CONFIG_USB_XHCI) += usb/xhci_events.c
 libc-$(CONFIG_USB_XHCI) += usb/xhci_commands.c
 libc-$(CONFIG_USB_XHCI) += usb/xhci_rh.c
-libc-$(CONFIG_USB_HID) += usb/usbhid.c
 libc-$(CONFIG_USB_DWC2) += usb/dwc2.c
 libc-$(CONFIG_USB_DWC2) += usb/dwc2_rh.c
 

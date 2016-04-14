@@ -21,8 +21,7 @@
  *
  */
 
-#include <keycodes.h>
-
+#include "base/keycodes.h"
 #include "drivers/keyboard/mkbp/layout.h"
 
 MkbpLayout mkbp_keyboard_layout = {

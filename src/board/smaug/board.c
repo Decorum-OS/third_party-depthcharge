@@ -36,6 +36,7 @@
 #include "drivers/gpio/gpio.h"
 #include "drivers/gpio/sysinfo.h"
 #include "drivers/gpio/tegra210.h"
+#include "drivers/keyboard/dynamic.h"
 #include "drivers/power/max77620.h"
 #include "drivers/power/sysinfo.h"
 #include "drivers/sound/i2s.h"
@@ -258,3 +259,5 @@ PUB_DYN(power, &new_sysinfo_reset_power_ops(get_pmic(),
 		new_tegra_gpio_output_from_coreboot)->ops)
 
 PUB_DYN(debug_uart, &new_uart_8250_mem32(0x70006000)->uart.ops)
+
+PUB_ARR(keyboards, &dynamic_keyboards.ops);

@@ -23,10 +23,14 @@
 #ifndef __BOARD_BOARD_H__
 #define __BOARD_BOARD_H__
 
-#include "drivers/uart/uart.h"
+#include "drivers/keyboard/keyboard.h"
 #include "drivers/power/power.h"
+#include "drivers/uart/uart.h"
 
 UartOps *board_debug_uart(void);
+
+KeyboardOps **board_keyboards(void);
+
 PowerOps *board_power(void);
 
 #endif /* __BOARD_BOARD_H__ */

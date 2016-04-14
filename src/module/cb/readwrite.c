@@ -36,7 +36,6 @@ int main(void)
 	// Initialize some consoles.
 	serial_console_init();
 	cbmem_console_init();
-	input_init();
 
 	printf("\n\nStarting read/write depthcharge on " CONFIG_BOARD "...\n");
 

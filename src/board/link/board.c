@@ -31,6 +31,8 @@
 #include "drivers/flash/memmapped.h"
 #include "drivers/gpio/pantherpoint.h"
 #include "drivers/gpio/sysinfo.h"
+#include "drivers/keyboard/dynamic.h"
+#include "drivers/keyboard/ps2.h"
 #include "drivers/power/pch.h"
 #include "drivers/sound/hda_codec.h"
 #include "drivers/sound/sound.h"
@@ -67,5 +69,8 @@ static int board_setup(void)
 PUB_STAT(power, &pch_power_ops)
 
 PUB_DYN(debug_uart, &new_uart_8250_io(0x3f8)->uart.ops)
+
+PUB_ARR(keyboards, &new_ps2_keyboard()->ops,
+		   &dynamic_keyboards.ops)
 
 INIT_FUNC(board_setup);

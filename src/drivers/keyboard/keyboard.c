@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,50 +21,14 @@
  *
  */
 
-#include <assert.h>
-#include <libpayload.h>
-
+#include "board/board.h"
 #include "drivers/keyboard/keyboard.h"
 
-ListNode on_demand_input_devices;
-
-static void do_input_init(void)
+void keyboard_prepare(void)
 {
-	OnDemandInput *dev;
-	list_for_each(dev, on_demand_input_devices, list_node) {
-		if (dev->need_init) {
-			assert(dev->init);
-			dev->init();
-			dev->need_init = 0;
-		}
-	}
-}
+	KeyboardOps **keyboards = board_keyboards();
+	KeyboardOps *keyboard;
 
-static int fake_havekey(void)
-{
-	do_input_init();
-	return 0;
-}
-
-static int fake_getchar(void)
-{
-	do_input_init();
-	return 0;
-}
-
-static struct console_input_driver on_demand_input_driver =
-{
-	NULL,
-	&fake_havekey,
-	&fake_getchar
-};
-
-void input_enable(void)
-{
-	do_input_init();
-}
-
-void input_init(void)
-{
-	console_add_input_driver(&on_demand_input_driver);
+	while ((keyboard = *keyboards++))
+		keyboard->have_char(keyboard);
 }

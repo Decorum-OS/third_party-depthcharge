@@ -22,6 +22,9 @@
 
 #include "board/board.h"
 #include "board/board_helpers.h"
+#include "drivers/keyboard/ps2.h"
 #include "drivers/uart/8250.h"
 
 PUB_DYN(debug_uart, &new_uart_8250_io(0x3f8)->uart.ops)
+
+PUB_ARR(keyboards, &new_ps2_keyboard()->ops)

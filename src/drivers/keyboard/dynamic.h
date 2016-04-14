@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,26 +20,26 @@
  * MA 02111-1307 USA
  */
 
-#include "base/init_funcs.h"
-#include "drivers/bus/usb/usb.h"
+#ifndef __DRIVERS_KEYBOARD_DYNAMIC_H__
+#define __DRIVERS_KEYBOARD_DYNAMIC_H__
+
+#include "base/list.h"
 #include "drivers/keyboard/keyboard.h"
 
-static void usb_input_init(void)
-{
-	dc_usb_initialize();
-	usb_poll();
-}
+typedef struct {
+	KeyboardOps ops;
 
-static int dc_usb_install_on_demand_input(void)
-{
-	static OnDemandInput dev =
-	{
-		&usb_input_init,
-		1
-	};
+	ListNode list_node;
+} DynamicKeyboard;
 
-	list_insert_after(&dev.list_node, &on_demand_input_devices);
-	return 0;
-}
+// This keyboard driver aggregates and tracks dynamically discovered
+// keyboards and passes callbacks through to them.
+typedef struct {
+	KeyboardOps ops;
 
-INIT_FUNC(dc_usb_install_on_demand_input);
+	ListNode keyboards;
+} DynamicKeyboards;
+
+extern DynamicKeyboards dynamic_keyboards;
+
+#endif /* __DRIVERS_KEYBOARD_DYNAMIC_H__ */

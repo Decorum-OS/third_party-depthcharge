@@ -22,58 +22,57 @@
  */
 
 #include <assert.h>
-#include <keycodes.h>
 #include <libpayload.h>
 #include <stdint.h>
 
 #include "base/init_funcs.h"
+#include "base/keycodes.h"
 #include "base/state_machine.h"
 #include "drivers/keyboard/keyboard.h"
 #include "drivers/keyboard/pseudo/keyboard.h"
 #include "drivers/timer/timer.h"
 
-/* State machine data for pseudo keyboard */
-static struct sm_data *pk_sm;
-struct pk_sm_desc desc;
-
-static void pk_state_machine_setup(void)
+static void pk_state_machine_setup(PseudoKeyboard *keyboard)
 {
 	int i;
 
-	/* Mainboard needs to define keyboard_init function and return back
-	   filled state machine desc. */
-	mainboard_keyboard_init(&desc);
+	// Mainboard needs to define keyboard_init function and return back
+	// filled state machine desc.
+	mainboard_keyboard_init(&keyboard->desc);
 
-	if (desc.total_states_count == 0)
+	if (keyboard->desc.total_states_count == 0)
 		return;
 
-	/* Initialize state machine for pseudo keyboard */
-	pk_sm = sm_init(desc.total_states_count);
+	// Initialize state machine for pseudo keyboard.
+	keyboard->pk_sm = sm_init(keyboard->desc.total_states_count);
 
-	/* Add start state */
-	sm_add_start_state(pk_sm, desc.start_state);
+	// Add start state.
+	sm_add_start_state(keyboard->pk_sm, keyboard->desc.start_state);
 
-	/* Add intermediate states */
-	for (i = 0; i < desc.int_states_count; i++)
-		sm_add_nonfinal_state(pk_sm, desc.int_states_arr[i]);
+	// Add intermediate states.
+	for (i = 0; i < keyboard->desc.int_states_count; i++)
+		sm_add_nonfinal_state(keyboard->pk_sm,
+				      keyboard->desc.int_states_arr[i]);
 
-	/* Add final states */
-	for (i = 0; i < desc.final_states_count; i++)
-		sm_add_final_state(pk_sm, desc.final_states_arr[i].state_id);
+	// Add final states.
+	for (i = 0; i < keyboard->desc.final_states_count; i++)
+		sm_add_final_state(keyboard->pk_sm,
+				   keyboard->desc.final_states_arr[i].state_id);
 
-	/* Add valid transitions */
-	for (i = 0; i < desc.trans_count; i++)
-		sm_add_transition(pk_sm, desc.trans_arr[i].src,
-				  desc.trans_arr[i].inp,
-				  desc.trans_arr[i].dst);
+	// Add valid transitions.
+	for (i = 0; i < keyboard->desc.trans_count; i++)
+		sm_add_transition(keyboard->pk_sm,
+				  keyboard->desc.trans_arr[i].src,
+				  keyboard->desc.trans_arr[i].inp,
+				  keyboard->desc.trans_arr[i].dst);
 }
 
-static const struct pk_final_state *pk_find_final_state(int id)
+static const struct pk_final_state *pk_find_final_state(
+	PseudoKeyboard *keyboard, int id)
 {
-	int i;
-	for (i = 0; i < desc.final_states_count; i++)
-		if (desc.final_states_arr[i].state_id == id)
-			return &desc.final_states_arr[i];
+	for (int i = 0; i < keyboard->desc.final_states_count; i++)
+		if (keyboard->desc.final_states_arr[i].state_id == id)
+			return &keyboard->desc.final_states_arr[i];
 
 	die("Error in final state logic\n");
 }
@@ -90,37 +89,37 @@ static const struct pk_final_state *pk_find_final_state(int id)
  *
  * This function returns the number of codes read into codes array.
  */
-static size_t read_key_codes(Modifier *modifiers, uint16_t *codes,
-			     size_t max_codes)
+static size_t read_key_codes(PseudoKeyboard *keyboard, Modifier *modifiers,
+			     uint16_t *codes, size_t max_codes)
 {
-	assert (modifiers && codes && max_codes);
+	assert(modifiers && codes && max_codes);
 
 	int i = 0;
 
-	sm_reset_state(pk_sm);
+	sm_reset_state(keyboard->pk_sm);
 
-	/* We have only max_codes space in codes to fill up key codes. */
+	// We have only max_codes space in codes to fill up key codes.
 	while (i < max_codes) {
 
 		int input, ret, output;
 		uint64_t start = timer_us(0);
-		/* If no input is received for 500 msec, return. */
+		// If no input is received for 500 msec, return.
 		uint64_t timeout_us = 500 * 1000;
 
 		do {
 			uint64_t button_press = timer_us(0);
 			uint64_t button_timeout = 100 * 1000;
 
-			/* Mainboard needs to define function to read input */
+			// Mainboard needs to define function to read input.
 			input = mainboard_read_input();
 
-			if (input == NO_INPUT)
+			if (input == PseudoKb_NoInput)
 				continue;
 
-			/* Input should be seen for at least 100 ms */
+			// Input should be seen for at least 100 ms/
 			do {
 				if (mainboard_read_input() != input) {
-					input = NO_INPUT;
+					input = PseudoKb_NoInput;
 					break;
 				}
 			} while (timer_us(button_press) < button_timeout);
@@ -129,31 +128,31 @@ static size_t read_key_codes(Modifier *modifiers, uint16_t *codes,
 			 * If input is received, wait until input changes to
 			 * avoid duplicate entries for same input.
 			 */
-			if (input != NO_INPUT) {
+			if (input != PseudoKb_NoInput) {
 				while (mainboard_read_input() == input)
-					;
+				{;}
 				break;
 			}
 		} while (timer_us(start) < timeout_us);
 
-		/* If timeout without input, return. */
-		if (input == NO_INPUT)
+		// If timeout without input, return.
+		if (input == PseudoKb_NoInput)
 			break;
 
-		/* Run state machine to move to next state */
-		ret = sm_run(pk_sm, input, &output);
+		// Run state machine to move to next state.
+		ret = sm_run(keyboard->pk_sm, input, &output);
 
 		if (ret == STATE_NOT_FINAL)
 			continue;
 
 		if (ret == STATE_NO_TRANSITION) {
-			sm_reset_state(pk_sm);
+			sm_reset_state(keyboard->pk_sm);
 			continue;
 		}
 
-		assert(output < desc.total_states_count);
+		assert(output < keyboard->desc.total_states_count);
 		const struct pk_final_state *ptr;
-		ptr = pk_find_final_state(output);
+		ptr = pk_find_final_state(keyboard, output);
 		*modifiers |= ptr->mod;
 		codes[i++] = ptr->keycode;
 	}
@@ -161,149 +160,134 @@ static size_t read_key_codes(Modifier *modifiers, uint16_t *codes,
 	return i;
 }
 
-#define KEY_FIFO_SIZE 16
-static uint16_t key_fifo[KEY_FIFO_SIZE];
-/* Elements are added at the head and removed from the tail */
-static size_t fifo_tail;
-static size_t fifo_head;
-
-/* Gives # of unused slots in fifo to put elements */
-static inline size_t key_fifo_size(void)
+// Gives # of unused slots in fifo to put elements.
+static inline size_t key_fifo_size(PseudoKeyboard *keyboard)
 {
-	return ARRAY_SIZE(key_fifo) - fifo_head;
+	return ARRAY_SIZE(keyboard->key_fifo) - keyboard->fifo_head;
 }
 
-/* Gives # of used unread slots in fifo */
-static inline size_t key_fifo_occupied(void)
+// Gives # of used unread slots in fifo.
+static inline size_t key_fifo_occupied(PseudoKeyboard *keyboard)
 {
-	return fifo_head - fifo_tail;
+	return keyboard->fifo_head - keyboard->fifo_tail;
 }
 
-/* Tells if all slots in fifo are used */
-static inline int key_fifo_full(void)
+// Tells if all slots in fifo are used.
+static inline int key_fifo_full(PseudoKeyboard *keyboard)
 {
-	return !key_fifo_size();
+	return !key_fifo_size(keyboard);
 }
 
-static void key_fifo_put(uint16_t key)
+static void key_fifo_put(PseudoKeyboard *keyboard, uint16_t key)
 {
-	if (key_fifo_full()) {
+	if (key_fifo_full(keyboard)) {
 		printf("%s: dropped a character\n",__func__);
 		return;
 	}
 
-	key_fifo[fifo_head++] = key;
+	keyboard->key_fifo[keyboard->fifo_head++] = key;
 }
 
-static uint16_t key_fifo_get(void)
+static uint16_t key_fifo_get(PseudoKeyboard *keyboard)
 {
-	assert(key_fifo_occupied());
+	assert(key_fifo_occupied(keyboard));
 
-	uint16_t key = key_fifo[fifo_tail++];
+	uint16_t key = keyboard->key_fifo[keyboard->fifo_tail++];
 	return key;
 }
 
-static void key_fifo_clear(void)
+static void key_fifo_clear(PseudoKeyboard *keyboard)
 {
-	fifo_tail = fifo_head = 0;
+	keyboard->fifo_tail = keyboard->fifo_head = 0;
 }
 
-static void pk_more_keys(void)
+static void pk_more_keys(PseudoKeyboard *keyboard)
 {
-	/* No more keys until you finish the ones you've got. */
-	if (key_fifo_occupied())
+	// No more keys until you finish the ones you've got.
+	if (key_fifo_occupied(keyboard))
 		return;
 
-	key_fifo_clear();
+	key_fifo_clear(keyboard);
 
-	/* Get ascii codes */
-	uint16_t key_codes[KEY_FIFO_SIZE];
-	Modifier modifiers = MODIFIER_NONE;
+	// Get ascii codes.
+	uint16_t key_codes[PseudoKb_FifoSize];
+	Modifier modifiers = PseudoKb_Modifier_None;
 	/*
 	 * Every board that uses pseudo keyboard is expected to implement its
 	 * own read_key_codes since input methods and input pins can vary.
 	 */
-	size_t count = read_key_codes(&modifiers, key_codes, KEY_FIFO_SIZE);
+	size_t count = read_key_codes(keyboard, &modifiers, key_codes,
+				      PseudoKb_FifoSize);
 
-	assert (count <= KEY_FIFO_SIZE);
+	assert(count <= PseudoKb_FifoSize);
 
-	/* Look at all the keys and fill the FIFO. */
+	// Look at all the keys and fill the FIFO.
 	for (size_t pos = 0; pos < count; pos++) {
 		uint16_t code = key_codes[pos];
 
-		/* Check for valid keycode */
-		if ((code < KEY_CODE_START) || (code > KEY_CODE_END))
+		// Check for valid keycode.
+		if ((code < PseudoKb_KeyCodeStart) ||
+		    (code > PseudoKb_KeyCodeEnd))
 			continue;
 
-		/* Check for ascii values of alphabets */
+		// Check for ascii values of alphabets.
 		if (isalpha(code)) {
-			/* Convert alpha characters into control characters */
-			if (modifiers & MODIFIER_CTRL)
+			// Convert alpha characters into control characters.
+			if (modifiers & PseudoKb_Modifier_Ctrl)
 				code &= 0x1f;
-			key_fifo_put(code);
+			key_fifo_put(keyboard, code);
 			continue;
 		}
 
-		/* Handle special keys */
+		// Handle special keys.
 		switch (code) {
-		case KEY_CODE_UP:
-			key_fifo_put(KEY_UP);
+		case PseudoKb_KeyCodeUp:
+			key_fifo_put(keyboard, KEY_UP);
 			break;
-		case KEY_CODE_DOWN:
-			key_fifo_put(KEY_DOWN);
+		case PseudoKb_KeyCodeDown:
+			key_fifo_put(keyboard, KEY_DOWN);
 			break;
-		case KEY_CODE_RIGHT:
-			key_fifo_put(KEY_RIGHT);
+		case PseudoKb_KeyCodeRight:
+			key_fifo_put(keyboard, KEY_RIGHT);
 			break;
-		case KEY_CODE_LEFT:
-			key_fifo_put(KEY_LEFT);
+		case PseudoKb_KeyCodeLeft:
+			key_fifo_put(keyboard, KEY_LEFT);
 			break;
 		default:
-			key_fifo_put(code);
+			key_fifo_put(keyboard, code);
 		}
 	}
 }
 
-static int pk_havekey(void)
+static int pk_have_char(KeyboardOps *me)
 {
-	/* Get more keys if we need them. */
-	pk_more_keys();
+	PseudoKeyboard *keyboard = container_of(me, PseudoKeyboard, ops);
 
-	return key_fifo_occupied();
+	if (!keyboard->initialized)
+		pk_state_machine_setup(keyboard);
+
+	// Get more keys if we need them.
+	pk_more_keys(keyboard);
+
+	return key_fifo_occupied(keyboard);
 }
 
-static int pk_getchar(void)
+static int pk_get_char(KeyboardOps *me)
 {
-	while (!pk_havekey());
+	PseudoKeyboard *keyboard = container_of(me, PseudoKeyboard, ops);
 
-	return key_fifo_get();
+	if (!keyboard->initialized)
+		pk_state_machine_setup(keyboard);
+
+	while (!pk_have_char(me))
+	{;}
+
+	return key_fifo_get(keyboard);
 }
 
-static struct console_input_driver pseudo_keyboard =
-{
-	NULL,
-	&pk_havekey,
-	&pk_getchar
+PseudoKeyboard pseudo_keyboard = {
+	.ops = {
+		.get_char = &pk_get_char,
+		.have_char = &pk_have_char
+	}
 };
-
-static void pk_init(void)
-{
-	console_add_input_driver(&pseudo_keyboard);
-}
-
-static int pk_install_on_demand_input(void)
-{
-	static OnDemandInput dev =
-	{
-		.init = &pk_init,
-		.need_init = 1,
-	};
-
-	list_insert_after(&dev.list_node, &on_demand_input_devices);
-
-	pk_state_machine_setup();
-
-	return 0;
-}
-
-INIT_FUNC(pk_install_on_demand_input);

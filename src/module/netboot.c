@@ -71,7 +71,6 @@ int main(void)
 	serial_console_init();
 	cbmem_console_init();
 	video_console_init();
-	input_init();
 
 	printf("\n\nStarting netboot on " CONFIG_BOARD "...\n");
 

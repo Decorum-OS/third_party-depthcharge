@@ -24,37 +24,40 @@
 #ifndef __DRIVERS_KEYBOARD_PSEUDO_KEYBOARD_H__
 #define __DRIVERS_KEYBOARD_PSEUDO_KEYBOARD_H__
 
+#include "base/state_machine.h"
+#include "drivers/keyboard/keyboard.h"
+
 typedef enum Modifier {
-	MODIFIER_NONE = 0x0,
-	MODIFIER_CTRL = 0x1,
-	MODIFIER_ALT = 0x2,
-	MODIFIER_SHIFT = 0x4
+	PseudoKb_Modifier_None = 0x0,
+	PseudoKb_Modifier_Ctrl = 0x1,
+	PseudoKb_Modifier_Alt = 0x2,
+	PseudoKb_Modifier_Shift = 0x4
 } Modifier;
 
 enum {
-	KEY_CODE_START = 0,
-	KEY_CODE_UP = 128,
-	KEY_CODE_DOWN = 129,
-	KEY_CODE_RIGHT = 130,
-	KEY_CODE_LEFT = 131,
-	KEY_CODE_END = 131,
+	PseudoKb_KeyCodeStart = 0,
+	PseudoKb_KeyCodeUp = 128,
+	PseudoKb_KeyCodeDown = 129,
+	PseudoKb_KeyCodeRight = 130,
+	PseudoKb_KeyCodeLeft = 131,
+	PseudoKb_KeyCodeEnd = 131,
 };
 
-/* Structure defining final states of pseudo keyboard state machine */
+// Structure defining final states of pseudo keyboard state machine.
 struct pk_final_state {
 	int state_id;
 	Modifier mod;
 	uint16_t keycode;
 };
 
-/* Structure defining transition for pseudo keyboard states */
+// Structure defining transition for pseudo keyboard states.
 struct pk_trans {
 	int src;
 	int inp;
 	int dst;
 };
 
-/* Structure for state machine descriptor filled in by mainboard */
+// Structure for state machine descriptor filled in by mainboard.
 struct pk_sm_desc {
 	size_t total_states_count;
 	int start_state;
@@ -66,11 +69,34 @@ struct pk_sm_desc {
 	const struct pk_trans *trans_arr;
 };
 
-/* Special input value defining no input present */
-#define NO_INPUT		-1
+// Special input value defining no input present.
+enum {
+	PseudoKb_NoInput = -1
+};
 
-/* Mainboard defined functions */
+// Mainboard defined functions.
 void mainboard_keyboard_init(struct pk_sm_desc *desc);
 int mainboard_read_input(void);
+
+enum {
+	PseudoKb_FifoSize = 16
+};
+
+typedef struct {
+	KeyboardOps ops;
+
+	int initialized;
+
+	// State machine data for pseudo keyboard.
+	struct sm_data *pk_sm;
+	struct pk_sm_desc desc;
+
+	uint16_t key_fifo[PseudoKb_FifoSize];
+	// Elements are added at the head and removed from the tail.
+	size_t fifo_tail;
+	size_t fifo_head;
+} PseudoKeyboard;
+
+extern PseudoKeyboard pseudo_keyboard;
 
 #endif /* __DRIVERS_KEYBOARD_PSEUDO_KEYBOARD_H__ */

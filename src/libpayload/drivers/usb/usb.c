@@ -558,7 +558,7 @@ set_address (UsbDevHc *controller, UsbSpeed speed, int hubport, int hubaddr)
 		break;
 	case hid_device:
 		usb_debug ("HID\n");
-#if CONFIG_USB_HID
+#if CONFIG_DRIVER_USB_HID
 		dev->init = usb_hid_init;
 		return dev->address;
 #else

@@ -51,12 +51,12 @@ static const int int_states[] = {
 
 /* Final stages that map to key/modifier codes */
 static const struct pk_final_state final_states[] = {
-	{STATE_ID_CTRL_D, MODIFIER_CTRL, 'D'},
-	{STATE_ID_CTRL_U, MODIFIER_CTRL, 'U'},
-	{STATE_ID_CR, MODIFIER_NONE, '\r'},
-	{STATE_ID_SPC, MODIFIER_NONE, ' '},
-	{STATE_ID_CTRL_L, MODIFIER_CTRL, 'L'},
-	{STATE_ID_TAB, MODIFIER_NONE, '\t'},
+	{STATE_ID_CTRL_D, PseudoKb_Modifier_Ctrl, 'D'},
+	{STATE_ID_CTRL_U, PseudoKb_Modifier_Ctrl, 'U'},
+	{STATE_ID_CR, PseudoKb_Modifier_None, '\r'},
+	{STATE_ID_SPC, PseudoKb_Modifier_None, ' '},
+	{STATE_ID_CTRL_L, PseudoKb_Modifier_Ctrl, 'L'},
+	{STATE_ID_TAB, PseudoKb_Modifier_None, '\t'},
 };
 
 /*

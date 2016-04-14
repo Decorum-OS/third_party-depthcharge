@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -23,18 +23,15 @@
 #ifndef __DRIVERS_KEYBOARD_KEYBOARD_H__
 #define __DRIVERS_KEYBOARD_KEYBOARD_H__
 
-#include "base/list.h"
+typedef struct KeyboardOps {
+	int (*get_char)(struct KeyboardOps *me);
+	int (*have_char)(struct KeyboardOps *me);
+} KeyboardOps;
 
-typedef struct OnDemandInput {
-	void (*init)(void);
-	int need_init;
-
-	ListNode list_node;
-} OnDemandInput;
-
-extern ListNode on_demand_input_devices;
-
-void input_enable(void);
-void input_init(void);
+// Make sure all the keyboards on the system are awake and ready to receive
+// keys. This lets us get any delays out of the way ahead of time and avoids
+// having them between when we've prompted the user, displayed graphics, etc.,
+// and when their input can be accepted.
+void keyboard_prepare(void);
 
 #endif /* __DRIVERS_KEYBOARD_KEYBOARD_H__ */

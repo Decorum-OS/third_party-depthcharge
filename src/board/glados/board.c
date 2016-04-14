@@ -36,6 +36,8 @@
 #include "drivers/flash/memmapped.h"
 #include "drivers/gpio/skylake.h"
 #include "drivers/gpio/sysinfo.h"
+#include "drivers/keyboard/dynamic.h"
+#include "drivers/keyboard/ps2.h"
 #include "drivers/power/pch.h"
 #include "drivers/sound/gpio_pdm.h"
 #include "drivers/sound/route.h"
@@ -113,5 +115,8 @@ static int board_setup(void)
 PUB_STAT(power, &skylake_power_ops)
 
 PUB_DYN(debug_uart, &new_uart_8250_mem32(0xfe034000)->uart.ops)
+
+PUB_ARR(keyboards, &new_ps2_keyboard()->ops,
+		   &dynamic_keyboards.ops)
 
 INIT_FUNC(board_setup);

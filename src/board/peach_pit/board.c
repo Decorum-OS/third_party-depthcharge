@@ -33,6 +33,8 @@
 #include "drivers/flash/spi.h"
 #include "drivers/gpio/exynos5420.h"
 #include "drivers/gpio/sysinfo.h"
+#include "drivers/keyboard/dynamic.h"
+#include "drivers/keyboard/mkbp/keyboard.h"
 #include "drivers/power/exynos.h"
 #include "drivers/sound/i2s.h"
 #include "drivers/sound/route.h"
@@ -105,5 +107,8 @@ static int board_setup(void)
 PUB_STAT(power, &exynos_power_ops)
 
 PUB_DYN(debug_uart, &new_uart_s5p(0x12c00000 + 3 * 0x10000)->ops)
+
+PUB_ARR(keyboards, &mkbp_keyboard.ops,
+		   &dynamic_keyboards.ops);
 
 INIT_FUNC(board_setup);

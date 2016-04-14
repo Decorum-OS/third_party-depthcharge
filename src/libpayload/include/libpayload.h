@@ -109,24 +109,6 @@ int usb_initialize(void);
 int usb_exit (void);
 /** @} */
 
-/**
- * @defgroup input Device functions
- * @{ @}
- */
-
-/**
- * @defgroup keyboard Keyboard functions
- * @ingroup input
- * @{
- */
-void keyboard_init(void);
-void keyboard_disconnect(void);
-int keyboard_havechar(void);
-unsigned char keyboard_get_scancode(void);
-int keyboard_getchar(void);
-int keyboard_set_layout(char *country);
-/** @} */
-
 void serial_console_init(void);
 
 /**

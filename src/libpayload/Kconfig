@@ -83,11 +83,6 @@ config COREBOOT_VIDEO_CONSOLE
 	  Say Y here if coreboot switched to a graphics mode and
 	  your payload wants to use it.
 
-config PC_KEYBOARD
-	bool "Allow input from a PC keyboard"
-	default y if ARCH_X86 # uses IO
-	default n
-
 endmenu
 
 menu "Drivers"
@@ -146,16 +141,6 @@ config USB_DWC2
 	default n
 	help
 	  Select this option if you want to use DesignWare USB 2.0 host controller
-
-config USB_HID
-	bool "Support for USB keyboards"
-	depends on USB
-	default y
-	help
-	  Select this option if you want to use devices complying to the
-	  USB HID (Human Interface Device) standard. Such devices are for
-	  example keyboards and mice. Currently only keyboards are supported.
-	  Say Y here unless you know exactly what you are doing.
 
 config USB_HUB
 	bool "Support for USB hubs"

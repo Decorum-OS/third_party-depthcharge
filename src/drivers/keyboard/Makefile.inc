@@ -17,6 +17,7 @@
 
 subdirs-y += mkbp pseudo
 
+depthcharge-y += dynamic.c
 depthcharge-y += keyboard.c
+
 depthcharge-$(CONFIG_DRIVER_KEYBOARD_PS2) += ps2.c
-depthcharge-$(CONFIG_DRIVER_KEYBOARD_USB) += usb.c

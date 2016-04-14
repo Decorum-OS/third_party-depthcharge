@@ -29,4 +29,5 @@ subdirs-y += storage
 subdirs-y += timer
 subdirs-y += tpm
 subdirs-y += uart
+subdirs-y += usb
 subdirs-y += video
