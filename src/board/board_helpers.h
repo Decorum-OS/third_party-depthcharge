@@ -23,6 +23,22 @@
 #ifndef __BOARD_BOARD_HELPERS_H__
 #define __BOARD_BOARD_HELPERS_H__
 
+#include <string.h>
+
+// A private, static board component.
+#define PRIV_STAT(name, val)				\
+static inline typeof(val) get_##name(void)		\
+{							\
+	return (val);					\
+}
+
+// A public, static board component.
+#define PUB_STAT(name, val)				\
+typeof(val) board_##name(void)				\
+{							\
+	return (val);					\
+}
+
 // A private, dynamically generated, cached board component.
 #define PRIV_DYN(name, func)				\
 static inline typeof(func) get_##name(void)		\
@@ -45,18 +61,33 @@ typeof(func) board_##name(void)				\
 	return name;					\
 }
 
-// A private, static board component.
-#define PRIV_STAT(name, val)				\
-static inline typeof(val) get_##name(void)		\
+// A public, dynamically generated, cached array of board components.
+// No private version of this macro exists because there's no obvious use
+// case for it. The array returned by this type of property should be made
+// up of pointers of the appropriate type, terminated by NULL. The type of
+// the pointers is determined by the type of the first component.
+#define PUB_ARR(name, first, ...)			\
+typeof(first) *board_##name(void)			\
 {							\
-	return (val);					\
-}
-
-// A public, static board component.
-#define PUB_STAT(name, val)				\
-typeof(val) board_##name(void)				\
-{							\
-	return (val);					\
+	typedef typeof(first) el_type;			\
+	static el_type name[				\
+		sizeof(					\
+			(el_type[]) {			\
+				(first),		\
+				##__VA_ARGS__,		\
+				NULL			\
+			}				\
+		) / sizeof(el_type)];			\
+	if (!name[0]) {					\
+		memcpy(name,				\
+			(el_type[]) {			\
+				(first),		\
+				##__VA_ARGS__,		\
+				NULL			\
+			},				\
+			sizeof(name));			\
+	}						\
+	return name;					\
 }
 
 #endif /* __BOARD_BOARD_HELPERS_H__ */
