@@ -25,21 +25,42 @@
 
 #include <string.h>
 
-// A private, static board component.
+/*
+ * A private, static board component.
+ *
+ * To define a function "get_foo" which returns a pointer to foo_instance,
+ * you would write:
+ *
+ * PRIV_STAT(foo, &foo_instance)
+ */
 #define PRIV_STAT(name, val)				\
 static inline typeof(val) get_##name(void)		\
 {							\
 	return (val);					\
 }
 
-// A public, static board component.
+/*
+ * A public, static board component.
+ *
+ * To define a function "board_foo" which returns a pointer to foo_instance,
+ * you would write:
+ *
+ * PUB_STAT(foo, &foo_instance)
+ */
 #define PUB_STAT(name, val)				\
 typeof(val) board_##name(void)				\
 {							\
 	return (val);					\
 }
 
-// A private, dynamically generated, cached board component.
+/*
+ * A private, dynamically generated, cached board component.
+ *
+ * To define a function "get_foo" which returns the cached return value of
+ * a function new_foo_instance(), you would write:
+ *
+ * PRIV_DYN(foo, new_foo_instance())
+ */
 #define PRIV_DYN(name, func)				\
 static inline typeof(func) get_##name(void)		\
 {							\
@@ -50,7 +71,14 @@ static inline typeof(func) get_##name(void)		\
 	return name;					\
 }
 
-// A public, dynamically generated, cached board component.
+/*
+ * A public, dynamically generated, cached board component.
+ *
+ * To define a function "board_foo" which returns the cached return value of
+ * a function new_foo_instance(), you would write:
+ *
+ * PUB_DYN(foo, new_foo_instance())
+ */
 #define PUB_DYN(name, func)				\
 typeof(func) board_##name(void)				\
 {							\
@@ -61,11 +89,20 @@ typeof(func) board_##name(void)				\
 	return name;					\
 }
 
-// A public, dynamically generated, cached array of board components.
-// No private version of this macro exists because there's no obvious use
-// case for it. The array returned by this type of property should be made
-// up of pointers of the appropriate type, terminated by NULL. The type of
-// the pointers is determined by the type of the first component.
+/*
+ * A public, dynamically generated, cached array of board components.
+ *
+ * No private version of this macro exists because there's no obvious use
+ * case for it. The array returned by this type of property should be made
+ * up of pointers of the appropriate type, terminated by NULL. The type of
+ * the pointers is determined by the type of the first component.
+ *
+ * To define a function "board_foos" which returns an array of pointers which
+ * point to the cached return values of the functions new_foo_instance() and
+ * new_bar_instance() followed by a NULL pointer, you would write:
+ *
+ * PUB_ARR(foos, new_foo_instance(), new_bar_instance())
+ */
 #define PUB_ARR(name, first, ...)			\
 typeof(first) *board_##name(void)			\
 {							\
