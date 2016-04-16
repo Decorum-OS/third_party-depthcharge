@@ -27,6 +27,7 @@
 
 #include <libpayload.h>
 
+#include "base/init_funcs.h"
 #include "board/board.h"
 #include "drivers/uart/uart.h"
 
@@ -48,17 +49,21 @@ static void put_char(unsigned int c)
 	return uart->put_char(uart, c);
 }
 
-static struct console_input_driver consin = {
-	.havekey = &have_char,
-	.getchar = &get_char
-};
-
-static struct console_output_driver consout = {
-	.putchar = &put_char
-};
-
-void serial_console_init(void)
+static int serial_console_init(void)
 {
+	static struct console_input_driver consin = {
+		.havekey = &have_char,
+		.getchar = &get_char
+	};
+
+	static struct console_output_driver consout = {
+		.putchar = &put_char
+	};
+
 	console_add_input_driver(&consin);
 	console_add_output_driver(&consout);
+
+	return 0;
 }
+
+INIT_FUNC_CONSOLE(serial_console_init)

@@ -39,7 +39,6 @@ enum timestamp_id {
 	TS_START_KERNEL = 1101
 };
 
-void timestamp_init(void);
 void timestamp_add(enum timestamp_id id, uint64_t ts_time);
 void timestamp_add_now(enum timestamp_id id);
 

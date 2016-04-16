@@ -26,7 +26,6 @@
 
 #include "base/init_funcs.h"
 #include "base/power.h"
-#include "base/timestamp.h"
 #include "drivers/keyboard/keyboard.h"
 #include "drivers/net/net.h"
 #include "drivers/timer/timer.h"
@@ -67,15 +66,6 @@ static char cmd_line[4096] = "lsm.module_locking=0 cros_netboot_ramfs "
 
 int main(void)
 {
-	// Initialize some consoles.
-	serial_console_init();
-	cbmem_console_init();
-	video_console_init();
-
-	printf("\n\nStarting netboot on " CONFIG_BOARD "...\n");
-
-	timestamp_init();
-
 	if (run_init_funcs())
 		halt();
 

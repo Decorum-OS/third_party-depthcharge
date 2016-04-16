@@ -97,7 +97,6 @@ static struct console_output_driver gdb_output_driver = {
 static void gdb_init(void)
 {
 	printf("Ready for GDB connection.\n");
-	gdb_transport_init();
 	gdb_arch_init();
 	console_add_output_driver(&gdb_output_driver);
 }
@@ -119,7 +118,6 @@ void gdb_exit(int8_t exit_status)
 	gdb_message_encode_bytes(&reply, &exit_status, 1);
 	gdb_send_reply(&reply);
 
-	gdb_transport_teardown();
 	gdb_state.connected = 0;
 	printf("Detached from GDB connection.\n");
 }

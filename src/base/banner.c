@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,16 +20,14 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __ARCH_X86_INCLUDES_ARCH_SIGN_OF_LIFE_H__
-#define __ARCH_X86_INCLUDES_ARCH_SIGN_OF_LIFE_H__
+#include <stdio.h>
 
-#include "base/io.h"
-#include "base/sign_of_life.h"
+#include "base/init_funcs.h"
 
-static inline void sign_of_life(uint8_t val)
+static int print_banner(void)
 {
-	// Send a post code.
-	outb(val, 0x80);
+	printf("\n\nStarting depthcharge module on " CONFIG_BOARD "...\n");
+	return 0;
 }
 
-#endif /* __ARCH_X86_INCLUDES_ARCH_SIGN_OF_LIFE_H__ */
+INIT_FUNC_BANNER(print_banner)

@@ -71,4 +71,4 @@ static int keyboard_console_init(void)
 	return 0;
 }
 
-INIT_FUNC(keyboard_console_init)
+INIT_FUNC_CONSOLE(keyboard_console_init)

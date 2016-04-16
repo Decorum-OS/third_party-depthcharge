@@ -30,6 +30,8 @@
 #include <libpayload.h>
 #include <stdint.h>
 
+#include "base/init_funcs.h"
+
 struct cbmem_console {
 	uint32_t size;
 	uint32_t cursor;
@@ -38,19 +40,7 @@ struct cbmem_console {
 
 static struct cbmem_console *cbmem_console_p;
 
-static struct console_output_driver cbmem_console_driver =
-{
-	.write = &cbmem_console_write,
-};
-
-void cbmem_console_init(void)
-{
-	cbmem_console_p = lib_sysinfo.cbmem_cons;
-	if (cbmem_console_p)
-		console_add_output_driver(&cbmem_console_driver);
-}
-
-void cbmem_console_write(const void *buffer, size_t count)
+static void cbmem_console_write(const void *buffer, size_t count)
 {
 	if (cbmem_console_p->cursor + count >= cbmem_console_p->size)
 		return;
@@ -58,3 +48,19 @@ void cbmem_console_write(const void *buffer, size_t count)
 	memcpy(cbmem_console_p->body + cbmem_console_p->cursor, buffer, count);
 	cbmem_console_p->cursor += count;
 }
+
+static struct console_output_driver cbmem_console_driver =
+{
+	.write = &cbmem_console_write,
+};
+
+static int cbmem_console_init(void)
+{
+	cbmem_console_p = lib_sysinfo.cbmem_cons;
+	if (cbmem_console_p)
+		console_add_output_driver(&cbmem_console_driver);
+
+	return 0;
+}
+
+INIT_FUNC_CONSOLE(cbmem_console_init)

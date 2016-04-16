@@ -23,6 +23,7 @@ depthcharge-y += enter_trampoline.c
 libc-y += exception.c
 libc-y += exception_asm.S
 depthcharge-y += physmem.c
+depthcharge-y += sign_of_life.c
 depthcharge-y += util.S
 depthcharge-$(CONFIG_KERNEL_ZIMAGE) += zimage.c
 

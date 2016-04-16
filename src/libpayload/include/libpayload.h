@@ -109,8 +109,6 @@ int usb_initialize(void);
 int usb_exit (void);
 /** @} */
 
-void serial_console_init(void);
-
 /**
  * @defgroup video Video functions
  * @ingroup input
@@ -137,15 +135,6 @@ enum video_printf_align {
 };
 void video_printf(int foreground, int background, enum video_printf_align align,
 		  const char *fmt, ...);
-/** @} */
-
-/**
- * @defgroup cbmem_console CBMEM memory console.
- * @ingroup input
- * @{
- */
-void cbmem_console_init(void);
-void cbmem_console_write(const void *buffer, size_t count);
 /** @} */
 
 /**

@@ -58,9 +58,6 @@ void gdb_arch_decode_regs(int offset, GdbMessage *message);
 
 /* gdb/transport.c */
 
-void gdb_transport_init(void);
-void gdb_transport_teardown(void);
-
 void gdb_message_encode_bytes(GdbMessage *message, const void *data,
 			      int length);
 void gdb_message_decode_bytes(const GdbMessage *message, int offset,

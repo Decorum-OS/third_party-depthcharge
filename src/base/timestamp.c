@@ -18,6 +18,7 @@
 #include <libpayload.h>
 #include <stdint.h>
 
+#include "base/init_funcs.h"
 #include "base/timestamp.h"
 #include "drivers/timer/timer.h"
 
@@ -35,11 +36,14 @@ struct timestamp_table {
 
 static struct timestamp_table *ts_table;
 
-void timestamp_init(void)
+static int timestamp_init(void)
 {
 	ts_table = lib_sysinfo.tstamp_table;
 	timestamp_add_now(TS_START);
+	return 0;
 }
+
+INIT_FUNC_TIMESTAMP(timestamp_init)
 
 void timestamp_add(enum timestamp_id id, uint64_t ts_time)
 {

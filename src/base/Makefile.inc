@@ -17,6 +17,7 @@
 
 subdirs-y += libc
 
+depthcharge-y += banner.c
 depthcharge-y += cleanup_funcs.c
 depthcharge-y += console.c
 depthcharge-y += coreboot.c

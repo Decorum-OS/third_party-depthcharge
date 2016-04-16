@@ -52,15 +52,6 @@ static int gdb_raw_getchar(void)
 	return uart->get_char(uart);
 }
 
-void gdb_transport_init(void)
-{
-}
-
-void gdb_transport_teardown(void)
-{
-	serial_console_init();
-}
-
 /* Hex digit character <-> number conversion (illegal chars undefined!). */
 
 static uint8_t from_hex(unsigned char c)

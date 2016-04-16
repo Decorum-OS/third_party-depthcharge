@@ -22,7 +22,6 @@
 
 #include <libpayload.h>
 
-#include "arch/sign_of_life.h"
 #include "base/init_funcs.h"
 #include "base/timestamp.h"
 #include "drivers/keyboard/keyboard.h"
@@ -31,18 +30,6 @@
 
 int main(void)
 {
-	// Let the world know we're alive.
-	sign_of_life(0xaa);
-
-	// Initialize some consoles.
-	serial_console_init();
-	cbmem_console_init();
-
-	printf("\n\nStarting read-only depthcharge on " CONFIG_BOARD "...\n");
-
-	// Set up time keeping.
-	timestamp_init();
-
 	// Run any generic initialization functions that are compiled in.
 	if (run_init_funcs())
 		halt();

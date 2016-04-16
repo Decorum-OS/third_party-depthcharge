@@ -90,7 +90,7 @@ SECTIONS
 		*(.data.*)
 
 		_init_funcs_start = .;
-		KEEP(*(.init_funcs))
+		KEEP(*(SORT_BY_NAME(.init_funcs.*)))
 		_init_funcs_end = .;
 	}
 

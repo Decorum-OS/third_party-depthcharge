@@ -20,11 +20,15 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __BASE_SIGN_OF_LIFE_H__
-#define __BASE_SIGN_OF_LIFE_H__
+#include "base/init_funcs.h"
+#include "base/io.h"
 
-#include <stdint.h>
+static int sign_of_life(void)
+{
+	// Send a post code.
+	outb(0xaa, 0x80);
 
-static inline void sign_of_life(uint8_t val);
+	return 0;
+}
 
-#endif /* __BASE_SIGN_OF_LIFE_H__ */
+INIT_FUNC_ALIVE(sign_of_life)
