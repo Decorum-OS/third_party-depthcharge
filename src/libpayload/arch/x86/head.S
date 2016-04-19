@@ -41,14 +41,6 @@ _entry:
 	/* No interrupts, please. */
 	cli
 
-	/* Clear the bss */
-	cld
-	movl $.bss, %edi
-	movl $_end, %ecx
-	subl %edi, %ecx
-	xor %ax, %ax
-	rep stosb
-
 	/* Setup new stack. */
 	movl $(dc_stack_buffer + CONFIG_STACK_SIZE), %esp
 
