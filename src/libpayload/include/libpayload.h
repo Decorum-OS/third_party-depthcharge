@@ -43,7 +43,6 @@
 
 #include <cbgfx.h>
 #include <ctype.h>
-#include <endian.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
