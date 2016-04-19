@@ -67,36 +67,12 @@ static inline uint32_t div_round_up(uint32_t n, uint32_t d)
 }
 
 /**
- * @defgroup nvram NVRAM and RTC functions
+ * @defgroup nvram NVRAM functions
  * @{
  */
 
-#define NVRAM_RTC_SECONDS        0      /**< RTC Seconds offset in CMOS */
-#define NVRAM_RTC_MINUTES        2      /**< RTC Minutes offset in CMOS */
-#define NVRAM_RTC_HOURS          4      /**< RTC Hours offset in CMOS */
-#define NVRAM_RTC_DAY            7      /**< RTC Days offset in CMOS */
-#define NVRAM_RTC_MONTH          8      /**< RTC Month offset in CMOS */
-#define NVRAM_RTC_YEAR           9      /**< RTC Year offset in CMOS */
-#define NVRAM_RTC_FREQ_SELECT    10     /**< RTC Update Status Register */
-#define  NVRAM_RTC_UIP           0x80
-
-/** Broken down time structure */
-struct tm {
-	int tm_sec;   /**< Number of seconds after the minute */
-	int tm_min;   /**< Number of minutes after the hour */
-	int tm_hour;  /**< Number of hours past midnight */
-	int tm_mday;  /**< The day of the month */
-	int tm_mon;   /**< The month of the year */
-	int tm_year;  /**< The number of years since 1900 */
-	int tm_wday;  /**< The day of the week */
-	int tm_yday;  /**< The number of days since January 1 */
-	int tm_isdst; /**< A flag indicating daylight savings time */
-};
-
 uint8_t nvram_read(uint8_t addr);
 void nvram_write(uint8_t val, uint8_t addr);
-int nvram_updating(void);
-void rtc_read_clock(struct tm *tm);
 /** @} */
 
 /**
