@@ -19,6 +19,7 @@
 #include <arch/cache.h>
 #include <libpayload.h>
 
+#include "base/die.h"
 #include "debug/gdb/gdb_int.h"
 
 static void gdb_get_last_signal(GdbMessage *command,

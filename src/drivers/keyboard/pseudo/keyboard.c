@@ -25,6 +25,7 @@
 #include <libpayload.h>
 #include <stdint.h>
 
+#include "base/die.h"
 #include "base/init_funcs.h"
 #include "base/keycodes.h"
 #include "base/state_machine.h"

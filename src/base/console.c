@@ -28,6 +28,8 @@
 #include <libpayload.h>
 #include <usb/usb.h>
 
+#include "base/die.h"
+
 struct console_output_driver *console_out;
 struct console_input_driver *console_in;
 static console_input_type last_getchar_input_type;

@@ -38,6 +38,7 @@
 #include <udc/chipidea.h>
 #include "chipidea_priv.h"
 
+#include "base/die.h"
 #include "base/time.h"
 
 #ifdef DEBUG

@@ -11,6 +11,7 @@
 #include <assert.h>
 #include <libpayload.h>
 
+#include "base/die.h"
 #include "drivers/sound/sound.h"
 
 static SoundOps *sound_ops;

@@ -30,6 +30,8 @@
 #include <libpayload.h>
 #include <stdint.h>
 
+#include "base/die.h"
+
 uint32_t exception_stack[0x400] __attribute__((aligned(8)));
 
 static exception_hook hook;

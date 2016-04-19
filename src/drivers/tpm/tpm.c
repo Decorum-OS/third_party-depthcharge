@@ -22,6 +22,7 @@
 
 #include <libpayload.h>
 
+#include "base/die.h"
 #include "drivers/tpm/tpm.h"
 
 static TpmOps *tpm_ops;

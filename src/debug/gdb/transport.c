@@ -19,6 +19,7 @@
 #include <endian.h>
 #include <libpayload.h>
 
+#include "base/die.h"
 #include "base/time.h"
 #include "board/board.h"
 #include "debug/gdb/gdb_int.h"

@@ -22,6 +22,7 @@
 
 #include <libpayload.h>
 
+#include "base/die.h"
 #include "drivers/flash/flash.h"
 
 static FlashOps *flash_ops;

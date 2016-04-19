@@ -22,6 +22,7 @@
 
 #include <libpayload.h>
 
+#include "base/die.h"
 #include "base/init_funcs.h"
 #include "drivers/gpio/gpio.h"
 #include "vboot/util/flag.h"

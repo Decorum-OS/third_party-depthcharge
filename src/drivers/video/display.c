@@ -24,6 +24,7 @@
 #include <stdint.h>
 
 #include "base/cleanup_funcs.h"
+#include "base/die.h"
 #include "drivers/video/display.h"
 
 static DisplayOps *display_ops;

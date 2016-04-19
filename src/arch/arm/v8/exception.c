@@ -29,6 +29,8 @@
 #include <libpayload.h>
 #include <stdint.h>
 
+#include "base/die.h"
+
 uint8_t exception_stack[0x4000] __attribute__((aligned(8)));
 
 struct exception_handler_info

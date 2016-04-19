@@ -50,7 +50,6 @@
 #include <arch/types.h>
 #include <sysinfo.h>
 
-#include "base/die.h"
 #include "base/io.h"
 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))

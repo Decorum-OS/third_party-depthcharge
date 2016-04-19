@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <libpayload.h>
 
+#include "base/die.h"
 #include "drivers/gpio/sysinfo.h"
 #include "vboot/util/flag.h"
 
