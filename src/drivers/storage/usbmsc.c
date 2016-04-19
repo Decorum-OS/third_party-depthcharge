@@ -32,6 +32,7 @@
 #include "base/die.h"
 #include "drivers/storage/usbdisk.h"
 #include "drivers/storage/usbmsc.h"
+#include "drivers/timer/timer.h"
 
 enum {
 	msc_subclass_rbc = 0x1,
@@ -516,9 +517,6 @@ static int read_capacity(UsbDev *dev)
 
 static int usb_msc_test_unit_ready(UsbDev *dev)
 {
-	int i;
-	time_t start_time_secs;
-	struct timeval tv;
 	// SCSI/ATA specs say we have to wait up to 30s, but most devices
 	// are ready much sooner. Use a 5 sec timeout to better accomodate
 	// devices which fail to respond.
@@ -528,17 +526,25 @@ static int usb_msc_test_unit_ready(UsbDev *dev)
 
 	// Initially mark the device ready.
 	MSC_INST(dev)->ready = USB_MSC_READY;
-	gettimeofday(&tv, NULL);
-	start_time_secs = tv.tv_sec;
 
-	while (tv.tv_sec - start_time_secs < timeout_secs) {
+	uint64_t start_time = timer_us(0);
+	while (1) {
+		if (timer_us(start_time) > timeout_secs * 1000000) {
+			usb_debug("timeout. Device not ready.\n");
+			MSC_INST(dev)->ready = USB_MSC_NOT_READY;
+			// Don't bother spinning up the stroage device if the
+			// device is not ready. This can happen when empty
+			// card readers are present. Polling will pick it
+			// back up if readiness changes.
+			return 0;
+		}
+
 		switch (test_unit_ready(dev)) {
 		case MSC_COMMAND_OK:
 			break;
 		case MSC_COMMAND_FAIL:
 			mdelay(100);
 			usb_debug(".");
-			gettimeofday(&tv, NULL);
 			continue;
 		default:
 			// Device detached, return immediately.
@@ -546,21 +552,11 @@ static int usb_msc_test_unit_ready(UsbDev *dev)
 		}
 		break;
 	}
-	if (!(tv.tv_sec - start_time_secs < timeout_secs)) {
-		usb_debug("timeout. Device not ready.\n");
-		MSC_INST(dev)->ready = USB_MSC_NOT_READY;
-	}
-
-	// Don't bother spinning up the stroage device if the device is not
-	// ready. This can happen when empty card readers are present.
-	// Polling will pick it back up if readiness changes.
-	if (!MSC_INST(dev)->ready)
-		return MSC_INST(dev)->ready;
 
 	usb_debug("ok.\n");
 
 	usb_debug("  spin up");
-	for (i = 0; i < 30; i++) {
+	for (int i = 0; i < 30; i++) {
 		usb_debug(".");
 		switch (spin_up(dev)) {
 		case MSC_COMMAND_OK:
