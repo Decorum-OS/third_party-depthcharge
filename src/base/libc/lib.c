@@ -99,14 +99,3 @@ uint8_t hex2bin(uint8_t h)
 	        ('A' <= h && h <= 'F') ? (h - 'A' + 10) : \
 	        ('a' <= h && h <= 'f') ? (h - 'a' + 10) : 0);
 }
-
-void exit(int status)
-{
-	printf("exited with status %d\n", status);
-	halt();
-}
-
-char *getenv(const char *name)
-{
-	return NULL;
-}

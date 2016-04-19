@@ -185,7 +185,6 @@ void srand(unsigned int seed);
  * Stop execution and halt the processor (this function does not return).
  */
 void halt(void) __attribute__ ((noreturn));
-void exit(int status) __attribute__ ((noreturn));
 #define abort() halt()    /**< Alias for the halt() function */
 /* Override abort()/halt() to trap into GDB if it is enabled. */
 #define halt() do { gdb_enter(); halt(); } while (0)
@@ -193,7 +192,6 @@ void exit(int status) __attribute__ ((noreturn));
 /** @} */
 
 void qsort(void *aa, size_t n, size_t es, int (*cmp)(const void *, const void *));
-char *getenv(const char*);
 uint64_t __umoddi3(uint64_t num, uint64_t den);
 uint64_t  __udivdi3(uint64_t num, uint64_t den);
 uint64_t __ashldi3(uint64_t num, unsigned shift);
