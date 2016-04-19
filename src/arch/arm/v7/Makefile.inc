@@ -30,6 +30,7 @@ gdb-y += gdb.c
 
 src-includes-y += includes
 
-ARCH_ABI_FLAGS += -mthumb
+ARCH_ABI_FLAGS += -mthumb -march=armv7-a
+ARCH_ABI_FLAGS += -Wa,-mthumb -Wa,-mimplicit-it=always -Wa,-mno-warn-deprecated
 
 TC_ARCH = arm

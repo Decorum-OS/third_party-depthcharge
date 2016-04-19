@@ -25,9 +25,6 @@
 ## SUCH DAMAGE.
 ##
 
-CFLAGS += -march=armv8-a
-arm64_asm_flags =
-
 subdirs-y += lib/
 
 head.o-y += head.S
@@ -35,7 +32,3 @@ libc-y += main.c sysinfo.c
 libc-y += cache.c cpu.S
 libc-y += selfboot.c
 libc-y += mmu.c
-
-# Add other classes here when you put assembly files into them!
- head.o-S-ccopts += $(arm64_asm_flags)
- libc-S-ccopts += $(arm64_asm_flags)

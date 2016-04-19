@@ -25,15 +25,8 @@
 ## SUCH DAMAGE.
 ##
 
-CFLAGS += -mthumb -march=armv7-a
-arm_asm_flags = -Wa,-mthumb -Wa,-mimplicit-it=always -Wa,-mno-warn-deprecated
-
 head.o-y += head.S
 libc-y += main.c sysinfo.c
 libc-y += virtual.c
 libc-y += cache.c cpu.S
 libc-y += selfboot.c
-
-# Add other classes here when you put assembly files into them!
-head.o-S-ccopts += $(arm_asm_flags)
-libc-S-ccopts += $(arm_asm_flags)

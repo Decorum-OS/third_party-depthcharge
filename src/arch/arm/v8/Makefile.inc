@@ -28,6 +28,6 @@ gdb-y += gdb.c
 
 src-includes-y += includes
 
-ARCH_CFLAGS += -mgeneral-regs-only
+ARCH_CFLAGS += -mgeneral-regs-only -march=armv8-a
 
 TC_ARCH = arm64
