@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,40 +25,6 @@
  * SUCH DAMAGE.
  */
 
-#include <ctype.h>
-#include <stdint.h>
-#include <stdio.h>
+#include <stddef.h>
 
-#include "base/hexdump.h"
-
-void hexdump(const void *memory, size_t length)
-{
-	int all_zero = 0;
-
-	uint8_t *m = (uint8_t *)memory;
-
-	for (int i = 0; i < length; i += 16) {
-		all_zero++;
-
-		for (int j = 0; j < 16; j++) {
-			if (m[i + j] != 0) {
-				all_zero = 0;
-				break;
-			}
-		}
-
-		if (all_zero < 2) {
-			printf("%8p:", memory + i);
-			for (int j = 0; j < 16; j++)
-				printf(" %02x", m[i + j]);
-			printf("  ");
-			for (int j = 0; j < 16; j++) {
-				printf("%c",
-				       isprint(m[i + j]) ? m[i + j] : '.');
-			}
-			printf("\n");
-		} else if (all_zero == 2) {
-			printf("...\n");
-		}
-	}
-}
+void hexdump(const void *memory, size_t length);

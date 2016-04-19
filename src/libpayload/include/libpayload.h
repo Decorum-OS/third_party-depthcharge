@@ -138,7 +138,6 @@ int bcd2dec(int b);
 int dec2bcd(int d);
 uint8_t bin2hex(uint8_t b);
 uint8_t hex2bin(uint8_t h);
-void hexdump(const void *memory, size_t length);
 
 /* Count Leading Zeroes: clz(0) == 32, clz(0xf) == 28, clz(1 << 31) == 0 */
 static inline int clz(uint32_t x)
