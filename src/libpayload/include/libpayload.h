@@ -163,7 +163,6 @@ static inline int __ffs(uint32_t x)
  * All architectures are expected to define these functions.
  * @{
  */
-int get_coreboot_info(struct sysinfo_t *info);
 
 /* Defined in arch/${ARCH}/selfboot.c */
 void selfboot(void *entry);

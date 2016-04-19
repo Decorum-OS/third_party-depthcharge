@@ -95,4 +95,6 @@ extern void *cb_header_ptr;
  */
 int cb_parse_header(void *addr, int len, struct sysinfo_t *info);
 
+int get_coreboot_info(struct sysinfo_t *info);
+
 #endif

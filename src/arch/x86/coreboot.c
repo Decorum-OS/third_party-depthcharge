@@ -26,8 +26,8 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
 #include <coreboot_tables.h>
+#include <sysinfo.h>
 
 int cb_parse_arch_specific(struct cb_record *rec, struct sysinfo_t *info)
 {
