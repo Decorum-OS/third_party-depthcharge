@@ -23,15 +23,11 @@
 #include <libpayload.h>
 
 #include "base/init_funcs.h"
+#include "module/module.h"
 
-int main(void)
+void module_main(void)
 {
 	// Run any generic initialization functions that are compiled in.
 	if (run_init_funcs())
 		halt();
-
-	// We should never get here (but will for the time being).
-	printf("Got to the end!\n");
-	halt();
-	return 0;
 }

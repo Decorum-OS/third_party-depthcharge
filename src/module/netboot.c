@@ -30,6 +30,7 @@
 #include "drivers/net/net.h"
 #include "drivers/timer/timer.h"
 #include "drivers/video/display.h"
+#include "module/module.h"
 #include "net/uip.h"
 #include "netboot/netboot.h"
 #include "netboot/params.h"
@@ -64,7 +65,7 @@ static void enable_graphics(void)
 static char cmd_line[4096] = "lsm.module_locking=0 cros_netboot_ramfs "
 			     "cros_factory_install cros_secure cros_netboot";
 
-int main(void)
+void module_main(void)
 {
 	if (run_init_funcs())
 		halt();
@@ -81,9 +82,4 @@ int main(void)
 		printf("ERROR: Failed to read netboot parameters from flash\n");
 
 	netboot(tftp_ip, bootfile, argsfile, cmd_line);
-
-	// We should never get here.
-	printf("Got to the end!\n");
-	halt();
-	return 0;
 }

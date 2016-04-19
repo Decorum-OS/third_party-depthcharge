@@ -25,9 +25,10 @@
 #include "base/init_funcs.h"
 #include "base/timestamp.h"
 #include "drivers/keyboard/keyboard.h"
+#include "module/module.h"
 #include "vboot/stages.h"
 
-int main(void)
+void module_main(void)
 {
 	// Run any generic initialization functions that are compiled in.
 	if (run_init_funcs())
@@ -38,9 +39,4 @@ int main(void)
 	// Select a kernel and boot it.
 	if (vboot_select_and_load_kernel())
 		halt();
-
-	// We should never get here.
-	printf("Got to the end!\n");
-	halt();
-	return 0;
 }

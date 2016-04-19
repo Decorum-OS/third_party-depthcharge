@@ -27,35 +27,20 @@
 
 #include <exception.h>
 #include <libpayload.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-/**
- * This is our C entry function - set up the system
- * and jump into the payload entry point.
- */
-void start_main(void);
+#include "module/module.h"
+
+void start_main(void) __attribute__((noreturn));
 void start_main(void)
 {
-	extern int main(int argc, char **argv);
-
 	// Get information from the coreboot tables if they exist.
 	get_coreboot_info(&lib_sysinfo);
 
 	exception_init();
 
-	/*
-	 * Any other system init that has to happen before the
-	 * user gets control goes here.
-	 */
-
-	/*
-	 * Go to the entry point.
-	 * In the future we may care about the return value.
-	 */
-
-	(void)main(0, NULL);
-
-	/*
-	 * Returning here will go to the _leave function to return
-	 * us to the original context.
-	 */
+	module_main();
+	printf("Returned from module_main.\n");
+	halt();
 }

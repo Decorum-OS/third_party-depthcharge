@@ -25,9 +25,13 @@
  * SUCH DAMAGE.
  */
 
+#include <arch/mmu.h>
 #include <exception.h>
 #include <libpayload.h>
-#include <arch/mmu.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "module/module.h"
 
 /*
  * Func: pre_sysinfo_scan_mmu_setup
@@ -84,15 +88,9 @@ static void post_sysinfo_scan_mmu_setup(void)
 	init_dma_memory((void *)dma_range->base, dma_range->size);
 }
 
-/**
- * This is our C entry function - set up the system
- * and jump into the payload entry point.
- */
-void start_main(void);
+void start_main(void) __attribute__((noreturn));
 void start_main(void)
 {
-	extern int main(int argc, char **argv);
-
 	pre_sysinfo_scan_mmu_setup();
 
 	// Get information from the coreboot tables if they exist.
@@ -102,10 +100,7 @@ void start_main(void)
 
 	exception_init();
 
-	(void) main(0, NULL);
-
-	/*
-	 * Returning here will go to the _leave function to return
-	 * us to the original context.
-	 */
+	module_main();
+	printf("Returned from module_main.\n");
+	halt();
 }
