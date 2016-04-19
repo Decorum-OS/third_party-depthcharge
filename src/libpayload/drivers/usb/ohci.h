@@ -1,6 +1,4 @@
 /*
- * This file is part of the libpayload project.
- *
  * Copyright (C) 2010 Patrick Georgi
  *
  * Redistribution and use in source and binary forms, with or without

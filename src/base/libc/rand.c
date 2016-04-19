@@ -1,6 +1,4 @@
 /*
- * This file is part of the libpayload project.
- *
  * It was originally taken from the OpenBSD project.
  *
  * Copyright (c) 1990 The Regents of the University of California.

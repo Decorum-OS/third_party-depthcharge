@@ -1,6 +1,4 @@
 /*
- * This file is part of the libpayload project.
- *
  * Copyright (C) 2008 Advanced Micro Devices, Inc.
  * Copyright (C) 2008 coresystems GmbH
  * Copyright 2016 Google Inc.

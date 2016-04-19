@@ -1,6 +1,4 @@
 /*
- * This file is part of the libpayload project.
- *
  * Copyright (C) 2013 Google, Inc.
  *
  * This file is dual-licensed. You can choose between:

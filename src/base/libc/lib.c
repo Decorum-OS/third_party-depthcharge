@@ -1,6 +1,4 @@
 /*
- * This file is part of the libpayload project.
- *
  * Copyright (C) 2008 Uwe Hermann <uwe@hermann-uwe.de>
  *
  * Redistribution and use in source and binary forms, with or without

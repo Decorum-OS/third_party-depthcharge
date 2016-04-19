@@ -1,6 +1,4 @@
 ##
-## This file is part of the libpayload project.
-##
 ## Copyright (C) 2008 Advanced Micro Devices, Inc.
 ## Copyright (C) 2008 Uwe Hermann <uwe@hermann-uwe.de>
 ## Copyright (C) 2011 secunet Security Networks AG
