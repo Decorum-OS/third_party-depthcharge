@@ -24,9 +24,9 @@
 #include <vboot_api.h>
 #include <vboot/util/flag.h>
 
+#include "base/time.h"
 #include "debug/gdb/gdb.h"
 #include "debug/netboot.h"
-#include "drivers/timer/timer.h"
 
 #define CSI_0 0x1B
 #define CSI_1 0x5B
@@ -54,9 +54,9 @@ uint32_t VbExKeyboardRead(void)
 	case KEY_RIGHT: return VB_KEY_RIGHT;
 	case KEY_LEFT: return VB_KEY_LEFT;
 	case CSI_0:
-		timer_start = timer_us(0);
+		timer_start = time_us(0);
 		while (!havekey()) {
-			if (timer_us(timer_start) >= TIMEOUT_US)
+			if (time_us(timer_start) >= TIMEOUT_US)
 				return CSI_0;
 		}
 

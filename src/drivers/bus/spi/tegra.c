@@ -23,6 +23,7 @@
 #include <libpayload.h>
 
 #include "base/container_of.h"
+#include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/bus/spi/spi.h"
 #include "drivers/bus/spi/tegra.h"

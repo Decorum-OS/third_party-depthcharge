@@ -26,7 +26,9 @@
  */
 
 #include <libpayload.h>
+#include <stdio.h>
 
+#include "base/time.h"
 #include "drivers/timer/timer.h"
 
 static inline void _delay(uint64_t delta)
@@ -40,9 +42,9 @@ static inline void _delay(uint64_t delta)
  *
  * @param n Number of nanoseconds to delay for.
  */
-void ndelay(unsigned int n)
+void ndelay(uint64_t n)
 {
-	_delay((uint64_t)n * timer_hz() / 1000000000);
+	_delay(n * timer_hz() / 1000000000);
 }
 
 /**
@@ -50,9 +52,9 @@ void ndelay(unsigned int n)
  *
  * @param n Number of microseconds to delay for.
  */
-void udelay(unsigned int n)
+void udelay(uint64_t u)
 {
-	_delay((uint64_t)n * timer_hz() / 1000000);
+	_delay(u * timer_hz() / 1000000);
 }
 
 /**
@@ -60,9 +62,9 @@ void udelay(unsigned int n)
  *
  * @param m Number of milliseconds to delay for.
  */
-void mdelay(unsigned int m)
+void mdelay(uint64_t m)
 {
-	_delay((uint64_t)m * timer_hz() / 1000);
+	_delay(m * timer_hz() / 1000);
 }
 
 /**
@@ -70,12 +72,12 @@ void mdelay(unsigned int m)
  *
  * @param s Number of seconds to delay for.
  */
-void delay(unsigned int s)
+void delay(uint64_t s)
 {
-	_delay((uint64_t)s * timer_hz());
+	_delay(s * timer_hz());
 }
 
-uint64_t timer_us(uint64_t base)
+uint64_t time_us(uint64_t base)
 {
 	static uint64_t hz;
 

@@ -24,6 +24,7 @@
 #include <libpayload.h>
 
 #include "base/init_funcs.h"
+#include "base/time.h"
 #include "base/xalloc.h"
 #include "board/board.h"
 #include "board/board_helpers.h"

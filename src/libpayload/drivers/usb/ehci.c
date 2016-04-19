@@ -34,6 +34,7 @@
 #include "ehci_private.h"
 
 #include "base/die.h"
+#include "base/time.h"
 #include "base/xalloc.h"
 
 static void dump_td(uint32_t addr)

@@ -21,11 +21,11 @@
 #include <libpayload.h>
 
 #include "base/container_of.h"
+#include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/bus/i2s/i2s.h"
 #include "drivers/bus/i2s/baytrail/baytrail.h"
 #include "drivers/bus/i2s/baytrail/regs.h"
-#include "drivers/timer/timer.h"
 
 /* ssacd LUT */
 static const uint8_t
@@ -237,18 +237,18 @@ static void i2s_enable(BytI2sRegs *regs,
 				clear_SSCR3_reg(regs, I2S_RX_EN);
 			}
 			clear_SSCR0_reg(regs, SSE);
-			start = timer_us(0);
+			start = time_us(0);
 			while (read_SSCR0(regs) & 0x80 &&
-			       timer_us(start) < 10000);
+			       time_us(start) < 10000);
 			set_SSCR0_reg(regs, SSE);
 
 			if (settings->frame_rate_divider_control ==
 			    FRAME_RATE_CONTROL_STEREO) {
 				if (SSPSCLK_SLAVE_MODE ==
 					settings->sspslclk_direction) {
-					start = timer_us(0);
+					start = time_us(0);
 					while (read_SSSR(regs) & 0x400000 &&
-					       timer_us(start) < 10000);
+					       time_us(start) < 10000);
 				}
 				write_SSCR3(saved_SSCR3, regs);
 			}
@@ -669,12 +669,12 @@ static int byt_i2s_send(I2sOps *me, unsigned int *data, unsigned int length)
 	set_SSCR3_reg(i2s_reg, I2S_TX_EN);
 
 	while (length > 0) {
-		start = timer_us(0);
+		start = time_us(0);
 		if (readl(&i2s_reg->sssr) & 0x4) {
 			writel(*data++, &i2s_reg->ssdr);
 			length--;
 		} else {
-			if (timer_us(start) > 100000) {
+			if (time_us(start) > 100000) {
 				i2s_disable(bus->regs);
 				printf("I2S Transfer Timeout\n" );
 				return -1;

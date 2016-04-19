@@ -30,6 +30,8 @@
 #include <inttypes.h>
 #include "xhci_private.h"
 
+#include "base/time.h"
+
 void
 xhci_reset_event_ring(event_ring_t *const er)
 {

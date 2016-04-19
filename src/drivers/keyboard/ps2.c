@@ -32,6 +32,7 @@
 #include "arch/io.h"
 #include "base/cleanup_funcs.h"
 #include "base/keycodes.h"
+#include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/keyboard/ps2.h"
 

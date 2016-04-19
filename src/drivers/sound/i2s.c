@@ -27,10 +27,10 @@
 #include <stdint.h>
 
 #include "base/container_of.h"
+#include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/bus/i2s/i2s.h"
 #include "drivers/sound/i2s.h"
-#include "drivers/timer/timer.h"
 
 // Generates square wave sound data for 1 second.
 static void sound_square_wave(uint16_t *data, int channels,
@@ -57,7 +57,7 @@ static void sound_square_wave(uint16_t *data, int channels,
 
 static void finish_delay(uint64_t start, uint32_t msec)
 {
-	uint32_t passed = timer_us(start) / 1000;
+	uint32_t passed = time_us(start) / 1000;
 	mdelay(msec - passed);
 }
 
@@ -75,7 +75,7 @@ static int i2s_source_play(SoundOps *me, uint32_t msec, uint32_t frequency)
 	sound_square_wave((uint16_t *)data, channels, sample_rate, frequency,
 			  source->volume);
 
-	uint64_t start = timer_us(0);
+	uint64_t start = time_us(0);
 
 	while (msec >= 1000) {
 		if (source->i2s->send(source->i2s, data,

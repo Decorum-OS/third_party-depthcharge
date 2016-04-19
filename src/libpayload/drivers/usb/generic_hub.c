@@ -31,6 +31,8 @@
 #include <usb/usb.h>
 #include "generic_hub.h"
 
+#include "base/time.h"
+
 void
 generic_hub_destroy(UsbDev *const dev)
 {

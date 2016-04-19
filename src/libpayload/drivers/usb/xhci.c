@@ -33,6 +33,7 @@
 #include "xhci.h"
 
 #include "base/die.h"
+#include "base/time.h"
 #include "base/xalloc.h"
 
 static void xhci_start (UsbDevHc *controller);

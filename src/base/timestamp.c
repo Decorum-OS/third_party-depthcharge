@@ -19,6 +19,7 @@
 #include <stdint.h>
 
 #include "base/init_funcs.h"
+#include "base/time.h"
 #include "base/timestamp.h"
 #include "drivers/timer/timer.h"
 
@@ -62,5 +63,5 @@ void timestamp_add_now(enum timestamp_id id)
 	if (CONFIG_TIMESTAMP_RAW)
 		timestamp_add(id, timer_raw_value());
 	else
-		timestamp_add(id, timer_us(0));
+		timestamp_add(id, time_us(0));
 }

@@ -37,8 +37,8 @@
 #include <endian.h>
 #include <libpayload.h>
 
+#include "base/time.h"
 #include "drivers/bus/i2c/i2c.h"
-#include "drivers/timer/timer.h"
 #include "drivers/tpm/i2c.h"
 #include "drivers/tpm/tpm.h"
 
@@ -100,7 +100,7 @@ static int i2ctpm_xmit(TpmOps *me, const uint8_t *sendbuf, size_t sbuf_size,
 		return -1;
 	}
 
-	uint64_t start = timer_us(0);
+	uint64_t start = time_us(0);
 	while (1) {
 		assert(tpm->chip_ops.status);
 		uint8_t status = tpm->chip_ops.status(&tpm->chip_ops);
@@ -116,7 +116,7 @@ static int i2ctpm_xmit(TpmOps *me, const uint8_t *sendbuf, size_t sbuf_size,
 		mdelay(1);
 
 		// Two minute timeout.
-		if (timer_us(start) > 2 * 60 * 1000 * 1000) {
+		if (time_us(start) > 2 * 60 * 1000 * 1000) {
 			if (tpm->chip_ops.cancel)
 				tpm->chip_ops.cancel(&tpm->chip_ops);
 			printf("%s: Operation timed out.\n", __func__);

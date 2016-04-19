@@ -39,9 +39,9 @@
 #include <endian.h>
 #include <libpayload.h>
 
+#include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/bus/i2c/i2c.h"
-#include "drivers/timer/timer.h"
 #include "drivers/tpm/i2c.h"
 #include "drivers/tpm/slb9635_i2c.h"
 
@@ -267,8 +267,8 @@ static int request_locality(Slb9635I2c *tpm, int loc)
 	iic_tpm_write(tpm, tpm_access(loc), &buf, 1);
 
 	// Wait for burstcount.
-	uint64_t start = timer_us(0);
-	while (timer_us(start) < 2 * 1000 * 1000) { // Two second timeout.
+	uint64_t start = time_us(0);
+	while (time_us(start) < 2 * 1000 * 1000) { // Two second timeout.
 		if (check_locality(tpm, loc) >= 0)
 			return loc;
 		mdelay(TpmTimeout);
@@ -302,8 +302,8 @@ static ssize_t get_burstcount(Slb9635I2c *tpm)
 	uint8_t buf[3];
 
 	// Wait for burstcount.
-	uint64_t start = timer_us(0);
-	while (timer_us(start) < 2 * 1000 * 1000) { // Two second timeout.
+	uint64_t start = time_us(0);
+	while (time_us(start) < 2 * 1000 * 1000) { // Two second timeout.
 		// Note: STS is little endian.
 		if (iic_tpm_read(tpm, tpm_sts(tpm->base.locality) + 1,
 				 buf, 3) < 0)
@@ -320,8 +320,8 @@ static ssize_t get_burstcount(Slb9635I2c *tpm)
 
 static int wait_for_stat(Slb9635I2c *tpm, uint8_t mask, int *status)
 {
-	uint64_t start = timer_us(0);
-	while (timer_us(start) < 2 * 1000 * 1000) { // Two second timeout.
+	uint64_t start = time_us(0);
+	while (time_us(start) < 2 * 1000 * 1000) { // Two second timeout.
 		// Check current status.
 		*status = tpm_status(&tpm->base.chip_ops);
 		if ((*status & mask) == mask)

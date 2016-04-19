@@ -29,6 +29,7 @@
 
 #include <usb/usb.h>
 
+#include "base/time.h"
 #include "base/xalloc.h"
 
 #define DR_DESC usb_gen_bmRequestType(UsbDeviceToHost, UsbStandardType, UsbDevRecp)

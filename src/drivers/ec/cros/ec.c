@@ -31,10 +31,10 @@
 #include <assert.h>
 #include <libpayload.h>
 
+#include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/ec/cros/message.h"
 #include "drivers/ec/cros/ec.h"
-#include "drivers/timer/timer.h"
 
 static CrosEcBusOps *cros_ec_bus;
 static GpioOps *cros_ec_interrupt_gpio;
@@ -276,7 +276,7 @@ static int send_command_proto3(int cmd, int cmd_version,
 		uint64_t start;
 
 		/* Wait for command to complete */
-		start = timer_us(0);
+		start = time_us(0);
 		do {
 			int ret;
 
@@ -286,7 +286,7 @@ static int send_command_proto3(int cmd, int cmd_version,
 			if (ret < 0)
 				return ret;
 
-			if (timer_us(start) > CROS_EC_CMD_TIMEOUT_MS * 1000) {
+			if (time_us(start) > CROS_EC_CMD_TIMEOUT_MS * 1000) {
 				printf("%s: Command %#02x timeout",
 				      __func__, cmd);
 				return -EC_RES_TIMEOUT;
@@ -338,7 +338,7 @@ static int send_command_proto2(int cmd, int cmd_version,
 		uint64_t start;
 
 		/* Wait for command to complete */
-		start = timer_us(0);
+		start = time_us(0);
 		do {
 			int ret;
 
@@ -349,7 +349,7 @@ static int send_command_proto2(int cmd, int cmd_version,
 			if (ret < 0)
 				return ret;
 
-			if (timer_us(start) > CROS_EC_CMD_TIMEOUT_MS * 1000) {
+			if (time_us(start) > CROS_EC_CMD_TIMEOUT_MS * 1000) {
 				printf("%s: Command %#02x timeout",
 				      __func__, cmd);
 				return -EC_RES_TIMEOUT;
@@ -505,7 +505,7 @@ int cros_ec_read_hash(int devidx, struct ec_response_vboot_hash *hash)
 	uint64_t start;
 	int recalc_requested = 0;
 
-	start = timer_us(0);
+	start = time_us(0);
 	do {
 		/* Get hash if available. */
 		p.cmd = EC_VBOOT_HASH_GET;
@@ -549,7 +549,7 @@ int cros_ec_read_hash(int devidx, struct ec_response_vboot_hash *hash)
 			break;
 		}
 	} while (hash->status == EC_VBOOT_HASH_STATUS_BUSY &&
-		 timer_us(start) < CROS_EC_HASH_TIMEOUT_MS * 1000);
+		 time_us(start) < CROS_EC_HASH_TIMEOUT_MS * 1000);
 
 	if (hash->status != EC_VBOOT_HASH_STATUS_DONE) {
 		printf("%s: Hash status not done: %d\n", __func__,

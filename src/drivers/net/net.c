@@ -24,6 +24,7 @@
 #include <endian.h>
 #include <libpayload.h>
 
+#include "base/time.h"
 #include "drivers/net/net.h"
 #include "net/uip.h"
 #include "net/uip_arp.h"

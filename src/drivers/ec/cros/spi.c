@@ -32,11 +32,11 @@
 #include <libpayload.h>
 
 #include "base/container_of.h"
+#include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/bus/spi/spi.h"
 #include "drivers/ec/cros/ec.h"
 #include "drivers/ec/cros/spi.h"
-#include "drivers/timer/timer.h"
 
 // How long we have to leave CS deasserted between transactions.
 static const uint64_t CsCooldownUs = 200;
@@ -47,18 +47,18 @@ static const uint8_t EcFramingByte = 0xec;
 static void stop_bus(CrosEcSpiBus *bus)
 {
 	bus->spi->stop(bus->spi);
-	bus->last_transfer = timer_us(0);
+	bus->last_transfer = time_us(0);
 }
 
 static int wait_for_frame(CrosEcSpiBus *bus)
 {
-	uint64_t start = timer_us(0);
+	uint64_t start = time_us(0);
 	uint8_t byte;
 	do {
 		if (bus->spi->transfer(bus->spi, &byte, NULL, 1))
 			return -1;
 		if (byte != EcFramingByte &&
-				timer_us(start) > FramingTimeoutUs) {
+				time_us(start) > FramingTimeoutUs) {
 			printf("Timeout waiting for framing byte.\n");
 			return -1;
 		}
@@ -71,7 +71,7 @@ static int send_packet(CrosEcBusOps *me, const void *dout, uint32_t dout_len,
 {
 	CrosEcSpiBus *bus = container_of(me, CrosEcSpiBus, ops);
 
-	while (timer_us(bus->last_transfer) < CsCooldownUs)
+	while (time_us(bus->last_transfer) < CsCooldownUs)
 		;
 
 	if (bus->spi->start(bus->spi))
@@ -145,7 +145,7 @@ static int send_command(CrosEcBusOps *me, uint8_t cmd, int cmd_version,
 	// Send the output.
 	cros_ec_dump_data("out", -1, bus->buf, out_bytes);
 
-	while (timer_us(bus->last_transfer) < CsCooldownUs)
+	while (time_us(bus->last_transfer) < CsCooldownUs)
 		;
 
 	if (bus->spi->start(bus->spi))

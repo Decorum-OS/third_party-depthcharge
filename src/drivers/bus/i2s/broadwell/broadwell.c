@@ -18,11 +18,11 @@
 #include <libpayload.h>
 
 #include "base/container_of.h"
+#include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/bus/i2s/i2s.h"
 #include "drivers/bus/i2s/broadwell/broadwell.h"
 #include "drivers/bus/i2s/broadwell/regs.h"
-#include "drivers/timer/timer.h"
 
 static void init_shim_csr(BdwI2s *bus)
 {
@@ -213,14 +213,14 @@ static int bdw_i2s_send(I2sOps *me, unsigned int *data, unsigned int length)
 
 	/* Transfer data */
 	while (length > 0) {
-		uint64_t start = timer_us(0);
+		uint64_t start = time_us(0);
 
 		/* Write data if transmit FIFO has room */
 		if (readl(&bus->regs->sssr) & SSP_SSS_TNF) {
 			writel(*data++, &bus->regs->ssdr);
 			length--;
 		} else {
-			if (timer_us(start) > 100000) {
+			if (time_us(start) > 100000) {
 				/* Disable I2S interface */
 				bdw_i2s_disable(bus);
 				printf("I2S Transfer Timeout\n");

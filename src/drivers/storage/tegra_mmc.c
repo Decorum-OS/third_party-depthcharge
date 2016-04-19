@@ -26,9 +26,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/storage/tegra_mmc.h"
-#include "drivers/timer/timer.h"
 
 enum {
 	// For card identification, and also the highest low-speed SDOI card
@@ -288,7 +288,7 @@ static int tegra_mmc_send_cmd_bounced(MmcCtrlr *ctrlr, MmcCommand *cmd,
 	}
 
 	if (data) {
-		uint64_t start = timer_us(0);
+		uint64_t start = time_us(0);
 		uint64_t timeout_ms = 2000;
 
 		while (1) {
@@ -315,7 +315,7 @@ static int tegra_mmc_send_cmd_bounced(MmcCtrlr *ctrlr, MmcCommand *cmd,
 				// Transfer Complete
 				mmc_debug("r/w is done\n");
 				break;
-			} else if (timer_us(start) / 1000 > timeout_ms) {
+			} else if (time_us(start) / 1000 > timeout_ms) {
 				writel(mask, &host->reg->norintsts);
 				mmc_error("%s: MMC Timeout\n"
 				       "    Interrupt status        0x%08x\n"

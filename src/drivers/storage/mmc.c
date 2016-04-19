@@ -30,9 +30,9 @@
 #include <libpayload.h>
 #include <stdint.h>
 
+#include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/storage/mmc.h"
-#include "drivers/timer/timer.h"
 
 /* Set block count limit because of 16 bit register limit on some hardware*/
 #ifndef CONFIG_SYS_MMC_MAX_BLK_COUNT
@@ -47,12 +47,12 @@ int mmc_busy_wait_io(volatile uint32_t *address, uint32_t *output,
 		     uint32_t io_mask, uint32_t timeout_ms)
 {
 	uint32_t value = (uint32_t)-1;
-	uint64_t start = timer_us(0);
+	uint64_t start = time_us(0);
 
 	if (!output)
 		output = &value;
 	for (; *output & io_mask; *output = readl(address)) {
-		if (timer_us(start) > timeout_ms * 1000)
+		if (time_us(start) > timeout_ms * 1000)
 			return -1;
 	}
 	return 0;
@@ -62,12 +62,12 @@ int mmc_busy_wait_io_until(volatile uint32_t *address, uint32_t *output,
 			   uint32_t io_mask, uint32_t timeout_ms)
 {
 	uint32_t value = 0;
-	uint64_t start = timer_us(0);
+	uint64_t start = time_us(0);
 
 	if (!output)
 		output = &value;
 	for (; !(*output & io_mask); *output = readl(address)) {
-		if (timer_us(start) > timeout_ms * 1000)
+		if (time_us(start) > timeout_ms * 1000)
 			return -1;
 	}
 	return 0;
@@ -415,7 +415,7 @@ static int mmc_complete_op_cond(MmcMedia *media)
 	int timeout = MMC_INIT_TIMEOUT_US;
 	uint64_t start;
 
-	start = timer_us(0);
+	start = time_us(0);
 	while (1) {
 		// CMD1 queries whether initialization is done.
 		int err = mmc_send_op_cond_iter(media, &cmd, 1);
@@ -427,7 +427,7 @@ static int mmc_complete_op_cond(MmcMedia *media)
 			break;
 
 		// Check if init timeout has expired.
-		if (timer_us(start) > timeout)
+		if (time_us(start) > timeout)
 			return MMC_UNUSABLE_ERR;
 
 		udelay(100);

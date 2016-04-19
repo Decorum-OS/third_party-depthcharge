@@ -20,10 +20,10 @@
 #include <libpayload.h>
 
 #include "base/container_of.h"
+#include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/bus/i2c/exynos5_usi.h"
 #include "drivers/bus/i2c/i2c.h"
-#include "drivers/timer/timer.h"
 
 typedef struct __attribute__ ((packed)) UsiI2cRegs {
 	uint32_t usi_ctl;
@@ -239,8 +239,8 @@ static int exynos5_usi_i2c_check_transfer(UsiI2cRegs *regs)
  */
 static int exynos5_usi_i2c_wait_for_transfer(UsiI2cRegs *regs)
 {
-	uint64_t start = timer_us(0);
-	while (timer_us(start) < HSI2C_TIMEOUT * 1000) {
+	uint64_t start = time_us(0);
+	while (time_us(start) < HSI2C_TIMEOUT * 1000) {
 		int ret = exynos5_usi_i2c_check_transfer(regs);
 		if (ret)
 			return ret;

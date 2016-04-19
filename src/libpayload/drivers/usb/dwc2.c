@@ -24,6 +24,7 @@
 #include "dwc2_private.h"
 
 #include "base/die.h"
+#include "base/time.h"
 #include "base/xalloc.h"
 
 static void dummy(UsbDevHc *controller)

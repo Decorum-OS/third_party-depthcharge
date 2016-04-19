@@ -31,6 +31,7 @@
 #include "ohci_private.h"
 #include "ohci.h"
 
+#include "base/time.h"
 #include "base/xalloc.h"
 
 typedef struct {

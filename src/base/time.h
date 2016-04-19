@@ -20,13 +20,16 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __DRIVERS_TIMER_TIMER_H__
-#define __DRIVERS_TIMER_TIMER_H__
+#ifndef __BASE_TIME_H__
+#define __BASE_TIME_H__
 
 #include <stdint.h>
 
-uint64_t timer_hz(void);
-uint64_t timer_raw_value(void);
+void ndelay(uint64_t n);
+void udelay(uint64_t u);
+void mdelay(uint64_t m);
+void delay(uint64_t s);
+
 uint64_t time_us(uint64_t base);
 
-#endif /* __DRIVERS_TIMER_TIMER_H__ */
+#endif /* __BASE_TIME_H__ */

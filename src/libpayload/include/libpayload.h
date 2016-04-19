@@ -208,12 +208,6 @@ int lib_get_sysinfo(void);
 void lib_sysinfo_get_memranges(struct memrange **ranges,
 			       uint64_t *nranges);
 
-/* Generic. */
-void ndelay(unsigned int n);
-void udelay(unsigned int n);
-void mdelay(unsigned int n);
-void delay(unsigned int n);
-
 /* Defined in arch/${ARCH}/selfboot.c */
 void selfboot(void *entry);
 

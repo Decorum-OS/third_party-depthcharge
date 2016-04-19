@@ -30,9 +30,9 @@
 #include <usb/usb.h>
 
 #include "base/die.h"
+#include "base/time.h"
 #include "drivers/storage/usbdisk.h"
 #include "drivers/storage/usbmsc.h"
-#include "drivers/timer/timer.h"
 
 enum {
 	msc_subclass_rbc = 0x1,
@@ -527,9 +527,9 @@ static int usb_msc_test_unit_ready(UsbDev *dev)
 	// Initially mark the device ready.
 	MSC_INST(dev)->ready = USB_MSC_READY;
 
-	uint64_t start_time = timer_us(0);
+	uint64_t start_time = time_us(0);
 	while (1) {
-		if (timer_us(start_time) > timeout_secs * 1000000) {
+		if (time_us(start_time) > timeout_secs * 1000000) {
 			usb_debug("timeout. Device not ready.\n");
 			MSC_INST(dev)->ready = USB_MSC_NOT_READY;
 			// Don't bother spinning up the stroage device if the

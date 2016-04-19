@@ -35,8 +35,8 @@
 
 #include "base/cleanup_funcs.h"
 #include "base/io.h"
+#include "base/time.h"
 #include "base/xalloc.h"
-#include "drivers/timer/timer.h"
 #include "drivers/tpm/lpc.h"
 
 typedef struct {
@@ -155,11 +155,11 @@ static uint16_t burst_count(TpmLocality *dev)
  */
 static int lpctpm_wait_reg(uint8_t *reg, uint8_t mask, uint8_t expected)
 {
-	uint64_t start = timer_us(0);
+	uint64_t start = time_us(0);
 	do {
 		if ((readb(reg) & mask) == expected)
 			return 0;
-	} while (timer_us(start) < 1000 * 1000);
+	} while (time_us(start) < 1000 * 1000);
 	return -1;
 }
 
@@ -224,9 +224,9 @@ static uint32_t lpctpm_senddata(LpcTpm *tpm, const uint8_t * const data,
 
 	while (1) {
 		// Wait till the device is ready to accept more data.
-		uint64_t start = timer_us(0);
+		uint64_t start = time_us(0);
 		while (!burst) {
-			if (timer_us(start) > 1000 * 1000) {
+			if (time_us(start) > 1000 * 1000) {
 				printf("%s:%d failed to feed %d bytes of %d.\n",
 				       __FILE__, __LINE__, len - offset, len);
 				return -1;
@@ -314,9 +314,9 @@ static uint32_t lpctpm_readresponse(LpcTpm *tpm, uint8_t *buffer, size_t *len)
 	}
 
 	do {
-		uint64_t start = timer_us(0);
+		uint64_t start = time_us(0);
 		while ((burst = burst_count(&tpm->regs->localities[0])) == 0) {
-			if (timer_us(start) > 1000 * 1000) {
+			if (time_us(start) > 1000 * 1000) {
 				printf("%s:%d TPM stuck on read\n",
 				       __FILE__, __LINE__);
 				return -1;

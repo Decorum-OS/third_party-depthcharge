@@ -23,6 +23,8 @@
 #include "dwc2_private.h"
 #include "dwc2.h"
 
+#include "base/time.h"
+
 static int
 dwc2_rh_port_status_changed(UsbDev *const dev, const int port)
 {

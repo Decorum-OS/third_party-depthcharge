@@ -12,6 +12,7 @@
 #include <libpayload.h>
 
 #include "base/list.h"
+#include "base/time.h"
 #include "base/xalloc.h"
 #include "board/daisy/i2c_arb.h"
 #include "drivers/bus/i2c/i2c.h"

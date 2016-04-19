@@ -24,20 +24,20 @@
 #include <libpayload.h>
 
 #include "base/container_of.h"
+#include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/ec/cros/lpc.h"
 #include "drivers/ec/cros/lpc_mec.h"
-#include "drivers/timer/timer.h"
 
 /* Timeout waiting for a flash erase command to complete */
 static const int CROS_EC_CMD_TIMEOUT_MS = 5000;
 
 static int wait_for_sync(CrosEcBusOps *me)
 {
-	uint64_t start = timer_us(0);
+	uint64_t start = time_us(0);
 	uint8_t data;
 
-	while (timer_us(start) < CROS_EC_CMD_TIMEOUT_MS * 1000) {
+	while (time_us(start) < CROS_EC_CMD_TIMEOUT_MS * 1000) {
 		me->read(&data, EC_LPC_ADDR_HOST_CMD, 1);
 		if (!(data & EC_LPC_STATUS_BUSY_MASK))
 			return 0;

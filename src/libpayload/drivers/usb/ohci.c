@@ -32,6 +32,7 @@
 #include "ohci.h"
 
 #include "base/die.h"
+#include "base/time.h"
 #include "base/xalloc.h"
 
 static void ohci_start (UsbDevHc *controller);

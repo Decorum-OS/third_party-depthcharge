@@ -26,10 +26,10 @@
 
 #include <libpayload.h>
 
+#include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/storage/blockdev.h"
 #include "drivers/storage/sdhci.h"
-#include "drivers/timer/timer.h"
 
 static void sdhci_reset(SdhciHost *host, uint8_t mask)
 {
@@ -346,7 +346,7 @@ static int sdhci_send_command(MmcCtrlr *mmc_ctrl, MmcCommand *cmd,
 	if (data && (host->host_caps & MMC_AUTO_CMD12))
 		return sdhci_complete_adma(host, cmd);
 
-	start = timer_us(0);
+	start = time_us(0);
 	do {
 		stat = sdhci_readl(host, SDHCI_INT_STATUS);
 		if (stat & SDHCI_INT_ERROR)
@@ -354,7 +354,7 @@ static int sdhci_send_command(MmcCtrlr *mmc_ctrl, MmcCommand *cmd,
 
 		/* Apply max timeout for R1b-type CMD defined in eMMC ext_csd
 		   except for erase ones */
-		if (timer_us(start) > 2550000) {
+		if (time_us(start) > 2550000) {
 			if (host->quirks & SDHCI_QUIRK_BROKEN_R1B)
 				return 0;
 			else {

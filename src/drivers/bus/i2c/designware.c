@@ -25,9 +25,9 @@
 #include <libpayload.h>
 
 #include "base/container_of.h"
+#include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/bus/i2c/designware.h"
-#include "drivers/timer/timer.h"
 
 typedef struct {
 	uint32_t control;
@@ -254,12 +254,12 @@ static void i2c_flush_rxfifo(DesignwareI2cRegs *regs)
  */
 static int i2c_wait_for_bus_idle(DesignwareI2cRegs *regs)
 {
-	uint64_t start = timer_us(0);
+	uint64_t start = time_us(0);
 
 	while ((readl(&regs->status) & STATUS_MA) ||
 	       !(readl(&regs->status) & STATUS_TFE))
 		/* Evaluate timeout, wait for up to 16 bytes in FIFO. */
-		if (timer_us(start) > 2000 * 16)
+		if (time_us(start) > 2000 * 16)
 			return -1;
 
 	return 0;
@@ -273,13 +273,13 @@ static int i2c_wait_for_bus_idle(DesignwareI2cRegs *regs)
  */
 static int i2c_xfer_finish(DesignwareI2cRegs *regs)
 {
-	uint64_t start = timer_us(0);
+	uint64_t start = time_us(0);
 
 	while (1) {
 		if ((readl(&regs->raw_intr_stat) & INTR_STOP_DET)) {
 			readl(&regs->clear_stop_det_intr);
 			break;
-		} else if (timer_us(start) > 2000)
+		} else if (time_us(start) > 2000)
 			break;
 	}
 
@@ -317,13 +317,13 @@ static int i2c_transfer_segment(DesignwareI2cRegs *regs,
 
 	/* Read or write each byte in segment. */
 	for (i = 0; i < segment->len; ++i) {
-		uint64_t start = timer_us(0);
+		uint64_t start = time_us(0);
 		uint32_t cmd;
 
 		/* Write op only: Wait for FIFO not full. */
 		if (!segment->read) {
 			while (!(readl(&regs->status) & STATUS_TFNF))
-				if (timer_us(start) > 2000)
+				if (time_us(start) > 2000)
 					return -1;
 			cmd = segment->buf[i];
 		} else
@@ -338,7 +338,7 @@ static int i2c_transfer_segment(DesignwareI2cRegs *regs,
 		/* Read op only: Wait FIFO data and store it. */
 		if (segment->read) {
 			while (!(readl(&regs->status) & STATUS_RFNE))
-				if (timer_us(start) > 2000)
+				if (time_us(start) > 2000)
 					return -1;
 			segment->buf[i] = (uint8_t)readl(&regs->cmd_data);
 		}

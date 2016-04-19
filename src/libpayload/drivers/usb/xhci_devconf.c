@@ -30,6 +30,8 @@
 #include <usb/usb.h>
 #include "xhci_private.h"
 
+#include "base/time.h"
+
 static uint32_t
 xhci_gen_route(xhci_t *const xhci, const int hubport, const int hubaddr)
 {

@@ -19,9 +19,9 @@
 #include <endian.h>
 #include <libpayload.h>
 
+#include "base/time.h"
 #include "board/board.h"
 #include "debug/gdb/gdb_int.h"
-#include "drivers/timer/timer.h"
 
 /* MMIO word size is not standardized, but *usually* 32 (even on ARM64) */
 typedef uint32_t mmio_word_t;
@@ -44,9 +44,9 @@ static int gdb_raw_getchar(void)
 {
 	UartOps *uart = board_debug_uart();
 
-	uint64_t start = timer_us(0);
+	uint64_t start = time_us(0);
 	while (!uart->have_char(uart))
-		if (timer_us(start) > timeout_us)
+		if (time_us(start) > timeout_us)
 			return -1;
 
 	return uart->get_char(uart);

@@ -11,6 +11,7 @@
 
 #include <libpayload.h>
 
+#include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/bus/i2c/i2c.h"
 #include "drivers/sound/max98090.h"

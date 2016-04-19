@@ -23,15 +23,15 @@
 #include <libpayload.h>
 #include <vboot_api.h>
 
+#include "base/time.h"
 #include "drivers/sound/sound.h"
-#include "drivers/timer/timer.h"
 
 uint64_t VbExGetTimer(void)
 {
 	static uint64_t start = 0;
 	if (!start)
-		start = timer_us(0);
-	return timer_us(start);
+		start = time_us(0);
+	return time_us(start);
 }
 
 void VbExSleepMs(uint32_t msec)

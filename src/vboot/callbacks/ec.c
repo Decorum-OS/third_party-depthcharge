@@ -24,6 +24,7 @@
 #include <libpayload.h>
 #include <vboot_api.h>
 
+#include "base/time.h"
 #include "base/timestamp.h"
 #include "drivers/ec/cros/ec.h"
 #include "drivers/flash/flash.h"

@@ -24,8 +24,8 @@
 #include <libpayload.h>
 
 #include "base/cleanup_funcs.h"
+#include "base/time.h"
 #include "debug/gdb/gdb.h"
-#include "drivers/timer/timer.h"
 
 ListNode cleanup_funcs;
 
@@ -43,7 +43,7 @@ int run_cleanup_funcs(CleanupType type)
 	gdb_exit(type);
 
 	printf("Exiting depthcharge with code %d at timestamp: %llu\n",
-	       type, timer_us(0));
+	       type, time_us(0));
 
 	return res;
 }

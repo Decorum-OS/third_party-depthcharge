@@ -24,9 +24,9 @@
 #include <endian.h>
 #include <libpayload.h>
 
+#include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/net/net.h"
-#include "drivers/timer/timer.h"
 #include "net/net.h"
 #include "net/uip.h"
 #include "net/uip_arp.h"
@@ -382,11 +382,11 @@ static void dhcp_send_packet(struct uip_udp_conn *conn, const char *name,
 	// Poll network driver until we get a reply. Resend periodically.
 	net_set_callback(&dhcp_callback);
 	for (;;) {
-		uint64_t start = timer_us(0);
+		uint64_t start = time_us(0);
 		do {
 			net_poll();
 		} while (!dhcp_in_ready &&
-			 timer_us(start) < DhcpRespTimeoutUs);
+			 time_us(start) < DhcpRespTimeoutUs);
 		if (dhcp_in_ready)
 			break;
 		// No response, try again.

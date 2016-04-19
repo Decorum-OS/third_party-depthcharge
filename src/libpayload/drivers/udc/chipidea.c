@@ -38,6 +38,8 @@
 #include <udc/chipidea.h>
 #include "chipidea_priv.h"
 
+#include "base/time.h"
+
 #ifdef DEBUG
 #define debug(x...) printf(x)
 #else

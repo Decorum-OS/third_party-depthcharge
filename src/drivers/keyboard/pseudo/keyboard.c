@@ -28,9 +28,9 @@
 #include "base/init_funcs.h"
 #include "base/keycodes.h"
 #include "base/state_machine.h"
+#include "base/time.h"
 #include "drivers/keyboard/keyboard.h"
 #include "drivers/keyboard/pseudo/keyboard.h"
-#include "drivers/timer/timer.h"
 
 static void pk_state_machine_setup(PseudoKeyboard *keyboard)
 {
@@ -102,12 +102,12 @@ static size_t read_key_codes(PseudoKeyboard *keyboard, Modifier *modifiers,
 	while (i < max_codes) {
 
 		int input, ret, output;
-		uint64_t start = timer_us(0);
+		uint64_t start = time_us(0);
 		// If no input is received for 500 msec, return.
 		uint64_t timeout_us = 500 * 1000;
 
 		do {
-			uint64_t button_press = timer_us(0);
+			uint64_t button_press = time_us(0);
 			uint64_t button_timeout = 100 * 1000;
 
 			// Mainboard needs to define function to read input.
@@ -122,7 +122,7 @@ static size_t read_key_codes(PseudoKeyboard *keyboard, Modifier *modifiers,
 					input = PseudoKb_NoInput;
 					break;
 				}
-			} while (timer_us(button_press) < button_timeout);
+			} while (time_us(button_press) < button_timeout);
 
 			/*
 			 * If input is received, wait until input changes to
@@ -133,7 +133,7 @@ static size_t read_key_codes(PseudoKeyboard *keyboard, Modifier *modifiers,
 				{;}
 				break;
 			}
-		} while (timer_us(start) < timeout_us);
+		} while (time_us(start) < timeout_us);
 
 		// If timeout without input, return.
 		if (input == PseudoKb_NoInput)
