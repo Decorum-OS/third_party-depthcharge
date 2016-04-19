@@ -87,7 +87,8 @@ $(BOARDS):
 	
 	# Build depthcharge using the new config.
 	@printf "Building depthcharge...\n"
-	$(Q)$(MAKE) DC_SRC=$(src) \
+	$(Q)$(MAKE) --no-builtin-rules \
+		DC_SRC=$(src) \
 		DC_OBJ=$(call objb,$@) \
 		-f $(src)/engine.mk
 
