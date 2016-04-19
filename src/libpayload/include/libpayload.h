@@ -54,11 +54,6 @@
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
-static inline uint32_t div_round_up(uint32_t n, uint32_t d)
-{
-	return (n + d - 1) / d;
-}
-
 /**
  * @defgroup nvram NVRAM functions
  * @{
