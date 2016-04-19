@@ -25,7 +25,7 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
+#include <ctype.h>
 
 int isalpha(int c)
 {

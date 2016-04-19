@@ -25,6 +25,7 @@
  * SUCH DAMAGE.
  */
 
+#include <ctype.h>
 #include <libpayload.h>
 
 void hexdump(const void *memory, size_t length)

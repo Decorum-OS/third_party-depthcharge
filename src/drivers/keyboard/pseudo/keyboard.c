@@ -22,6 +22,7 @@
  */
 
 #include <assert.h>
+#include <ctype.h>
 #include <libpayload.h>
 #include <stdint.h>
 
