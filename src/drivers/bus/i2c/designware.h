@@ -25,6 +25,7 @@
 #ifndef __DRIVERS_BUS_I2C_DESIGNWARE_H__
 #define __DRIVERS_BUS_I2C_DESIGNWARE_H__
 
+#include <pci.h>
 #include <stdint.h>
 
 #include "drivers/bus/i2c/i2c.h"

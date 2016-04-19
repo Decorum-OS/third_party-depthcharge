@@ -52,7 +52,6 @@
 #include <string.h>
 #include <arch/types.h>
 #include <sysinfo.h>
-#include <pci.h>
 
 #include "base/die.h"
 #include "base/io.h"

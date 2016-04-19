@@ -25,6 +25,7 @@
  */
 
 #include <libpayload.h>
+#include <pci.h>
 
 #include "base/time.h"
 #include "base/xalloc.h"
