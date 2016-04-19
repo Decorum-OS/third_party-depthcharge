@@ -30,7 +30,6 @@
 #include <stdint.h>
 
 uint8_t exception_stack[0x4000] __attribute__((aligned(8)));
-extern unsigned int test_exc;
 
 struct exception_handler_info
 {
@@ -88,13 +87,7 @@ void exception_dispatch(struct exception_state *state, int idx)
 	}
 	print_regs(state);
 
-	if (test_exc) {
-		state->elr += 4;
-		test_exc = 0;
-		printf("returning back now\n");
-	}
-	else
-		halt();
+	halt();
 }
 
 void exception_init(void)
