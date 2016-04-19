@@ -2,8 +2,9 @@
  * Copyright (C) 2015 Google, Inc.
  */
 
-#include <libpayload.h>
 #include <cbfs.h>
+#include <cbgfx.h>
+#include <libpayload.h>
 #include <sysinfo.h>
 #include "bitmap.h"
 

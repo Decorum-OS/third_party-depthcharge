@@ -21,6 +21,7 @@
  */
 
 #include <assert.h>
+#include <cbgfx.h>
 #include <libpayload.h>
 #include <sysinfo.h>
 #include <vboot_api.h>

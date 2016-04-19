@@ -18,6 +18,7 @@
 #ifndef __BASE_GRAPHICS_H__
 #define __BASE_GRAPHICS_H__
 
+#include <cbgfx.h>
 #include <libpayload.h>
 
 /*

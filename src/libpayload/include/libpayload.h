@@ -41,7 +41,6 @@
 #ifndef _LIBPAYLOAD_H
 #define _LIBPAYLOAD_H
 
-#include <cbgfx.h>
 #include <ctype.h>
 #include <stddef.h>
 #include <stdio.h>
