@@ -100,7 +100,6 @@ void start_main(void)
 
 	post_sysinfo_scan_mmu_setup();
 
-	printf("ARM64: Libpayload %s\n",__func__);
 	exception_init();
 
 	(void) main(0, NULL);
