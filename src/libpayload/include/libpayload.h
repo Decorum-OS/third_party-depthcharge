@@ -197,20 +197,6 @@ static inline int __ffs(uint32_t x)
 
 
 /**
- * @defgroup time Time functions
- * @{
- */
-
-/** System time structure */
-struct timeval {
-	time_t tv_sec;       /**< Seconds */
-	suseconds_t tv_usec; /**< Microseconds */
-};
-
-int gettimeofday(struct timeval *tv, void *tz);
-/** @} */
-
-/**
  * @defgroup arch Architecture specific functions
  * This module contains global architecture specific functions.
  * All architectures are expected to define these functions.
