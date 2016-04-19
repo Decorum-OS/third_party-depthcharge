@@ -76,13 +76,10 @@ static void pre_sysinfo_scan_mmu_setup(void)
  */
 static void post_sysinfo_scan_mmu_setup(void)
 {
-	struct memrange *ranges;
-	uint64_t nranges;
+	struct memrange *ranges = &lib_sysinfo.memrange[0];
+	uint64_t nranges = lib_sysinfo.n_memranges;
 	struct mmu_ranges mmu_ranges;
 	struct mmu_memrange *dma_range;
-
-	/* Get memrange info from lib_sysinfo */
-	lib_sysinfo_get_memranges(&ranges, &nranges);
 
 	/* Get memory ranges for mmu init from lib_sysinfo memrange */
 	dma_range = mmu_init_ranges_from_sysinfo(ranges, nranges, &mmu_ranges);
@@ -111,8 +108,8 @@ void start_main(void)
 
 	pre_sysinfo_scan_mmu_setup();
 
-	/* Gather system information. */
-	lib_get_sysinfo();
+	// Get information from the coreboot tables if they exist.
+	get_coreboot_info(&lib_sysinfo);
 
 	post_sysinfo_scan_mmu_setup();
 

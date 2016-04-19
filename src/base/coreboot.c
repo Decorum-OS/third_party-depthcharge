@@ -30,6 +30,8 @@
 #include <coreboot_tables.h>
 #include <stdint.h>
 
+struct sysinfo_t lib_sysinfo;
+
 /*
  * The code in this file applies to all coreboot architectures. Some coreboot
  * table tags are architecture specific, they are handled by their respective

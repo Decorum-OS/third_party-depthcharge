@@ -180,10 +180,6 @@ static inline int __ffs(uint32_t x)
  */
 int get_coreboot_info(struct sysinfo_t *info);
 
-int lib_get_sysinfo(void);
-void lib_sysinfo_get_memranges(struct memrange **ranges,
-			       uint64_t *nranges);
-
 /* Defined in arch/${ARCH}/selfboot.c */
 void selfboot(void *entry);
 

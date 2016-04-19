@@ -37,8 +37,8 @@ void start_main(void)
 {
 	extern int main(int argc, char **argv);
 
-	/* Gather system information. */
-	lib_get_sysinfo();
+	// Get information from the coreboot tables if they exist.
+	get_coreboot_info(&lib_sysinfo);
 
 	exception_init();
 
