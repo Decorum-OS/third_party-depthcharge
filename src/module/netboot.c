@@ -67,9 +67,6 @@ static char cmd_line[4096] = "lsm.module_locking=0 cros_netboot_ramfs "
 
 void module_main(void)
 {
-	if (run_init_funcs())
-		halt();
-
 	// Make sure graphics are available if they aren't already.
 	enable_graphics();
 

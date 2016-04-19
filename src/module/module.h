@@ -23,6 +23,8 @@
 #ifndef __MODULE_MODULE_H__
 #define __MODULE_MODULE_H__
 
+#include <stdint.h>
+
 void module_main(void);
 
 int start_module(const void *compressed_image, uint32_t size);

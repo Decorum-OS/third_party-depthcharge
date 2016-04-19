@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "base/init_funcs.h"
 #include "module/module.h"
 
 void start_main(void) __attribute__((noreturn));
@@ -39,6 +40,10 @@ void start_main(void)
 	get_coreboot_info(&lib_sysinfo);
 
 	exception_init();
+
+	// Run any generic initialization functions that are compiled in.
+	if (run_init_funcs())
+		halt();
 
 	module_main();
 	printf("Returned from module_main.\n");

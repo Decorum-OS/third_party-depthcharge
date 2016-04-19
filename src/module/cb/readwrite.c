@@ -20,20 +20,14 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
+#include <stdlib.h>
 
-#include "base/init_funcs.h"
 #include "base/timestamp.h"
-#include "drivers/keyboard/keyboard.h"
 #include "module/module.h"
 #include "vboot/stages.h"
 
 void module_main(void)
 {
-	// Run any generic initialization functions that are compiled in.
-	if (run_init_funcs())
-		halt();
-
 	timestamp_add_now(TS_RW_VB_SELECT_AND_LOAD_KERNEL);
 
 	// Select a kernel and boot it.

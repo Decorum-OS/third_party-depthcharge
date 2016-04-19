@@ -20,21 +20,15 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
+#include <stdlib.h>
 
-#include "base/init_funcs.h"
 #include "base/timestamp.h"
-#include "drivers/keyboard/keyboard.h"
 #include "module/module.h"
 #include "vboot/stages.h"
 #include "vboot/util/commonparams.h"
 
 void module_main(void)
 {
-	// Run any generic initialization functions that are compiled in.
-	if (run_init_funcs())
-		halt();
-
 	timestamp_add_now(TS_RO_PARAMS_INIT);
 
 	// Set up the common param structure, clearing shared data.
