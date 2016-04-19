@@ -28,29 +28,10 @@
 #include <libpayload.h>
 #include <coreboot_tables.h>
 
-/**
- * This is a global structure that is used through the library - we set it
- * up initially with some dummy values - hopefully they will be overridden.
- */
 struct sysinfo_t lib_sysinfo;
 
 int lib_get_sysinfo(void)
 {
-	/* Get information from the coreboot tables if they exist. */
-	int ret = get_coreboot_info(&lib_sysinfo);
-
-	if (!lib_sysinfo.n_memranges) {
-		/* If we can't get a good memory range, use the default. */
-		lib_sysinfo.n_memranges = 2;
-
-		lib_sysinfo.memrange[0].base = 0;
-		lib_sysinfo.memrange[0].size = 640 * 1024;
-		lib_sysinfo.memrange[0].type = CB_MEM_RAM;
-
-		lib_sysinfo.memrange[1].base = 1024 * 1024;
-		lib_sysinfo.memrange[1].size = 31 * 1024 * 1024;
-		lib_sysinfo.memrange[1].type = CB_MEM_RAM;
-	}
-
-	return ret;
+	// Get information from the coreboot tables if they exist.
+	return get_coreboot_info(&lib_sysinfo);
 }
