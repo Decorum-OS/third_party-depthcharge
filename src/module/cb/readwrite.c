@@ -23,6 +23,7 @@
 #include <libpayload.h>
 
 #include "base/init_funcs.h"
+#include "base/timestamp.h"
 #include "drivers/keyboard/keyboard.h"
 #include "vboot/stages.h"
 
