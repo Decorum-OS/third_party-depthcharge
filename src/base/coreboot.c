@@ -67,11 +67,6 @@ static void cb_parse_memory(void *ptr, struct sysinfo_t *info)
 	}
 }
 
-static void cb_parse_serial(void *ptr, struct sysinfo_t *info)
-{
-	info->serial = ((struct cb_serial *)ptr);
-}
-
 static void cb_parse_vboot_handoff(unsigned char *ptr, struct sysinfo_t *info)
 {
 	struct lb_range *vbho = (struct lb_range *)ptr;
@@ -108,19 +103,6 @@ static void cb_parse_vdat(unsigned char *ptr, struct sysinfo_t *info)
 	info->vdat_size = vdat->range_size;
 }
 
-static void cb_parse_mac_addresses(unsigned char *ptr,
-				   struct sysinfo_t *info)
-{
-	struct cb_macs *macs = (struct cb_macs *)ptr;
-	int i;
-
-	info->num_macs = (macs->count < ARRAY_SIZE(info->macs)) ?
-		macs->count : ARRAY_SIZE(info->macs);
-
-	for (i = 0; i < info->num_macs; i++)
-		info->macs[i] = macs->mac_addrs[i];
-}
-
 static void cb_parse_tstamp(unsigned char *ptr, struct sysinfo_t *info)
 {
 	struct cb_cbmem_tab *const cbmem = (struct cb_cbmem_tab *)ptr;
@@ -151,22 +133,6 @@ static void cb_parse_ram_code(unsigned char *ptr, struct sysinfo_t *info)
 	info->ram_code = ram_code->ram_code;
 }
 
-#if CONFIG_NVRAM
-static void cb_parse_optiontable(void *ptr, struct sysinfo_t *info)
-{
-	/* ptr points to a coreboot table entry and is already virtual */
-	info->option_table = ptr;
-}
-
-static void cb_parse_checksum(void *ptr, struct sysinfo_t *info)
-{
-	struct cb_cmos_checksum *cmos_cksum = ptr;
-	info->cmos_range_start = cmos_cksum->range_start;
-	info->cmos_range_end = cmos_cksum->range_end;
-	info->cmos_checksum_location = cmos_cksum->location;
-}
-#endif
-
 #if CONFIG_COREBOOT_VIDEO_CONSOLE
 static void cb_parse_framebuffer(void *ptr, struct sysinfo_t *info)
 {
@@ -174,17 +140,6 @@ static void cb_parse_framebuffer(void *ptr, struct sysinfo_t *info)
 	info->framebuffer = ptr;
 }
 #endif
-
-static void cb_parse_string(unsigned char *ptr, char **info)
-{
-	*info = (char *)((struct cb_string *)ptr)->string;
-}
-
-static void cb_parse_wifi_calibration(void *ptr, struct sysinfo_t *info)
-{
-	struct cb_cbmem_tab *const cbmem = (struct cb_cbmem_tab *)ptr;
-	info->wifi_calibration = (void *)(uintptr_t)cbmem->cbmem_tab;
-}
 
 static void cb_parse_ramoops(void *ptr, struct sysinfo_t *info)
 {
@@ -216,10 +171,8 @@ static void cb_parse_boot_media_params(unsigned char *ptr,
 {
 	struct cb_boot_media_params *const bmp =
 			(struct cb_boot_media_params *)ptr;
-	info->fmap_offset = bmp->fmap_offset;
 	info->cbfs_offset = bmp->cbfs_offset;
 	info->cbfs_size = bmp->cbfs_size;
-	info->boot_media_size = bmp->boot_media_size;
 }
 
 int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
@@ -276,47 +229,6 @@ int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 		case CB_TAG_MEMORY:
 			cb_parse_memory(ptr, info);
 			break;
-		case CB_TAG_SERIAL:
-			cb_parse_serial(ptr, info);
-			break;
-		case CB_TAG_VERSION:
-			cb_parse_string(ptr, &info->cb_version);
-			break;
-		case CB_TAG_EXTRA_VERSION:
-			cb_parse_string(ptr, &info->extra_version);
-			break;
-		case CB_TAG_BUILD:
-			cb_parse_string(ptr, &info->build);
-			break;
-		case CB_TAG_COMPILE_TIME:
-			cb_parse_string(ptr, &info->compile_time);
-			break;
-		case CB_TAG_COMPILE_BY:
-			cb_parse_string(ptr, &info->compile_by);
-			break;
-		case CB_TAG_COMPILE_HOST:
-			cb_parse_string(ptr, &info->compile_host);
-			break;
-		case CB_TAG_COMPILE_DOMAIN:
-			cb_parse_string(ptr, &info->compile_domain);
-			break;
-		case CB_TAG_COMPILER:
-			cb_parse_string(ptr, &info->compiler);
-			break;
-		case CB_TAG_LINKER:
-			cb_parse_string(ptr, &info->linker);
-			break;
-		case CB_TAG_ASSEMBLER:
-			cb_parse_string(ptr, &info->assembler);
-			break;
-#if CONFIG_NVRAM
-		case CB_TAG_CMOS_OPTION_TABLE:
-			cb_parse_optiontable(ptr, info);
-			break;
-		case CB_TAG_OPTION_CHECKSUM:
-			cb_parse_checksum(ptr, info);
-			break;
-#endif
 #if CONFIG_COREBOOT_VIDEO_CONSOLE
 		// FIXME we should warn on serial if coreboot set up a
 		// framebuffer buf the payload does not know about it.
@@ -324,9 +236,6 @@ int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 			cb_parse_framebuffer(ptr, info);
 			break;
 #endif
-		case CB_TAG_MAINBOARD:
-			info->mainboard = (struct cb_mainboard *)ptr;
-			break;
 		case CB_TAG_GPIO:
 			cb_parse_gpios(ptr, info);
 			break;
@@ -338,12 +247,6 @@ int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 			break;
 		case CB_TAG_VBOOT_HANDOFF:
 			cb_parse_vboot_handoff(ptr, info);
-			break;
-		case CB_TAG_MAC_ADDRS:
-			cb_parse_mac_addresses(ptr, info);
-			break;
-		case CB_TAG_SERIALNO:
-			cb_parse_string(ptr, &info->serialno);
 			break;
 		case CB_TAG_TIMESTAMPS:
 			cb_parse_tstamp(ptr, info);
@@ -359,9 +262,6 @@ int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 			break;
 		case CB_TAG_RAM_CODE:
 			cb_parse_ram_code(ptr, info);
-			break;
-		case CB_TAG_WIFI_CALIBRATION:
-			cb_parse_wifi_calibration(ptr, info);
 			break;
 		case CB_TAG_RAM_OOPS:
 			cb_parse_ramoops(ptr, info);

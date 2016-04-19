@@ -31,50 +31,14 @@
 #include <libpayload.h>
 #include <coreboot_tables.h>
 
-/*
- * Some of this is x86 specific, and the rest of it is generic. Right now,
- * since we only support x86, we'll avoid trying to make lots of infrastructure
- * we don't need. If in the future, we want to use coreboot on some other
- * architecture, then take out the generic parsing code and move it elsewhere.
- */
-
-/* === Parsing code === */
-/* This is the generic parsing code. */
-
-static void cb_parse_x86_rom_var_mtrr(void *ptr, struct sysinfo_t *info)
-{
-	struct cb_x86_rom_mtrr *rom_mtrr = ptr;
-	info->x86_rom_var_mtrr_index = rom_mtrr->index;
-}
-
-static void cb_parse_mrc_cache(void *ptr, struct sysinfo_t *info)
-{
-	struct cb_cbmem_tab *const cbmem = (struct cb_cbmem_tab *)ptr;
-	info->mrc_cache = (void *)(uintptr_t)cbmem->cbmem_tab;
-}
-
 int cb_parse_arch_specific(struct cb_record *rec, struct sysinfo_t *info)
 {
-	switch(rec->tag) {
-	case CB_TAG_X86_ROM_MTRR:
-		cb_parse_x86_rom_var_mtrr(rec, info);
-		break;
-	case CB_TAG_MRC_CACHE:
-		cb_parse_mrc_cache(rec, info);
-		break;
-	default:
-		return 0;
-	}
-	return 1;
+	return 0;
 }
 
 int get_coreboot_info(struct sysinfo_t *info)
 {
 	int ret;
-
-	/* Ensure the variable range MTRR index covering the ROM is set to
-	 * an invalid value. */
-	info->x86_rom_var_mtrr_index = -1;
 
 	ret = cb_parse_header((void *)0, 0x1000, info);
 

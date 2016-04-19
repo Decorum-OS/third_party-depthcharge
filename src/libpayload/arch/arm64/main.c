@@ -64,7 +64,7 @@ static void pre_sysinfo_scan_mmu_setup(void)
 	 * Maximum size is assumed 2 pages in case it crosses the GRANULE_SIZE
 	 * boundary
 	 */
-	mmu_presysinfo_memory_used((uint64_t)get_cb_header_ptr(),
+	mmu_presysinfo_memory_used((uintptr_t)cb_header_ptr,
 				   2 * GRANULE_SIZE);
 
 	mmu_presysinfo_enable();

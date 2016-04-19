@@ -37,6 +37,8 @@
 
 #include "drivers/timer/timer.h"
 
+static uint32_t cpu_khz;
+
 static void set_cpu_speed(void)
 {
 	const uint32_t clock_rate = 1193182; // 1.193182 MHz
@@ -62,14 +64,14 @@ static void set_cpu_speed(void)
 	 * clock_rate / (interval * 1000). Multiply that by the number of
 	 * measured clocks to get the kHz value.
 	 */
-	lib_sysinfo.cpu_khz = (end - start) * clock_rate / (1000 * interval);
+	cpu_khz = (end - start) * clock_rate / (1000 * interval);
 }
 
 uint64_t timer_hz(void)
 {
-	if (!lib_sysinfo.cpu_khz)
+	if (!cpu_khz)
 		set_cpu_speed();
-	return lib_sysinfo.cpu_khz * 1000;
+	return cpu_khz * 1000;
 }
 
 uint64_t timer_raw_value(void)

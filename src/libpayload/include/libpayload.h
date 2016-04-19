@@ -220,7 +220,6 @@ int gettimeofday(struct timeval *tv, void *tz);
  */
 int get_coreboot_info(struct sysinfo_t *info);
 int get_multiboot_info(struct sysinfo_t *info);
-void *get_cb_header_ptr(void);
 
 int lib_get_sysinfo(void);
 void lib_sysinfo_get_memranges(struct memrange **ranges,

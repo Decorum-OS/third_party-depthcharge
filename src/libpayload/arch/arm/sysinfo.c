@@ -34,9 +34,7 @@
  * This is a global structure that is used through the library - we set it
  * up initially with some dummy values - hopefully they will be overridden.
  */
-struct sysinfo_t lib_sysinfo = {
-	.cpu_khz = 0,
-};
+struct sysinfo_t lib_sysinfo;
 
 int lib_get_sysinfo(void)
 {
