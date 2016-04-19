@@ -48,7 +48,9 @@ ENTRY(_entry)
 	/* Let's rock. */
 	bl start_main
 
-	ret
+	/* If start_main returns, loop forever. */
+1:
+	b 1b
 ENDPROC(_entry)
 
 .align 4

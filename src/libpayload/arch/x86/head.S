@@ -28,7 +28,7 @@
  */
 
 	.code32
-	.global _entry, _leave
+	.global _entry
 	.text
 	.align 4
 
@@ -36,19 +36,10 @@
  * Our entry point - assume that the CPU is in 32 bit protected mode and
  * all segments are in a flat model. That's our operating mode, so we won't
  * change anything.
- *
- * This function saves off the previous stack and switches us to our
- * own execution environment.
  */
 _entry:
 	/* No interrupts, please. */
 	cli
-
-	/* There is a bunch of stuff missing here to take arguments on the stack
-	 * See http://www.coreboot.org/Payload_API and exec.S.
-	 */
-	/* Store current stack pointer. */
-	movl %esp, %esi
 
 	/* Clear the bss */
 	cld
@@ -59,23 +50,13 @@ _entry:
 	rep stosb
 
 	/* Setup new stack. */
-	movl $(dc_stack_buffer + CONFIG_STACK_SIZE), %ebx
-
-	movl %ebx, %esp
-
-	/* Save old stack pointer. */
-	pushl %esi
+	movl $(dc_stack_buffer + CONFIG_STACK_SIZE), %esp
 
 	/* Let's rock. */
 	call start_main
 
-	/* %eax has the return value - pass it on unmolested */
-_leave:
-	/* Get old stack pointer. */
-	popl %ebx
-
-	/* Restore old stack. */
-	movl %ebx, %esp
-
-	/* Return to the original context. */
-	ret
+	/* If start_main returns, loop forever. */
+1:
+	cli
+	hlt
+	jmp 1b

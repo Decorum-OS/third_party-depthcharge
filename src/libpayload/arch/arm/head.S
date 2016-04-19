@@ -48,6 +48,7 @@ loop:
 	cmp r2, r3
 	str r12, [r2], #4
 	blt loop
+
 no_bss:
 	/* Save off the location of the coreboot tables */
 	ldr r1, 1f
@@ -56,17 +57,12 @@ no_bss:
 	/* Setup new stack */
 	ldr sp, 2f
 
-	/* TODO: Save old stack pointer and link register */
-
 	/* Let's rock. */
 	bl start_main
 
-	/* %r0 has the return value - pass it on unmolested */
-
-	/* TODO: restore old stack pointer and link register */
-
-	/* Return to the original context. */
-	bx lr
+	/* If start_main returns, loop forever. */
+1:
+	b 1b
 ENDPROC(_entry)
 
 .align 4
