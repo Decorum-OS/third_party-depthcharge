@@ -44,7 +44,6 @@
 #include <cbgfx.h>
 #include <ctype.h>
 #include <endian.h>
-#include <ipchksum.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdarg.h>
