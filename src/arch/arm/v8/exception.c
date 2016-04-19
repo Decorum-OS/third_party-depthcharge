@@ -28,6 +28,7 @@
 #include <exception.h>
 #include <libpayload.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "base/die.h"
 

@@ -30,6 +30,7 @@
  */
 
 #include <libpayload.h>
+#include <stdlib.h>
 
 static unsigned int next = 1;
 

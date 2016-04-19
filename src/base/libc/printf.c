@@ -31,8 +31,9 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <libpayload.h>
 #include <ctype.h>
+#include <stdlib.h>
+#include <libpayload.h>
 
 /** Structure for specifying output methods for different printf clones. */
 struct printf_spec {

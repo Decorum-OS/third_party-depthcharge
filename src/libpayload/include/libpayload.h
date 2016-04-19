@@ -44,7 +44,6 @@
 #include <ctype.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <arch/types.h>
 #include <sysinfo.h>
 

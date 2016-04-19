@@ -40,6 +40,7 @@
 #define IN_MALLOC_C
 #include <libpayload.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 struct memory_type {
 	void *start;

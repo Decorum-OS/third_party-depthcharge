@@ -26,8 +26,9 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
 #include <coreboot_tables.h>
+#include <libpayload.h>
+#include <stdlib.h>
 
 /* This pointer gets set in head.S and is passed in from coreboot. */
 void *cb_header_ptr;

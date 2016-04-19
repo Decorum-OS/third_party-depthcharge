@@ -26,9 +26,11 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
 #include <coreboot_tables.h>
+#include <libpayload.h>
 #include <pci.h>
+#include <stdlib.h>
+#include <string.h>
 #include <video_console.h>
 #include "font8x16.h"
 

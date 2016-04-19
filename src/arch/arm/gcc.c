@@ -22,6 +22,8 @@
 
 #include <libpayload.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 int raise(int sig);
 int raise(int sig)

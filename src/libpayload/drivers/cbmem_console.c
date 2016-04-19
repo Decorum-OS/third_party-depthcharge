@@ -27,6 +27,7 @@
 
 #include <libpayload.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "base/init_funcs.h"
 

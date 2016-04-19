@@ -21,6 +21,7 @@
  */
 
 #include <libpayload.h>
+#include <stdlib.h>
 
 #include "drivers/ec/cros/ec.h"
 #include "vboot/util/ec.h"

@@ -27,6 +27,7 @@
 
 //#define XHCI_SPEW_DEBUG
 
+#include <stdlib.h>
 #include <usb/usb.h>
 #include "xhci_private.h"
 

@@ -29,6 +29,7 @@
 #include <libpayload.h>
 #include <coreboot_tables.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 struct sysinfo_t lib_sysinfo;
 

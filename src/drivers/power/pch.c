@@ -22,6 +22,7 @@
 
 #include <libpayload.h>
 #include <pci.h>
+#include <stdlib.h>
 
 #include "drivers/power/pch.h"
 #include "drivers/power/power.h"

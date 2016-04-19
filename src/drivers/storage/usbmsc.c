@@ -27,6 +27,7 @@
 
 #include <endian.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <usb/usb.h>
 
 #include "base/die.h"

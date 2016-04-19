@@ -21,6 +21,8 @@
  */
 
 #include <libpayload.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "vboot/util/ec.h"
 

@@ -25,6 +25,7 @@
  * SUCH DAMAGE.
  */
 
+#include <stdlib.h>
 #include <usb/usb.h>
 
 static void

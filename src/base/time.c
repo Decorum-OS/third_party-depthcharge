@@ -27,6 +27,7 @@
 
 #include <libpayload.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "base/time.h"
 #include "drivers/timer/timer.h"

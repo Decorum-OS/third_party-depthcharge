@@ -22,6 +22,7 @@
 
 #include <libpayload.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "boot/commandline.h"
 

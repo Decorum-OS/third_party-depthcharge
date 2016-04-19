@@ -27,10 +27,11 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
-#include <string.h>
 #include <ctype.h>
+#include <libpayload.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
 /**
  * Calculate the length of a fixed-size string.

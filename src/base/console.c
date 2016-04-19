@@ -26,6 +26,7 @@
  */
 
 #include <libpayload.h>
+#include <stdlib.h>
 #include <usb/usb.h>
 
 #include "base/die.h"

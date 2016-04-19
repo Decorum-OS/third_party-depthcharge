@@ -26,6 +26,7 @@
  */
 
 #include <libpayload.h>
+#include <stdlib.h>
 
 void die_work(const char *file, const char *func, const int line,
 	      const char *fmt, ...)

@@ -22,6 +22,7 @@
 
 #include <libpayload.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "drivers/power/exynos.h"
 #include "drivers/power/power.h"
