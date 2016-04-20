@@ -23,6 +23,7 @@
 #include "dwc2_private.h"
 #include "dwc2.h"
 
+#include "base/io.h"
 #include "base/time.h"
 
 static int

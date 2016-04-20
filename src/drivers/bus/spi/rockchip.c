@@ -19,11 +19,13 @@
 
 #include <assert.h>
 #include <libpayload.h>
+
 #include "base/container_of.h"
+#include "base/io.h"
 #include "base/time.h"
 #include "base/xalloc.h"
-#include "drivers/bus/spi/spi.h"
 #include "drivers/bus/spi/rockchip.h"
+#include "drivers/bus/spi/spi.h"
 
 #define spi_info(x...) do {if (0) printf(x); } while (0)
 

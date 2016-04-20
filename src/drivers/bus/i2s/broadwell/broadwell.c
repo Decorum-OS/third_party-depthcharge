@@ -18,6 +18,7 @@
 #include <libpayload.h>
 
 #include "base/container_of.h"
+#include "base/io.h"
 #include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/bus/i2s/i2s.h"

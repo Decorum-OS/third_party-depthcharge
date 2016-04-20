@@ -24,6 +24,7 @@
 #include <libpayload.h>
 
 #include "base/container_of.h"
+#include "base/io.h"
 #include "base/xalloc.h"
 #include "drivers/sound/tegra_ahub.h"
 

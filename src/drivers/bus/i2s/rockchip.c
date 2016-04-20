@@ -20,9 +20,10 @@
 #include <libpayload.h>
 
 #include "base/container_of.h"
+#include "base/io.h"
 #include "base/xalloc.h"
-#include "drivers/bus/i2s/rockchip.h"
 #include "drivers/bus/i2s/i2s.h"
+#include "drivers/bus/i2s/rockchip.h"
 
 typedef struct __attribute__((packed)) RockchipI2sRegs {
 	uint32_t txcr;	/* I2S_TXCR, 0x00 */

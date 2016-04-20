@@ -29,7 +29,8 @@
 #include <libpayload.h>
 #include <pci.h>
 
-#include "mmc.h"
+#include "base/io.h"
+#include "drivers/storage/mmc.h"
 
 /*
  * Controller registers

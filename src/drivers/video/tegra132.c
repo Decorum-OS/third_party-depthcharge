@@ -23,7 +23,8 @@
 #include <libpayload.h>
 #include <sysinfo.h>
 
-#include "tegra132.h"
+#include "base/io.h"
+#include "drivers/video/tegra132.h"
 
 static void * const winbuf_t_start_addr = (void *)(uintptr_t)0x54202000;
 static void * const win_t_win_options = (void *)(uintptr_t)0x54201c00;

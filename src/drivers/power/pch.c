@@ -24,6 +24,7 @@
 #include <pci.h>
 #include <stdlib.h>
 
+#include "base/io.h"
 #include "drivers/power/pch.h"
 #include "drivers/power/power.h"
 

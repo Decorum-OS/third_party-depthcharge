@@ -25,6 +25,7 @@
 #include <sysinfo.h>
 
 #include "base/init_funcs.h"
+#include "base/io.h"
 #include "base/list.h"
 #include "board/board.h"
 #include "board/board_helpers.h"

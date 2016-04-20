@@ -29,6 +29,7 @@
 #include <libpayload.h>
 #include <stdint.h>
 
+#include "base/io.h"
 #include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/storage/ahci.h"

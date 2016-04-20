@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "base/io.h"
 #include "drivers/power/exynos.h"
 #include "drivers/power/power.h"
 

@@ -20,10 +20,12 @@
 #include <assert.h>
 #include <libpayload.h>
 #include <stdint.h>
+
 #include "base/container_of.h"
+#include "base/io.h"
 #include "base/xalloc.h"
-#include "drivers/gpio/rockchip.h"
 #include "drivers/gpio/gpio.h"
+#include "drivers/gpio/rockchip.h"
 
 static RkGpioRegs *gpio_port[] = {
 	(RkGpioRegs *)0xff750000,

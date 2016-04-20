@@ -40,6 +40,7 @@
 
 #include "base/die.h"
 #include "base/hexdump.h"
+#include "base/io.h"
 #include "base/time.h"
 
 #ifdef DEBUG

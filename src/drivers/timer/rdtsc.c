@@ -33,6 +33,7 @@
 #include <libpayload.h>
 #include <arch/rdtsc.h>
 
+#include "base/io.h"
 #include "drivers/timer/timer.h"
 
 static uint32_t cpu_khz;

@@ -24,6 +24,8 @@
 
 #include <libpayload.h>
 
+#include "base/io.h"
+
 /* FIFO over/under-run interrupt config. */
 enum {
 	SSP_FIFO_INT_ENABLE = 0x0,

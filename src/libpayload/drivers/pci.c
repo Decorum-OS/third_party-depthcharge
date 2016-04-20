@@ -29,6 +29,8 @@
 #include <libpayload.h>
 #include <pci.h>
 
+#include "base/io.h"
+
 uint8_t pci_read_config8(pcidev_t device, uint16_t reg)
 {
 	outl(device | (reg & ~3), 0xCF8);

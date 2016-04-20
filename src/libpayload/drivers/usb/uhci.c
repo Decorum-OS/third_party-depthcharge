@@ -32,6 +32,7 @@
 #include "uhci_private.h"
 
 #include "base/die.h"
+#include "base/io.h"
 #include "base/time.h"
 #include "base/xalloc.h"
 

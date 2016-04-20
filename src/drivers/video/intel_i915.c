@@ -23,6 +23,7 @@
 #include <libpayload.h>
 #include <stdint.h>
 
+#include "base/io.h"
 #include "drivers/video/display.h"
 #include "drivers/video/intel_i915.h"
 

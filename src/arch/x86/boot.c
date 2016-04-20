@@ -29,6 +29,7 @@
 #include "arch/x86/cpu.h"
 #include "base/cleanup_funcs.h"
 #include "base/init_funcs.h"
+#include "base/io.h"
 #include "base/timestamp.h"
 #include "vboot/boot.h"
 

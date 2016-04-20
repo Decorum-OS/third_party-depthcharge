@@ -37,8 +37,10 @@
  * http://bochs.sourceforge.net/techspec/CMOS-reference.txt
  * http://www.bioscentral.com/misc/cmosmap.htm
  */
+
 #include <libpayload.h>
 
+#include "base/io.h"
 
 /**
  * PCs can have either 64 (very old ones), 128, or 256 bytes of CMOS RAM.

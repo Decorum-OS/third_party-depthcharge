@@ -18,6 +18,7 @@
 
 #include <libpayload.h>
 
+#include "base/io.h"
 #include "base/xalloc.h"
 #include "drivers/dma/tegra_apb.h"
 
