@@ -25,19 +25,6 @@
  * SUCH DAMAGE.
  */
 
-/**
- * @mainpage
- *
- * @section intro Introduction
- * libpayload is a small BSD-licensed static library (a lightweight
- * implementation of common and useful functions) intended to be used
- * as a basis for coreboot payloads.
- *
- * @section example Example
- * Here is an example of a very simple payload:
- * @include sample/hello.c
- */
-
 #ifndef _LIBPAYLOAD_H
 #define _LIBPAYLOAD_H
 
@@ -49,28 +36,12 @@
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
-/**
- * @defgroup nvram NVRAM functions
- * @{
- */
-
 uint8_t nvram_read(uint8_t addr);
 void nvram_write(uint8_t val, uint8_t addr);
-/** @} */
 
-/**
- * @defgroup usb USB functions
- * @{
- */
 int usb_initialize(void);
 int usb_exit (void);
-/** @} */
 
-/**
- * @defgroup video Video functions
- * @ingroup input
- * @{
- */
 int video_init(void);
 int video_console_init(void);
 void video_get_rows_cols(unsigned int *rows, unsigned int *cols);
@@ -92,12 +63,7 @@ enum video_printf_align {
 };
 void video_printf(int foreground, int background, enum video_printf_align align,
 		  const char *fmt, ...);
-/** @} */
 
-/**
- * @defgroup console Console functions
- * @{
- */
 typedef enum {
 	CONSOLE_INPUT_TYPE_UNKNOWN = 0,
 	CONSOLE_INPUT_TYPE_USB,
@@ -124,14 +90,6 @@ struct console_output_driver {
 void console_add_output_driver(struct console_output_driver *out);
 void console_add_input_driver(struct console_input_driver *in);
 
-/** @} */
-
-
-/**
- * @defgroup misc Misc functions
- * @{
- */
-
 /* Count Leading Zeroes: clz(0) == 32, clz(0xf) == 28, clz(1 << 31) == 0 */
 static inline int clz(uint32_t x)
 {
@@ -147,6 +105,5 @@ static inline int __ffs(uint32_t x)
 {
 	return log2(x & (uint32_t)(-(int32_t)x));
 }
-/** @} */
 
 #endif
