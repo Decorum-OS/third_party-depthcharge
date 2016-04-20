@@ -17,6 +17,8 @@
  * MA 02111-1307 USA
  */
 
+#include <sysinfo.h>
+
 #include "base/container_of.h"
 #include "base/init_funcs.h"
 #include "base/io.h"

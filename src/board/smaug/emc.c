@@ -21,6 +21,7 @@
  */
 
 #include <libpayload.h>
+#include <sysinfo.h>
 
 #include "base/init_funcs.h"
 #include "base/device_tree.h"

@@ -22,6 +22,7 @@
 
 #include <assert.h>
 #include <libpayload.h>
+#include <sysinfo.h>
 
 #include "base/init_funcs.h"
 #include "base/time.h"

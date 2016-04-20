@@ -21,6 +21,7 @@
  */
 
 #include <libpayload.h>
+#include <sysinfo.h>
 
 #include "vboot/util/acpi.h"
 #include "vboot/util/commonparams.h"

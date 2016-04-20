@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <gbb_header.h>
 #include <libpayload.h>
+#include <sysinfo.h>
 #include <vboot_api.h>
 #include <vboot_struct.h>
 

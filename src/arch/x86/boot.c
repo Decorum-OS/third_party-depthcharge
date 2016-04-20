@@ -23,6 +23,7 @@
 #include <arch/msr.h>
 #include <assert.h>
 #include <libpayload.h>
+#include <sysinfo.h>
 
 #include "arch/x86/boot.h"
 #include "arch/x86/cpu.h"

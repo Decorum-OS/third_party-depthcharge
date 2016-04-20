@@ -22,6 +22,7 @@
  */
 
 #include <libpayload.h>
+#include <sysinfo.h>
 #include <vboot_struct.h>
 
 #include "base/init_funcs.h"

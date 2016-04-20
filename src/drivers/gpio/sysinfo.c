@@ -22,6 +22,7 @@
 
 #include <assert.h>
 #include <libpayload.h>
+#include <sysinfo.h>
 
 #include "base/die.h"
 #include "drivers/gpio/sysinfo.h"

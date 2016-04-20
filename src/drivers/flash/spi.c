@@ -24,6 +24,7 @@
 #include <assert.h>
 #include <endian.h>
 #include <libpayload.h>
+#include <sysinfo.h>
 
 #include "base/container_of.h"
 #include "base/time.h"

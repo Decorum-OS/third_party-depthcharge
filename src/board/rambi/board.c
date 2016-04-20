@@ -21,6 +21,7 @@
  */
 
 #include <pci.h>
+#include <sysinfo.h>
 
 #include "base/die.h"
 #include "base/init_funcs.h"

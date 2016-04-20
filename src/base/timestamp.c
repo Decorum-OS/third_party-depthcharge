@@ -17,6 +17,7 @@
 
 #include <libpayload.h>
 #include <stdint.h>
+#include <sysinfo.h>
 
 #include "base/init_funcs.h"
 #include "base/time.h"

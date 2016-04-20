@@ -21,6 +21,7 @@
  */
 
 #include <pci.h>
+#include <sysinfo.h>
 
 #include "base/init_funcs.h"
 #include "board/board.h"

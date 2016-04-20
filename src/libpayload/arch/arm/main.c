@@ -29,6 +29,7 @@
 #include <libpayload.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sysinfo.h>
 
 #include "base/init_funcs.h"
 #include "module/module.h"

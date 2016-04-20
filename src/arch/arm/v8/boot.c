@@ -25,6 +25,7 @@
 #include <lzma.h>
 #include <lz4.h>
 #include <stdlib.h>
+#include <sysinfo.h>
 
 #include "arch/arm/boot.h"
 #include "base/physmem.h"

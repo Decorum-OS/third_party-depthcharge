@@ -44,7 +44,6 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <arch/types.h>
-#include <sysinfo.h>
 
 #include "base/io.h"
 

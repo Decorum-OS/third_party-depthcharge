@@ -21,6 +21,7 @@
  */
 
 #include <libpayload.h>
+#include <sysinfo.h>
 
 #include "vboot/util/commonparams.h"
 #include "vboot/util/vboot_handoff.h"

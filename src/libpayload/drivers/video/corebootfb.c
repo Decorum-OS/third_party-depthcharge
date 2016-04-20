@@ -31,6 +31,7 @@
 #include <pci.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sysinfo.h>
 #include <video_console.h>
 #include "font8x16.h"
 

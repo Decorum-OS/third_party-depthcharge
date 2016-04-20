@@ -21,6 +21,7 @@
  */
 
 #include <libpayload.h>
+#include <sysinfo.h>
 #include <vboot_api.h>
 
 VbError_t VbExNvStorageRead(uint8_t* buf)

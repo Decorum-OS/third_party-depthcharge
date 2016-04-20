@@ -30,6 +30,7 @@
 #include <coreboot_tables.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <sysinfo.h>
 
 struct sysinfo_t lib_sysinfo;
 

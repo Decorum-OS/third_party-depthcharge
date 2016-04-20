@@ -24,6 +24,7 @@
 #include <endian.h>
 #include <libpayload.h>
 #include <stdint.h>
+#include <sysinfo.h>
 
 #include "base/ranges.h"
 #include "base/xalloc.h"

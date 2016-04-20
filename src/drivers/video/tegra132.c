@@ -19,7 +19,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+
 #include <libpayload.h>
+#include <sysinfo.h>
+
 #include "tegra132.h"
 
 static void * const winbuf_t_start_addr = (void *)(uintptr_t)0x54202000;
