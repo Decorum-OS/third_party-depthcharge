@@ -153,15 +153,4 @@ static inline int __ffs(uint32_t x)
 }
 /** @} */
 
-
-/**
- * @defgroup arch Architecture specific functions
- * This module contains global architecture specific functions.
- * All architectures are expected to define these functions.
- * @{
- */
-
-/* Defined in arch/${ARCH}/selfboot.c */
-void selfboot(void *entry);
-
 #endif

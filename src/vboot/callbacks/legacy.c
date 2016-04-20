@@ -20,13 +20,14 @@
  * MA 02111-1307 USA
  */
 
-#include <string.h>
+#include <cbfs.h>
+#include <cbfs_ram.h>
 #include <endian.h>
 #include <libpayload.h>
 #include <lzma.h>
+#include <string.h>
+#include <sysinfo.h>
 #include <vboot_api.h>
-#include <cbfs.h>
-#include <cbfs_ram.h>
 
 #include "arch/cache.h"
 #include "base/cleanup_funcs.h"
@@ -84,6 +85,8 @@ static void load_payload_and_run(struct cbfs_payload *payload)
 		uint32_t src_len = be32toh(seg->len);
 		uint32_t dst_len = be32toh(seg->mem_len);
 
+		typedef void (*EntryFunc)(void *cb_header);
+
 		switch (seg->type) {
 		case PAYLOAD_SEGMENT_CODE:
 		case PAYLOAD_SEGMENT_DATA:
@@ -119,7 +122,10 @@ static void load_payload_and_run(struct cbfs_payload *payload)
 		case PAYLOAD_SEGMENT_ENTRY:
 			run_cleanup_funcs(CleanupOnLegacy);
 			cache_sync_instructions();
-			selfboot(dst);
+			if (CONFIG_ARCH_ARM_V7)
+				((EntryFunc)dst)(cb_header_ptr);
+			else
+				((EntryFunc)dst)(NULL);
 			return;
 		default:
 			printf("segment type %x not implemented. Exiting\n",

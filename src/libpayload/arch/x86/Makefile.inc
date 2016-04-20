@@ -27,6 +27,5 @@
 
 head.o-y += head.S
 libc-y += main.c
-libc-y += selfboot.c
 
 libcbfs-$(CONFIG_CBFS) += rom_media.c
