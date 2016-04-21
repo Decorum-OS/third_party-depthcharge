@@ -28,11 +28,13 @@
 #include <libpayload.h>
 #include <video_console.h>
 
+#include "drivers/console/console.h"
+
 #if CONFIG_COREBOOT_VIDEO_CONSOLE
 extern struct video_console coreboot_video_console;
 #endif
 
-static struct video_console *console_list[] =
+static struct video_console *video_console_list[] =
 {
 #if CONFIG_COREBOOT_VIDEO_CONSOLE
 	&coreboot_video_console,
@@ -145,6 +147,11 @@ void video_console_putchar(unsigned int ch)
 	video_console_fixup_cursor();
 }
 
+static void _video_console_putchar(ConsoleOutputOps *me, unsigned int ch)
+{
+	video_console_putchar(ch);
+}
+
 void video_printf(int foreground, int background, enum video_printf_align align,
 		  const char *fmt, ...)
 {
@@ -210,8 +217,10 @@ void video_console_set_cursor(unsigned int x, unsigned int y)
 	video_console_fixup_cursor();
 }
 
-static struct console_output_driver cons = {
-	.putchar = video_console_putchar
+static Console cons = {
+	.output = {
+		.putchar = &_video_console_putchar
+	}
 };
 
 int video_init(void)
@@ -219,11 +228,11 @@ int video_init(void)
 	int i;
 	unsigned int dummy_cursor_enabled;
 
-	for (i = 0; i < ARRAY_SIZE(console_list); i++) {
-		if (console_list[i]->init())
+	for (i = 0; i < ARRAY_SIZE(video_console_list); i++) {
+		if (video_console_list[i]->init())
 			continue;
 
-		console = console_list[i];
+		console = video_console_list[i];
 
 		if (console->get_cursor)
 			console->get_cursor((unsigned int*)&cursorx,
@@ -246,6 +255,6 @@ int video_console_init(void)
 	int ret = video_init();
 	if (ret)
 		return ret;
-	console_add_output_driver(&cons);
+	list_insert_after(&cons.list_node, &console_list);
 	return 0;
 }

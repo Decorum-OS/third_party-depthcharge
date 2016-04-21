@@ -25,47 +25,35 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
+#ifndef __DRIVERS_CONSOLE_CONSOLE_H__
+#define __DRIVERS_CONSOLE_CONSOLE_H__
 
-#include "base/init_funcs.h"
+#include <stdint.h>
+
 #include "base/list.h"
-#include "board/board.h"
-#include "drivers/console/console.h"
-#include "drivers/uart/uart.h"
 
-static int have_char(ConsoleInputOps *me)
-{
-	UartOps *uart = board_debug_uart();
-	return uart->have_char(uart);
-}
+typedef struct ConsoleInputOps {
+	int (*havekey)(struct ConsoleInputOps *me);
+	int (*getchar)(struct ConsoleInputOps *me);
+} ConsoleInputOps;
 
-static int get_char(ConsoleInputOps *me)
-{
-	UartOps *uart = board_debug_uart();
-	return uart->get_char(uart);
-}
+typedef struct ConsoleOutputOps {
+	void (*putchar)(struct ConsoleOutputOps *me, unsigned int);
+	void (*write)(struct ConsoleOutputOps *me, const void *, size_t);
+} ConsoleOutputOps;
 
-static void put_char(ConsoleOutputOps *me, unsigned int c)
-{
-	UartOps *uart = board_debug_uart();
-	return uart->put_char(uart, c);
-}
+typedef struct {
+	ConsoleInputOps input;
+	ConsoleInputOps trusted_input;
 
-static int serial_console_init(void)
-{
-	static Console console = {
-		.trusted_input = {
-			.havekey = &have_char,
-			.getchar = &get_char,
-		},
-		.output = {
-			.putchar = &put_char,
-		},
-	};
+	ConsoleOutputOps output;
 
-	list_insert_after(&console.list_node, &console_list);
+	ListNode list_node;
+} Console;
 
-	return 0;
-}
+extern ListNode console_list;
 
-INIT_FUNC_CONSOLE(serial_console_init)
+void console_write(const void *buffer, size_t count);
+ConsoleInputOps *console_has_key(int trusted);
+
+#endif /* __DRIVERS_CONSOLE_CONSOLE_H__ */

@@ -26,9 +26,14 @@
 
 void keyboard_prepare(void)
 {
-	KeyboardOps **keyboards = board_keyboards();
 	KeyboardOps *keyboard;
+	KeyboardOps **keyboards;
 
+	keyboards = board_trusted_keyboards();
+	while ((keyboard = *keyboards++))
+		keyboard->have_char(keyboard);
+
+	keyboards = board_untrusted_keyboards();
 	while ((keyboard = *keyboards++))
 		keyboard->have_char(keyboard);
 }

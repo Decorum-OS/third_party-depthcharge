@@ -64,32 +64,6 @@ enum video_printf_align {
 void video_printf(int foreground, int background, enum video_printf_align align,
 		  const char *fmt, ...);
 
-typedef enum {
-	CONSOLE_INPUT_TYPE_UNKNOWN = 0,
-	CONSOLE_INPUT_TYPE_USB,
-} console_input_type;
-
-void console_write(const void *buffer, size_t count);
-console_input_type last_key_input_type(void);
-
-struct console_input_driver;
-struct console_input_driver {
-	struct console_input_driver *next;
-	int (*havekey) (void);
-	int (*getchar) (void);
-	console_input_type input_type;
-};
-
-struct console_output_driver;
-struct console_output_driver {
-	struct console_output_driver *next;
-	void (*putchar) (unsigned int);
-	void (*write) (const void *, size_t);
-};
-
-void console_add_output_driver(struct console_output_driver *out);
-void console_add_input_driver(struct console_input_driver *in);
-
 /* Count Leading Zeroes: clz(0) == 32, clz(0xf) == 28, clz(1 << 31) == 0 */
 static inline int clz(uint32_t x)
 {

@@ -31,6 +31,7 @@
 #include <sysinfo.h>
 
 #include "base/init_funcs.h"
+#include "drivers/console/console.h"
 
 struct cbmem_console {
 	uint32_t size;
@@ -40,7 +41,8 @@ struct cbmem_console {
 
 static struct cbmem_console *cbmem_console_p;
 
-static void cbmem_console_write(const void *buffer, size_t count)
+static void cbmem_console_write(ConsoleOutputOps *me,
+				const void *buffer, size_t count)
 {
 	if (cbmem_console_p->cursor + count >= cbmem_console_p->size)
 		return;
@@ -49,16 +51,17 @@ static void cbmem_console_write(const void *buffer, size_t count)
 	cbmem_console_p->cursor += count;
 }
 
-static struct console_output_driver cbmem_console_driver =
-{
-	.write = &cbmem_console_write,
+static Console cbmem_console = {
+	.output = {
+		.write = &cbmem_console_write,
+	}
 };
 
 static int cbmem_console_init(void)
 {
 	cbmem_console_p = lib_sysinfo.cbmem_cons;
 	if (cbmem_console_p)
-		console_add_output_driver(&cbmem_console_driver);
+		list_insert_after(&cbmem_console.list_node, &console_list);
 
 	return 0;
 }

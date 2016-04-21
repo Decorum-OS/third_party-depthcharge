@@ -35,6 +35,8 @@
 #include <stdlib.h>
 #include <libpayload.h>
 
+#include "drivers/console/console.h"
+
 /** Structure for specifying output methods for different printf clones. */
 struct printf_spec {
 	/* Output function, returns count of printed characters or EOF. */

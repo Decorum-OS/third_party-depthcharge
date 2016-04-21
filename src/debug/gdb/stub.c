@@ -21,6 +21,7 @@
 
 #include "debug/gdb/gdb.h"
 #include "debug/gdb/gdb_int.h"
+#include "drivers/console/console.h"
 
 GdbState gdb_state;
 
@@ -75,7 +76,8 @@ void gdb_command_loop(uint8_t signal)
 	}
 }
 
-static void gdb_output_write(const void *buffer, size_t count)
+static void gdb_output_write(ConsoleOutputOps *me,
+			     const void *buffer, size_t count)
 {
 	if (!gdb_state.resumed) {
 		/* Must be a die_if() in GDB (or a bug), so bail out and die. */
@@ -91,15 +93,17 @@ static void gdb_output_write(const void *buffer, size_t count)
 	}
 }
 
-static struct console_output_driver gdb_output_driver = {
-	.write = &gdb_output_write
+static Console gdb_console = {
+	.output = {
+		.write = &gdb_output_write
+	}
 };
 
 static void gdb_init(void)
 {
 	printf("Ready for GDB connection.\n");
 	gdb_arch_init();
-	console_add_output_driver(&gdb_output_driver);
+	list_insert_after(&gdb_console.list_node, &console_list);
 }
 
 void gdb_enter(void)

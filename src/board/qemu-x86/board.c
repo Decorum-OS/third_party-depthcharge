@@ -27,4 +27,5 @@
 
 PUB_DYN(debug_uart, &new_uart_8250_io(0x3f8)->uart.ops)
 
-PUB_ARR(keyboards, &new_ps2_keyboard()->ops)
+PUB_ARR(trusted_keyboards, &new_ps2_keyboard()->ops)
+PUB_ARR(untrusted_keyboards, (KeyboardOps *)NULL)

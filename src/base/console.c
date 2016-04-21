@@ -25,78 +25,18 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
-#include <stdlib.h>
+#include <stdio.h>
+#include <stddef.h>
+#include <string.h>
 #include <usb/usb.h>
 
-#include "base/die.h"
-
-struct console_output_driver *console_out;
-struct console_input_driver *console_in;
-static console_input_type last_getchar_input_type;
-
-static int output_driver_exists(struct console_output_driver *out)
-{
-	struct console_output_driver *head = console_out;
-
-	while (head) {
-		if (head == out)
-			return 1;
-		head = head->next;
-	}
-
-	return 0;
-}
-
-static int input_driver_exists(struct console_input_driver *in)
-{
-	struct console_input_driver *head = console_in;
-
-	while (head) {
-		if (head == in)
-			return 1;
-		head = head->next;
-	}
-
-	return 0;
-}
-
-void console_add_output_driver(struct console_output_driver *out)
-{
-	die_if(!out->putchar && !out->write, "Need at least one output func\n");
-	/* Check if this driver was already added to the console list */
-	if (output_driver_exists(out))
-		return;
-	out->next = console_out;
-	console_out = out;
-}
-
-void console_add_input_driver(struct console_input_driver *in)
-{
-	/* Check if this driver was already added to the console list */
-	if (input_driver_exists(in))
-		return;
-	in->next = console_in;
-	console_in = in;
-}
-
-void console_write(const void *buffer, size_t count)
-{
-	const char *ptr;
-	struct console_output_driver *out;
-	for (out = console_out; out != 0; out = out->next)
-		if (out->write)
-			out->write(buffer, count);
-		else
-			for (ptr = buffer; (void *)ptr < buffer + count; ptr++)
-				out->putchar(*ptr);
-}
+#include "drivers/console/console.h"
 
 int putchar(unsigned int i)
 {
 	unsigned char c = (unsigned char)i;
 	console_write(&c, 1);
-	return (int)c;
+	return c;
 }
 
 int puts(const char *s)
@@ -109,36 +49,42 @@ int puts(const char *s)
 	return size + 1;
 }
 
-int havekey(void)
+static int _havekey(int trusted)
 {
 	if (CONFIG_USB)
 		usb_poll();
-	struct console_input_driver *in;
-	for (in = console_in; in != 0; in = in->next)
-		if (in->havekey())
-			return 1;
-	return 0;
+	return console_has_key(trusted) != NULL;
 }
 
-/**
- * This returns an ASCII value - the two getchar functions
- * cook the respective input from the device.
- */
-int getchar(void)
+static int _getchar(int trusted)
 {
-	while (1) {
+	ConsoleInputOps *console = NULL;
+
+	do {
 		if (CONFIG_USB)
 			usb_poll();
-		struct console_input_driver *in;
-		for (in = console_in; in != 0; in = in->next)
-			if (in->havekey()) {
-				last_getchar_input_type = in->input_type;
-				return in->getchar();
-			}
-	}
+		console = console_has_key(trusted);
+	} while (!console);
+
+	return console->getchar(console);
 }
 
-console_input_type last_key_input_type(void)
+int havekey(void)
 {
-	return last_getchar_input_type;
+	return _havekey(0);
+}
+
+int havekey_trusted(void)
+{
+	return _havekey(1);
+}
+
+int getchar(void)
+{
+	return _getchar(0);
+}
+
+int getchar_trusted(void)
+{
+	return _getchar(1);
 }

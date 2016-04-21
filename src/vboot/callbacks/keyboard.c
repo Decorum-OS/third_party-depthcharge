@@ -38,15 +38,25 @@
 
 #define TIMEOUT_US (10 * 1000)	// 10ms
 
-uint32_t VbExKeyboardRead(void)
+uint32_t VbExKeyboardReadWithFlags(uint32_t *flags_ptr)
 {
 	uint64_t timer_start;
+	uint32_t ch;
+	uint32_t flags = 0;
 
-	// No input, just give up.
-	if (!havekey())
+	if (havekey_trusted()) {
+		ch = getchar_trusted();
+		flags |= VB_KEY_FLAG_TRUSTED_KEYBOARD;
+	} else if (havekey()) {
+		ch = getchar();
+	} else {
+		// No input, just give up.
 		return 0;
+	}
 
-	uint32_t ch = getchar();
+	if (flags_ptr)
+		*flags_ptr = flags;
+
 	switch (ch) {
 	case '\n': return '\r';
 	case KEY_UP: return VB_KEY_UP;
@@ -82,16 +92,8 @@ uint32_t VbExKeyboardRead(void)
 	}
 }
 
-uint32_t VbExKeyboardReadWithFlags(uint32_t *flags_ptr)
+uint32_t VbExKeyboardRead(void)
 {
-	uint32_t c = VbExKeyboardRead();
-	if (flags_ptr) {
-		*flags_ptr = 0;
-		// USB keyboards definitely cannot be trusted (assuming they
-		// are even keyboards).  There are other devices that also
-		// cannot be trusted, but this is the best we can do for now.
-		if (last_key_input_type() != CONSOLE_INPUT_TYPE_USB)
-			*flags_ptr |= VB_KEY_FLAG_TRUSTED_KEYBOARD;
-	}
-	return c;
+	uint32_t flags;
+	return VbExKeyboardReadWithFlags(&flags);
 }

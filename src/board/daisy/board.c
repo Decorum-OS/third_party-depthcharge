@@ -121,7 +121,7 @@ PUB_STAT(power, &exynos_power_ops)
 
 PUB_DYN(debug_uart, &new_uart_s5p(0x12c00000 + 3 * 0x10000)->ops)
 
-PUB_ARR(keyboards, &mkbp_keyboard.ops,
-		   &dynamic_keyboards.ops);
+PUB_ARR(trusted_keyboards, &mkbp_keyboard.ops)
+PUB_ARR(untrusted_keyboards, &dynamic_keyboards.ops)
 
 INIT_FUNC(board_setup);

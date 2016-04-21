@@ -197,6 +197,7 @@ PUB_DYN(power, &new_sysinfo_reset_power_ops(get_pmic(),
 
 PUB_DYN(debug_uart, &new_uart_8250_mem32(0xff690000)->uart.ops)
 
-PUB_ARR(keyboards, &dynamic_keyboards.ops);
+PUB_ARR(trusted_keyboards, (KeyboardOps *)NULL)
+PUB_ARR(untrusted_keyboards, &dynamic_keyboards.ops)
 
 INIT_FUNC(board_setup);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Google Inc.
+ * Copyright (C) 2008 Advanced Micro Devices, Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,47 +25,41 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
-
-#include "base/init_funcs.h"
 #include "base/list.h"
-#include "board/board.h"
 #include "drivers/console/console.h"
-#include "drivers/uart/uart.h"
 
-static int have_char(ConsoleInputOps *me)
+ListNode console_list;
+
+void console_write(const void *buffer, size_t count)
 {
-	UartOps *uart = board_debug_uart();
-	return uart->have_char(uart);
+	const char *ptr = (const char *)buffer;
+
+	Console *console;
+	list_for_each(console, console_list, list_node) {
+		if (console->output.write) {
+			console->output.write(&console->output, buffer, count);
+		} else if (console->output.putchar) {
+			for (int i = 0; i < count; i++) {
+				console->output.putchar(
+					&console->output, ptr[i]);
+			}
+		}
+	}
 }
 
-static int get_char(ConsoleInputOps *me)
+ConsoleInputOps *console_has_key(int trusted)
 {
-	UartOps *uart = board_debug_uart();
-	return uart->get_char(uart);
+	Console *console;
+	list_for_each(console, console_list, list_node) {
+		if (console->trusted_input.havekey &&
+		    console->trusted_input.havekey(&console->trusted_input)) {
+			return &console->trusted_input;
+		}
+
+		if (!trusted && console->input.havekey &&
+		    console->input.havekey(&console->input)) {
+			return &console->input;
+		}
+	}
+	return NULL;
 }
-
-static void put_char(ConsoleOutputOps *me, unsigned int c)
-{
-	UartOps *uart = board_debug_uart();
-	return uart->put_char(uart, c);
-}
-
-static int serial_console_init(void)
-{
-	static Console console = {
-		.trusted_input = {
-			.havekey = &have_char,
-			.getchar = &get_char,
-		},
-		.output = {
-			.putchar = &put_char,
-		},
-	};
-
-	list_insert_after(&console.list_node, &console_list);
-
-	return 0;
-}
-
-INIT_FUNC_CONSOLE(serial_console_init)

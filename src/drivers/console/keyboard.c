@@ -29,44 +29,71 @@
 
 #include "base/init_funcs.h"
 #include "board/board.h"
+#include "drivers/console/console.h"
 #include "drivers/keyboard/keyboard.h"
 
-static int have_char(void)
+static int _have_char(KeyboardOps **keyboards)
 {
-	KeyboardOps **keyboards = board_keyboards();
 	KeyboardOps *keyboard;
 
 	for (keyboard = *keyboards; keyboard;
 		keyboard = *keyboards, keyboards++) {
-		if (keyboard->have_char(keyboard))
+		if (keyboard->have_char && keyboard->have_char(keyboard))
 			return 1;
 	}
 
 	return 0;
 }
 
-static int get_char(void)
+static int have_char(ConsoleInputOps *me)
 {
-	KeyboardOps **keyboards = board_keyboards();
+	return _have_char(board_untrusted_keyboards());
+}
+
+static int have_trusted_char(ConsoleInputOps *me)
+{
+	return _have_char(board_trusted_keyboards());
+}
+
+static int _get_char(KeyboardOps **keyboards)
+{
 	KeyboardOps *keyboard;
 
 	while (1) {
 		for (keyboard = *keyboards; keyboard;
 			keyboard = *keyboards, keyboards++) {
-			if (keyboard->have_char(keyboard))
+			if (keyboard->have_char && keyboard->get_char &&
+			    keyboard->have_char(keyboard)) {
 				return keyboard->get_char(keyboard);
+			}
 		}
 	}
 }
 
+static int get_char(ConsoleInputOps *me)
+{
+	return _get_char(board_untrusted_keyboards());
+}
+
+static int get_trusted_char(ConsoleInputOps *me)
+{
+	return _get_char(board_trusted_keyboards());
+}
+
 static int keyboard_console_init(void)
 {
-	static struct console_input_driver keyboard_console = {
-		.havekey = &have_char,
-		.getchar = &get_char
+	static Console keyboard_console = {
+		.trusted_input = {
+			.havekey = &have_trusted_char,
+			.getchar = &get_trusted_char
+		},
+		.input = {
+			.havekey = &have_char,
+			.getchar = &get_char
+		}
 	};
 
-	console_add_input_driver(&keyboard_console);
+	list_insert_after(&keyboard_console.list_node, &console_list);
 
 	return 0;
 }

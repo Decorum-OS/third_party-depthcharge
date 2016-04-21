@@ -56,5 +56,7 @@ int putchar(unsigned int c);
 int puts(const char *s);
 int havekey(void);
 int getchar(void);
+int havekey_trusted(void);
+int getchar_trusted(void);
 
 #endif

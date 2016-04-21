@@ -116,7 +116,7 @@ PUB_STAT(power, &skylake_power_ops)
 
 PUB_DYN(debug_uart, &new_uart_8250_mem32(0xfe034000)->uart.ops)
 
-PUB_ARR(keyboards, &new_ps2_keyboard()->ops,
-		   &dynamic_keyboards.ops)
+PUB_ARR(trusted_keyboards, &new_ps2_keyboard()->ops)
+PUB_ARR(untrusted_keyboards, &dynamic_keyboards.ops)
 
 INIT_FUNC(board_setup);

@@ -48,7 +48,13 @@
 
 UartOps *board_debug_uart(void);
 
-KeyboardOps **board_keyboards(void);
+// Trusted keyboards are ones which we believe actually reflect input from the
+// user and haven't been faked by a clever attacker.
+KeyboardOps **board_trusted_keyboards(void);
+// Untrusted keyboards are ones which may have been faked, for instance by an
+// inconspicuous USB dongle pretending to be a keyboard plugged into the back
+// of the machine.
+KeyboardOps **board_untrusted_keyboards(void);
 
 PowerOps *board_power(void);
 
