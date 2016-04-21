@@ -28,7 +28,6 @@
 #ifndef _LIBPAYLOAD_H
 #define _LIBPAYLOAD_H
 
-#include <stddef.h>
 #include <stdio.h>
 #include <arch/types.h>
 
