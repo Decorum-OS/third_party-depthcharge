@@ -27,6 +27,7 @@
 
 #include "arch/x86/boot.h"
 #include "arch/x86/cpu.h"
+#include "base/algorithm.h"
 #include "base/cleanup_funcs.h"
 #include "base/init_funcs.h"
 #include "base/io.h"

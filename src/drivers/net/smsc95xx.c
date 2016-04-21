@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <usb/usb.h>
 
+#include "base/algorithm.h"
 #include "base/init_funcs.h"
 #include "base/time.h"
 #include "drivers/bus/usb/usb.h"

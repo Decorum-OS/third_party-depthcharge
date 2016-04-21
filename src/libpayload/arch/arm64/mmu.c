@@ -32,10 +32,11 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <arch/mmu.h>
-#include <arch/lib_helpers.h>
-#include <arch/barrier.h>
-#include <arch/cache.h>
+#include "arch/barrier.h"
+#include "arch/cache.h"
+#include "arch/lib_helpers.h"
+#include "arch/mmu.h"
+#include "base/algorithm.h"
 
 /* Maximum number of XLAT Tables available based on ttb buffer size */
 static unsigned int max_tables;

@@ -16,6 +16,8 @@
  */
 
 #include <libpayload.h>
+
+#include "base/algorithm.h"
 #include "drivers/bus/i2c/i2c.h"
 
 int i2c_readb(I2cOps *ops, uint8_t chip, uint8_t reg, uint8_t *data)

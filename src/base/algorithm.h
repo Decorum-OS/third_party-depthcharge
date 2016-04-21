@@ -25,39 +25,29 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _LIBPAYLOAD_H
-#define _LIBPAYLOAD_H
+#ifndef __BASE_ALGORITHM_H__
+#define __BASE_ALGORITHM_H__
 
-#include <stddef.h>
-#include <stdio.h>
-#include <arch/types.h>
+#include <stdint.h>
 
-uint8_t nvram_read(uint8_t addr);
-void nvram_write(uint8_t val, uint8_t addr);
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
-int usb_initialize(void);
-int usb_exit (void);
+/* Count Leading Zeroes: clz(0) == 32, clz(0xf) == 28, clz(1 << 31) == 0 */
+static inline int clz(uint32_t x)
+{
+	return x ? __builtin_clz(x) : sizeof(x) * 8;
+}
+/* Integer binary logarithm (rounding down): log2(0) == -1, log2(5) == 2 */
+static inline int log2(uint32_t x)
+{
+	return sizeof(x) * 8 - clz(x) - 1;
+}
+/* Find First Set: __ffs(0xf) == 0, __ffs(0) == -1, __ffs(1 << 31) == 31 */
+static inline int __ffs(uint32_t x)
+{
+	return log2(x & (uint32_t)(-(int32_t)x));
+}
 
-int video_init(void);
-int video_console_init(void);
-void video_get_rows_cols(unsigned int *rows, unsigned int *cols);
-void video_console_putchar(unsigned int ch);
-void video_console_putc(uint8_t row, uint8_t col, unsigned int ch);
-void video_console_clear(void);
-void video_console_cursor_enable(int state);
-void video_console_get_cursor(unsigned int *x, unsigned int *y, unsigned int *en);
-void video_console_set_cursor(unsigned int cursorx, unsigned int cursory);
-/*
- * print characters on video console with colors. note that there is a size
- * restriction for the internal buffer. so, output string can be truncated.
- */
-enum video_printf_align {
-	VIDEO_PRINTF_ALIGN_KEEP = 0,
-	VIDEO_PRINTF_ALIGN_LEFT,
-	VIDEO_PRINTF_ALIGN_CENTER,
-	VIDEO_PRINTF_ALIGN_RIGHT,
-};
-void video_printf(int foreground, int background, enum video_printf_align align,
-		  const char *fmt, ...);
-
-#endif
+#endif /* __BASE_ALGORITHM_H__ */

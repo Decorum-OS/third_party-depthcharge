@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <libpayload.h>
 
+#include "base/algorithm.h"
 #include "drivers/console/console.h"
 
 /** Structure for specifying output methods for different printf clones. */

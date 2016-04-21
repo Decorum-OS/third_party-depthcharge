@@ -23,6 +23,7 @@
 #include "dwc2.h"
 #include "dwc2_private.h"
 
+#include "base/algorithm.h"
 #include "base/die.h"
 #include "base/io.h"
 #include "base/time.h"

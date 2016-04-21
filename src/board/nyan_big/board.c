@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <sysinfo.h>
 
+#include "base/algorithm.h"
 #include "base/init_funcs.h"
 #include "base/xalloc.h"
 #include "board/board.h"

@@ -20,11 +20,13 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
 #include <cbfs.h>
 #include <gbb_header.h>
+#include <libpayload.h>
 #include <vboot_api.h>
 #include <vboot/screens.h>
+
+#include "base/algorithm.h"
 #include "base/graphics.h"
 #include "drivers/video/display.h"
 #include "vboot/util/commonparams.h"

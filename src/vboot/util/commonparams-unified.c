@@ -23,6 +23,7 @@
 #include <libpayload.h>
 #include <sysinfo.h>
 
+#include "base/algorithm.h"
 #include "vboot/util/commonparams.h"
 #include "vboot/util/vboot_handoff.h"
 

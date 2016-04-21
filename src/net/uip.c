@@ -71,12 +71,13 @@
  * the packet back to the peer.
 */
 
+#include <string.h>
+
+#include "base/algorithm.h"
 #include "net/uip.h"
 #include "net/uipopt.h"
 #include "net/uip_arp.h"
 #include "net/uip_arch.h"
-
-#include <string.h>
 
 /*---------------------------------------------------------------------------*/
 /* Variable definitions. */
@@ -1697,7 +1698,6 @@ void
 uip_send(const void *data, int len)
 {
   int copylen;
-#define MIN(a,b) ((a) < (b)? (a): (b))
   copylen = MIN(len, CONFIG_UIP_BUFSIZE - CONFIG_UIP_LLH_LEN - UIP_TCPIP_HLEN -
 		(int)((char *)uip_sappdata -
                       (char *)&uip_buf[CONFIG_UIP_LLH_LEN + UIP_TCPIP_HLEN]));

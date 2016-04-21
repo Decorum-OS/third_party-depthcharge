@@ -32,6 +32,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "base/algorithm.h"
 #include "base/die.h"
 
 uint32_t exception_stack[0x400] __attribute__((aligned(8)));

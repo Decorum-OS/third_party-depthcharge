@@ -48,6 +48,7 @@
 
 #include <libpayload.h>
 
+#include "base/algorithm.h"
 #include "base/keycodes.h"
 #include "drivers/usb/hid/layouts.h"
 

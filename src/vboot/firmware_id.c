@@ -23,6 +23,7 @@
 #include <libpayload.h>
 #include <vboot_struct.h>
 
+#include "base/algorithm.h"
 #include "image/fmap.h"
 #include "vboot/firmware_id.h"
 #include "vboot/util/commonparams.h"

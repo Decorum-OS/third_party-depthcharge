@@ -29,6 +29,7 @@
 
 #include <usb/usb.h>
 
+#include "base/algorithm.h"
 #include "base/time.h"
 #include "base/xalloc.h"
 

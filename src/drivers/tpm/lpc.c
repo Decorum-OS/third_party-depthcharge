@@ -33,6 +33,7 @@
 #include <libpayload.h>
 #include <stdint.h>
 
+#include "base/algorithm.h"
 #include "base/cleanup_funcs.h"
 #include "base/io.h"
 #include "base/time.h"

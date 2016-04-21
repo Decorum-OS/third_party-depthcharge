@@ -25,6 +25,7 @@
 #include <libpayload.h>
 #include <stdint.h>
 
+#include "base/algorithm.h"
 #include "base/container_of.h"
 #include "base/init_funcs.h"
 #include "base/keycodes.h"

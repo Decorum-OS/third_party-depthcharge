@@ -32,6 +32,7 @@
 #include "xhci_private.h"
 #include "xhci.h"
 
+#include "base/algorithm.h"
 #include "base/die.h"
 #include "base/time.h"
 #include "base/xalloc.h"

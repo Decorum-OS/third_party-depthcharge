@@ -19,6 +19,7 @@
 #include <libpayload.h>
 #include <string.h>
 
+#include "base/algorithm.h"
 #include "debug/gdb/gdb.h"
 #include "debug/gdb/gdb_int.h"
 #include "drivers/console/console.h"

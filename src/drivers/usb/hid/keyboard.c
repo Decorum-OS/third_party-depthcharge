@@ -48,6 +48,7 @@
 
 #include <usb/usb.h>
 
+#include "base/algorithm.h"
 #include "base/keycodes.h"
 #include "base/list.h"
 #include "base/xalloc.h"

@@ -28,6 +28,7 @@
 #include <libpayload.h>
 #include <video_console.h>
 
+#include "base/algorithm.h"
 #include "drivers/console/console.h"
 
 #if CONFIG_COREBOOT_VIDEO_CONSOLE

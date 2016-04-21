@@ -24,6 +24,7 @@
 #include <libpayload.h>
 #include <sysinfo.h>
 
+#include "base/algorithm.h"
 #include "base/init_funcs.h"
 #include "base/time.h"
 #include "base/xalloc.h"

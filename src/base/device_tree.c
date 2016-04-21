@@ -25,6 +25,7 @@
 #include <libpayload.h>
 #include <stdint.h>
 
+#include "base/algorithm.h"
 #include "base/device_tree.h"
 #include "base/xalloc.h"
 

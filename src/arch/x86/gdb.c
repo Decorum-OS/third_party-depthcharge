@@ -19,6 +19,7 @@
 #include <exception.h>
 #include <libpayload.h>
 
+#include "base/algorithm.h"
 #include "debug/gdb/gdb_int.h"
 
 static const uint8_t type_to_signal[] = {

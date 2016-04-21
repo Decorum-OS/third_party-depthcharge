@@ -29,6 +29,8 @@
 
 #include <usb/usb.h>
 
+#include "base/algorithm.h"
+
 typedef struct {
 	uint16_t vendor, device;
 	uint32_t quirks;

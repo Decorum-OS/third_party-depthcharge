@@ -24,6 +24,7 @@
 
 #include <libpayload.h>
 
+#include "base/algorithm.h"
 #include "base/container_of.h"
 #include "base/io.h"
 #include "base/xalloc.h"

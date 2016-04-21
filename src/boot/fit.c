@@ -26,6 +26,7 @@
 #include <stdint.h>
 #include <sysinfo.h>
 
+#include "base/algorithm.h"
 #include "base/ranges.h"
 #include "base/xalloc.h"
 #include "boot/fit.h"

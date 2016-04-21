@@ -31,6 +31,7 @@
 #include <assert.h>
 #include <libpayload.h>
 
+#include "base/algorithm.h"
 #include "base/time.h"
 #include "base/xalloc.h"
 #include "drivers/ec/cros/message.h"
