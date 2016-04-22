@@ -20,8 +20,8 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
 #include <lzma.h>
+#include <stdio.h>
 #include <vboot_api.h>
 
 #include "vboot/util/flag.h"

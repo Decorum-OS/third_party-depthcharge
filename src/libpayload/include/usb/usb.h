@@ -30,6 +30,7 @@
 
 #include <libpayload.h>
 #include <pci.h>
+#include <stddef.h>
 #include <stdint.h>
 
 typedef enum {

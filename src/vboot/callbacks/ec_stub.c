@@ -20,7 +20,7 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
+#include <stdio.h>
 #include <vboot_api.h>
 
 static void no_ec_soft_sync(void) __attribute__((noreturn));

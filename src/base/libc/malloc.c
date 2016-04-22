@@ -38,8 +38,8 @@
  */
 
 #define IN_MALLOC_C
-#include <libpayload.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 struct memory_type {

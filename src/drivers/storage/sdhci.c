@@ -24,8 +24,8 @@
  * Murray.Jensen@cmst.csiro.au, 27-Jan-01.
  */
 
-#include <libpayload.h>
 #include <pci.h>
+#include <stdio.h>
 
 #include "base/time.h"
 #include "base/xalloc.h"

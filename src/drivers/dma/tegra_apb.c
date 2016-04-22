@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <libpayload.h>
+#include <stdio.h>
 
 #include "base/io.h"
 #include "base/xalloc.h"

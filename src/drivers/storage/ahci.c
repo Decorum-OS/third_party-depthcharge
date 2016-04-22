@@ -28,6 +28,7 @@
 #include <endian.h>
 #include <libpayload.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include "base/algorithm.h"
 #include "base/io.h"

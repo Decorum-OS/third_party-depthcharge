@@ -21,8 +21,8 @@
  */
 
 #include <coreboot_tables.h>
-#include <libpayload.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <sysinfo.h>
 
 #include "base/ranges.h"

@@ -28,7 +28,6 @@
 #ifndef _LIBPAYLOAD_H
 #define _LIBPAYLOAD_H
 
-#include <stdio.h>
 #include <arch/types.h>
 
 uint8_t nvram_read(uint8_t addr);

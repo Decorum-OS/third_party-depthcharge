@@ -17,7 +17,8 @@
  */
 
 #include <exception.h>
-#include <libpayload.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #include "base/algorithm.h"
 #include "debug/gdb/gdb_int.h"

@@ -26,6 +26,7 @@
  */
 
 #include <libpayload.h>
+#include <stdio.h>
 #include <video_console.h>
 
 #include "base/algorithm.h"

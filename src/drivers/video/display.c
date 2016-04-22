@@ -22,6 +22,7 @@
 
 #include <libpayload.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include "base/cleanup_funcs.h"
 #include "base/die.h"

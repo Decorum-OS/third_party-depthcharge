@@ -21,6 +21,7 @@
  */
 
 #include <libpayload.h>
+#include <stdio.h>
 #include <sysinfo.h>
 #include <vboot_api.h>
 

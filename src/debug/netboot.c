@@ -18,6 +18,7 @@
  */
 
 #include <libpayload.h>
+#include <stdio.h>
 
 #include "netboot/netboot.h"
 #include "netboot/params.h"

@@ -23,6 +23,7 @@
 #include <cbfs.h>
 #include <gbb_header.h>
 #include <libpayload.h>
+#include <stdio.h>
 #include <vboot_api.h>
 #include <vboot/screens.h>
 

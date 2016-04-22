@@ -20,7 +20,8 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
+#include <stddef.h>
+#include <stdio.h>
 #include <vboot_api.h>
 
 void VbExError(const char* format, ...)

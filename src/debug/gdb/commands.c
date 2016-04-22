@@ -17,7 +17,7 @@
  */
 
 #include <arch/cache.h>
-#include <libpayload.h>
+#include <stddef.h>
 
 #include "base/algorithm.h"
 #include "base/die.h"

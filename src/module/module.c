@@ -20,8 +20,8 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
 #include <lzma.h>
+#include <stdio.h>
 
 #include "base/elf.h"
 #include "module/module.h"

@@ -29,7 +29,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <libpayload.h>
+#include <stddef.h>
+#include <string.h>
 
 static void *default_memset(void *s, int c, size_t n)
 {

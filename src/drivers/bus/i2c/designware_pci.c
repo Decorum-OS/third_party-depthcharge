@@ -15,8 +15,8 @@
  * Foundation, Inc.
  */
 
-#include <libpayload.h>
 #include <pci.h>
+#include <stdio.h>
 
 #include "drivers/bus/i2c/designware.h"
 

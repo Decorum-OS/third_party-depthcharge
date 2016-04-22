@@ -37,7 +37,7 @@
  */
 
 #include <endian.h>
-#include <libpayload.h>
+#include <stdio.h>
 
 #include "base/time.h"
 #include "base/xalloc.h"

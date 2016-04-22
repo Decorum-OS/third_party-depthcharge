@@ -10,8 +10,8 @@
 
 /* Implementation of per-board codec beeping */
 
-#include <libpayload.h>
 #include <pci.h>
+#include <stdio.h>
 
 #include "base/algorithm.h"
 #include "base/container_of.h"

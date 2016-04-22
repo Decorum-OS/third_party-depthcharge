@@ -21,7 +21,7 @@
  */
 
 #include <gbb_header.h>
-#include <libpayload.h>
+#include <stdio.h>
 
 #include "drivers/flash/flash.h"
 #include "image/fmap.h"

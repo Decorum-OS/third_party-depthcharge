@@ -20,7 +20,7 @@
  * www.analog.com/media/en/technical-documentation/data-sheets/SSM4567.pdf
  */
 
-#include <libpayload.h>
+#include <stdio.h>
 
 #include "base/time.h"
 #include "base/xalloc.h"

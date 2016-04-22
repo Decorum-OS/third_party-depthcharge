@@ -31,6 +31,7 @@
 #define __ARCH_ARM64_MMU_H__
 
 #include <libpayload.h>
+#include <stddef.h>
 #include <sysinfo.h>
 
 struct mmu_memrange {

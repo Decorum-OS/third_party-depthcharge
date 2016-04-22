@@ -32,8 +32,8 @@
  */
 
 #include <ctype.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <libpayload.h>
 
 #include "base/algorithm.h"
 #include "drivers/console/console.h"

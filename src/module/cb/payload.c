@@ -21,7 +21,7 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
+#include <stdio.h>
 #include <sysinfo.h>
 #include <vboot_struct.h>
 

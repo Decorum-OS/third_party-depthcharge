@@ -20,10 +20,11 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
-#include <image/fmap.h>
-#include <drivers/flash/flash.h>
-#include <vboot_api.h>
+#include <stdio.h>
+
+#include "drivers/flash/flash.h"
+#include "image/fmap.h"
+#include "vboot_api.h"
 
 /*
  * NVRAM storage in flash uses a block of flash memory to represent the NVRAM

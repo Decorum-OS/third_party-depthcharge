@@ -25,7 +25,8 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
+#include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 void die_work(const char *file, const char *func, const int line,

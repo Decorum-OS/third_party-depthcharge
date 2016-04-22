@@ -21,9 +21,9 @@
  */
 
 #include <coreboot_tables.h>
-#include <libpayload.h>
 #include <lzma.h>
 #include <lz4.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sysinfo.h>
 

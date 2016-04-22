@@ -9,7 +9,7 @@
  * published by the Free Software Foundation.
  */
 
-#include <libpayload.h>
+#include <stdio.h>
 
 #include "base/time.h"
 #include "base/xalloc.h"

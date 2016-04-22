@@ -23,8 +23,8 @@
 #include <cbfs.h>
 #include <cbfs_ram.h>
 #include <endian.h>
-#include <libpayload.h>
 #include <lzma.h>
+#include <stdio.h>
 #include <string.h>
 #include <sysinfo.h>
 #include <vboot_api.h>

@@ -5,6 +5,7 @@
 #include <cbfs.h>
 #include <cbgfx.h>
 #include <libpayload.h>
+#include <stdio.h>
 #include <sysinfo.h>
 #include "bitmap.h"
 
