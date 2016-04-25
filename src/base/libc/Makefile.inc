@@ -27,7 +27,6 @@
 
 libc-y += ctype.c
 libc-y += lib.c
-libc-y += libgcc.c
 libc-y += malloc.c
 libc-y += memory.c
 libc-y += printf.c
