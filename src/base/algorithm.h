@@ -30,20 +30,38 @@
 
 #include <stdint.h>
 
-#define MIN(a,b) ((a) < (b) ? (a) : (b))
-#define MAX(a,b) ((a) > (b) ? (a) : (b))
+#define _MIN_IMPL(a, b, suffix) ({ \
+	typeof(a) _min_impl_a_##suffix = (a); \
+	typeof(b) _min_impl_b_##suffix = (b); \
+	_min_impl_a_##suffix < _min_impl_b_##suffix ? \
+	_min_impl_a_##suffix : _min_impl_b_##suffix; \
+})
+#define MIN(a, b) _MIN_IMPL(a, b, __COUNTER__)
+
+#define _MAX_IMPL(a, b, suffix) ({ \
+	typeof(a) _max_impl_a_##suffix = (a); \
+	typeof(b) _max_impl_b_##suffix = (b); \
+	_max_impl_a_##suffix > _max_impl_b_##suffix ? \
+	_max_impl_a_##suffix : _max_impl_b_##suffix; \
+})
+#define MAX(a, b) _MAX_IMPL(a, b, __COUNTER__)
+
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
-/* Count Leading Zeroes: clz(0) == 32, clz(0xf) == 28, clz(1 << 31) == 0 */
-static inline int clz(uint32_t x)
-{
-	return x ? __builtin_clz(x) : sizeof(x) * 8;
-}
+// Count Leading Zeroes: clz(0) == bits in x, clz(0xf) == bits in x - 4,
+// clz(1 << ({bits in x} - 1)) == 0.
+#define _clz_impl(x, suffix) ({ \
+	typeof(x) _clz_impl_x_##suffix = (x); \
+	_clz_impl_x_##suffix ? __builtin_clz(_clz_impl_x_##suffix) : \
+	sizeof(_clz_impl_x_##suffix) * 8; \
+})
+#define clz(x) _clz_impl(x, __COUNTER__)
 
-/* Integer binary logarithm (rounding down): log2(0) == -1, log2(5) == 2 */
-static inline int log2(uint32_t x)
-{
-	return sizeof(x) * 8 - clz(x) - 1;
-}
+// Integer binary logarithm (rounding down): log2(0) == -1, log2(5) == 2.
+#define _log2_impl(x, suffix) ({ \
+	typeof(x) _log2_impl_x_##suffix = (x); \
+	sizeof(_log2_impl_x_##suffix) * 8 - clz(_log2_impl_x_##suffix) - 1; \
+})
+#define log2(x) _log2_impl(x, __COUNTER__)
 
 #endif /* __BASE_ALGORITHM_H__ */
