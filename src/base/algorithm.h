@@ -39,15 +39,11 @@ static inline int clz(uint32_t x)
 {
 	return x ? __builtin_clz(x) : sizeof(x) * 8;
 }
+
 /* Integer binary logarithm (rounding down): log2(0) == -1, log2(5) == 2 */
 static inline int log2(uint32_t x)
 {
 	return sizeof(x) * 8 - clz(x) - 1;
-}
-/* Find First Set: __ffs(0xf) == 0, __ffs(0) == -1, __ffs(1 << 31) == 31 */
-static inline int __ffs(uint32_t x)
-{
-	return log2(x & (uint32_t)(-(int32_t)x));
 }
 
 #endif /* __BASE_ALGORITHM_H__ */
