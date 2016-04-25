@@ -60,7 +60,7 @@ xhci_align(const size_t min_align, const size_t size)
 	if (!(size & (size - 1)))
 		align = size; /* It's a power of 2 */
 	else
-		align = 1 << ((sizeof(unsigned) << 3) - __builtin_clz(size));
+		align = 1 << ((sizeof(unsigned) << 3) - CLZ(size));
 	if (align < min_align)
 		align = min_align;
 	xhci_spew("Aligning %zu to %zu\n", size, align);

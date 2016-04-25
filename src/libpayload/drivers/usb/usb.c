@@ -282,7 +282,6 @@ usb_decode_mps0(UsbSpeed speed, uint8_t bMaxPacketSize0)
 static int
 usb_decode_interval(UsbSpeed speed, const UsbEndpointType type, const unsigned char bInterval)
 {
-#define LOG2(a) ((sizeof(unsigned) << 3) - __builtin_clz(a) - 1)
 	switch (speed) {
 	case UsbLowSpeed:
 		switch (type) {
@@ -320,7 +319,6 @@ usb_decode_interval(UsbSpeed speed, const UsbEndpointType type, const unsigned c
 	default:
 		return 0;
 	}
-#undef LOG2
 }
 
 UsbDev *

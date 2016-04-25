@@ -48,20 +48,20 @@
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
-// Count Leading Zeroes: clz(0) == bits in x, clz(0xf) == bits in x - 4,
-// clz(1 << ({bits in x} - 1)) == 0.
-#define _clz_impl(x, suffix) ({ \
+// Count Leading Zeroes: CLZ(0) == bits in x, CLZ(0xf) == bits in x - 4,
+// CLZ(1 << ({bits in x} - 1)) == 0.
+#define _CLZ_IMPL(x, suffix) ({ \
 	typeof(x) _clz_impl_x_##suffix = (x); \
 	_clz_impl_x_##suffix ? __builtin_clz(_clz_impl_x_##suffix) : \
 	sizeof(_clz_impl_x_##suffix) * 8; \
 })
-#define clz(x) _clz_impl(x, __COUNTER__)
+#define CLZ(x) _CLZ_IMPL(x, __COUNTER__)
 
-// Integer binary logarithm (rounding down): log2(0) == -1, log2(5) == 2.
-#define _log2_impl(x, suffix) ({ \
+// Integer binary logarithm (rounding down): LOG2(0) == -1, LOG2(5) == 2.
+#define _LOG2_IMPL(x, suffix) ({ \
 	typeof(x) _log2_impl_x_##suffix = (x); \
-	sizeof(_log2_impl_x_##suffix) * 8 - clz(_log2_impl_x_##suffix) - 1; \
+	sizeof(_log2_impl_x_##suffix) * 8 - CLZ(_log2_impl_x_##suffix) - 1; \
 })
-#define log2(x) _log2_impl(x, __COUNTER__)
+#define LOG2(x) _LOG2_IMPL(x, __COUNTER__)
 
 #endif /* __BASE_ALGORITHM_H__ */

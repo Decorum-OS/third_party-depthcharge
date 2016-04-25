@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "base/algorithm.h"
 #include "base/die.h"
 #include "base/io.h"
 #include "base/time.h"
@@ -134,7 +135,7 @@ void gdb_message_add_string(GdbMessage *message, const char *string)
 
 void gdb_message_encode_int(GdbMessage *message, uintptr_t val)
 {
-	int length = sizeof(uintptr_t) * 2 - __builtin_clz(val) / 4;
+	int length = sizeof(uintptr_t) * 2 - CLZ(val) / 4;
 	die_if(message->used + length > message->size, output_overrun);
 	while (length--)
 		message->buf[message->used++] =
