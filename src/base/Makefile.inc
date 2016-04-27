@@ -24,6 +24,7 @@ depthcharge-y += coreboot.c
 depthcharge-y += dc_stack.c
 depthcharge-y += device_tree.c
 depthcharge-y += die.c
+depthcharge-y += fwdb.c
 depthcharge-y += graphics.c
 depthcharge-y += hexdump.c
 depthcharge-y += init_funcs.c

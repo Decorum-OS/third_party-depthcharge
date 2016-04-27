@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,29 +20,10 @@
  * MA 02111-1307 USA
  */
 
-#include <stdint.h>
+#ifndef __ARCH_X86_HANDOFF_HANDOFF_H__
+#define __ARCH_X86_HANDOFF_COMMON_H__
 
-#include "base/elf.h"
-#include "module/symbols.h"
-#include "module/trampoline.h"
+void handoff_common(void) __attribute__((noreturn));
+void handoff_special(void);
 
-// Temporarily pass the coreboot tables (or whatever else was our parameter)
-// through to the next module.
-extern uint32_t handoff_parameter;
-
-void enter_trampoline(Elf32_Ehdr *ehdr)
-{
-	uint8_t *estack = &trampoline_stack[TrampolineStackSize - 8];
-
-	__asm__ __volatile__(
-		"mov sp, %[new_stack]\n"
-		"mov r0, %[ehdr]\n"
-		"mov r1, %[handoff_parameter]\n"
-		// Need register addressing since the call goes too far
-		"bx %[trampoline]\n"
-		:: [new_stack]"r"(estack), [ehdr]"r"(ehdr),
-		   [zero]"r"(0), [trampoline]"r"(&trampoline),
-		   [handoff_parameter]"r"(handoff_parameter)
-		: "memory", "r0", "r1", "sp"
-	);
-}
+#endif /* __ARCH_X86_HANDOFF_HANDOFF_H__ */

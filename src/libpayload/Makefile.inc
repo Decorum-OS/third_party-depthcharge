@@ -27,7 +27,6 @@
 ## SUCH DAMAGE.
 ##
 
-classes-y += head.o
 classes-y += libc
 classes-$(CONFIG_CBFS) += libcbfs
 classes-$(CONFIG_LZ4) += liblz4

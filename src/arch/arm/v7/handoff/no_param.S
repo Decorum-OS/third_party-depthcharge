@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Advanced Micro Devices, Inc.
+ * Copyright 2016 Google Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -27,30 +27,6 @@
 
 #include <arch/asm.h>
 
-/*
- * Our entry point
- */
 ENTRY(_entry)
-
-	/* TODO: disable interrupts */
-
-	/* Save off the location of the coreboot tables */
-	ldr r1, 1f
-	str r0, [r1]
-
-	/* Setup new stack */
-	ldr sp, 2f
-
-	/* Let's rock. */
-	bl start_main
-
-	/* If start_main returns, loop forever. */
-1:
-	b 1b
+	b handoff_common
 ENDPROC(_entry)
-
-.align 4
-1:
-.word	cb_header_ptr
-2:
-.word	dc_stack_buffer + CONFIG_STACK_SIZE

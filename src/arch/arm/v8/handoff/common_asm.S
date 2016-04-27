@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008 Advanced Micro Devices, Inc.
- * Copyright (C) 2009 coresystems GmbH
+ * Copyright 2016 Google Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,22 +25,20 @@
  * SUCH DAMAGE.
  */
 
-#include <coreboot_tables.h>
-#include <sysinfo.h>
+#include <arch/asm.h>
 
-int cb_parse_arch_specific(struct cb_record *rec, struct sysinfo_t *info)
-{
-	return 0;
-}
+ENTRY(handoff_common_asm)
+	// Setup new stack.
+	ldr x1, 1f
+	msr SPSel, #0
+	isb
 
-int get_coreboot_info(struct sysinfo_t *info)
-{
-	int ret;
+	mov sp, x1
 
-	ret = cb_parse_header((void *)0, 0x1000, info);
+	// Continue the handoff in C.
+	b handoff_common
+ENDPROC(handoff_common_asm)
 
-	if (ret)
-		ret = cb_parse_header((void *)0x000f0000, 0x1000, info);
-
-	return ret;
-}
+.align 4
+1:
+.quad	dc_stack_buffer + CONFIG_STACK_SIZE

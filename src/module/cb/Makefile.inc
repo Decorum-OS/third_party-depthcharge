@@ -34,6 +34,7 @@ $(module_obj)/%.payload: $(module_obj)/%.elf
 module-y += cb_payload
 mod-cb_payload-y += payload.c
 mod-cb_payload-libs += $(COMMON_OBJECTS) $(unified-objs)
+mod-cb_payload-libs += $(coreboot_handoff-objs)
 
 module-y += cb_dev
 mod-cb_dev-y += $(mod-cb_payload-y)
@@ -43,6 +44,7 @@ mod-cb_dev-ldopts = $(DONT_GC_NETBOOT)
 module-y += cb_readonly
 mod-cb_readonly-y += readonly.c
 mod-cb_readonly-libs += $(COMMON_OBJECTS) $(readonly-objs) $(TRAMPOLINE)
+mod-cb-readonly-libs += $(coreboot_handoff-objs)
 
 module-y += cb_dev_ro
 mod-cb_dev_ro-y += $(mod-cb_readonly-y)
@@ -52,8 +54,14 @@ mod-cb_dev_ro-ldopts = $(DONT_GC_NETBOOT)
 module-y += cb_readwrite
 mod-cb_readwrite-y += readwrite.c
 mod-cb_readwrite-libs += $(COMMON_OBJECTS) $(readwrite-objs)
+mod-cb-readwrite-libs += $(module_handoff-objs)
 
 module-y += cb_dev_rw
 mod-cb_dev_rw-y += $(mod-cb_readwrite-y)
 mod-cb_dev_rw-libs += $(mod-cb_readwrite-libs) $(DEV_OBJECTS)
 mod-cb_dev_rw-ldopts = $(DONT_GC_NETBOOT)
+
+module-y += cb_netboot
+mod-cb_netboot-y += ../netboot.c
+mod-cb_netboot-libs += $(COMMON_OBJECTS) $(NET_OBJECTS)
+mod-cb_netboot-libs += $(coreboot_handoff-objs)

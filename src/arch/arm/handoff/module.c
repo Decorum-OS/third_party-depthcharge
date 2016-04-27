@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Advanced Micro Devices, Inc.
+ * Copyright 2016 Google Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,28 +25,8 @@
  * SUCH DAMAGE.
  */
 
-#include <exception.h>
-#include <libpayload.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sysinfo.h>
+#include "arch/arm/handoff/handoff.h"
 
-#include "base/init_funcs.h"
-#include "module/module.h"
-
-void start_main(void) __attribute__((noreturn));
-void start_main(void)
+void handoff_special(void)
 {
-	// Get information from the coreboot tables if they exist.
-	get_coreboot_info(&lib_sysinfo);
-
-	exception_init();
-
-	// Run any generic initialization functions that are compiled in.
-	if (run_init_funcs())
-		halt();
-
-	module_main();
-	printf("Returned from module_main.\n");
-	halt();
 }

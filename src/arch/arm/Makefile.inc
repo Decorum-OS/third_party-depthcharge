@@ -17,8 +17,8 @@
 
 subdirs-$(CONFIG_ARCH_ARM_V7) += v7
 subdirs-$(CONFIG_ARCH_ARM_V8) += v8
+subdirs-y += handoff
 
-depthcharge-y += coreboot.c
 depthcharge-$(CONFIG_KERNEL_FIT) += fit.c
 depthcharge-y += gcc.c
 depthcharge-y += util.S

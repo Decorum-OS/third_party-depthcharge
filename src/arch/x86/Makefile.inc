@@ -15,8 +15,9 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
+subdirs-y += handoff
+
 depthcharge-y += boot.c
-depthcharge-y += coreboot.c
 readonly-y += commonparams.c
 readwrite-y += commonparams.c
 depthcharge-y += enter_trampoline.c

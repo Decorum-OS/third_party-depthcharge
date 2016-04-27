@@ -25,7 +25,5 @@
 ## SUCH DAMAGE.
 ##
 
-head.o-y += head.S
-libc-y += main.c
 libc-y += virtual.c
 libc-y += cache.c cpu.S

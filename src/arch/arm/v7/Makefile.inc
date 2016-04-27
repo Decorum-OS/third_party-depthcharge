@@ -15,6 +15,8 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
+subdirs-y += handoff
+
 depthcharge-y += boot.c
 depthcharge-y += boot_asm.S
 libc-y += eabi_compat.c

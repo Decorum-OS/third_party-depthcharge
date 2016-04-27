@@ -88,7 +88,7 @@ $(call add-special-class,module)
 DONT_GC_NETBOOT = -Wl,-u,netboot_entry
 
 LIBPAYLOAD_OBJECTS += $(libc-objs) $(libcbfs-objs) $(liblzma-objs)
-LIBPAYLOAD_OBJECTS += $(liblz4-objs) $(head.o-objs)
+LIBPAYLOAD_OBJECTS += $(liblz4-objs)
 
 COMMON_OBJECTS = $(depthcharge-objs) $(VB_LIB) $(LIBPAYLOAD_OBJECTS)
 
@@ -113,8 +113,3 @@ $(module_obj)/trampoline.mod: $(module_obj)/trampoline.elf.tmp
 	$(Q)$(OBJCOPY) $< $@ \
 		--keep-global-symbol=trampoline \
 		--keep-global-symbol=trampoline_stack
-
-
-module-y += netboot
-mod-netboot-y += netboot.c
-mod-netboot-libs += $(COMMON_OBJECTS) $(NET_OBJECTS)

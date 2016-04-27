@@ -23,6 +23,7 @@
 #include <stdint.h>
 
 #include "base/elf.h"
+#include "base/fwdb.h"
 #include "module/symbols.h"
 #include "module/trampoline.h"
 
@@ -32,11 +33,11 @@ void enter_trampoline(Elf32_Ehdr *ehdr)
 
 	__asm__ __volatile__(
 		"mov %[new_stack], %%esp\n"
-		"push %[cb_header_ptr]\n"
 		"push %[ehdr]\n"
+		"push %[fwdb_db_pointer]\n"
 		"call trampoline\n"
 		:: [new_stack]"r"(estack), [ehdr]"a"(ehdr),
-		   [cb_header_ptr]"d"(0)
+		   [fwdb_db_pointer]"d"(fwdb_db_pointer())
 		: "memory"
 	);
 }

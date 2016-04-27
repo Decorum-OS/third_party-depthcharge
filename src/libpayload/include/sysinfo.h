@@ -85,8 +85,6 @@ extern struct sysinfo_t lib_sysinfo;
  */
 int cb_parse_arch_specific(struct cb_record *rec, struct sysinfo_t *info);
 
-extern void *cb_header_ptr;
-
 /*
  * Check if the region in range addr..addr+len contains a 16 byte aligned
  * coreboot table. If it does - process the table filling up the sysinfo
@@ -94,7 +92,5 @@ extern void *cb_header_ptr;
  * failure.
  */
 int cb_parse_header(void *addr, int len, struct sysinfo_t *info);
-
-int get_coreboot_info(struct sysinfo_t *info);
 
 #endif

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008 Advanced Micro Devices, Inc.
- * Copyright (C) 2009 coresystems GmbH
+ * Copyright 2016 Google Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,36 +25,23 @@
  * SUCH DAMAGE.
  */
 
-#include <coreboot_tables.h>
-#include <stdlib.h>
-#include <sysinfo.h>
+#include <arch/asm.h>
 
-/* This pointer gets set in head.S and is passed in from coreboot. */
-void *cb_header_ptr;
+ENTRY(_entry)
+	// Save off the parameter in r0.
+	ldr r1, 1f
+	str r0, [r1]
 
-static void cb_parse_dma(void *ptr)
-{
-	struct lb_range *dma = (struct lb_range *)ptr;
-	init_dma_memory((void *)(uintptr_t)dma->range_start, dma->range_size);
-}
+	b handoff_common
+ENDPROC(_entry)
 
-int cb_parse_arch_specific(struct cb_record *rec, struct sysinfo_t *info)
-{
-	switch(rec->tag) {
-	case CB_TAG_DMA:
-		if (CONFIG_ARCH_ARM_V7)
-			cb_parse_dma(rec);
-		break;
-	default:
-		return 0;
-	}
-	return 1;
-}
+.align 4
+1:
+.word	handoff_parameter
 
-/* == Architecture specific == */
-/* FIXME put in actual address range */
+.data
 
-int get_coreboot_info(struct sysinfo_t *info)
-{
-	return cb_parse_header(cb_header_ptr, 1, info);
-}
+.align 4
+.global handoff_parameter
+handoff_parameter:
+.word 0

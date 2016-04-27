@@ -25,28 +25,26 @@
  * SUCH DAMAGE.
  */
 
-	.code32
-	.global _entry
-	.text
-	.align 4
+#include <coreboot_tables.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <sysinfo.h>
 
-/*
- * Our entry point - assume that the CPU is in 32 bit protected mode and
- * all segments are in a flat model. That's our operating mode, so we won't
- * change anything.
- */
-_entry:
-	/* No interrupts, please. */
-	cli
+static void cb_parse_dma(void *ptr)
+{
+	struct lb_range *dma = (struct lb_range *)ptr;
+	init_dma_memory((void *)(uintptr_t)dma->range_start, dma->range_size);
+}
 
-	/* Setup new stack. */
-	movl $(dc_stack_buffer + CONFIG_STACK_SIZE), %esp
-
-	/* Let's rock. */
-	call start_main
-
-	/* If start_main returns, loop forever. */
-1:
-	cli
-	hlt
-	jmp 1b
+int cb_parse_arch_specific(struct cb_record *rec, struct sysinfo_t *info)
+{
+	switch (rec->tag) {
+	case CB_TAG_DMA:
+		if (CONFIG_ARCH_ARM_V7)
+			cb_parse_dma(rec);
+		break;
+	default:
+		return 0;
+	}
+	return 1;
+}

@@ -186,7 +186,7 @@ def prepare(options):
 
     if options.netboot:
         paths.update({
-            "dc_bin": "netboot.payload",
+            "dc_bin": "cb_netboot.payload",
         })
 
     if options.serial:

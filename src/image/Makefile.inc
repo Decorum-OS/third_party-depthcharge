@@ -88,7 +88,7 @@ $(image_obj)/dev.%: $$(module_obj)/cb_dev.$$*
 	@printf "    CP         $(subst $(obj)/,,$@)\n"
 	$(Q)cp $< $@
 
-$(image_obj)/netboot.%: $$(module_obj)/netboot.$$*
+$(image_obj)/netboot.%: $$(module_obj)/cb_netboot.$$*
 	@printf "    CP         $(subst $(obj)/,,$@)\n"
 	$(Q)cp $< $@
 
@@ -109,8 +109,8 @@ modules: $$(module_obj)/cb_payload.elf
 modules: $$(module_obj)/cb_payload.payload
 modules: $$(module_obj)/cb_dev.elf
 modules: $$(module_obj)/cb_dev.payload
-modules: $$(module_obj)/netboot.elf
-modules: $$(module_obj)/netboot.payload
+modules: $$(module_obj)/cb_netboot.elf
+modules: $$(module_obj)/cb_netboot.payload
 
 STANDARD_IMAGES=y
 
@@ -129,7 +129,7 @@ BUILD_IMAGE_LAYOUT_OPTS = \
 
 modules: $$(module_obj)/cb_payload.payload
 modules: $$(module_obj)/cb_dev.payload
-modules: $$(module_obj)/netboot.payload
+modules: $$(module_obj)/cb_netboot.payload
 
 modules: $$(module_obj)/fsp_real.mod
 

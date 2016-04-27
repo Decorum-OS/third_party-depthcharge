@@ -25,7 +25,4 @@
 ## SUCH DAMAGE.
 ##
 
-head.o-y += head.S
-libc-y += main.c
-
 libcbfs-$(CONFIG_CBFS) += rom_media.c
