@@ -23,7 +23,10 @@
 #include "board/board.h"
 #include "board/board_helpers.h"
 #include "drivers/keyboard/ps2.h"
+#include "drivers/power/pch.h"
 #include "drivers/uart/8250.h"
+
+PUB_STAT(power, &pch_power_ops);
 
 PUB_DYN(debug_uart, &new_uart_8250_io(0x3f8)->uart.ops)
 
