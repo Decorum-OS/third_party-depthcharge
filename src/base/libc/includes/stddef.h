@@ -13,8 +13,9 @@ typedef __SIZE_TYPE__ size_t;
 typedef __SIZE_TYPE__ ssize_t;
 #undef unsigned
 
-#define offsetof(TYPE, MEMBER)	((size_t) &((TYPE *) 0)->MEMBER)
-#define member_size(TYPE, MEMBER)	(sizeof(((TYPE *) 0)->MEMBER))
+#define offsetof(type, member) ((size_t)&((type *)0)->member)
+#define member_size(type, member) (sizeof(((type *)0)->member))
+#define member_typeof(type, member) typeof(((type *)0)->member)
 
 #define check_member(structure, member, offset) _Static_assert( \
 	offsetof(struct structure, member) == offset, \
