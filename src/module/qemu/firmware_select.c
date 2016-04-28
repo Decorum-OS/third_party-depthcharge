@@ -20,8 +20,18 @@
  * MA 02111-1307 USA
  */
 
+#include <stdlib.h>
+
 #include "module/module.h"
+#include "vboot/stages.h"
 
 void module_main(void)
 {
+	// Initialize vboot.
+	if (vboot_init())
+		halt();
+
+	// Select firmware.
+	if (vboot_select_firmware())
+		halt();
 }
