@@ -38,6 +38,7 @@ else
 		CFLAGS="$(CFLAGS) -DVBOOT_DEBUG" \
 		$(MAKE) -C $(VB_SOURCE) \
 		MOCK_TPM=$(CONFIG_MOCK_TPM) \
+		REGION_READ=y \
 		BUILD=$(dir $(VB_LIB)) \
 		V=$(V) \
 		fwlib
