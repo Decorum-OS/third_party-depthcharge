@@ -25,6 +25,8 @@
 
 #include <stdint.h>
 
+extern const char *module_title;
+
 void module_main(void);
 
 int start_module(const void *compressed_image, uint32_t size);

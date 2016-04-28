@@ -66,7 +66,10 @@ module-handler= \
 	$(call add-class,mod-$2) \
 	$(eval $(module_obj)/$2.elf: $$$$(mod-$2-objs)) \
 	$(eval $(module_obj)/$2.elf: $$$$(mod-$2-libs)) \
-	$(eval mod-$2-ldscript ?= $$(DEFAULT_LDSCRIPT))
+	$(eval mod-$2-ldscript ?= $$(DEFAULT_LDSCRIPT)) \
+	$(eval mod-$2-y += $(src)/src/module/title.c) \
+	$(eval mod-$2-title ?= "$2") \
+	$(eval mod-$2-c-ccopts += -D __MODULE_TITLE__=$$$$(mod-$2-title))
 
 $(call add-special-class,module)
 

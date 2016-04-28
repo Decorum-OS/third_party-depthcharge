@@ -20,15 +20,9 @@
  * MA 02111-1307 USA
  */
 
-#include <stdio.h>
-
-#include "base/init_funcs.h"
 #include "module/module.h"
 
-static int print_banner(void)
-{
-	printf("\n\nStarting %s on " CONFIG_BOARD "...\n", module_title);
-	return 0;
-}
+#define _XSTR(x) #x
+#define XSTR(x) _XSTR(x)
 
-INIT_FUNC_BANNER(print_banner)
+const char *module_title = XSTR(__MODULE_TITLE__);
