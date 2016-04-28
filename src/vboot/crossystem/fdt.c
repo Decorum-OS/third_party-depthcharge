@@ -36,6 +36,7 @@
 #include "vboot/firmware_id.h"
 #include "vboot/util/commonparams.h"
 #include "vboot/util/flag.h"
+#include "vboot/util/gbb.h"
 
 static int install_crossystem_data(DeviceTreeFixup *fixup, DeviceTree *tree)
 {
@@ -107,8 +108,9 @@ static int install_crossystem_data(DeviceTreeFixup *fixup, DeviceTree *tree)
 		printf("Bad signature on GBB.\n");
 		return 1;
 	}
-	char *hwid = (char *)((uintptr_t)cparams.gbb_data + gbb->hwid_offset);
-	dt_add_bin_prop(node, "hardware-id", hwid, gbb->hwid_size);
+	size_t hwid_size;
+	char *hwid = gbb_read_hwid(&hwid_size);
+	dt_add_bin_prop(node, "hardware-id", hwid, hwid_size);
 
 	if (CONFIG_EC_SOFTWARE_SYNC) {
 		int in_rw = 0;

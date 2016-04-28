@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,31 +20,11 @@
  * MA 02111-1307 USA
  */
 
-#include <gbb_header.h>
-#include <stdio.h>
+#ifndef __VBOOT_UTIL_GBB_H__
+#define __VBOOT_UTIL_GBB_H__
 
-#include "drivers/flash/flash.h"
-#include "image/fmap.h"
-#include "module/symbols.h"
-#include "vboot/util/commonparams.h"
+#include <stddef.h>
 
-VbCommonParams cparams CPARAMS;
-uint8_t shared_data_blob[VB_SHARED_DATA_REC_SIZE] SHARED_DATA;
+const char *gbb_read_hwid(size_t *size);
 
-int common_params_init(int clear_shared_data)
-{
-	// Set up the common param structure.
-	memset(&cparams, 0, sizeof(cparams));
-
-	void *blob;
-	int size;
-	if (find_common_params(&blob, &size))
-		return 1;
-
-	cparams.shared_data_blob = blob;
-	cparams.shared_data_size = size;
-	if (clear_shared_data)
-		memset(blob, 0, size);
-
-	return 0;
-}
+#endif /* __VBOOT_UTIL_GBB_H__ */

@@ -34,6 +34,7 @@
 #include "vboot/util/acpi.h"
 #include "vboot/util/commonparams.h"
 #include "vboot/util/flag.h"
+#include "vboot/util/gbb.h"
 #include "vboot/util/vboot_handoff.h"
 
 int crossystem_setup(void)
@@ -104,13 +105,9 @@ int crossystem_setup(void)
 		chsw |= CHSW_DEVELOPER_SWITCH;
 	acpi_table->chsw = chsw;
 
-	GoogleBinaryBlockHeader *gbb = cparams.gbb_data;
-	if (memcmp(gbb->signature, GBB_SIGNATURE, GBB_SIGNATURE_SIZE)) {
-		printf("Bad signature on GBB.\n");
-		return 1;
-	}
-	char *hwid = (char *)((uintptr_t)cparams.gbb_data + gbb->hwid_offset);
-	size = MIN(gbb->hwid_size, sizeof(acpi_table->hwid));
+	size_t hwid_size;
+	const char *hwid = gbb_read_hwid(&hwid_size);
+	size = MIN(hwid_size, sizeof(acpi_table->hwid));
 	memcpy(acpi_table->hwid, hwid, size);
 
 	size = MIN(fwid_size, sizeof(acpi_table->fwid));

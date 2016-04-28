@@ -54,10 +54,3 @@ config BASE_ADDRESS
 	  everything except the code which pivots between the read only and
 	  read/write firmware which is linked to run from the region of memory
 	  the kernel is eventually loaded into.
-
-config GBB_COPY_SIZE
-	hex "The size of the area to cache the GBB contents"
-	default 0x100000
-	help
-	  The size of the area the GBB is loaded into during the RO portion of
-	  the boot which is referred to later by vboot in both RO and RW.

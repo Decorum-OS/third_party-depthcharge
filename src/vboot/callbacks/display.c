@@ -42,9 +42,6 @@ VbError_t VbExDisplayInit(uint32_t *width, uint32_t *height)
 	video_init();
 	video_console_cursor_enable(0);
 
-	if (gbb_copy_in_bmp_block())
-		return VBERROR_UNKNOWN;
-
 	if (lib_sysinfo.framebuffer) {
 		*width = lib_sysinfo.framebuffer->x_resolution;
 		*height = lib_sysinfo.framebuffer->y_resolution;

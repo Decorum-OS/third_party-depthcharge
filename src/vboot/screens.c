@@ -30,7 +30,7 @@
 #include "base/algorithm.h"
 #include "base/graphics.h"
 #include "drivers/video/display.h"
-#include "vboot/util/commonparams.h"
+#include "vboot/util/gbb.h"
 
 /*
  * This is the base used to specify the size and the coordinate of the image.
@@ -185,7 +185,6 @@ static int get_text_width(const char *text, int32_t *width, int32_t *height)
 
 static VbError_t vboot_draw_footer(uint32_t locale)
 {
-	char *hwid = NULL;
 	int32_t x, y, w1, h1, w2, h2;
 
 	/*
@@ -218,11 +217,7 @@ static VbError_t vboot_draw_footer(uint32_t locale)
 	 * which is locale dependent, and 'XYZ', a model name. Model name
 	 * consists of individual font images: 'X' 'Y' 'Z'.
 	 */
-	if (is_cparams_initialized()) {
-		GoogleBinaryBlockHeader *gbb = cparams.gbb_data;
-		if (gbb)
-			hwid = (char *)((uintptr_t)gbb + gbb->hwid_offset);
-	}
+	const char *hwid = gbb_read_hwid(NULL);
 	if (!hwid)
 		hwid = "NOT FOUND";
 

@@ -26,8 +26,7 @@ DEFAULT_LDSCRIPT = $(src)/src/module/depthcharge.ldscript
 link_config_options := \
 	KERNEL_START \
 	KERNEL_SIZE \
-	BASE_ADDRESS \
-	GBB_COPY_SIZE
+	BASE_ADDRESS
 
 # Kconfig options intended for the linker.
 $(foreach option,$(link_config_options), \
@@ -49,15 +48,15 @@ $(module_obj)/%.elf.tmp:
 		$(mod-$*-ldopts) $(LIBGCC)
 
 
-# The default post processing of an ELF module strips out the .cparams,
-# .gbb_copy, and .shared_data sections, and fix up linking with the trampoline
-# blob. Those sections have symbols but are not allocated in the binary so that
+# The default post processing of an ELF module strips out the .cparams
+# and .shared_data sections, and fix up linking with the trampoline blob.
+# Those sections have symbols but are not allocated in the binary so that
 # different instances of depthcharge can share them without overwriting each
 # other.
 $(module_obj)/%.elf: $(module_obj)/%.elf.tmp
 	@printf "    OBJCOPY    $(subst $(obj)/,,$@)\n"
 	$(Q)$(OBJCOPY) --remove-section=".shared_data" \
-		--remove-section=".cparams" --remove-section=".gbb_copy" \
+		--remove-section=".cparams" \
 		$< $@
 
 # By default, binary modules are stripped of symbols and then compressed.
