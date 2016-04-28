@@ -19,4 +19,5 @@ subdirs-y += x86
 
 module-y += qemu_firmware_select
 mod-qemu_firmware_select-y += firmware_select.c
-mod-qemu_firmware_select-libs += $(COMMON_OBJECTS) $(initial_handoff-objs)
+mod-qemu_firmware_select-libs += $(COMMON_OBJECTS) $(TRAMPOLINE)
+mod-qemu_firmware_select-libs += $(initial_handoff-objs)
