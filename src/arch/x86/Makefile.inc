@@ -18,8 +18,6 @@
 subdirs-y += handoff
 
 depthcharge-y += boot.c
-readonly-y += commonparams.c
-readwrite-y += commonparams.c
 depthcharge-y += enter_trampoline.c
 libc-y += exception.c
 libc-y += exception_asm.S

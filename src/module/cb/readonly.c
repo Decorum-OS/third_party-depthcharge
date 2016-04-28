@@ -29,12 +29,6 @@
 
 void module_main(void)
 {
-	timestamp_add_now(TS_RO_PARAMS_INIT);
-
-	// Set up the common param structure, clearing shared data.
-	if (common_params_init(1))
-		halt();
-
 	timestamp_add_now(TS_RO_VB_INIT);
 
 	// Initialize vboot.

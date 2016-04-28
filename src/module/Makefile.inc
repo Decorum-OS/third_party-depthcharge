@@ -42,22 +42,10 @@ module_obj=$(obj)/module
 #
 # The object files this rule consumes will be attached as prerequisites when
 # the module is set up.
-$(module_obj)/%.elf.tmp:
+$(module_obj)/%.elf:
 	@printf "    LD         $(subst $(obj)/,,$@)\n"
 	$(Q)$(CC) $(LINK_FLAGS) -Wl,-T,$(mod-$*-ldscript) -o $@ $+ \
 		$(mod-$*-ldopts) $(LIBGCC)
-
-
-# The default post processing of an ELF module strips out the .cparams
-# and .shared_data sections, and fix up linking with the trampoline blob.
-# Those sections have symbols but are not allocated in the binary so that
-# different instances of depthcharge can share them without overwriting each
-# other.
-$(module_obj)/%.elf: $(module_obj)/%.elf.tmp
-	@printf "    OBJCOPY    $(subst $(obj)/,,$@)\n"
-	$(Q)$(OBJCOPY) --remove-section=".shared_data" \
-		--remove-section=".cparams" \
-		$< $@
 
 # By default, binary modules are stripped of symbols and then compressed.
 $(module_obj)/%.bin: $(module_obj)/%.elf
@@ -68,16 +56,16 @@ $(module_obj)/%.bin: $(module_obj)/%.elf
 
 .PRECIOUS: $(module_obj)/%.elf $(module_obj)/%.map $(module_obj)/%.bin
 
-# By default, just copy any .elf.tmp file to its .mod counterpart. This can
+# By default, just copy any .elf file to its .mod counterpart. This can
 # be overridden if more processing is necessary.
-$(module_obj)/%.mod: $(module_obj)/%.elf.tmp
+$(module_obj)/%.mod: $(module_obj)/%.elf
 	@printf "    OBJCOPY    $(subst $(obj)/,,$@)\n"
 	$(Q)$(OBJCOPY) $< $@
 
 module-handler= \
 	$(call add-class,mod-$2) \
-	$(eval $(module_obj)/$2.elf.tmp: $$$$(mod-$2-objs)) \
-	$(eval $(module_obj)/$2.elf.tmp: $$$$(mod-$2-libs)) \
+	$(eval $(module_obj)/$2.elf: $$$$(mod-$2-objs)) \
+	$(eval $(module_obj)/$2.elf: $$$$(mod-$2-libs)) \
 	$(eval mod-$2-ldscript ?= $$(DEFAULT_LDSCRIPT))
 
 $(call add-special-class,module)
@@ -107,7 +95,7 @@ mod-trampoline-ldopts += -Wl,--undefined=trampoline_stack -Wl,--warn-common
 
 # Make all the symbols in the trampoline local, except the trampoline entry
 # point and stack.
-$(module_obj)/trampoline.mod: $(module_obj)/trampoline.elf.tmp
+$(module_obj)/trampoline.mod: $(module_obj)/trampoline.elf
 	@printf "    OBJCOPY    $(subst $(obj)/,,$@)\n"
 	$(Q)$(OBJCOPY) $< $@ \
 		--keep-global-symbol=trampoline \

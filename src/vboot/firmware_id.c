@@ -122,13 +122,10 @@ int get_rwb_fw_size(void)
 
 static VbSharedDataHeader *get_vdat(void)
 {
-	void *blob;
-	int size;
+	if (common_params_init())
+		return NULL;
 
-	if (find_common_params(&blob, &size) == 0)
-		return blob;
-
-	return NULL;
+	return cparams.shared_data_blob;
 }
 
 static inline int get_active_fw_index(VbSharedDataHeader *vdat)

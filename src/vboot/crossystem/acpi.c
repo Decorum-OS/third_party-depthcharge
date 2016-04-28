@@ -40,7 +40,6 @@
 int crossystem_setup(void)
 {
 	chromeos_acpi_t *acpi_table = (chromeos_acpi_t *)lib_sysinfo.vdat_addr;
-	VbSharedDataHeader *vboot_handoff_shared_data;
 	VbSharedDataHeader *vdat = (VbSharedDataHeader *)&acpi_table->vdat;
 	int size;
 
@@ -136,13 +135,9 @@ int crossystem_setup(void)
 	memcpy(dest, fwid, size);
 	dest[size] = 0;
 
-	// Synchronize the value in vboot_handoff back to acpi vdat.
-	if (find_common_params((void**)(&vboot_handoff_shared_data), &size) == 0)
-		memcpy(vdat, vboot_handoff_shared_data, size);
-	else {
-		printf("Can't find common params.\n");
+	if (common_params_init())
 		return 1;
-	}
+	memcpy(vdat, cparams.shared_data_blob, cparams.shared_data_size);
 
 	return 0;
 }

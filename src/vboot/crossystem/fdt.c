@@ -30,6 +30,7 @@
 #include <vboot_struct.h>
 
 #include "base/device_tree.h"
+#include "base/xalloc.h"
 #include "image/fmap.h"
 #include "vboot/callbacks/nvstorage_flash.h"
 #include "vboot/crossystem/crossystem.h"
@@ -45,12 +46,11 @@ static int install_crossystem_data(DeviceTreeFixup *fixup, DeviceTree *tree)
 
 	dt_add_string_prop(node, "compatible", "chromeos-firmware");
 
-	void *blob;
-	int size;
-	if (find_common_params(&blob, &size))
+	if (common_params_init())
 		return 1;
-	dt_add_bin_prop(node, "vboot-shared-data", blob, size);
-	VbSharedDataHeader *vdat = (VbSharedDataHeader *)blob;
+	dt_add_bin_prop(node, "vboot-shared-data", cparams.shared_data_blob,
+			cparams.shared_data_size);
+	VbSharedDataHeader *vdat = cparams.shared_data_blob;
 
 	if (CONFIG_NV_STORAGE_CMOS) {
 		dt_add_string_prop(node, "nonvolatile-context-storage","nvram");
@@ -109,8 +109,12 @@ static int install_crossystem_data(DeviceTreeFixup *fixup, DeviceTree *tree)
 		return 1;
 	}
 	size_t hwid_size;
-	char *hwid = gbb_read_hwid(&hwid_size);
-	dt_add_bin_prop(node, "hardware-id", hwid, hwid_size);
+	const char *hwid = gbb_read_hwid(&hwid_size);
+	if (!hwid)
+		return 1;
+	void *hwid_copy = xmalloc(hwid_size);
+	memcpy(hwid_copy, hwid, hwid_size);
+	dt_add_bin_prop(node, "hardware-id", hwid_copy, hwid_size);
 
 	if (CONFIG_EC_SOFTWARE_SYNC) {
 		int in_rw = 0;

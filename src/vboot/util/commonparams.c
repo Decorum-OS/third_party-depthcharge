@@ -23,28 +23,31 @@
 #include <gbb_header.h>
 #include <stdio.h>
 
+#include "base/fwdb.h"
 #include "drivers/flash/flash.h"
 #include "image/fmap.h"
 #include "module/symbols.h"
 #include "vboot/util/commonparams.h"
 
-VbCommonParams cparams CPARAMS;
-uint8_t shared_data_blob[VB_SHARED_DATA_REC_SIZE] SHARED_DATA;
+VbCommonParams cparams;
 
-int common_params_init(int clear_shared_data)
+int common_params_init(void)
 {
+	if (cparams.shared_data_blob)
+		return 0;
+
 	// Set up the common param structure.
 	memset(&cparams, 0, sizeof(cparams));
 
-	void *blob;
-	int size;
-	if (find_common_params(&blob, &size))
+	FwdbEntry entry;
+	FwdbEntry new_entry = {
+		.size = VB_SHARED_DATA_REC_SIZE
+	};
+	if (fwdb_access("vboot.shared_data", &entry, &new_entry))
 		return 1;
 
-	cparams.shared_data_blob = blob;
-	cparams.shared_data_size = size;
-	if (clear_shared_data)
-		memset(blob, 0, size);
+	cparams.shared_data_blob = entry.ptr;
+	cparams.shared_data_size = entry.size;
 
 	return 0;
 }

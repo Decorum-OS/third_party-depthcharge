@@ -37,7 +37,4 @@ extern uint8_t _kernel_end;
 extern uint8_t _init_funcs_start;
 extern uint8_t _init_funcs_end;
 
-#define CPARAMS __attribute__((section(".cparams")))
-#define SHARED_DATA __attribute__((section(".shared_data")))
-
 #endif /* __MODULE_SYMBOLS_H__ */

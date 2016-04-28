@@ -102,6 +102,9 @@ int vboot_init(void)
         if (!CONFIG_PHYSICAL_REC_SWITCH)
                 iparams.flags |= VB_INIT_FLAG_VIRTUAL_REC_SWITCH;
 
+	if (common_params_init())
+		return 1;
+
 	printf("Calling VbInit().\n");
 	VbError_t res = VbInit(&cparams, &iparams);
 	if (res != VBERROR_SUCCESS) {
@@ -171,6 +174,9 @@ int vboot_select_firmware(void)
 		flash_read(vblock_b.offset, vblock_b.size);
 	fparams.verification_size_B = vblock_b.size;
 
+	if (common_params_init())
+		return 1;
+
 	printf("Calling VbSelectFirmware().\n");
 	VbError_t res = VbSelectFirmware(&cparams, &fparams);
 	if (res != VBERROR_SUCCESS) {
@@ -214,6 +220,9 @@ int vboot_select_and_load_kernel(void)
 		.kernel_buffer = &_kernel_start,
 		.kernel_buffer_size = &_kernel_end - &_kernel_start
 	};
+
+	if (common_params_init())
+		return 1;
 
 	printf("Calling VbSelectAndLoadKernel().\n");
 	VbError_t res = VbSelectAndLoadKernel(&cparams, &kparams);

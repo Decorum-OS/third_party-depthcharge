@@ -30,6 +30,7 @@
 
 #include "arch/x86/handoff/handoff.h"
 #include "base/fwdb.h"
+#include "vboot/util/vboot_handoff.h"
 #include "vboot/util/memory.h"
 
 int cb_parse_arch_specific(struct cb_record *rec, struct sysinfo_t *info)
@@ -45,4 +46,15 @@ void handoff_special(void)
 	// Get information from the coreboot tables if they exist.
 	if (cb_parse_header((void *)0, 0x1000, &lib_sysinfo))
 		cb_parse_header((void *)0x000f0000, 0x1000, &lib_sysinfo);
+
+	if (lib_sysinfo.vboot_handoff) {
+		struct vboot_handoff *vboot_handoff =
+			lib_sysinfo.vboot_handoff;
+		FwdbEntry new_entry = {
+			.ptr = &vboot_handoff->shared_data[0],
+			.size = ARRAY_SIZE(vboot_handoff->shared_data),
+		};
+
+		fwdb_access("vboot.shared_data", NULL, &new_entry);
+	}
 }

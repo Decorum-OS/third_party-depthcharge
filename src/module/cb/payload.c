@@ -38,10 +38,6 @@ static int vboot_init_handoff()
 {
 	struct vboot_handoff *vboot_handoff;
 
-	// Set up the common param structure, not clearing shared data.
-	if (common_params_init(0))
-		return 1;
-
 	if (lib_sysinfo.vboot_handoff == NULL) {
 		printf("vboot handoff pointer is NULL\n");
 		return 1;
@@ -64,16 +60,13 @@ static int vboot_init_handoff()
 	 */
 	int lid_switch = flag_fetch(FLAG_LIDSW);
 	if (!lid_switch) {
-		VbSharedDataHeader *vdat;
-		int vdat_size;
+		if (common_params_init())
+			return 1;
 
-		if (find_common_params((void **)&vdat, &vdat_size) != 0)
-			vdat = NULL;
+		VbSharedDataHeader *vdat = cparams.shared_data_blob;
 
-		/* We need something to work with */
-		if (vdat != NULL)
-			/* Tell kernel selection to not count down */
-			vdat->flags |= VBSD_NOFAIL_BOOT;
+		/* Tell kernel selection to not count down */
+		vdat->flags |= VBSD_NOFAIL_BOOT;
 	}
 
 	return vboot_do_init_out_flags(vboot_handoff->init_params.out_flags);
