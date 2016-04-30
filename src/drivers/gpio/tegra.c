@@ -111,11 +111,6 @@ GpioOps *new_tegra_gpio_input_from_coreboot(uint32_t port)
 	return &new_tegra_gpio_input(CB_GPIO_TO_DC(port))->ops;
 }
 
-GpioOps *new_tegra_gpio_output_from_coreboot(uint32_t port)
-{
-	return &new_tegra_gpio_output(CB_GPIO_TO_DC(port))->ops;
-}
-
 TegraGpio *new_tegra_gpio_input(TegraGpioPort port, unsigned index,
 				unsigned pinmux)
 {
