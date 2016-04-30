@@ -53,6 +53,8 @@ PRIV_DYN(i2c0, &new_rockchip_i2c((void *)0xff650000)->ops)
 
 PRIV_DYN(pmic, &new_rk808_pmic(get_i2c0(), 0x1b)->ops)
 
+PRIV_DYN(backlight_gpio, &new_rk_gpio_output(GPIO(7, A, 2))->ops)
+
 static int board_setup(void)
 {
 	RkSpi *spi2 = new_rockchip_spi(0xff130000);
@@ -98,11 +100,8 @@ static int board_setup(void)
 
 	ramoops_buffer(0x31f00000, 0x100000, 0x20000);
 
-	if (lib_sysinfo.framebuffer != NULL) {
-		GpioOps *backlight_gpio = sysinfo_lookup_gpio("backlight", 1,
-			new_rk_gpio_output_from_coreboot);
-		display_set_ops(new_rockchip_display(backlight_gpio));
-	}
+	if (lib_sysinfo.framebuffer != NULL)
+		display_set_ops(new_rockchip_display(get_backlight_gpio()));
 
 	return 0;
 }
