@@ -23,15 +23,14 @@
 
 #include <assert.h>
 #include <libpayload.h>
+#include <sysinfo.h>
 
 #include "base/algorithm.h"
 #include "base/die.h"
+#include "board/board_helpers.h"
 #include "drivers/gpio/sysinfo.h"
 #include "drivers/gpio/tegra.h"
 #include "drivers/keyboard/pseudo/keyboard.h"
-
-/* GPIOs for reading status of buttons */
-static GpioOps *pwr_btn_gpio, *vol_down_gpio, *vol_up_gpio;
 
 /* Unique state ids for all possible states in state machine */
 enum {
@@ -122,24 +121,26 @@ static void ryu_sm_init(struct pk_sm_desc *desc)
 
 void mainboard_keyboard_init(struct pk_sm_desc *desc)
 {
-	pwr_btn_gpio = sysinfo_lookup_gpio("power", 1,
-					   new_tegra_gpio_input_from_coreboot);
-	die_if(!pwr_btn_gpio, "No GPIO for power!!\n");
-
-	/* Inputs volup and voldown are active low. */
-	vol_down_gpio = new_gpio_not(&new_tegra_gpio_input(GPIO(Q, 6))->ops);
-	vol_up_gpio = new_gpio_not(&new_tegra_gpio_input(GPIO(Q, 7))->ops);
-
 	ryu_sm_init(desc);
 }
 
+PRIV_DYN(power_button_gpio, &new_tegra_gpio_input(GPIO(Q, 0))->ops)
+
+PRIV_DYN(vol_down_gpio, &new_tegra_gpio_input(GPIO(Q, 6))->ops)
+PRIV_DYN(vol_down_gpio_n, new_gpio_not(get_vol_down_gpio()))
+
+PRIV_DYN(vol_up_gpio, &new_tegra_gpio_input(GPIO(Q, 7))->ops)
+PRIV_DYN(vol_up_gpio_n, new_gpio_not(get_vol_up_gpio()))
+
 int mainboard_read_input(void)
 {
-	int input;
+	int power_button = gpio_get(get_power_button_gpio());
+	if (lib_sysinfo.board_id >= 2)
+		power_button = !power_button;
 
-	input = (gpio_get(pwr_btn_gpio) << PWR_BTN_SHIFT) |
-		(gpio_get(vol_up_gpio) << VOL_UP_SHIFT) |
-		(gpio_get(vol_down_gpio) << VOL_DOWN_SHIFT);
+	int input = (power_button << PWR_BTN_SHIFT) |
+		    (gpio_get(get_vol_up_gpio_n()) << VOL_UP_SHIFT) |
+		    (gpio_get(get_vol_down_gpio_n()) << VOL_DOWN_SHIFT);
 
 	if (input == NO_BTN_PRESSED)
 		input = -1;

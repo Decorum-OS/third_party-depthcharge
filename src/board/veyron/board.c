@@ -55,6 +55,9 @@ PRIV_DYN(pmic, &new_rk808_pmic(get_i2c0(), 0x1b)->ops)
 
 PRIV_DYN(backlight_gpio, &new_rk_gpio_output(GPIO(7, A, 2))->ops)
 
+PRIV_DYN(ec_int_gpio, &new_rk_gpio_input(GPIO(7, A, 7))->ops)
+PRIV_DYN(ec_int_gpio_n, new_gpio_not(get_ec_int_gpio()))
+
 static int board_setup(void)
 {
 	RkSpi *spi2 = new_rockchip_spi(0xff130000);
@@ -62,8 +65,7 @@ static int board_setup(void)
 
 	RkSpi *spi0 = new_rockchip_spi(0xff110000);
 	cros_ec_set_bus(&new_cros_ec_spi_bus(&spi0->ops)->ops);
-	cros_ec_set_interrupt_gpio(sysinfo_lookup_gpio("EC interrupt", 1,
-			new_rk_gpio_input_from_coreboot));
+	cros_ec_set_interrupt_gpio(get_ec_int_gpio_n());
 
 	sysinfo_install_flags(new_rk_gpio_input_from_coreboot);
 

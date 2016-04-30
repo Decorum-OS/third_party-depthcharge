@@ -140,6 +140,9 @@ PRIV_DYN(i2c0, &new_rockchip_i2c((void *)0xff650000)->ops)
 
 PRIV_DYN(pmic, &new_rk808_pmic(get_i2c0(), 0x1b)->ops)
 
+PRIV_DYN(recovery_gpio, &new_rk_gpio_input(GPIO(7, B, 1))->ops)
+PRIV_DYN(recovery_gpio_n, new_gpio_not(get_recovery_gpio()))
+
 static int board_setup(void)
 {
 	RialtoDisplayOps *leds;
@@ -167,8 +170,7 @@ static int board_setup(void)
 
 	// Read the current value of the recovery button for confirmation
 	// when transitioning between normal and dev mode.
-	flag_replace(FLAG_RECSW, sysinfo_lookup_gpio("recovery",
-				1, new_rk_gpio_input_from_coreboot));
+	flag_replace(FLAG_RECSW, get_recovery_gpio_n());
 
 	/* Lid always open for now. */
 	flag_replace(FLAG_LIDSW, new_gpio_high());
