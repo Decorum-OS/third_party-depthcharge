@@ -40,8 +40,8 @@
 #include "drivers/gpio/tegra.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/pseudo/keyboard.h"
+#include "drivers/power/gpio_reset.h"
 #include "drivers/power/max77620.h"
-#include "drivers/power/sysinfo.h"
 #include "drivers/sound/i2s.h"
 #include "drivers/sound/rt5677.h"
 #include "drivers/sound/tegra_ahub.h"
@@ -243,8 +243,10 @@ static int display_setup(void)
 
 INIT_FUNC(display_setup);
 
-PUB_DYN(power, &new_sysinfo_reset_power_ops(get_pmic(),
-		new_tegra_gpio_output_from_coreboot)->ops)
+PRIV_DYN(reset_gpio, new_tegra_gpio_output(GPIO(I, 5)));
+PRIV_DYN(reset_gpio_n, new_gpio_not(&get_reset_gpio()->ops))
+
+PUB_DYN(power, &new_gpio_reset_power_ops(get_pmic(), get_reset_gpio_n())->ops)
 
 PUB_DYN(debug_uart, &new_uart_8250_mem32(0x70006000)->uart.ops)
 

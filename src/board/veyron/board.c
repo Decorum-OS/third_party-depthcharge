@@ -35,8 +35,8 @@
 #include "drivers/gpio/sysinfo.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/mkbp/keyboard.h"
+#include "drivers/power/gpio_reset.h"
 #include "drivers/power/rk808.h"
-#include "drivers/power/sysinfo.h"
 #include "drivers/storage/dw_mmc.h"
 #include "drivers/storage/rk_mmc.h"
 #include "drivers/sound/i2s.h"
@@ -107,8 +107,9 @@ static int board_setup(void)
 	return 0;
 }
 
-PUB_DYN(power, &new_sysinfo_reset_power_ops(get_pmic(),
-		new_rk_gpio_output_from_coreboot)->ops)
+PRIV_DYN(reset_gpio, &new_rk_gpio_output(GPIO(0, B, 5))->ops)
+
+PUB_DYN(power, &new_gpio_reset_power_ops(get_pmic(), get_reset_gpio())->ops)
 
 PUB_DYN(debug_uart, &new_uart_8250_mem32(0xff690000)->uart.ops)
 

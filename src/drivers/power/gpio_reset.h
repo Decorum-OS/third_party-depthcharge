@@ -20,19 +20,19 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __DRIVERS_POWER_SYSINFO_H__
-#define __DRIVERS_POWER_SYSINFO_H__
+#ifndef __DRIVERS_POWER_GPIO_RESET_H__
+#define __DRIVERS_POWER_GPIO_RESET_H__
 
-#include "drivers/gpio/sysinfo.h"
+#include "drivers/gpio/gpio.h"
 #include "drivers/power/power.h"
 
 typedef struct {
 	PowerOps ops;
 	PowerOps *power_off_ops;
 	GpioOps *reset_gpio;
-} SysinfoResetPowerOps;
+} GpioResetPowerOps;
 
-SysinfoResetPowerOps *new_sysinfo_reset_power_ops(PowerOps *power_off_ops,
-		new_gpio_from_coreboot_t new_gpio_from_coreboot);
+GpioResetPowerOps *new_gpio_reset_power_ops(PowerOps *power_off_ops,
+					    GpioOps *reset_gpio);
 
-#endif /* __DRIVERS_POWER_SYSINFO_H__ */
+#endif /* __DRIVERS_POWER_GPIO_RESET_H__ */

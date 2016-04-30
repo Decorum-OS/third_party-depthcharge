@@ -22,30 +22,29 @@
 
 #include "base/container_of.h"
 #include "base/xalloc.h"
-#include "drivers/power/sysinfo.h"
+#include "drivers/power/gpio_reset.h"
 
 static int gpio_reboot(PowerOps *me)
 {
-	SysinfoResetPowerOps *p = container_of(me, SysinfoResetPowerOps, ops);
-	gpio_set(p->reset_gpio, 1);
+	GpioResetPowerOps *power = container_of(me, GpioResetPowerOps, ops);
+	gpio_set(power->reset_gpio, 1);
 	while (1);	// not halt(), it can trigger a GDB entry
 	return -1;
 }
 
 static int pass_through_power_off(PowerOps *me)
 {
-	SysinfoResetPowerOps *p = container_of(me, SysinfoResetPowerOps, ops);
-	return p->power_off_ops->power_off(p->power_off_ops);
+	GpioResetPowerOps *power = container_of(me, GpioResetPowerOps, ops);
+	return power->power_off_ops->power_off(power->power_off_ops);
 }
 
-SysinfoResetPowerOps *new_sysinfo_reset_power_ops(PowerOps *power_off_ops,
-		new_gpio_from_coreboot_t new_gpio_from_coreboot)
+GpioResetPowerOps *new_gpio_reset_power_ops(PowerOps *power_off_ops,
+					    GpioOps *reset_gpio)
 {
-	SysinfoResetPowerOps *p = xzalloc(sizeof(*p));
-	p->ops.power_off = &pass_through_power_off;
-	p->ops.cold_reboot = &gpio_reboot;
-	p->power_off_ops = power_off_ops;
-	p->reset_gpio = sysinfo_lookup_gpio("reset", 1, new_gpio_from_coreboot);
-	die_if(!p->reset_gpio, "could not find 'reset' GPIO in coreboot table");
-	return p;
+	GpioResetPowerOps *power = xzalloc(sizeof(*power));
+	power->ops.power_off = &pass_through_power_off;
+	power->ops.cold_reboot = &gpio_reboot;
+	power->power_off_ops = power_off_ops;
+	power->reset_gpio = reset_gpio;
+	return power;
 }

@@ -46,7 +46,7 @@
 #include "drivers/sound/tegra_ahub.h"
 #include "drivers/storage/tegra_mmc.h"
 #include "drivers/power/as3722.h"
-#include "drivers/power/sysinfo.h"
+#include "drivers/power/gpio_reset.h"
 #include "drivers/tpm/slb9635_i2c.h"
 #include "drivers/tpm/tpm.h"
 #include "drivers/uart/8250.h"
@@ -231,8 +231,11 @@ static int board_setup(void)
 	return 0;
 }
 
-PUB_DYN(power, &new_sysinfo_reset_power_ops(&get_pmic()->ops,
-		new_tegra_gpio_output_from_coreboot)->ops)
+PRIV_DYN(reset_gpio, &new_tegra_gpio_output(GPIO(I, 5))->ops);
+PRIV_DYN(reset_gpio_n, new_gpio_not(get_reset_gpio()))
+
+PUB_DYN(power, &new_gpio_reset_power_ops(&get_pmic()->ops,
+					 get_reset_gpio_n())->ops)
 
 PUB_DYN(debug_uart, &new_uart_8250_mem(0x70006000, 1)->uart.ops)
 
