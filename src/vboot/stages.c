@@ -197,6 +197,8 @@ int vboot_select_firmware(void)
 
 int vboot_select_and_load_kernel(void)
 {
+	static char cmd_line_buf[2 * CmdLineSize];
+
 	VbSelectAndLoadKernelParams kparams = {
 		.kernel_buffer = &_kernel_start,
 		.kernel_buffer_size = &_kernel_end - &_kernel_start
@@ -224,15 +226,6 @@ int vboot_select_and_load_kernel(void)
 			return 1;
 	}
 
-	vboot_boot_kernel(&kparams);
-
-	return 1;
-}
-
-void vboot_boot_kernel(VbSelectAndLoadKernelParams *kparams)
-{
-	static char cmd_line_buf[2 * CmdLineSize];
-
 	timestamp_add_now(TS_CROSSYSTEM_DATA);
 
 	// The scripts that packaged the kernel assumed it was going to end
@@ -241,22 +234,24 @@ void vboot_boot_kernel(VbSelectAndLoadKernelParams *kparams)
 	// assumption. We have to subtract the 1MB offset from it, and then add
 	// the actual load address to figure ou thwere it actually is,
 	// or would be if it existed.
-	void *kernel = kparams->kernel_buffer;
+	void *kernel = kparams.kernel_buffer;
 	void *loader = (uint8_t *)kernel +
-		(kparams->bootloader_address - 0x100000);
+		(kparams.bootloader_address - 0x100000);
 	void *params = (uint8_t *)loader - CrosParamSize;
 	void *orig_cmd_line = (uint8_t *)params - CmdLineSize;
 
-	BlockDev *bdev = (BlockDev *)kparams->disk_handle;
+	BlockDev *bdev = (BlockDev *)kparams.disk_handle;
 
 	if (commandline_subst(orig_cmd_line, cmd_line_buf,
 			      sizeof(cmd_line_buf), 0,
-			      kparams->partition_number + 1,
-			      kparams->partition_guid, bdev->external_gpt))
-		return;
+			      kparams.partition_number + 1,
+			      kparams.partition_guid, bdev->external_gpt))
+		return 1;
 
 	if (crossystem_setup())
-		return;
+		return 1;
 
 	boot(kernel, cmd_line_buf, params, loader);
+
+	return 1;
 }
