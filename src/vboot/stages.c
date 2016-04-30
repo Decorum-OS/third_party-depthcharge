@@ -45,8 +45,6 @@
 #include "vboot/util/memory.h"
 #include "vboot/vbnv.h"
 
-static uint32_t vboot_out_flags;
-
 enum {
 	CmdLineSize = 4096,
 	CrosParamSize = 4096,
@@ -116,21 +114,6 @@ int vboot_init(void)
 	return vboot_do_init_out_flags(iparams.out_flags);
 };
 
-int vboot_in_recovery(void)
-{
-	return vboot_out_flags & VB_INIT_OUT_ENABLE_RECOVERY;
-}
-
-int vboot_in_developer(void)
-{
-	return vboot_out_flags & VB_INIT_OUT_ENABLE_DEVELOPER;
-}
-
-void vboot_update_recovery(uint32_t request)
-{
-	vbnv_write(VBNV_RECOVERY_REQUEST, request);
-}
-
 int vboot_do_init_out_flags(uint32_t out_flags)
 {
 	if (out_flags & VB_INIT_OUT_CLEAR_RAM) {
@@ -145,8 +128,6 @@ int vboot_do_init_out_flags(uint32_t out_flags)
 	if (out_flags & (VB_INIT_OUT_ENABLE_DEVELOPER |
 			 VB_INIT_OUT_ENABLE_RECOVERY))
 		keyboard_prepare();
-
-	vboot_out_flags = out_flags;
 
 	return 0;
 }
