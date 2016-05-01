@@ -21,10 +21,12 @@
  * MA 02111-1307 USA
  */
 
+#include <assert.h>
 #include <stdio.h>
 #include <sysinfo.h>
 #include <vboot_struct.h>
 
+#include "base/fwdb.h"
 #include "base/init_funcs.h"
 #include "base/timestamp.h"
 #include "drivers/keyboard/keyboard.h"
@@ -36,21 +38,6 @@
 
 static int vboot_init_handoff()
 {
-	struct vboot_handoff *vboot_handoff;
-
-	if (lib_sysinfo.vboot_handoff == NULL) {
-		printf("vboot handoff pointer is NULL\n");
-		return 1;
-	}
-
-	if (lib_sysinfo.vboot_handoff_size != sizeof(struct vboot_handoff)) {
-		printf("Unexpected vboot handoff size: %d\n",
-		       lib_sysinfo.vboot_handoff_size);
-		return 1;
-	}
-
-	vboot_handoff = lib_sysinfo.vboot_handoff;
-
 	/* If the lid is closed, don't count down the boot
 	 * tries for updates, since the OS will shut down
 	 * before it can register success.
@@ -69,14 +56,20 @@ static int vboot_init_handoff()
 		vdat->flags |= VBSD_NOFAIL_BOOT;
 	}
 
-	return vboot_do_init_out_flags(vboot_handoff->init_params.out_flags);
+	FwdbEntry init_params_entry;
+	if (fwdb_access("vboot.handoff.init_params", &init_params_entry, NULL))
+		return 1;
+
+	assert(init_params_entry.size == sizeof(VbInitParams));
+	VbInitParams *init_params = init_params_entry.ptr;
+
+	return vboot_do_init_out_flags(init_params->out_flags);
 }
 
 void module_main(void)
 {
 	timestamp_add_now(TS_RO_VB_INIT);
 
-	// Set up the common param structure, not clearing shared data.
 	if (vboot_init_handoff())
 		halt();
 
