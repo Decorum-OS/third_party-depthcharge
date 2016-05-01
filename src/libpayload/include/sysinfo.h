@@ -54,8 +54,6 @@ struct sysinfo_t {
 
 	struct cb_header *header;
 
-	void		*vboot_handoff;
-	uint32_t	vboot_handoff_size;
 	void		*vdat_addr;
 	uint32_t	vdat_size;
 

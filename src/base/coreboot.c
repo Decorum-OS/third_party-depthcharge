@@ -78,9 +78,6 @@ static void cb_parse_vboot_handoff(unsigned char *ptr, struct sysinfo_t *info)
 	struct vboot_handoff *vboot_handoff =
 		(struct vboot_handoff *)(uintptr_t)vbho->range_start;
 
-	info->vboot_handoff = vboot_handoff;
-	info->vboot_handoff_size = vbho->range_size;
-
 	if (vbho->range_size != sizeof(struct vboot_handoff))
 		return;
 
