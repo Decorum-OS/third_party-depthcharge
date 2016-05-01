@@ -32,7 +32,7 @@
 #include "drivers/ec/cros/spi.h"
 #include "drivers/flash/spi.h"
 #include "drivers/gpio/exynos5420.h"
-#include "drivers/gpio/sysinfo.h"
+#include "drivers/gpio/fwdb.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/mkbp/keyboard.h"
 #include "drivers/power/exynos.h"
@@ -48,7 +48,7 @@
 
 static int board_setup(void)
 {
-	sysinfo_install_flags(NULL);
+	fwdb_install_flags(NULL, NULL, NULL);
 
 	fit_set_compat("google,pit-rev3");
 

@@ -35,8 +35,8 @@
 #include "drivers/dma/tegra_apb.h"
 #include "drivers/ec/cros/i2c.h"
 #include "drivers/flash/spi.h"
+#include "drivers/gpio/fwdb.h"
 #include "drivers/gpio/gpio.h"
-#include "drivers/gpio/sysinfo.h"
 #include "drivers/gpio/tegra210.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/power/gpio_reset.h"
@@ -125,11 +125,19 @@ PRIV_DYN(pwr_i2c, &new_tegra_i2c((void *)0x7000d000, 5,
 
 PRIV_DYN(pmic, &new_max77620_pmic(get_pwr_i2c(), 0x3c)->ops)
 
+// Lid always open for now.
+PRIV_DYN(lid_gpio, new_gpio_high())
+PRIV_DYN(power_gpio, &new_tegra_gpio_input(GPIO(X, 5))->ops)
+PRIV_DYN(power_gpio_n, new_gpio_not(get_power_gpio()))
+PRIV_DYN(ec_in_rw_gpio, &new_tegra_gpio_input(GPIO(E, 3))->ops)
+
 static int board_setup(void)
 {
 	flash_params_override();
 
-	sysinfo_install_flags(new_tegra_gpio_input_from_coreboot);
+	fwdb_install_flags(get_lid_gpio(),
+			   get_power_gpio_n(),
+			   get_ec_in_rw_gpio());
 
 	void *dma_channel_bases[32];
 	for (int i = 0; i < ARRAY_SIZE(dma_channel_bases); i++)
@@ -175,9 +183,6 @@ static int board_setup(void)
 	UsbHostController *usbd = new_usb_hc(UsbEhci, 0x7d000100);
 
 	list_insert_after(&usbd->list_node, &usb_host_controllers);
-
-	/* Lid always open for now. */
-	flag_replace(FLAG_LIDSW, new_gpio_high());
 
 	/* Audio init */
 	TegraAudioHubXbar *xbar = new_tegra_audio_hub_xbar(AXBAR_BASE);

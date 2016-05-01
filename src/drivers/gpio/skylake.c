@@ -342,8 +342,3 @@ GpioCfg *new_skylake_gpio_output(int gpio_num, unsigned value)
 
 	return gpio;
 }
-
-GpioOps *new_skylake_gpio_input_from_coreboot(uint32_t port)
-{
-	return &(new_skylake_gpio(port)->ops);
-}

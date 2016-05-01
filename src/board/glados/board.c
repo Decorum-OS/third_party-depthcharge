@@ -34,8 +34,8 @@
 #include "drivers/ec/cros/lpc.h"
 #include "drivers/flash/flash.h"
 #include "drivers/flash/memmapped.h"
+#include "drivers/gpio/fwdb.h"
 #include "drivers/gpio/skylake.h"
-#include "drivers/gpio/sysinfo.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/ps2.h"
 #include "drivers/power/pch.h"
@@ -59,9 +59,11 @@
 #define EMMC_CLOCK_MAX		200000000
 #define SD_CLOCK_MAX		52000000
 
+PRIV_DYN(ec_in_rw_gpio, &new_skylake_gpio_input(GPP_C6)->ops);
+
 static int board_setup(void)
 {
-	sysinfo_install_flags(new_skylake_gpio_input_from_coreboot);
+	fwdb_install_flags(NULL, NULL, get_ec_in_rw_gpio());
 
 	/* MEC1322 Chrome EC */
 	CrosEcLpcBus *cros_ec_lpc_bus =

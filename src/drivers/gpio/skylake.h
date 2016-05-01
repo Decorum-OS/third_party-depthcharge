@@ -446,6 +446,5 @@ typedef struct GpioCfg {
 GpioCfg *new_skylake_gpio(int gpio_num);
 GpioCfg *new_skylake_gpio_input(int gpio_num);
 GpioCfg *new_skylake_gpio_output(int gpio_num, unsigned value);
-GpioOps *new_skylake_gpio_input_from_coreboot(uint32_t port);
 
 #endif /* __DRIVERS_GPIO_SKYLAKE_H__ */

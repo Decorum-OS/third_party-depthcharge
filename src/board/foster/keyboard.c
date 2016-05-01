@@ -27,7 +27,7 @@
 #include "base/algorithm.h"
 #include "base/die.h"
 #include "board/board_helpers.h"
-#include "drivers/gpio/sysinfo.h"
+#include "drivers/gpio/fwdb.h"
 #include "drivers/gpio/tegra210.h"
 #include "drivers/keyboard/pseudo/keyboard.h"
 

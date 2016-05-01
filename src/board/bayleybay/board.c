@@ -27,7 +27,7 @@
 #include "board/board_helpers.h"
 #include "drivers/flash/flash.h"
 #include "drivers/flash/memmapped.h"
-#include "drivers/gpio/sysinfo.h"
+#include "drivers/gpio/fwdb.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/ps2.h"
 #include "drivers/power/pch.h"
@@ -38,7 +38,7 @@
 
 static int board_setup(void)
 {
-	sysinfo_install_flags(NULL);
+	fwdb_install_flags(NULL, NULL, NULL);
 
 	flash_set_ops(&new_mem_mapped_flash(0xff800000, 0x800000)->ops);
 

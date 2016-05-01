@@ -28,8 +28,8 @@
 #include "board/board_helpers.h"
 #include "drivers/flash/flash.h"
 #include "drivers/flash/memmapped.h"
+#include "drivers/gpio/fwdb.h"
 #include "drivers/gpio/lynxpoint_lp.h"
-#include "drivers/gpio/sysinfo.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/ps2.h"
 #include "drivers/power/pch.h"
@@ -44,7 +44,7 @@
 
 static int board_setup(void)
 {
-	sysinfo_install_flags(NULL);
+	fwdb_install_flags(NULL, NULL, NULL);
 
 	// Read the current value of the recovery button instead of the
 	// value passed by coreboot.

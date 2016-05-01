@@ -33,7 +33,7 @@
 #include "drivers/flash/flash.h"
 #include "drivers/flash/memmapped.h"
 #include "drivers/gpio/baytrail.h"
-#include "drivers/gpio/sysinfo.h"
+#include "drivers/gpio/fwdb.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/ps2.h"
 #include "drivers/power/pch.h"
@@ -59,7 +59,7 @@ static const int sd_clock_max = 52 * 1000 * 1000;
 static int board_setup(void)
 {
 	device_nvs_t *nvs = lib_sysinfo.acpi_gnvs + DEVICE_NVS_OFFSET;
-	sysinfo_install_flags(NULL);
+	fwdb_install_flags(NULL, NULL, NULL);
 
 #if CONFIG_DRIVER_EC_CROS
   #if CONFIG_DRIVER_EC_CROS_LPC

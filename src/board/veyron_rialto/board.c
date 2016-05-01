@@ -33,8 +33,8 @@
 #include "drivers/bus/spi/rockchip.h"
 #include "drivers/bus/usb/usb.h"
 #include "drivers/flash/spi.h"
+#include "drivers/gpio/fwdb.h"
 #include "drivers/gpio/rockchip.h"
-#include "drivers/gpio/sysinfo.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/power/gpio_reset.h"
 #include "drivers/power/rk808.h"
@@ -143,6 +143,11 @@ PRIV_DYN(pmic, &new_rk808_pmic(get_i2c0(), 0x1b)->ops)
 PRIV_DYN(recovery_gpio, &new_rk_gpio_input(GPIO(7, B, 1))->ops)
 PRIV_DYN(recovery_gpio_n, new_gpio_not(get_recovery_gpio()))
 
+PRIV_DYN(lid_gpio, &new_rk_gpio_input(GPIO(0, A, 6))->ops)
+PRIV_DYN(power_gpio, &new_rk_gpio_input(GPIO(0, A, 5))->ops)
+PRIV_DYN(power_gpio_n, new_gpio_not(get_power_gpio()))
+PRIV_DYN(ec_in_rw_gpio, &new_rk_gpio_input(GPIO(0, A, 7))->ops)
+
 static int board_setup(void)
 {
 	RialtoDisplayOps *leds;
@@ -150,7 +155,9 @@ static int board_setup(void)
 	RkSpi *spi2 = new_rockchip_spi(0xff130000);
 	flash_set_ops(&new_spi_flash(&spi2->ops)->ops);
 
-	sysinfo_install_flags(new_rk_gpio_input_from_coreboot);
+	fwdb_install_flags(get_lid_gpio(),
+			   get_power_gpio_n(),
+			   get_ec_in_rw_gpio());
 
 	RkI2c *i2c1 = new_rockchip_i2c((void *)0xff140000);
 	tpm_set_ops(&new_slb9635_i2c(&i2c1->ops, 0x20)->base.ops);

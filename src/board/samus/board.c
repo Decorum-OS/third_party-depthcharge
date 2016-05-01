@@ -38,8 +38,8 @@
 #include "drivers/ec/cros/lpc.h"
 #include "drivers/flash/flash.h"
 #include "drivers/flash/memmapped.h"
+#include "drivers/gpio/fwdb.h"
 #include "drivers/gpio/lynxpoint_lp.h"
-#include "drivers/gpio/sysinfo.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/ps2.h"
 #include "drivers/power/pch.h"
@@ -92,7 +92,7 @@ static BdwI2s *i2s_enable(int ssp)
 
 static int board_setup(void)
 {
-	sysinfo_install_flags(NULL);
+	fwdb_install_flags(NULL, NULL, NULL);
 
 	LpPchGpio *ec_in_rw = new_lp_pch_gpio_input(25);
 	flag_install(FLAG_ECINRW, &ec_in_rw->ops);

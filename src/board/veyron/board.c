@@ -31,8 +31,8 @@
 #include "drivers/bus/usb/usb.h"
 #include "drivers/ec/cros/spi.h"
 #include "drivers/flash/spi.h"
+#include "drivers/gpio/fwdb.h"
 #include "drivers/gpio/rockchip.h"
-#include "drivers/gpio/sysinfo.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/mkbp/keyboard.h"
 #include "drivers/power/gpio_reset.h"
@@ -58,6 +58,11 @@ PRIV_DYN(backlight_gpio, &new_rk_gpio_output(GPIO(7, A, 2))->ops)
 PRIV_DYN(ec_int_gpio, &new_rk_gpio_input(GPIO(7, A, 7))->ops)
 PRIV_DYN(ec_int_gpio_n, new_gpio_not(get_ec_int_gpio()))
 
+PRIV_DYN(lid_gpio, &new_rk_gpio_input(GPIO(0, A, 6))->ops)
+PRIV_DYN(power_gpio, &new_rk_gpio_input(GPIO(0, A, 5))->ops)
+PRIV_DYN(power_gpio_n, new_gpio_not(get_power_gpio()))
+PRIV_DYN(ec_in_rw_gpio, &new_rk_gpio_input(GPIO(0, A, 7))->ops)
+
 static int board_setup(void)
 {
 	RkSpi *spi2 = new_rockchip_spi(0xff130000);
@@ -67,7 +72,9 @@ static int board_setup(void)
 	cros_ec_set_bus(&new_cros_ec_spi_bus(&spi0->ops)->ops);
 	cros_ec_set_interrupt_gpio(get_ec_int_gpio_n());
 
-	sysinfo_install_flags(new_rk_gpio_input_from_coreboot);
+	fwdb_install_flags(get_lid_gpio(),
+			   get_power_gpio_n(),
+			   get_ec_in_rw_gpio());
 
 	RkI2c *i2c1 = new_rockchip_i2c((void *)0xff140000);
 	tpm_set_ops(&new_slb9635_i2c(&i2c1->ops, 0x20)->base.ops);

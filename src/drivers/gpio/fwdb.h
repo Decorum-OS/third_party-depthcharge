@@ -20,17 +20,13 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __DRIVERS_GPIO_SYSINFO_H__
-#define __DRIVERS_GPIO_SYSINFO_H__
+#ifndef __DRIVERS_GPIO_FWDB_H__
+#define __DRIVERS_GPIO_FWDB_H__
 
 #include <libpayload.h>
 
 #include "drivers/gpio/gpio.h"
 
-typedef GpioOps *(*new_gpio_from_coreboot_t)(uint32_t port);
+void fwdb_install_flags(GpioOps *lid, GpioOps *power, GpioOps *ec_in_rw);
 
-GpioOps *sysinfo_lookup_gpio(const char *name, int resample_at_runtime,
-			      new_gpio_from_coreboot_t new_gpio_from_coreboot);
-void sysinfo_install_flags(new_gpio_from_coreboot_t new_gpio_input_from_cb);
-
-#endif /* __DRIVERS_GPIO_SYSINFO_H__ */
+#endif /* __DRIVERS_GPIO_FWDB_H__ */

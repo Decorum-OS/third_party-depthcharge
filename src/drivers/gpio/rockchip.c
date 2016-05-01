@@ -57,11 +57,6 @@ static int rk_gpio_set_value(GpioOps *me, unsigned value)
 	return 0;
 }
 
-GpioOps *new_rk_gpio_input_from_coreboot(uint32_t port)
-{
-	return &new_rk_gpio_input((RkGpioSpec)port)->ops;
-}
-
 RkGpio *new_rk_gpio_input(RkGpioSpec gpioindex)
 {
 	RkGpio *gpio = xzalloc(sizeof(*gpio));

@@ -287,7 +287,6 @@ typedef struct TegraGpio
 #define GPIO(port, index)	\
 		GPIO_##port, index, PINMUX_GPIO_##port##index
 
-GpioOps *new_tegra_gpio_input_from_coreboot(uint32_t port);
 TegraGpio *new_tegra_gpio_input(TegraGpioPort port, unsigned index,
 				unsigned pinmux);
 TegraGpio *new_tegra_gpio_output(TegraGpioPort port, unsigned index,

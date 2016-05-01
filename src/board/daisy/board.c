@@ -34,7 +34,7 @@
 #include "drivers/ec/cros/i2c.h"
 #include "drivers/flash/spi.h"
 #include "drivers/gpio/exynos5250.h"
-#include "drivers/gpio/sysinfo.h"
+#include "drivers/gpio/fwdb.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/mkbp/keyboard.h"
 #include "drivers/power/exynos.h"
@@ -52,7 +52,7 @@ static uint32_t *i2c_cfg = (uint32_t *)(0x10050000 + 0x234);
 
 static int board_setup(void)
 {
-	sysinfo_install_flags(NULL);
+	fwdb_install_flags(NULL, NULL, NULL);
 
 	fit_set_compat("google,snow");
 

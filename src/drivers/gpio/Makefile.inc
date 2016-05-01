@@ -15,8 +15,8 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
+depthcharge-y += fwdb.c
 depthcharge-y += gpio.c
-depthcharge-y += sysinfo.c
 
 depthcharge-$(CONFIG_DRIVER_GPIO_BAYTRAIL) += baytrail.c
 depthcharge-$(CONFIG_DRIVER_GPIO_EXYNOS5250) += exynos5250.c

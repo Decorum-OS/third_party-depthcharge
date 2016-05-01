@@ -37,8 +37,8 @@
 #include "drivers/dma/tegra_apb.h"
 #include "drivers/ec/cros/spi.h"
 #include "drivers/flash/spi.h"
+#include "drivers/gpio/fwdb.h"
 #include "drivers/gpio/gpio.h"
-#include "drivers/gpio/sysinfo.h"
 #include "drivers/gpio/tegra.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/mkbp/keyboard.h"
@@ -132,9 +132,13 @@ PRIV_DYN(pwr_i2c, &new_tegra_i2c((void *)0x7000d000, 5,
 
 PRIV_DYN(pmic, new_as3722_pmic(get_pwr_i2c(), 0x40))
 
+PRIV_DYN(lid_gpio, &new_tegra_gpio_input(GPIO(R, 4))->ops)
+PRIV_DYN(power_gpio, &new_tegra_gpio_input(GPIO(Q, 0))->ops)
+PRIV_DYN(power_gpio_n, new_gpio_not(get_power_gpio()))
+
 static int board_setup(void)
 {
-	sysinfo_install_flags(new_tegra_gpio_input_from_coreboot);
+	fwdb_install_flags(get_lid_gpio(), get_power_gpio_n(), NULL);
 
         choose_devicetree_by_boardid();
 
