@@ -104,14 +104,34 @@ static void cb_parse_vbnv(unsigned char *ptr, struct sysinfo_t *info)
 
 static void cb_parse_gpios(unsigned char *ptr, struct sysinfo_t *info)
 {
-	int i;
 	struct cb_gpios *gpios = (struct cb_gpios *)ptr;
 
 	info->num_gpios = (gpios->count < SYSINFO_MAX_GPIOS) ?
 				(gpios->count) : SYSINFO_MAX_GPIOS;
 
-	for (i = 0; i < info->num_gpios; i++)
+	for (int i = 0; i < info->num_gpios; i++)
 		info->gpios[i] = gpios->gpios[i];
+
+	const char prefix[] = "gpio.";
+	char name_buf[sizeof(prefix) + sizeof(gpios->gpios[0].name)];
+	memset(name_buf, 0, sizeof(name_buf));
+	memcpy(name_buf, prefix, sizeof(prefix));
+	char *suffix_ptr = &name_buf[sizeof(prefix) - 1];
+
+	for (int i = 0; i < gpios->count; i++) {
+		struct cb_gpio *gpio = &gpios->gpios[i];
+
+		uint8_t val = gpio->value;
+		if (gpio->polarity == CB_GPIO_ACTIVE_LOW)
+			val = !val;
+
+		FwdbEntry gpio_entry = {
+			.ptr = &val,
+			.size = sizeof(val),
+		};
+		memcpy(suffix_ptr, gpio->name, sizeof(gpio->name));
+		fwdb_access(name_buf, NULL, &gpio_entry);
+	}
 }
 
 static void cb_parse_vdat(unsigned char *ptr, struct sysinfo_t *info)
