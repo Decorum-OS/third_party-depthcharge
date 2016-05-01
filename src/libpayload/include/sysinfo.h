@@ -30,8 +30,6 @@
 
 /* Maximum number of memory range definitions. */
 #define SYSINFO_MAX_MEM_RANGES 32
-/* Allow a maximum of 8 GPIOs */
-#define SYSINFO_MAX_GPIOS 8
 
 #include <coreboot_tables.h>
 
@@ -48,9 +46,6 @@ struct sysinfo_t {
 	uint32_t vbnv_size;
 
 	struct cb_framebuffer *framebuffer;
-
-	int num_gpios;
-	struct cb_gpio gpios[SYSINFO_MAX_GPIOS];
 
 	struct cb_header *header;
 

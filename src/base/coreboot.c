@@ -106,12 +106,6 @@ static void cb_parse_gpios(unsigned char *ptr, struct sysinfo_t *info)
 {
 	struct cb_gpios *gpios = (struct cb_gpios *)ptr;
 
-	info->num_gpios = (gpios->count < SYSINFO_MAX_GPIOS) ?
-				(gpios->count) : SYSINFO_MAX_GPIOS;
-
-	for (int i = 0; i < info->num_gpios; i++)
-		info->gpios[i] = gpios->gpios[i];
-
 	const char prefix[] = "gpio.";
 	char name_buf[sizeof(prefix) + sizeof(gpios->gpios[0].name)];
 	memset(name_buf, 0, sizeof(name_buf));
