@@ -32,6 +32,9 @@
 #include <stdlib.h>
 #include <sysinfo.h>
 
+#include "base/fwdb.h"
+#include "vboot/util/vboot_handoff.h"
+
 struct sysinfo_t lib_sysinfo;
 
 /*
@@ -72,9 +75,26 @@ static void cb_parse_memory(void *ptr, struct sysinfo_t *info)
 static void cb_parse_vboot_handoff(unsigned char *ptr, struct sysinfo_t *info)
 {
 	struct lb_range *vbho = (struct lb_range *)ptr;
+	struct vboot_handoff *vboot_handoff =
+		(struct vboot_handoff *)(uintptr_t)vbho->range_start;
 
-	info->vboot_handoff = (void *)(uintptr_t)vbho->range_start;
+	info->vboot_handoff = vboot_handoff;
 	info->vboot_handoff_size = vbho->range_size;
+
+	if (vbho->range_size != sizeof(struct vboot_handoff))
+		return;
+
+	FwdbEntry shared_data = {
+		.ptr = &vboot_handoff->shared_data[0],
+		.size = ARRAY_SIZE(vboot_handoff->shared_data),
+	};
+	fwdb_access("vboot.shared_data", NULL, &shared_data);
+
+	FwdbEntry init_params = {
+		.ptr = &vboot_handoff->init_params,
+		.size = sizeof(vboot_handoff->init_params),
+	};
+	fwdb_access("vboot.handoff.init_params", NULL, &init_params);
 }
 
 static void cb_parse_vbnv(unsigned char *ptr, struct sysinfo_t *info)
