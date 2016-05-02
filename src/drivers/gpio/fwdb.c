@@ -20,50 +20,86 @@
  * MA 02111-1307 USA
  */
 
-#include <assert.h>
-#include <libpayload.h>
-#include <sysinfo.h>
-
+#include "base/container_of.h"
 #include "base/die.h"
 #include "base/fwdb.h"
 #include "drivers/gpio/fwdb.h"
 #include "vboot/util/flag.h"
 
-GpioOps *fwdb_lookup_gpio(const char *name)
+static int fwdb_gpio_get(GpioOps *me)
 {
-	FwdbEntry gpio_entry;
-	if (fwdb_access(name, &gpio_entry, NULL)) {
-		printf("coreboot did not sample '%s' GPIO!\n", name);
-		return NULL;
+	FwdbGpio *gpio = container_of(me, FwdbGpio, ops);
+	if (!gpio->value) {
+		FwdbEntry entry;
+		die_if(fwdb_access(gpio->name, &entry, NULL),
+		       "No FWDB entry for GPIO %s.\n", gpio->name);
+
+		die_if(entry.size != sizeof(uint8_t),
+		       "GPIO entry is the wrong size.");
+		gpio->value = *(uint8_t *)entry.ptr + 1;
 	}
-
-	uint8_t value;
-	die_if(gpio_entry.size != sizeof(value),
-		"GPIO entry is the wrong size.");
-	value = *(uint8_t *)gpio_entry.ptr;
-
-	return value ? new_gpio_high() : new_gpio_low();
+	return gpio->value - 1;
 }
+
+FwdbGpio fwdb_gpio_wpsw = {
+	.ops = {
+		.get = &fwdb_gpio_get,
+	},
+	.name = "gpio.write protect",
+};
+
+FwdbGpio fwdb_gpio_recsw = {
+	.ops = {
+		.get = &fwdb_gpio_get,
+	},
+	.name = "gpio.recovery",
+};
+
+FwdbGpio fwdb_gpio_devsw = {
+	.ops = {
+		.get = &fwdb_gpio_get,
+	},
+	.name = "gpio.developer",
+};
+
+FwdbGpio fwdb_gpio_oprom = {
+	.ops = {
+		.get = &fwdb_gpio_get,
+	},
+	.name = "gpio.oprom",
+};
+
+FwdbGpio fwdb_gpio_lidsw = {
+	.ops = {
+		.get = &fwdb_gpio_get,
+	},
+	.name = "gpio.lid",
+};
+
+FwdbGpio fwdb_gpio_pwrsw = {
+	.ops = {
+		.get = &fwdb_gpio_get,
+	},
+	.name = "gpio.power",
+};
+
+FwdbGpio fwdb_gpio_ecinrw = {
+	.ops = {
+		.get = &fwdb_gpio_get,
+	},
+	.name = "gpio.EC in RW",
+};
 
 void fwdb_install_flags(GpioOps *lid, GpioOps *power, GpioOps *ec_in_rw)
 {
 	// If a GPIO is not defined, we will just flag_install() a NULL, which
 	// will only hit a die_if() if that flag is actually flag_fetch()ed.
-	flag_install(FLAG_WPSW, fwdb_lookup_gpio("gpio.write protect"));
-	flag_install(FLAG_RECSW, fwdb_lookup_gpio("gpio.recovery"));
-	flag_install(FLAG_DEVSW, fwdb_lookup_gpio("gpio.developer"));
-	flag_install(FLAG_OPROM, fwdb_lookup_gpio("gpio.oprom"));
+	flag_install(FLAG_WPSW, &fwdb_gpio_wpsw.ops);
+	flag_install(FLAG_RECSW, &fwdb_gpio_recsw.ops);
+	flag_install(FLAG_DEVSW, &fwdb_gpio_devsw.ops);
+	flag_install(FLAG_OPROM, &fwdb_gpio_oprom.ops);
 
-	if (lid)
-		flag_install(FLAG_LIDSW, lid);
-	else
-		flag_install(FLAG_LIDSW, fwdb_lookup_gpio("gpio.lid"));
-	if (power)
-		flag_install(FLAG_PWRSW, power);
-	else
-		flag_install(FLAG_PWRSW, fwdb_lookup_gpio("gpio.power"));
-	if (ec_in_rw)
-		flag_install(FLAG_ECINRW, ec_in_rw);
-	else
-		flag_install(FLAG_ECINRW, fwdb_lookup_gpio("gpio.EC in RW"));
+	flag_install(FLAG_LIDSW, lid ? lid : &fwdb_gpio_lidsw.ops);
+	flag_install(FLAG_PWRSW, power ? power : &fwdb_gpio_pwrsw.ops);
+	flag_install(FLAG_ECINRW, ec_in_rw ? ec_in_rw : &fwdb_gpio_ecinrw.ops);
 }

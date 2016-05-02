@@ -23,9 +23,22 @@
 #ifndef __DRIVERS_GPIO_FWDB_H__
 #define __DRIVERS_GPIO_FWDB_H__
 
-#include <libpayload.h>
-
 #include "drivers/gpio/gpio.h"
+
+typedef struct {
+	GpioOps ops;
+
+	const char *name;
+	int value;
+} FwdbGpio;
+
+extern FwdbGpio fwdb_gpio_wpsw;
+extern FwdbGpio fwdb_gpio_recsw;
+extern FwdbGpio fwdb_gpio_devsw;
+extern FwdbGpio fwdb_gpio_oprom;
+extern FwdbGpio fwdb_gpio_lidsw;
+extern FwdbGpio fwdb_gpio_pwrsw;
+extern FwdbGpio fwdb_gpio_ecinrw;
 
 void fwdb_install_flags(GpioOps *lid, GpioOps *power, GpioOps *ec_in_rw);
 

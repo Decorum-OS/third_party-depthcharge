@@ -45,10 +45,8 @@
 
 static int board_setup(void)
 {
-	fwdb_install_flags(NULL, NULL, NULL);
-
 	PchGpio *ec_in_rw = new_pantherpoint_gpio_input(0, 21);
-	flag_install(FLAG_ECINRW, &ec_in_rw->ops);
+	fwdb_install_flags(NULL, NULL, &ec_in_rw->ops);
 
 	CrosEcLpcBus *cros_ec_lpc_bus =
 		new_cros_ec_lpc_bus(CROS_EC_LPC_BUS_GENERIC);
