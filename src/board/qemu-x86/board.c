@@ -32,3 +32,11 @@ PUB_DYN(debug_uart, &new_uart_8250_io(0x3f8)->uart.ops)
 
 PUB_ARR(trusted_keyboards, &new_ps2_keyboard()->ops)
 PUB_ARR(untrusted_keyboards, (KeyboardOps *)NULL)
+
+PUB_STAT(flag_write_protect, 1)
+PUB_STAT(flag_recovery, 0)
+PUB_STAT(flag_developer_mode, 1)
+PUB_STAT(flag_option_roms_loaded, 0)
+PUB_STAT(flag_lid_open, 1)
+PUB_STAT(flag_power, 0)
+PUB_STAT(flag_ec_in_rw, 0)

@@ -28,12 +28,12 @@
 #include <vboot_struct.h>
 
 #include "base/algorithm.h"
+#include "board/board.h"
 #include "image/fmap.h"
 #include "vboot/crossystem/crossystem.h"
 #include "vboot/firmware_id.h"
 #include "vboot/util/acpi.h"
 #include "vboot/util/commonparams.h"
-#include "vboot/util/flag.h"
 #include "vboot/util/gbb.h"
 #include "vboot/util/vboot_handoff.h"
 
@@ -96,11 +96,11 @@ int crossystem_setup(void)
 	}
 
 	uint16_t chsw = 0;
-	if (flag_fetch(FLAG_WPSW))
+	if (board_flag_write_protect())
 		chsw |= CHSW_FIRMWARE_WP_DIS;
-	if (flag_fetch(FLAG_RECSW))
+	if (board_flag_recovery())
 		chsw |= CHSW_RECOVERY_X86;
-	if (flag_fetch(FLAG_DEVSW))
+	if (board_flag_developer_mode())
 		chsw |= CHSW_DEVELOPER_SWITCH;
 	acpi_table->chsw = chsw;
 

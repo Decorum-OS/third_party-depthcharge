@@ -24,7 +24,6 @@
 #include "base/die.h"
 #include "base/fwdb.h"
 #include "drivers/gpio/fwdb.h"
-#include "vboot/util/flag.h"
 
 static int fwdb_gpio_get(GpioOps *me)
 {
@@ -89,17 +88,3 @@ FwdbGpio fwdb_gpio_ecinrw = {
 	},
 	.name = "gpio.EC in RW",
 };
-
-void fwdb_install_flags(GpioOps *lid, GpioOps *power, GpioOps *ec_in_rw)
-{
-	// If a GPIO is not defined, we will just flag_install() a NULL, which
-	// will only hit a die_if() if that flag is actually flag_fetch()ed.
-	flag_install(FLAG_WPSW, &fwdb_gpio_wpsw.ops);
-	flag_install(FLAG_RECSW, &fwdb_gpio_recsw.ops);
-	flag_install(FLAG_DEVSW, &fwdb_gpio_devsw.ops);
-	flag_install(FLAG_OPROM, &fwdb_gpio_oprom.ops);
-
-	flag_install(FLAG_LIDSW, lid ? lid : &fwdb_gpio_lidsw.ops);
-	flag_install(FLAG_PWRSW, power ? power : &fwdb_gpio_pwrsw.ops);
-	flag_install(FLAG_ECINRW, ec_in_rw ? ec_in_rw : &fwdb_gpio_ecinrw.ops);
-}

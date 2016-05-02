@@ -58,4 +58,31 @@ KeyboardOps **board_untrusted_keyboards(void);
 
 PowerOps *board_power(void);
 
+/*
+ * This group of functions gather information about the state of the system
+ * which may be physically implemented by GPIOs, information gathered from
+ * various components of the system like the EC, representing the state of
+ * software, or even just made up entirely.
+ *
+ * They should return a 1 if the flag is on, enabled, applicable, etc., a 0
+ * if not, and a -1 if there was an error retrieving or calculating the flags
+ * value.
+ */
+// Whether write protect was enabled at boot time.
+int board_flag_write_protect(void);
+// Whether recovery mode was requested.
+int board_flag_recovery(void);
+// Whether developer mode was requested/enabled.
+int board_flag_developer_mode(void);
+// Whether video option ROMs have been loaded.
+int board_flag_option_roms_loaded(void);
+// If the "lid" is open on a laptop like device.
+int board_flag_lid_open(void);
+// If the power button (or equivalent) is pressed, and the user is requesting
+// a shutdown.
+int board_flag_power(void);
+// Whether the EC is running the RW portion of its firmware.
+int board_flag_ec_in_rw(void);
+
+
 #endif /* __BOARD_BOARD_H__ */

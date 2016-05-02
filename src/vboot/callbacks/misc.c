@@ -24,22 +24,21 @@
 #include <stdio.h>
 #include <vboot_api.h>
 
+#include "base/die.h"
+#include "board/board.h"
 #include "drivers/flash/flash.h"
 #include "image/fmap.h"
-#include "vboot/util/flag.h"
 
 uint32_t VbExIsShutdownRequested(void)
 {
-	int lidsw = flag_fetch(FLAG_LIDSW);
-	int pwrsw = flag_fetch(FLAG_PWRSW);
+	int lidsw = board_flag_lid_open();
+	int pwrsw = board_flag_power();
+
+	// There isn't any way to return an error, so just die.
+	die_if(lidsw < 0 || pwrsw < 0,
+	       "Failed to fetch lid or power switch flag.\n");
+
 	uint32_t shutdown_request = 0;
-
-	if (lidsw < 0 || pwrsw < 0) {
-		// There isn't any way to return an error, so just hang.
-		printf("Failed to fetch lid or power switch flag.\n");
-		halt();
-	}
-
 	if (!lidsw) {
 		printf("Lid is closed.\n");
 		shutdown_request |= VB_SHUTDOWN_REQUEST_LID_CLOSED;

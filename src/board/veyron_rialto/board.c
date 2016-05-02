@@ -34,6 +34,7 @@
 #include "drivers/bus/usb/usb.h"
 #include "drivers/flash/spi.h"
 #include "drivers/gpio/fwdb.h"
+#include "drivers/gpio/gpio.h"
 #include "drivers/gpio/rockchip.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/power/gpio_reset.h"
@@ -44,7 +45,6 @@
 #include "drivers/tpm/tpm.h"
 #include "drivers/uart/8250.h"
 #include "drivers/video/display.h"
-#include "vboot/util/flag.h"
 
 typedef struct {
 	DisplayOps ops;
@@ -141,12 +141,18 @@ PRIV_DYN(i2c0, &new_rockchip_i2c((void *)0xff650000)->ops)
 PRIV_DYN(pmic, &new_rk808_pmic(get_i2c0(), 0x1b)->ops)
 
 PRIV_DYN(recovery_gpio, &new_rk_gpio_input(GPIO(7, B, 1))->ops)
-PRIV_DYN(recovery_gpio_n, new_gpio_not(get_recovery_gpio()))
-
-PRIV_DYN(lid_gpio, &new_rk_gpio_input(GPIO(0, A, 6))->ops)
 PRIV_DYN(power_gpio, &new_rk_gpio_input(GPIO(0, A, 5))->ops)
-PRIV_DYN(power_gpio_n, new_gpio_not(get_power_gpio()))
 PRIV_DYN(ec_in_rw_gpio, &new_rk_gpio_input(GPIO(0, A, 7))->ops)
+PRIV_DYN(reset_gpio, &new_rk_gpio_output(GPIO(0, B, 5))->ops)
+
+PUB_STAT(flag_write_protect, gpio_get(&fwdb_gpio_wpsw.ops))
+PUB_STAT(flag_recovery, !gpio_get(get_recovery_gpio()))
+PUB_STAT(flag_developer_mode, gpio_get(&fwdb_gpio_devsw.ops))
+PUB_STAT(flag_option_roms_loaded, gpio_get(&fwdb_gpio_oprom.ops))
+// Lid always open for now.
+PUB_STAT(flag_lid_open, 1)
+PUB_STAT(flag_power, !gpio_get(get_power_gpio()))
+PUB_STAT(flag_ec_in_rw, gpio_get(get_ec_in_rw_gpio()))
 
 static int board_setup(void)
 {
@@ -154,10 +160,6 @@ static int board_setup(void)
 
 	RkSpi *spi2 = new_rockchip_spi(0xff130000);
 	flash_set_ops(&new_spi_flash(&spi2->ops)->ops);
-
-	fwdb_install_flags(get_lid_gpio(),
-			   get_power_gpio_n(),
-			   get_ec_in_rw_gpio());
 
 	RkI2c *i2c1 = new_rockchip_i2c((void *)0xff140000);
 	tpm_set_ops(&new_slb9635_i2c(&i2c1->ops, 0x20)->base.ops);
@@ -175,19 +177,10 @@ static int board_setup(void)
 	UsbHostController *usb_otg = new_usb_hc(UsbDwc2, 0xff580000);
 	list_insert_after(&usb_otg->list_node, &usb_host_controllers);
 
-	// Read the current value of the recovery button for confirmation
-	// when transitioning between normal and dev mode.
-	flag_replace(FLAG_RECSW, get_recovery_gpio_n());
-
-	/* Lid always open for now. */
-	flag_replace(FLAG_LIDSW, new_gpio_high());
-
 	ramoops_buffer(0x31f00000, 0x100000, 0x20000);
 
 	return 0;
 }
-
-PRIV_DYN(reset_gpio, &new_rk_gpio_output(GPIO(0, B, 5))->ops)
 
 PUB_DYN(power, &new_gpio_reset_power_ops(get_pmic(), get_reset_gpio())->ops)
 

@@ -29,6 +29,7 @@
 #include "drivers/flash/flash.h"
 #include "drivers/flash/memmapped.h"
 #include "drivers/gpio/fwdb.h"
+#include "drivers/gpio/gpio.h"
 #include "drivers/gpio/lynxpoint_lp.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/ps2.h"
@@ -40,17 +41,19 @@
 #include "drivers/tpm/lpc.h"
 #include "drivers/tpm/tpm.h"
 #include "drivers/uart/8250.h"
-#include "vboot/util/flag.h"
+
+PRIV_DYN(recovery_gpio, &new_lp_pch_gpio_input(12)->ops)
+
+PUB_STAT(flag_write_protect, gpio_get(&fwdb_gpio_wpsw.ops))
+PUB_STAT(flag_recovery, !gpio_get(get_recovery_gpio()))
+PUB_STAT(flag_developer_mode, gpio_get(&fwdb_gpio_devsw.ops))
+PUB_STAT(flag_option_roms_loaded, gpio_get(&fwdb_gpio_oprom.ops))
+PUB_STAT(flag_lid_open, gpio_get(&fwdb_gpio_lidsw.ops))
+PUB_STAT(flag_power, gpio_get(&fwdb_gpio_pwrsw.ops))
+PUB_STAT(flag_ec_in_rw, gpio_get(&fwdb_gpio_ecinrw.ops))
 
 static int board_setup(void)
 {
-	fwdb_install_flags(NULL, NULL, NULL);
-
-	// Read the current value of the recovery button instead of the
-	// value passed by coreboot.
-	LpPchGpio *rec_gpio = new_lp_pch_gpio_input(12);
-	flag_replace(FLAG_RECSW, new_gpio_not(&rec_gpio->ops));
-
 	flash_set_ops(&new_mem_mapped_flash(0xff800000, 0x800000)->ops);
 
 	sound_set_ops(&new_pcat_beep()->ops);

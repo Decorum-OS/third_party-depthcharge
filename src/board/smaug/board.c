@@ -50,7 +50,6 @@
 #include "drivers/uart/8250.h"
 #include "drivers/video/display.h"
 #include "drivers/video/tegra132.h"
-#include "vboot/util/flag.h"
 
 #define AXBAR_BASE		0x702D0800
 #define ADMAIF_BASE		0x702D0000
@@ -125,19 +124,21 @@ PRIV_DYN(pwr_i2c, &new_tegra_i2c((void *)0x7000d000, 5,
 
 PRIV_DYN(pmic, &new_max77620_pmic(get_pwr_i2c(), 0x3c)->ops)
 
-// Lid always open for now.
-PRIV_DYN(lid_gpio, new_gpio_high())
 PRIV_DYN(power_gpio, &new_tegra_gpio_input(GPIO(X, 5))->ops)
-PRIV_DYN(power_gpio_n, new_gpio_not(get_power_gpio()))
 PRIV_DYN(ec_in_rw_gpio, &new_tegra_gpio_input(GPIO(E, 3))->ops)
+
+PUB_STAT(flag_write_protect, gpio_get(&fwdb_gpio_wpsw.ops))
+PUB_STAT(flag_recovery, gpio_get(&fwdb_gpio_recsw.ops))
+PUB_STAT(flag_developer_mode, gpio_get(&fwdb_gpio_devsw.ops))
+PUB_STAT(flag_option_roms_loaded, gpio_get(&fwdb_gpio_oprom.ops))
+// Lid always open for now.
+PUB_STAT(flag_lid_open, 1)
+PUB_STAT(flag_power, !gpio_get(get_power_gpio()))
+PUB_STAT(flag_ec_in_rw, gpio_get(get_ec_in_rw_gpio()))
 
 static int board_setup(void)
 {
 	flash_params_override();
-
-	fwdb_install_flags(get_lid_gpio(),
-			   get_power_gpio_n(),
-			   get_ec_in_rw_gpio());
 
 	void *dma_channel_bases[32];
 	for (int i = 0; i < ARRAY_SIZE(dma_channel_bases); i++)

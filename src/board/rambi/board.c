@@ -35,6 +35,7 @@
 #include "drivers/flash/memmapped.h"
 #include "drivers/gpio/baytrail.h"
 #include "drivers/gpio/fwdb.h"
+#include "drivers/gpio/gpio.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/ps2.h"
 #include "drivers/power/pch.h"
@@ -44,7 +45,6 @@
 #include "drivers/storage/sdhci.h"
 #include "drivers/tpm/lpc.h"
 #include "drivers/uart/8250.h"
-#include "vboot/util/flag.h"
 
 /*
  * Clock frequencies for the eMMC and SD ports are defined below. The minimum
@@ -56,15 +56,20 @@ static const int emmc_sd_clock_min = 400 * 1000;
 static const int emmc_clock_max = 200 * 1000 * 1000;
 static const int sd_clock_max = 52 * 1000 * 1000;
 
+// ECRW GPIO: SCGPIO59
+PRIV_DYN(ec_in_rw_gpio, &new_baytrail_gpio_input(59 / 32, 59 % 32)->ops)
+
+PUB_STAT(flag_write_protect, gpio_get(&fwdb_gpio_wpsw.ops))
+PUB_STAT(flag_recovery, gpio_get(&fwdb_gpio_recsw.ops))
+PUB_STAT(flag_developer_mode, gpio_get(&fwdb_gpio_devsw.ops))
+PUB_STAT(flag_option_roms_loaded, gpio_get(&fwdb_gpio_oprom.ops))
+PUB_STAT(flag_lid_open, gpio_get(&fwdb_gpio_lidsw.ops))
+PUB_STAT(flag_power, gpio_get(&fwdb_gpio_pwrsw.ops))
+PUB_STAT(flag_ec_in_rw, gpio_get(get_ec_in_rw_gpio()))
+
 static int board_setup(void)
 {
 	device_nvs_t *nvs = lib_sysinfo.acpi_gnvs + DEVICE_NVS_OFFSET;
-
-	/* ECRW GPIO: SCGPIO59 */
-	PchGpio *ec_in_rw = new_baytrail_gpio_input(59 / 32,
-						    59 % 32);
-
-	fwdb_install_flags(NULL, NULL, &ec_in_rw->ops);
 
 	CrosEcLpcBus *cros_ec_lpc_bus =
 		new_cros_ec_lpc_bus(CROS_EC_LPC_BUS_GENERIC);

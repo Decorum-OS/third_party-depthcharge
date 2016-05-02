@@ -22,7 +22,6 @@
 
 #include <stdio.h>
 #include <vboot_api.h>
-#include <vboot/util/flag.h>
 
 #include "base/time.h"
 #include "debug/gdb/gdb.h"

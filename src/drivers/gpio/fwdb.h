@@ -40,6 +40,4 @@ extern FwdbGpio fwdb_gpio_lidsw;
 extern FwdbGpio fwdb_gpio_pwrsw;
 extern FwdbGpio fwdb_gpio_ecinrw;
 
-void fwdb_install_flags(GpioOps *lid, GpioOps *power, GpioOps *ec_in_rw);
-
 #endif /* __DRIVERS_GPIO_FWDB_H__ */

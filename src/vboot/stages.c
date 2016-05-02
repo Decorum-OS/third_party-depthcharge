@@ -28,6 +28,7 @@
 
 #include "base/power.h"
 #include "base/timestamp.h"
+#include "board/board.h"
 #include "boot/commandline.h"
 #include "drivers/flash/flash.h"
 #include "drivers/keyboard/keyboard.h"
@@ -41,7 +42,6 @@
 #include "vboot/crossystem/crossystem.h"
 #include "vboot/util/commonparams.h"
 #include "vboot/util/ec.h"
-#include "vboot/util/flag.h"
 #include "vboot/util/memory.h"
 #include "vboot/vbnv.h"
 
@@ -56,14 +56,13 @@ int vboot_init(void)
 		.flags = 0
 	};
 
-	int dev_switch = flag_fetch(FLAG_DEVSW);
-	int rec_switch = flag_fetch(FLAG_RECSW);
-	int wp_switch = flag_fetch(FLAG_WPSW);
-	int lid_switch = flag_fetch(FLAG_LIDSW);
+	int dev_switch = board_flag_developer_mode();
+	int rec_switch = board_flag_recovery();
+	int wp_switch = board_flag_write_protect();
+	int lid_switch = board_flag_lid_open();
 	int oprom_loaded = 0;
 	if (CONFIG_OPROM_MATTERS)
-		oprom_loaded = flag_fetch(FLAG_OPROM);
-
+		oprom_loaded = board_flag_option_roms_loaded();
 
 	printf("%s:%d dev %d, rec %d, wp %d, lid %d, oprom %d\n",
 	       __func__, __LINE__, dev_switch, rec_switch,

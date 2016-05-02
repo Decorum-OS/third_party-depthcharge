@@ -51,7 +51,6 @@
 #include "drivers/uart/8250.h"
 #include "drivers/video/display.h"
 #include "drivers/video/tegra132.h"
-#include "vboot/util/flag.h"
 
 enum {
 	CLK_RST_BASE = 0x60006000,
@@ -94,19 +93,23 @@ PRIV_DYN(pwr_i2c, &new_tegra_i2c((void *)0x7000d000, 5,
 
 PRIV_DYN(pmic, &new_tps65913_pmic(get_pwr_i2c(), 0x58)->ops)
 
-// Lid always open for now.
-PRIV_DYN(lid_gpio, new_gpio_high())
+PRIV_DYN(reset_gpio, &new_tegra_gpio_output(GPIO(I, 5))->ops)
+PRIV_DYN(reset_gpio_n, new_gpio_not(get_reset_gpio()))
+
 PRIV_DYN(power_gpio, &new_tegra_gpio_input(GPIO(Q, 0))->ops)
-PRIV_DYN(power_gpio_n, new_gpio_not(get_power_gpio()))
 PRIV_DYN(ec_in_rw_gpio, &new_tegra_gpio_input(GPIO(U, 4))->ops)
+
+PUB_STAT(flag_write_protect, gpio_get(&fwdb_gpio_wpsw.ops))
+PUB_STAT(flag_recovery, gpio_get(&fwdb_gpio_recsw.ops))
+PUB_STAT(flag_developer_mode, gpio_get(&fwdb_gpio_devsw.ops))
+PUB_STAT(flag_option_roms_loaded, gpio_get(&fwdb_gpio_oprom.ops))
+// Lid always open for now.
+PUB_STAT(flag_lid_open, 1)
+PUB_STAT(flag_power, (lib_sysinfo.board_id >= 2) ^ gpio_get(get_power_gpio()))
+PUB_STAT(flag_ec_in_rw, gpio_get(get_ec_in_rw_gpio()))
 
 static int board_setup(void)
 {
-	fwdb_install_flags(get_lid_gpio(),
-			   lib_sysinfo.board_id < 2 ?
-				get_power_gpio() : get_power_gpio_n(),
-			   get_ec_in_rw_gpio());
-
 	choose_devicetree_by_boardid();
 
 	void *dma_channel_bases[32];
@@ -245,9 +248,6 @@ static int display_setup(void)
 }
 
 INIT_FUNC(display_setup);
-
-PRIV_DYN(reset_gpio, &new_tegra_gpio_output(GPIO(I, 5))->ops)
-PRIV_DYN(reset_gpio_n, new_gpio_not(get_reset_gpio()))
 
 PUB_DYN(power, &new_gpio_reset_power_ops(get_pmic(), get_reset_gpio_n())->ops)
 

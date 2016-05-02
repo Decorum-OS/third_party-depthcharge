@@ -35,6 +35,7 @@
 #include "drivers/flash/flash.h"
 #include "drivers/flash/memmapped.h"
 #include "drivers/gpio/fwdb.h"
+#include "drivers/gpio/gpio.h"
 #include "drivers/gpio/skylake.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/ps2.h"
@@ -47,7 +48,6 @@
 #include "drivers/tpm/lpc.h"
 #include "drivers/tpm/tpm.h"
 #include "drivers/uart/8250.h"
-#include "vboot/util/flag.h"
 
 /*
  * Clock frequencies for the eMMC and SD ports are defined below. The minimum
@@ -61,10 +61,16 @@
 
 PRIV_DYN(ec_in_rw_gpio, &new_skylake_gpio_input(GPP_C6)->ops);
 
+PUB_STAT(flag_write_protect, gpio_get(&fwdb_gpio_wpsw.ops))
+PUB_STAT(flag_recovery, gpio_get(&fwdb_gpio_recsw.ops))
+PUB_STAT(flag_developer_mode, gpio_get(&fwdb_gpio_devsw.ops))
+PUB_STAT(flag_option_roms_loaded, gpio_get(&fwdb_gpio_oprom.ops))
+PUB_STAT(flag_lid_open, gpio_get(&fwdb_gpio_lidsw.ops))
+PUB_STAT(flag_power, gpio_get(&fwdb_gpio_pwrsw.ops))
+PUB_STAT(flag_ec_in_rw, gpio_get(get_ec_in_rw_gpio()))
+
 static int board_setup(void)
 {
-	fwdb_install_flags(NULL, NULL, get_ec_in_rw_gpio());
-
 	/* MEC1322 Chrome EC */
 	CrosEcLpcBus *cros_ec_lpc_bus =
 		new_cros_ec_lpc_bus(CROS_EC_LPC_BUS_MEC);

@@ -28,6 +28,7 @@
 #include "drivers/flash/flash.h"
 #include "drivers/flash/memmapped.h"
 #include "drivers/gpio/fwdb.h"
+#include "drivers/gpio/gpio.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/ps2.h"
 #include "drivers/power/pch.h"
@@ -36,10 +37,16 @@
 #include "drivers/storage/blockdev.h"
 #include "drivers/uart/8250.h"
 
+PUB_STAT(flag_write_protect, gpio_get(&fwdb_gpio_wpsw.ops))
+PUB_STAT(flag_recovery, gpio_get(&fwdb_gpio_recsw.ops))
+PUB_STAT(flag_developer_mode, gpio_get(&fwdb_gpio_devsw.ops))
+PUB_STAT(flag_option_roms_loaded, gpio_get(&fwdb_gpio_oprom.ops))
+PUB_STAT(flag_lid_open, gpio_get(&fwdb_gpio_lidsw.ops))
+PUB_STAT(flag_power, gpio_get(&fwdb_gpio_pwrsw.ops))
+PUB_STAT(flag_ec_in_rw, gpio_get(&fwdb_gpio_ecinrw.ops))
+
 static int board_setup(void)
 {
-	fwdb_install_flags(NULL, NULL, NULL);
-
 	flash_set_ops(&new_mem_mapped_flash(0xff800000, 0x800000)->ops);
 
 	AhciCtrlr *ahci = new_ahci_ctrlr(PCI_DEV(0, 19, 0));

@@ -33,6 +33,7 @@
 #include "drivers/flash/spi.h"
 #include "drivers/gpio/exynos5420.h"
 #include "drivers/gpio/fwdb.h"
+#include "drivers/gpio/gpio.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/mkbp/keyboard.h"
 #include "drivers/power/exynos.h"
@@ -44,21 +45,22 @@
 #include "drivers/tpm/slb9635_i2c.h"
 #include "drivers/tpm/tpm.h"
 #include "drivers/uart/s5p.h"
-#include "vboot/util/flag.h"
+
+PRIV_DYN(lid_gpio, &new_exynos5420_gpio_input(GPIO_X, 3, 4)->ops)
+PRIV_DYN(power_gpio, &new_exynos5420_gpio_input(GPIO_X, 1, 2)->ops)
+PRIV_DYN(ec_in_rw_gpio, &new_exynos5420_gpio_input(GPIO_X, 2, 3)->ops)
+
+PUB_STAT(flag_write_protect, gpio_get(&fwdb_gpio_wpsw.ops))
+PUB_STAT(flag_recovery, gpio_get(&fwdb_gpio_recsw.ops))
+PUB_STAT(flag_developer_mode, gpio_get(&fwdb_gpio_devsw.ops))
+PUB_STAT(flag_option_roms_loaded, gpio_get(&fwdb_gpio_oprom.ops))
+PUB_STAT(flag_lid_open, gpio_get(get_lid_gpio()))
+PUB_STAT(flag_power, !gpio_get(get_power_gpio()))
+PUB_STAT(flag_ec_in_rw, gpio_get(get_ec_in_rw_gpio()))
 
 static int board_setup(void)
 {
-	Exynos5420Gpio *lid_switch = new_exynos5420_gpio_input(GPIO_X, 3, 4);
-	Exynos5420Gpio *ec_in_rw = new_exynos5420_gpio_input(GPIO_X, 2, 3);
-
-	fwdb_install_flags(&lid_switch->ops, NULL, &ec_in_rw->ops);
-
 	fit_set_compat("google,pit-rev3");
-
-	// The power switch is active low and needs to be inverted.
-	Exynos5420Gpio *power_switch_l =
-		new_exynos5420_gpio_input(GPIO_X, 1, 2);
-	flag_replace(FLAG_PWRSW, new_gpio_not(&power_switch_l->ops));
 
 	Exynos5UsiI2c *i2c9 = new_exynos5_usi_i2c(0x12e10000, 400000);
 

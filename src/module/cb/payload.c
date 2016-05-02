@@ -29,11 +29,11 @@
 #include "base/fwdb.h"
 #include "base/init_funcs.h"
 #include "base/timestamp.h"
+#include "board/board.h"
 #include "drivers/keyboard/keyboard.h"
 #include "module/module.h"
 #include "vboot/stages.h"
 #include "vboot/util/commonparams.h"
-#include "vboot/util/flag.h"
 #include "vboot/util/vboot_handoff.h"
 
 static int vboot_init_handoff()
@@ -45,8 +45,7 @@ static int vboot_init_handoff()
 	 * VbInit was already called in coreboot, so we need
 	 * to update the vboot internal flags ourself.
 	 */
-	int lid_switch = flag_fetch(FLAG_LIDSW);
-	if (!lid_switch) {
+	if (!board_flag_lid_open()) {
 		if (common_params_init())
 			return 1;
 

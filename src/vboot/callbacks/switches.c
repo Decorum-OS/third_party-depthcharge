@@ -20,9 +20,9 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
 #include <vboot_api.h>
-#include <vboot/util/flag.h>
+
+#include "board/board.h"
 
 /*
  * Return the state of the switches specified in request_mask.
@@ -33,15 +33,15 @@ uint32_t VbExGetSwitches(uint32_t request_mask)
 	uint32_t result = 0;
 
 	if ((request_mask & VB_INIT_FLAG_DEV_SWITCH_ON) &&
-            flag_fetch(FLAG_DEVSW))
+            board_flag_developer_mode())
 		result |= VB_INIT_FLAG_DEV_SWITCH_ON;
 
 	if ((request_mask & VB_INIT_FLAG_REC_BUTTON_PRESSED) &&
-	    flag_fetch(FLAG_RECSW))
+	    board_flag_recovery())
 		result |= VB_INIT_FLAG_REC_BUTTON_PRESSED;
 
 	if ((request_mask & VB_INIT_FLAG_WP_ENABLED) &&
-	    flag_fetch(FLAG_WPSW))
+	    board_flag_write_protect())
 		result |= VB_INIT_FLAG_WP_ENABLED;
 
 	if (CONFIG_USB_BOOT_ON_DEV &&

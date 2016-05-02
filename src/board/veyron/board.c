@@ -32,6 +32,7 @@
 #include "drivers/ec/cros/spi.h"
 #include "drivers/flash/spi.h"
 #include "drivers/gpio/fwdb.h"
+#include "drivers/gpio/gpio.h"
 #include "drivers/gpio/rockchip.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/mkbp/keyboard.h"
@@ -47,21 +48,26 @@
 #include "drivers/uart/8250.h"
 #include "drivers/video/display.h"
 #include "drivers/video/rockchip.h"
-#include "vboot/util/flag.h"
 
 PRIV_DYN(i2c0, &new_rockchip_i2c((void *)0xff650000)->ops)
 
 PRIV_DYN(pmic, &new_rk808_pmic(get_i2c0(), 0x1b)->ops)
 
 PRIV_DYN(backlight_gpio, &new_rk_gpio_output(GPIO(7, A, 2))->ops)
-
 PRIV_DYN(ec_int_gpio, &new_rk_gpio_input(GPIO(7, A, 7))->ops)
 PRIV_DYN(ec_int_gpio_n, new_gpio_not(get_ec_int_gpio()))
 
 PRIV_DYN(lid_gpio, &new_rk_gpio_input(GPIO(0, A, 6))->ops)
 PRIV_DYN(power_gpio, &new_rk_gpio_input(GPIO(0, A, 5))->ops)
-PRIV_DYN(power_gpio_n, new_gpio_not(get_power_gpio()))
 PRIV_DYN(ec_in_rw_gpio, &new_rk_gpio_input(GPIO(0, A, 7))->ops)
+
+PUB_STAT(flag_write_protect, gpio_get(&fwdb_gpio_wpsw.ops))
+PUB_STAT(flag_recovery, gpio_get(&fwdb_gpio_recsw.ops))
+PUB_STAT(flag_developer_mode, gpio_get(&fwdb_gpio_devsw.ops))
+PUB_STAT(flag_option_roms_loaded, gpio_get(&fwdb_gpio_oprom.ops))
+PUB_STAT(flag_lid_open, gpio_get(get_lid_gpio()))
+PUB_STAT(flag_power, !gpio_get(get_power_gpio()))
+PUB_STAT(flag_ec_in_rw, gpio_get(get_ec_in_rw_gpio()))
 
 static int board_setup(void)
 {
@@ -71,10 +77,6 @@ static int board_setup(void)
 	RkSpi *spi0 = new_rockchip_spi(0xff110000);
 	cros_ec_set_bus(&new_cros_ec_spi_bus(&spi0->ops)->ops);
 	cros_ec_set_interrupt_gpio(get_ec_int_gpio_n());
-
-	fwdb_install_flags(get_lid_gpio(),
-			   get_power_gpio_n(),
-			   get_ec_in_rw_gpio());
 
 	RkI2c *i2c1 = new_rockchip_i2c((void *)0xff140000);
 	tpm_set_ops(&new_slb9635_i2c(&i2c1->ops, 0x20)->base.ops);

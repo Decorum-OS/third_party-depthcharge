@@ -34,6 +34,7 @@
 #include "drivers/flash/memmapped.h"
 #include "drivers/gpio/baytrail.h"
 #include "drivers/gpio/fwdb.h"
+#include "drivers/gpio/gpio.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/ps2.h"
 #include "drivers/power/pch.h"
@@ -44,7 +45,6 @@
 #include "drivers/bus/usb/usb.h"
 #include "drivers/tpm/lpc.h"
 #include "drivers/uart/8250.h"
-#include "vboot/util/flag.h"
 
 /*
  * Clock frequencies for the eMMC and SD ports are defined below. The minimum
@@ -56,10 +56,17 @@ static const int emmc_sd_clock_min = 400 * 1000;
 static const int emmc_clock_max = 200 * 1000 * 1000;
 static const int sd_clock_max = 52 * 1000 * 1000;
 
+PUB_STAT(flag_write_protect, gpio_get(&fwdb_gpio_wpsw.ops))
+PUB_STAT(flag_recovery, gpio_get(&fwdb_gpio_recsw.ops))
+PUB_STAT(flag_developer_mode, gpio_get(&fwdb_gpio_devsw.ops))
+PUB_STAT(flag_option_roms_loaded, gpio_get(&fwdb_gpio_oprom.ops))
+PUB_STAT(flag_lid_open, gpio_get(&fwdb_gpio_lidsw.ops))
+PUB_STAT(flag_power, gpio_get(&fwdb_gpio_pwrsw.ops))
+PUB_STAT(flag_ec_in_rw, gpio_get(&fwdb_gpio_ecinrw.ops))
+
 static int board_setup(void)
 {
 	device_nvs_t *nvs = lib_sysinfo.acpi_gnvs + DEVICE_NVS_OFFSET;
-	fwdb_install_flags(NULL, NULL, NULL);
 
 #if CONFIG_DRIVER_EC_CROS
   #if CONFIG_DRIVER_EC_CROS_LPC

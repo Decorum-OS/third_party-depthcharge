@@ -36,7 +36,6 @@
 #include "vboot/crossystem/crossystem.h"
 #include "vboot/firmware_id.h"
 #include "vboot/util/commonparams.h"
-#include "vboot/util/flag.h"
 #include "vboot/util/gbb.h"
 
 static int install_crossystem_data(DeviceTreeFixup *fixup, DeviceTree *tree)

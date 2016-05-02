@@ -26,11 +26,11 @@
 
 #include "base/time.h"
 #include "base/timestamp.h"
+#include "board/board.h"
 #include "drivers/ec/cros/ec.h"
 #include "drivers/flash/flash.h"
 #include "image/fmap.h"
 #include "image/index.h"
-#include "vboot/util/flag.h"
 
 int VbExTrustEC(int devidx)
 {
@@ -39,7 +39,7 @@ int VbExTrustEC(int devidx)
 	if (devidx != 0)
 		return 0;
 
-	val = flag_fetch(FLAG_ECINRW);
+	val = board_flag_ec_in_rw();
 	if (val < 0) {
 		printf("Couldn't tell if the EC is running RW firmware.\n");
 		return 0;

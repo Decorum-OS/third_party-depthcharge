@@ -40,6 +40,7 @@
 #include "drivers/dma/tegra_apb.h"
 #include "drivers/flash/spi.h"
 #include "drivers/gpio/fwdb.h"
+#include "drivers/gpio/gpio.h"
 #include "drivers/gpio/tegra.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/mkbp/keyboard.h"
@@ -52,7 +53,6 @@
 #include "drivers/tpm/slb9635_i2c.h"
 #include "drivers/tpm/tpm.h"
 #include "drivers/uart/8250.h"
-#include "vboot/util/flag.h"
 
 enum {
 	CLK_RST_BASE = 0x60006000,
@@ -118,15 +118,18 @@ PRIV_DYN(pmic, new_as3722_pmic(get_pwr_i2c(), 0x40))
 
 PRIV_DYN(lid_gpio, &new_tegra_gpio_input(GPIO(R, 4))->ops)
 PRIV_DYN(power_gpio, &new_tegra_gpio_input(GPIO(Q, 0))->ops)
-PRIV_DYN(power_gpio_n, new_gpio_not(get_power_gpio()))
 PRIV_DYN(ec_in_rw_gpio, &new_tegra_gpio_input(GPIO(U, 4))->ops)
+
+PUB_STAT(flag_write_protect, gpio_get(&fwdb_gpio_wpsw.ops))
+PUB_STAT(flag_recovery, gpio_get(&fwdb_gpio_recsw.ops))
+PUB_STAT(flag_developer_mode, gpio_get(&fwdb_gpio_devsw.ops))
+PUB_STAT(flag_option_roms_loaded, gpio_get(&fwdb_gpio_oprom.ops))
+PUB_STAT(flag_lid_open, gpio_get(get_lid_gpio()))
+PUB_STAT(flag_power, !gpio_get(get_power_gpio()))
+PUB_STAT(flag_ec_in_rw, gpio_get(get_ec_in_rw_gpio()))
 
 static int board_setup(void)
 {
-	fwdb_install_flags(get_lid_gpio(),
-			   get_power_gpio_n(),
-			   get_ec_in_rw_gpio());
-
 	void *dma_channel_bases[32];
 	for (int i = 0; i < ARRAY_SIZE(dma_channel_bases); i++)
 		dma_channel_bases[i] = (void *)(0x60021000 + 0x40 * i);

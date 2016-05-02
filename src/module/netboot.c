@@ -26,6 +26,7 @@
 
 #include "base/init_funcs.h"
 #include "base/power.h"
+#include "board/board.h"
 #include "drivers/keyboard/keyboard.h"
 #include "drivers/net/net.h"
 #include "drivers/timer/timer.h"
@@ -34,7 +35,6 @@
 #include "net/uip.h"
 #include "netboot/netboot.h"
 #include "netboot/params.h"
-#include "vboot/util/flag.h"
 #include "vboot/vbnv.h"
 
 static void enable_graphics(void)
@@ -45,13 +45,11 @@ static void enable_graphics(void)
 	if (!CONFIG_OPROM_MATTERS)
 		return;
 
-	int oprom_loaded = flag_fetch(FLAG_OPROM);
-
 	// Manipulating vboot's internal data and calling its internal
 	// functions is NOT NICE and will give you athlete's foot and make
 	// you unpopular at parties. Right now it's the only way to ensure
 	// graphics are enabled, though, so it's a necessary evil.
-	if (!oprom_loaded) {
+	if (!board_flag_option_roms_loaded()) {
 		printf("Enabling graphics.\n");
 
 		vbnv_write(VBNV_OPROM_NEEDED, 1);
