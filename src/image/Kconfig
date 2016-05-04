@@ -63,11 +63,6 @@ config IMAGE_HWID
 	string "The hardware ID stored in the GBB"
 	default ""
 
-config BUILD_IMAGE_LAYOUT
-	string "Layout to use for the image"
-        default ""
-
-
 choice
 	prompt "Boot plan"
 	help
