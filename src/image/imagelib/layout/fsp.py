@@ -86,7 +86,6 @@ class Image(RootDirectory):
         # reference code are necessarily used during an RW boot.
         signed = {
             "MAIN": paths["dc_bin"],
-            "REFCODE": paths["refcode"]
         }
         # The EC images (main EC and PD RW firmwares, for instance) are used
         # if those components need to be updated or their RW image has been
@@ -165,7 +164,6 @@ def prepare(options):
     gbb_flags = None
     paths = {
         "dc_bin": "cb_payload.payload",
-        "refcode": "refcode.stage",
         "ifd": "descriptor.bin",
         "me": "me.bin",
         "real": "fsp_real.mod",
