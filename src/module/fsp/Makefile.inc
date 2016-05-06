@@ -20,4 +20,4 @@ mod-fsp_real-title = "real mode entry point"
 mod-fsp_real-y += real.S
 mod-fsp_real-ldscript += $(src)/src/module/fsp/real.ldscript
 mod-fsp_real-ldopts += -Wl,--relocatable -Wl,-d -Wl,--warn-common
-mod-fsp_real-ldopts += -Wl,--no-gc-sections
+mod-fsp_real-ldopts += -Wl,--entry=_entry

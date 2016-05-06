@@ -22,6 +22,8 @@
 
 .text
 .code16
+.global _entry
+_entry:
 	/* Disable interrupts. */
 	cli
 
