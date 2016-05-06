@@ -20,6 +20,7 @@ from imagelib.components.Dcdir import \
     Region, Directory, RootDirectory, DirectoryTable
 from imagelib.components.File import File
 from imagelib.components.Fwid import Fwid
+from imagelib.components.Fsp import Fsp
 from imagelib.components.Gbb import Gbb
 from imagelib.components.Ifd import Ifd
 from imagelib.components.Sha256 import Sha256
@@ -98,6 +99,8 @@ class Image(RootDirectory):
         }
 
         backjump = Reljump()
+        self._fsp = Fsp(File(paths["fsp"]))
+        self._image_base = 4 * GB - size
 
         si_bios = Area(
             Directory("RW",
@@ -115,6 +118,7 @@ class Image(RootDirectory):
                 Region("VPD").size(16 * KB),
                 Region("FWID", Fwid(model)).shrink(),
                 Directory("FIRMWARE",
+                    Region("FSP", self._fsp).shrink(),
                     backjump.target_marker(),
                     Region("REAL",
                         Xip(File(paths["real"])).image_base(4 * GB - size)
@@ -134,6 +138,13 @@ class Image(RootDirectory):
         super(Image, self).__init__(ifd)
         self.big_pointer()
         self.size(size)
+
+    def post_place_hook(self):
+        # Once we know where the FSP is going to be, prepare to set it up to
+        # work at the new location. The actual relocation will happen when
+        # the fsp is written into the image.
+        fsp_base = self._image_base + self._fsp.placed_offset
+        self._fsp.base_address(fsp_base)
 
 
 def add_arguments(parser):
@@ -164,6 +175,7 @@ def prepare(options):
     gbb_flags = None
     paths = {
         "dc_bin": "cb_payload.payload",
+        "fsp": "FSP.fd",
         "ifd": "descriptor.bin",
         "me": "me.bin",
         "real": "fsp_real.mod",
