@@ -16,3 +16,4 @@
 ##
 
 depthcharge-y += board.c
+depthcharge-y += preram_board_init.S
