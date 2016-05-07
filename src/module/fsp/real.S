@@ -20,34 +20,14 @@
  * MA 02111-1307 USA
  */
 
-.text
+.section .entry
 .code16
 .global _entry
 _entry:
-	/* Disable interrupts. */
-	cli
-
-	/* Enable protected mode. */
-	mov %cr0, %eax
-	btsl $0, %eax
-	mov %eax, %cr0
-
-	/* Load the GDT pseudo descriptor. */
-	addr32 lgdtl %cs:(gdt_ptr - 0xffff0000)
-
-	/* Do a long jump to switch to 32 bit protected mode. */
-	ljmpl $0x8, $0f
-
+	mov $0f, %esp
+	jmp preram_real_to_prot32
 .code32
 0:
-
-	/* Load protected mode data segments. */
-	mov $0x10, %eax
-	mov %eax, %ds
-	mov %eax, %es
-	mov %eax, %fs
-	mov %eax, %gs
-	mov %eax, %ss
 
 	mov $0f, %esp
 	jmp preram_board_init
@@ -107,31 +87,3 @@ timer_loop:
 
 	/* Do it again. */
 	jmp output_loop
-
-.data
-.align 8
-gdt_ptr:
-	.short gdt_end - gdt - 1
-	.int gdt
-
-.align 8
-gdt:
-	.int 0
-	.int 0
-
-	/* 32 bit CPL 0 code segment */
-	.short 0xffff       /* limit 15:00 */
-	.short 0x0000       /* base 15:00 */
-	.byte  0x00         /* base 23:16 */
-	.byte  0b10011011   /* P(1) DPL(00) S(1) 1 C(0) R(1) A(1) */
-	.byte  0b11001111   /* G(1) D(1) 0 0 limit 19:16 */
-	.byte  0x0          /* base 31:24 */
-
-	/* 32 bit CPL 0 data segment */
-	.short 0xffff       /* limit 15:00 */
-	.short 0x0000       /* base 15:00 */
-	.byte  0x00         /* base 23:16 */
-	.byte  0b10010011   /* P(1) DPL(00) S(1) 0 E(0) W(1) A(1) */
-	.byte  0b11001111   /* G(1) B(1) 0 0 limit 19:16 */
-	.byte  0x0          /* base 31:24 */
-gdt_end:

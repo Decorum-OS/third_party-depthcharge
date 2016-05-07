@@ -22,22 +22,11 @@
 
 #include "module/qemu/x86/util.inc"
 
-.text
 .code32
 
+.section .text.preram_uart_send_char
 /*
- * halt
- * Halt the CPU.
- */
-.global halt
-halt:
-	cli
-	hlt
-	jmp halt
-
-
-/*
- * uart_send_char
+ * preram_uart_send_char
  * Send a character on the UART, presumed to be at address 0x3fd.
  *
  * Inputs:
@@ -47,8 +36,8 @@ halt:
  * Clobbers:
  * %eax, %edx, %eflags
  */
-.global uart_send_char
-uart_send_char:
+.global preram_uart_send_char
+preram_uart_send_char:
 	/* Wait for the last character to be sent. */
 	mov $0x3fd, %edx
 0:
@@ -64,9 +53,9 @@ uart_send_char:
 	jmp *%esp
 
 
-
+.section .text.preram_puts
 /*
- * puts
+ * preram_puts
  * Print a string to the UART.
  *
  * Inputs:
@@ -77,8 +66,8 @@ uart_send_char:
  * %eax, %ebx, %edx, %eflags (by way of uart_send_char)
  * %ecx
  */
-.global puts
-puts:
+.global preram_puts
+preram_puts:
 	mov %esp, %ecx
 
 .Lnext_char:
@@ -93,7 +82,7 @@ puts:
 	/* Send the current character. */
 	mov $1f, %esp
 	mov (%esi), %bl
-	jmp uart_send_char
+	jmp preram_uart_send_char
 1:
 
 	/* Start again, but one character farther in. */
@@ -102,8 +91,9 @@ puts:
 
 
 
+.section .text.preram_fatal
 /*
- * fatal
+ * preram_fatal
  * Print an error message and halt the machine.
  *
  * Inputs:
@@ -112,15 +102,16 @@ puts:
  * Clobbers:
  * We're halting, so it doesn't matter.
  */
-.global fatal
-fatal:
+.global preram_fatal
+preram_fatal:
 	mov $halt, %esp
-	jmp puts
+	jmp preram_puts
 
 
 
+.section .text.preram_find_dcdir_anchor
 /*
- * find_dcdir_anchor
+ * preram_find_dcdir_anchor
  * Search for the dcdir anchor structure. Start at an expected address, and
  * if that fails, scan for it in the rest of the image.
  *
@@ -139,8 +130,8 @@ fatal:
  * %eax, %ebx, %ecx, %edx, %esi, %eflags (by way of puts)
  * %ebp, %edi
  */
-.global find_dcdir_anchor
-find_dcdir_anchor:
+.global preram_find_dcdir_anchor
+preram_find_dcdir_anchor:
 	mov %esp, %ebp
 	mov $dcdir_anchor_addr, %edi
 
@@ -160,7 +151,7 @@ find_dcdir_anchor:
 .Lanchor_not_where_expected:
 	mov $.Lanchor_not_where_expected_msg, %esi
 	mov $0f, %esp
-	jmp puts
+	jmp preram_puts
 0:
 
 	/* Scan for the DCDIR anchor structure. */
@@ -196,8 +187,9 @@ find_dcdir_anchor:
 
 
 
+.section .text.preram_find_in_dir
 /*
- * find_in_dir
+ * preram_find_in_dir
  * Search a dcdir directory for an entry with a particular name.
  *
  * Inputs:
@@ -216,8 +208,8 @@ find_dcdir_anchor:
  * Clobbers:
  * %ecx, %ebx, %eflags
  */
-.global find_in_dir
-find_in_dir:
+.global preram_find_in_dir
+preram_find_in_dir:
 
 	/* Make %esi point to the start of the region. */
 	sub %edi, %esi
@@ -318,8 +310,6 @@ find_in_dir:
 .Lnot_found:
 	mov $0, %eax
 	jmp *%esp
-
-.data
 
 .Lanchor_not_where_expected_msg:
 	.asciz "WARNING: The dcdir anchor was not at the expected address.\nScanning...\n"

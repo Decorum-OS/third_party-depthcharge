@@ -27,7 +27,7 @@
 
 	.code32
 	.global handoff_common_asm
-	.text
+	.section .text.handoff_common_asm
 	.align 4
 
 // We should be 32 bit protected mode and with all flat segments.

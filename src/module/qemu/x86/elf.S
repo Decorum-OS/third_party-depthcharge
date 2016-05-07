@@ -23,11 +23,12 @@
 #include "module/qemu/x86/util.inc"
 #include "module/qemu/x86/elf.inc"
 
-.text
 .code32
 
+.section .text.preram_start_elf_module
+
 /*
- * start_elf_module
+ * preram_start_elf_module
  * Load an ELF formatted module and start executing it.
  *
  * Inputs:
@@ -36,8 +37,8 @@
  * Clobbers:
  * Doesn't return.
  */
-.global start_elf_module
-start_elf_module:
+.global preram_start_elf_module
+preram_start_elf_module:
 	/* Some intructions expect to use %eax, so lets switch to %ebp. */
 	mov %eax, %ebp
 
@@ -110,11 +111,11 @@ start_elf_module:
 
 .Lbad_magic_error:
 	mov $.Lbad_magic_error_msg, %esi
-	jmp fatal
+	jmp preram_fatal
 
 .Lnot_32_error:
 	mov $.Lnot_32_error_msg, %esi
-	jmp fatal
+	jmp preram_fatal
 
 .data
 .Lbad_magic_error_msg:

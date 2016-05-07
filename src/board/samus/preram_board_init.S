@@ -20,7 +20,7 @@
  * MA 02111-1307 USA
  */
 
-.text
+.section .text.preram_board_init
 .code32
 
 /*

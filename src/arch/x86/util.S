@@ -26,7 +26,7 @@
  */
 
 	.global halt
-	.text
+	.section .text.halt
 	.align 4
 
 /* This function puts the system into a halt. */

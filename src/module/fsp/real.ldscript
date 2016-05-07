@@ -29,6 +29,7 @@
 SECTIONS
 {
 	.load BLOCK(16) : {
+		*(.entry)
 		*(.text .text.*)
 		. = ALIGN(16);
 		*(.rodata .rodata.*)

@@ -32,41 +32,23 @@
  */
 .section .entry
 .code16
-	/* Disable interrupts. */
-	cli
-
-	/* Enable protected mode. */
-	mov %cr0, %eax
-	btsl $0, %eax
-	mov %eax, %cr0
-
-	/* Load the GDT pseudo descriptor. */
-	addr32 lgdtl %cs:(.Lgdt_ptr - 0xffff0000)
-
-	/* Do a long jump to switch to 32 bit protected mode. */
-	ljmpl $0x8, $0f
-
+.global _entry
+_entry:
+	mov $0f, %esp
+	jmp preram_real_to_prot32
 .code32
 0:
-
-	/* Load protected mode data segments. */
-	mov $0x10, %eax
-	mov %eax, %ds
-	mov %eax, %es
-	mov %eax, %fs
-	mov %eax, %gs
-	mov %eax, %ss
 
 	/* Look up the next stage of firmware to run in memory. */
 
 	mov $0f, %esp
-	jmp find_dcdir_anchor
+	jmp preram_find_dcdir_anchor
 0:
 	cmp $0, %edi
 	jne 0f
 
 	mov $.Lanchor_not_found_msg, %esi
-	jmp fatal
+	jmp preram_fatal
 
 0:
 	/*
@@ -81,7 +63,7 @@
 	mov_string_const %eax, 'R', 'O'
 	mov_string_const %edx
 	mov $0f, %esp
-	jmp find_in_dir
+	jmp preram_find_in_dir
 0:
 	mov %eax, %ecx
 	jecxz .Lfile_not_found
@@ -91,7 +73,7 @@
 	mov_string_const %eax, 'F', 'I', 'R', 'M'
 	mov_string_const %edx, 'W', 'A', 'R', 'E'
 	mov $0f, %esp
-	jmp find_in_dir
+	jmp preram_find_in_dir
 0:
 	mov %eax, %ecx
 	jecxz .Lfile_not_found
@@ -101,59 +83,30 @@
 	mov_string_const %eax, 'F', 'W', ' ', 'S'
 	mov_string_const %edx, 'E', 'L'
 	mov $0f, %esp
-	jmp find_in_dir
+	jmp preram_find_in_dir
 0:
 	mov %eax, %ecx
 	jecxz .Lfile_not_found
 	jc .Lfile_not_a_file
 
 	/* A pointer to the ELF is already in %eax. */
-	jmp start_elf_module
+	jmp preram_start_elf_module
 
 	/* We should never get to the end of the module. */
 	mov $.Lend_of_module_msg, %esi
-	jmp fatal
+	jmp preram_fatal
 
 .Lfile_not_found:
 	mov $.Lfile_not_found_msg, %esi
-	jmp fatal
+	jmp preram_fatal
 
 .Lfile_not_a_directory:
 	mov $.Lfile_not_a_directory_msg, %esi
-	jmp fatal
+	jmp preram_fatal
 
 .Lfile_not_a_file:
 	mov $.Lfile_not_a_file_msg, %esi
-	jmp fatal
-
-
-.data
-.align 8
-.Lgdt_ptr:
-	.short .Lgdt_end - .Lgdt - 1
-	.int .Lgdt
-
-.align 8
-.Lgdt:
-	.int 0
-	.int 0
-
-	/* 32 bit CPL 0 code segment */
-	.short 0xffff       /* limit 15:00 */
-	.short 0x0000       /* base 15:00 */
-	.byte  0x00         /* base 23:16 */
-	.byte  0b10011010   /* P(1) DPL(00) S(1) 1 C(0) R(1) A(0) */
-	.byte  0b11001111   /* G(1) D(1) 0 0 limit 19:16 */
-	.byte  0x0          /* base 31:24 */
-
-	/* 32 bit CPL 0 data segment */
-	.short 0xffff       /* limit 15:00 */
-	.short 0x0000       /* base 15:00 */
-	.byte  0x00         /* base 23:16 */
-	.byte  0b10010010   /* P(1) DPL(00) S(1) 0 E(0) W(1) A(0) */
-	.byte  0b11001111   /* G(1) B(1) 0 0 limit 19:16 */
-	.byte  0x0          /* base 31:24 */
-.Lgdt_end:
+	jmp preram_fatal
 
 .Lfile_not_found_msg:
 	.asciz "Firmware select module not found.\n"

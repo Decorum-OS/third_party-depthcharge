@@ -27,7 +27,7 @@
 
 	.code32
 	.global _entry
-	.text
+	.section .text._entry
 	.align 4
 
 /* We should be 32 bit protected mode and with all flat segments. */
