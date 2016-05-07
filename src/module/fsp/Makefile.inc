@@ -18,6 +18,7 @@
 module-y += fsp_real
 mod-fsp_real-title = "real mode entry point"
 mod-fsp_real-y += real.S
+mod-fsp_real-libs += $(COMMON_OBJECTS)
 mod-fsp_real-ldscript += $(src)/src/module/fsp/real.ldscript
 mod-fsp_real-ldopts += -Wl,--relocatable -Wl,-d -Wl,--warn-common
 mod-fsp_real-ldopts += -Wl,--entry=_entry
