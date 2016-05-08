@@ -84,7 +84,14 @@ preram_puts:
 	mov (%esi), %bl
 	jmp preram_uart_send_char
 1:
+	/* If we just sent a newline, also send a carriage return. */
+	cmpb $'\n, (%esi)
+	jne 2f
+	mov $2f, %esp
+	mov $'\r, %bl
+	jmp preram_uart_send_char
 
+2:
 	/* Start again, but one character farther in. */
 	inc %esi
 	jmp .Lnext_char
