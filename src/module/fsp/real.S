@@ -20,6 +20,8 @@
  * MA 02111-1307 USA
  */
 
+#include "arch/x86/preram/util.inc"
+
 .section .entry
 .code16
 .global _entry
@@ -34,56 +36,86 @@ _entry:
 0:
 
 	/* Output post code 0x23. */
-output_loop:
 	mov $0x23, %eax
 	out %al, $0x80
 
-	/* Wait for the last character to be transmitted. */
+	/* Find the FSP. */
+
+	mov $0f, %esp
+	jmp preram_find_dcdir_anchor
 0:
-	mov $0x3fd, %edx
-	in %dx, %al
-	bt $0x6, %eax
-	jnc 0b
+	cmp $0, %edi
+	jne 0f
 
-	/* Output # to the UART. */
-	mov $0x23, %eax
-	mov $0x3f8, %edx
-	out %al, %dx
+	mov $.Lanchor_not_found_msg, %esi
+	jmp preram_fatal
 
-	/* Wait for the last character to be transmitted. */
 0:
-	mov $0x3fd, %edx
-	in %dx, %al
-	bt $0x6, %eax
-	jnc 0b
+	/*
+	 * %edi should currently point to the location of the anchor
+	 * structure. Load the root directory base into %esi, and put the
+	 * address of the root directory table immediately after the anchor
+	 * in %edi.
+	 */
+	mov 12(%edi), %esi
+	add $16, %edi
 
-	/* Output a line feed. */
-	mov $0xa, %eax
-	mov $0x3f8, %edx
-	out %al, %dx
-
-	/* Wait for the last character to be transmitted. */
+	mov_string_const %eax, 'R', 'O'
+	mov_string_const %edx
+	mov $0f, %esp
+	jmp preram_find_in_dir
 0:
-	mov $0x3fd, %edx
-	in %dx, %al
-	bt $0x6, %eax
-	jnc 0b
+	mov %eax, %ecx
+	jecxz .Lfile_not_found
+	jnc .Lfile_not_a_directory
 
-	/* Output a carriage return. */
-	mov $0xd, %eax
-	mov $0x3f8, %edx
-	out %al, %dx
-
-	/* Wait for a while to avoid DOSing the EC. */
-	rdtsc
 	mov %eax, %edi
-	mov %edx, %esi
-timer_loop:
-	rdtsc
-	sub %edi, %eax
-	sbb %esi, %edx
-	cmp $0x20000, %eax
-	jle timer_loop
+	mov_string_const %eax, 'F', 'I', 'R', 'M'
+	mov_string_const %edx, 'W', 'A', 'R', 'E'
+	mov $0f, %esp
+	jmp preram_find_in_dir
+0:
+	mov %eax, %ecx
+	jecxz .Lfile_not_found
+	jnc .Lfile_not_a_directory
 
-	/* Do it again. */
-	jmp output_loop
+	mov %eax, %edi
+	mov_string_const %eax, 'F', 'S', 'P'
+	mov_string_const %edx
+	mov $0f, %esp
+	jmp preram_find_in_dir
+0:
+	mov %eax, %ecx
+	jecxz .Lfile_not_found
+	jc .Lfile_not_a_file
+
+	/* A pointer to the FSP is in %eax. */
+
+	/* We should never get to the end of the module. */
+	mov $.Lend_of_module_msg, %esi
+	jmp preram_fatal
+
+.Lfile_not_found:
+	mov $.Lfile_not_found_msg, %esi
+	jmp preram_fatal
+
+.Lfile_not_a_directory:
+	mov $.Lfile_not_a_directory_msg, %esi
+	jmp preram_fatal
+
+.Lfile_not_a_file:
+	mov $.Lfile_not_a_file_msg, %esi
+	jmp preram_fatal
+
+.Lfile_not_found_msg:
+	.asciz "FSP not found.\n"
+.Lfile_not_a_directory_msg:
+	.asciz "Fould a file when expecting a directory.\n"
+.Lfile_not_a_file_msg:
+	.asciz "Found a directory when expecting a file.\n"
+
+.Lend_of_module_msg:
+	.asciz "Reached the end of the real mode entry point module.\n"
+
+.Lanchor_not_found_msg:
+	.asciz "The dcdir anchor was not found in the image.\n"

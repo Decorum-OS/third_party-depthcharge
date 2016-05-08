@@ -99,8 +99,10 @@ class Image(RootDirectory):
         }
 
         backjump = Reljump()
-        self._fsp = Fsp(File(paths["fsp"]))
-        self._image_base = 4 * GB - size
+        fsp = Fsp(File(paths["fsp"]))
+        image_base = 4 * GB - size
+        xip_real = Xip(File(paths["real"])).image_base(image_base)
+        dcdir_table = DirectoryTable()
 
         si_bios = Area(
             Directory("RW",
@@ -110,7 +112,7 @@ class Image(RootDirectory):
                 RwArea("A", model, signed, verified).expand(),
                 RwArea("B", model, signed, verified).expand()
             ).size(size / 2),
-            DirectoryTable(),
+            dcdir_table,
             Directory("RO",
                 Region("GBB",
                     Gbb(hwid=Gbb.hwid(hwid), flags=gbb_flags).expand()
@@ -118,11 +120,9 @@ class Image(RootDirectory):
                 Region("VPD").size(16 * KB),
                 Region("FWID", Fwid(model)).shrink(),
                 Directory("FIRMWARE",
-                    Region("FSP", self._fsp).shrink(),
+                    Region("FSP", fsp).shrink(),
                     backjump.target_marker(),
-                    Region("REAL",
-                        Xip(File(paths["real"])).image_base(4 * GB - size)
-                    ).shrink()
+                    Region("REAL", xip_real).shrink()
                 ).shrink(),
                 Area(backjump).size(0x10).fill(0x00)
             ).expand(),
@@ -135,6 +135,11 @@ class Image(RootDirectory):
         ifd.region("me", si_me)
         ifd.region("bios", si_bios)
 
+        self._dcdir_table = dcdir_table
+        self._fsp = fsp
+        self._image_base = image_base
+        self._xip_real = xip_real
+
         super(Image, self).__init__(ifd)
         self.big_pointer()
         self.size(size)
@@ -145,6 +150,12 @@ class Image(RootDirectory):
         # the fsp is written into the image.
         fsp_base = self._image_base + self._fsp.placed_offset
         self._fsp.base_address(fsp_base)
+
+        # Once we know where the base dcdir table will be, set a symbol to
+        # its address in the real mode entry point.
+        anchor_addr = self._image_base + self._dcdir_table.placed_offset
+        self._xip_real.symbols_add(dcdir_anchor_addr=anchor_addr,
+                                   rom_image_base=self._image_base)
 
 
 def add_arguments(parser):
