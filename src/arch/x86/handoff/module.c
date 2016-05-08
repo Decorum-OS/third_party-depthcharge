@@ -34,6 +34,11 @@
 
 extern uint32_t handoff_parameter;
 
+int cb_parse_arch_specific(struct cb_record *rec, struct sysinfo_t *info)
+{
+	return 0;
+}
+
 void handoff_special(void)
 {
 	fwdb_use_db((FwdbHeader *)(uintptr_t)handoff_parameter);

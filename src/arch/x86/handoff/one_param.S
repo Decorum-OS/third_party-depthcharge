@@ -25,14 +25,15 @@
  * SUCH DAMAGE.
  */
 
-	.code32
-	.global _entry
 	.section .text._entry
+	.code32
 	.align 4
 
 /* We should be 32 bit protected mode and with all flat segments. */
+	.global _entry
 _entry:
-	mov (%esp), handoff_parameter
+	mov (%esp), %eax
+	mov %eax, handoff_parameter
 	jmp handoff_common_asm
 
 	.data
