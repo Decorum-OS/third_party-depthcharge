@@ -15,10 +15,10 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-module-y += fsp_real
-mod-fsp_real-title = "real mode entry point"
-mod-fsp_real-y += real.S
-mod-fsp_real-libs += $(COMMON_OBJECTS)
-mod-fsp_real-ldscript += $(src)/src/module/fsp/real.ldscript
-mod-fsp_real-ldopts += -Wl,--relocatable -Wl,-d -Wl,--warn-common
-mod-fsp_real-ldopts += -Wl,--entry=_entry
+module-y += fsp_entry
+mod-fsp_entry-title = "real mode entry point"
+mod-fsp_entry-y += entry.S
+mod-fsp_entry-libs += $(COMMON_OBJECTS)
+mod-fsp_entry-ldscript += $(src)/src/module/fsp/entry.ldscript
+mod-fsp_entry-ldopts += -Wl,--relocatable -Wl,-d -Wl,--warn-common
+mod-fsp_entry-ldopts += -Wl,--entry=_entry

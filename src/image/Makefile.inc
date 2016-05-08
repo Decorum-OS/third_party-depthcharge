@@ -131,7 +131,7 @@ modules: $$(module_obj)/cb_payload.payload
 modules: $$(module_obj)/cb_dev.payload
 modules: $$(module_obj)/cb_netboot.payload
 
-modules: $$(module_obj)/fsp_real.mod
+modules: $$(module_obj)/fsp_entry.mod
 
 STANDARD_IMAGES=y
 

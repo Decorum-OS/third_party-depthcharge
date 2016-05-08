@@ -101,7 +101,7 @@ class Image(RootDirectory):
         backjump = Reljump()
         fsp = Fsp(File(paths["fsp"]))
         image_base = 4 * GB - size
-        xip_real = Xip(File(paths["real"])).image_base(image_base)
+        xip_entry = Xip(File(paths["entry"])).image_base(image_base)
         dcdir_table = DirectoryTable()
 
         si_bios = Area(
@@ -122,7 +122,7 @@ class Image(RootDirectory):
                 Directory("FIRMWARE",
                     Region("FSP", fsp).shrink(),
                     backjump.target_marker(),
-                    Region("REAL", xip_real).shrink()
+                    Region("ENTRY", xip_entry).shrink()
                 ).shrink(),
                 Area(backjump).size(0x10).fill(0x00)
             ).expand(),
@@ -138,7 +138,7 @@ class Image(RootDirectory):
         self._dcdir_table = dcdir_table
         self._fsp = fsp
         self._image_base = image_base
-        self._xip_real = xip_real
+        self._xip_entry = xip_entry
 
         super(Image, self).__init__(ifd)
         self.big_pointer()
@@ -154,8 +154,8 @@ class Image(RootDirectory):
         # Once we know where the base dcdir table will be, set a symbol to
         # its address in the real mode entry point.
         anchor_addr = self._image_base + self._dcdir_table.placed_offset
-        self._xip_real.symbols_add(dcdir_anchor_addr=anchor_addr,
-                                   rom_image_base=self._image_base)
+        self._xip_entry.symbols_add(dcdir_anchor_addr=anchor_addr,
+                                    rom_image_base=self._image_base)
 
 
 def add_arguments(parser):
@@ -186,10 +186,10 @@ def prepare(options):
     gbb_flags = None
     paths = {
         "dc_bin": "cb_payload.payload",
+        "entry": "fsp_entry.mod",
         "fsp": "FSP.fd",
         "ifd": "descriptor.bin",
         "me": "me.bin",
-        "real": "fsp_real.mod",
     }
 
     if options.dev or options.netboot:
