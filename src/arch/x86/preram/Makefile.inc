@@ -1,5 +1,5 @@
 ##
-## Copyright 2012 Google Inc.
+## Copyright 2016 Google Inc.
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -15,22 +15,4 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-subdirs-y += handoff preram
-
-depthcharge-y += boot.c
-depthcharge-y += enter_trampoline.c
-libc-y += exception.c
-libc-y += exception_asm.S
-depthcharge-y += gdt.c
-depthcharge-y += physmem.c
-depthcharge-y += sign_of_life.c
-depthcharge-y += util.S
-depthcharge-$(CONFIG_KERNEL_ZIMAGE) += zimage.c
-
-gdb-y += gdb.c
-
-libc-y += string.c
-
-ARCH_ABI_FLAGS += -mpreferred-stack-boundary=2 -m32
-
-TC_ARCH = x86_32
+depthcharge-y += prot32.S
