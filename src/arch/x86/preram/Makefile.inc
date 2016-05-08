@@ -15,4 +15,6 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
+depthcharge-y += elf.S
 depthcharge-y += prot32.S
+depthcharge-y += util.S

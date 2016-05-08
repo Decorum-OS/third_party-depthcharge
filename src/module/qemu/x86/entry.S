@@ -20,7 +20,7 @@
  * MA 02111-1307 USA
  */
 
-#include "module/qemu/x86/util.inc"
+#include "arch/x86/preram/util.inc"
 
 /*
  * The entry point, which starts in 16 bit real mode with standard but odd

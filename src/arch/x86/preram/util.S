@@ -20,7 +20,7 @@
  * MA 02111-1307 USA
  */
 
-#include "module/qemu/x86/util.inc"
+#include "arch/x86/preram/util.inc"
 
 .code32
 
