@@ -99,10 +99,11 @@ class Image(RootDirectory):
         }
 
         backjump = Reljump()
+        dcdir_table = DirectoryTable()
         fsp = Fsp(File(paths["fsp"]))
         image_base = 4 * GB - size
+        microcode = File(paths["microcode"])
         xip_entry = Xip(File(paths["entry"])).image_base(image_base)
-        dcdir_table = DirectoryTable()
 
         si_bios = Area(
             Directory("RW",
@@ -120,6 +121,7 @@ class Image(RootDirectory):
                 Region("VPD").size(16 * KB),
                 Region("FWID", Fwid(model)).shrink(),
                 Directory("FIRMWARE",
+                    Region("U_CODE", microcode).shrink(),
                     Region("FSP", fsp).shrink(),
                     backjump.target_marker(),
                     Region("ENTRY", xip_entry).shrink()
@@ -138,6 +140,7 @@ class Image(RootDirectory):
         self._dcdir_table = dcdir_table
         self._fsp = fsp
         self._image_base = image_base
+        self._microcode = microcode
         self._xip_entry = xip_entry
 
         super(Image, self).__init__(ifd)
@@ -156,6 +159,13 @@ class Image(RootDirectory):
         anchor_addr = self._image_base + self._dcdir_table.placed_offset
         self._xip_entry.symbols_add(dcdir_anchor_addr=anchor_addr,
                                     rom_image_base=self._image_base)
+
+        # Also plug in the location of the microcode binary so it can be
+        # passed to the FSP.
+        microcode_addr = self._image_base + self._microcode.placed_offset
+        microcode_size = self._microcode.placed_size
+        self._xip_entry.symbols_add(microcode_addr=microcode_addr,
+                                    microcode_size=microcode_size)
 
 
 def add_arguments(parser):
@@ -190,6 +200,7 @@ def prepare(options):
         "fsp": "FSP.fd",
         "ifd": "descriptor.bin",
         "me": "me.bin",
+        "microcode": "microcode.bin",
     }
 
     if options.dev or options.netboot:
