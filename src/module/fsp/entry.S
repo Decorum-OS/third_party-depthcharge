@@ -24,6 +24,11 @@
 
 .section .entry
 .code16
+
+/*
+ * Switch into the right mode, and find the FSP in the firmware image.
+ */
+
 .global _entry
 _entry:
 	mov $0f, %esp
@@ -113,6 +118,10 @@ _entry:
 	.asciz "The dcdir anchor was not found in the image.\n"
 
 
+/*
+ * Validate the FSP, and call its TempRamInit entry point.
+ */
+
 .Lrun_temp_ram_init:
 	/*
 	 * A pointer to the FSP is in %eax. Compute the location of the
@@ -193,6 +202,9 @@ _entry:
 	mov 48(%esp), %eax
 	add %ebp, %eax
 
+	/* Save the location of the FSP information header in %ebp. */
+	mov %esp, %ebp
+
 	/* Set up the fake stack frame. */
 	lea .Lfsp_temp_ram_init_stack_frame, %esp
 
@@ -209,13 +221,6 @@ _entry:
 .Lfsp_temp_ram_init_stack_frame:
 	.int .Lfsp_temp_ram_init_complete
 	.int .Lfsp_temp_ram_init_params
-
-
-.Lfsp_temp_ram_init_complete:
-
-	/* We should never get to the end of the module. */
-	mov $.Lend_of_module_msg, %esi
-	jmp preram_fatal
 
 .Lend_of_module_msg:
 	.asciz "Reached the end of the real mode entry point module.\n"
@@ -237,3 +242,96 @@ _entry:
 
 .Lfsp_in_the_wrong_place_msg:
 	.asciz "The FSP wasn't configured to run from its current address.\n"
+
+#define FSP_SUCCESS			0x00000000
+#define FSP_INVALID_PARAMETER		0x80000002
+#define FSP_UNSUPPORTED			0x80000003
+#define FSP_NOT_READY			0x80000006
+#define FSP_DEVICE_ERROR		0x80000007
+#define FSP_OUT_OF_RESOURCES		0x80000009
+#define FSP_VOLUME_CORRUPTED		0x8000000a
+#define FSP_NOT_FOUND			0x8000000e
+#define FSP_TIMEOUT			0x80000012
+#define FSP_ABORTED			0x80000015
+#define FSP_ALREADY_STARTED		0x80000014
+#define FSP_INCOMPATIBLE_VERSION	0x80000010
+#define FSP_SECURITY_VIOLATION		0x8000001a
+#define FSP_CRC_ERROR			0x8000001b
+
+/*
+ * Now that we're back from TempRamInit, check the return code and, if the
+ * temporary stack area was set up successfully, start using it and continue
+ * in C.
+ */
+.Lfsp_temp_ram_init_complete:
+
+	/* Check the FSP return value. */
+	cmp $FSP_INVALID_PARAMETER, %eax
+	jne 1f
+	mov $0f, %edi
+	jmp .Lbad_fsp_temp_ram_init_return_value
+0:
+	.asciz "FSP_INVALID_PARAMETER.\n"
+1:
+	cmp $FSP_NOT_FOUND, %eax
+	jne 1f
+	mov $0f, %edi
+	jmp .Lbad_fsp_temp_ram_init_return_value
+0:
+	.asciz "FSP_NOT_FOUND.\n"
+1:
+	cmp $FSP_UNSUPPORTED, %eax
+	jne 1f
+	mov $0f, %edi
+	jmp .Lbad_fsp_temp_ram_init_return_value
+0:
+	.asciz "FSP_UNSUPPORTED.\n"
+1:
+	cmp $FSP_DEVICE_ERROR, %eax
+	jne 1f
+	mov $0f, %edi
+	jmp .Lbad_fsp_temp_ram_init_return_value
+0:
+	.asciz "FSP_DEVICE_ERROR.\n"
+1:
+	cmp $FSP_ALREADY_STARTED, %eax
+	jne 1f
+	mov $0f, %edi
+	jmp .Lbad_fsp_temp_ram_init_return_value
+0:
+	.asciz "FSP_ALREADY_STARTED.\n"
+1:
+	cmp $FSP_SUCCESS, %eax
+	je 1f
+	mov $0f, %edi
+	jmp .Lbad_fsp_temp_ram_init_return_value
+0:
+	.asciz "Unknown return code.\n"
+
+1:
+	/* Start using the temporary RAM area as a stack. */
+	mov %edx, %esp
+	sub $8, %esp
+
+	/*
+	 * Pass the location of the FSP information header and the bounds
+	 * of the temporary RAM area to the C portion of this module.
+	 */
+	push %edx
+	push %ecx
+	push %ebp
+	call call_fsp_init
+
+	/* We should never get to the end of the module. */
+	mov $.Lend_of_module_msg, %esi
+	jmp preram_fatal
+
+.Lbad_fsp_temp_ram_init_return_value:
+	mov $0f, %esi
+	mov $1f, %esp
+	jmp preram_puts
+0:
+	.asciz "FSP TempRamInit: "
+1:
+	mov %edi, %esi
+	jmp preram_fatal
