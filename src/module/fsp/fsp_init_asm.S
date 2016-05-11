@@ -20,16 +20,27 @@
  * MA 02111-1307 USA
  */
 
-#include <stdint.h>
-#include <stdlib.h>
+.section .text.fsp_init_print_message
+.code32
 
-#include "module/fsp/fsp_init.h"
+.global fsp_init_print_message
+fsp_init_print_message:
+	mov 4(%esp), %eax
+	push %ebx
+	push %ebp
+	push %esi
+	push %edi
 
-void call_fsp_init(void *fsp_info_header, void *temp_ram_base,
-		   uint32_t temp_ram_size) __attribute__((noreturn));
-void call_fsp_init(void *fsp_info_header, void *temp_ram_base,
-		   uint32_t temp_ram_size)
-{
-	fsp_init_print_message("Preparing to call FSP Init.\n");
-	halt();
-}
+	mov %eax, %esi
+	mov %esp, %ebp
+	mov $0f, %esp
+	jmp preram_puts
+0:
+
+	mov %ebp, %esp
+	pop %edi
+	pop %esi
+	pop %ebp
+	pop %ebx
+
+	ret

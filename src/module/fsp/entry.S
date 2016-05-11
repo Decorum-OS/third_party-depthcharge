@@ -22,6 +22,9 @@
 
 #include "arch/x86/preram/util.inc"
 
+#define _XSTR(x) #x
+#define XSTR(x) _XSTR(x)
+
 .section .entry
 .code16
 
@@ -43,6 +46,15 @@ _entry:
 	/* Output post code 0x23. */
 	mov $0x23, %eax
 	out %al, $0x80
+
+	/* Print a message to show we're alive. */
+	mov $0f, %esi
+	mov $1f, %esp
+	jmp preram_puts
+0:
+	.ascii "\n\nStarting ", XSTR(__MODULE_TITLE__), " on ", CONFIG_BOARD
+	.asciz "...\n"
+1:
 
 	/* Find the FSP. */
 
