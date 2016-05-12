@@ -21,6 +21,7 @@
  */
 
 #include "arch/x86/preram/util.inc"
+#include "module/fsp/fsp.h"
 
 #define _XSTR(x) #x
 #define XSTR(x) _XSTR(x)
@@ -254,21 +255,6 @@ _entry:
 
 .Lfsp_in_the_wrong_place_msg:
 	.asciz "The FSP wasn't configured to run from its current address.\n"
-
-#define FSP_SUCCESS			0x00000000
-#define FSP_INVALID_PARAMETER		0x80000002
-#define FSP_UNSUPPORTED			0x80000003
-#define FSP_NOT_READY			0x80000006
-#define FSP_DEVICE_ERROR		0x80000007
-#define FSP_OUT_OF_RESOURCES		0x80000009
-#define FSP_VOLUME_CORRUPTED		0x8000000a
-#define FSP_NOT_FOUND			0x8000000e
-#define FSP_TIMEOUT			0x80000012
-#define FSP_ABORTED			0x80000015
-#define FSP_ALREADY_STARTED		0x80000014
-#define FSP_INCOMPATIBLE_VERSION	0x80000010
-#define FSP_SECURITY_VIOLATION		0x8000001a
-#define FSP_CRC_ERROR			0x8000001b
 
 /*
  * Now that we're back from TempRamInit, check the return code and, if the
