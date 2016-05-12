@@ -318,7 +318,7 @@ _entry:
 	push %edx
 	push %ecx
 	push %ebp
-	call call_fsp_init
+	call temp_stack_fsp
 
 	/* We should never get to the end of the module. */
 	mov $.Lend_of_module_msg, %esi

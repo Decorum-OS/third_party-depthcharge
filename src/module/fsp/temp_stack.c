@@ -20,27 +20,16 @@
  * MA 02111-1307 USA
  */
 
-.section .text.fsp_init_print_message
-.code32
+#include <stdint.h>
+#include <stdlib.h>
 
-.global fsp_init_print_message
-fsp_init_print_message:
-	mov 4(%esp), %eax
-	push %ebx
-	push %ebp
-	push %esi
-	push %edi
+#include "module/fsp/temp_stack.h"
 
-	mov %eax, %esi
-	mov %esp, %ebp
-	mov $0f, %esp
-	jmp preram_puts
-0:
-
-	mov %ebp, %esp
-	pop %edi
-	pop %esi
-	pop %ebp
-	pop %ebx
-
-	ret
+void temp_stack_fsp(void *fsp_info_header, void *temp_ram_base,
+		    void *temp_ram_end) __attribute__((noreturn));
+void temp_stack_fsp(void *fsp_info_header, void *temp_ram_base,
+		    void *temp_ram_end)
+{
+	temp_stack_puts("Preparing to call FSP memory init.\n");
+	halt();
+}

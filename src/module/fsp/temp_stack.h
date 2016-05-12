@@ -20,16 +20,9 @@
  * MA 02111-1307 USA
  */
 
-#include <stdint.h>
-#include <stdlib.h>
+#ifndef __MODULE_FSP_TEMP_STACK_H__
+#define __MODULE_FSP_TEMP_STACK_H__
 
-#include "module/fsp/fsp_init.h"
+void temp_stack_puts(const char *message);
 
-void call_fsp_init(void *fsp_info_header, void *temp_ram_base,
-		   uint32_t temp_ram_size) __attribute__((noreturn));
-void call_fsp_init(void *fsp_info_header, void *temp_ram_base,
-		   uint32_t temp_ram_size)
-{
-	fsp_init_print_message("Preparing to call FSP Init.\n");
-	halt();
-}
+#endif /* __MODULE_FSP_TEMP_STACK_H__ */

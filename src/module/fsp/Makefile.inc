@@ -16,8 +16,8 @@
 ##
 
 module-y += fsp_entry
-mod-fsp_entry-title = "real mode entry point"
-mod-fsp_entry-y += entry.S fsp_init.c fsp_init_asm.S
+mod-fsp_entry-title = "fsp entry point"
+mod-fsp_entry-y += entry.S temp_stack.c temp_stack_asm.S
 mod-fsp_entry-libs += $(COMMON_OBJECTS)
 mod-fsp_entry-ldscript += $(src)/src/module/fsp/entry.ldscript
 mod-fsp_entry-ldopts += -Wl,--relocatable -Wl,-d -Wl,--warn-common

@@ -20,9 +20,27 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __MODULE_FSP_FSP_INIT_H__
-#define __MODULE_FSP_FSP_INIT_H__
+.section .text.temp_stack_puts
+.code32
 
-void fsp_init_print_message(const char *message);
+.global temp_stack_puts
+temp_stack_puts:
+	mov 4(%esp), %eax
+	push %ebx
+	push %ebp
+	push %esi
+	push %edi
 
-#endif /* __MODULE_FSP_FSP_INIT_H__ */
+	mov %eax, %esi
+	mov %esp, %ebp
+	mov $0f, %esp
+	jmp preram_puts
+0:
+
+	mov %ebp, %esp
+	pop %edi
+	pop %esi
+	pop %ebp
+	pop %ebx
+
+	ret
