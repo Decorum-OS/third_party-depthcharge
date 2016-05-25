@@ -64,7 +64,9 @@ typedef struct __attribute__((packed))
 	uint32_t temp_ram_init_entry_offset;
 	uint32_t fsp_init_entry_offset;
 	uint32_t notify_phase_entry_offset;
-	uint32_t reserved_2;
+	uint32_t fsp_memory_init_entry_offset;
+	uint32_t temp_ram_exit_entry_offset;
+	uint32_t fsp_silicon_init_entry_offset;
 } FspInformationHeader;
 
 enum {
