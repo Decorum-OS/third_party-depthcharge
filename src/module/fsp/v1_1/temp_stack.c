@@ -92,7 +92,7 @@ void temp_stack_fsp(FspV1_1InformationHeader *header, uintptr_t temp_ram_base,
 	uint32_t result = board_fsp_v1_1_memory_init(&params, memory_init);
 
 	temp_stack_puts("FSP memory init returned ");
-	if (result != FspV1_1Success) {
+	if (result != FspSuccess) {
 		print_num(result);
 		temp_stack_puts(" (failure).\n");
 		halt();

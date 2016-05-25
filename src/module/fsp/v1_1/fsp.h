@@ -23,22 +23,7 @@
 #ifndef __MODULE_FSP_V1_1_FSP_H__
 #define __MODULE_FSP_V1_1_FSP_H__
 
-#define _FSP_V1_1_SUCCESS		0x00000000
-#define _FSP_V1_1_INVALID_PARAMETER	0x80000002
-#define _FSP_V1_1_UNSUPPORTED		0x80000003
-#define _FSP_V1_1_NOT_READY		0x80000006
-#define _FSP_V1_1_DEVICE_ERROR		0x80000007
-#define _FSP_V1_1_OUT_OF_RESOURCES	0x80000009
-#define _FSP_V1_1_VOLUME_CORRUPTED	0x8000000a
-#define _FSP_V1_1_NOT_FOUND		0x8000000e
-#define _FSP_V1_1_TIMEOUT		0x80000012
-#define _FSP_V1_1_ABORTED		0x80000015
-#define _FSP_V1_1_ALREADY_STARTED	0x80000014
-#define _FSP_V1_1_INCOMPATIBLE_VERSION	0x80000010
-#define _FSP_V1_1_SECURITY_VIOLATION	0x8000001a
-#define _FSP_V1_1_CRC_ERROR		0x8000001b
-
-#ifndef __ASSEMBLER__
+#include "module/fsp/fsp.h"
 
 #include <stdint.h>
 
@@ -69,23 +54,6 @@ typedef struct __attribute__((packed))
 	uint32_t fsp_silicon_init_entry_offset;
 } FspV1_1InformationHeader;
 
-enum {
-	FspV1_1Success = _FSP_V1_1_SUCCESS,
-	FspV1_1InvalidParameter = _FSP_V1_1_INVALID_PARAMETER,
-	FspV1_1Unsupported = _FSP_V1_1_UNSUPPORTED,
-	FspV1_1NotReady = _FSP_V1_1_NOT_READY,
-	FspV1_1DeviceError = _FSP_V1_1_DEVICE_ERROR,
-	FspV1_1OutOfResources = _FSP_V1_1_OUT_OF_RESOURCES,
-	FspV1_1VolumeCorrupted = _FSP_V1_1_VOLUME_CORRUPTED,
-	FspV1_1NotFound = _FSP_V1_1_NOT_FOUND,
-	FspV1_1Timeout = _FSP_V1_1_TIMEOUT,
-	FspV1_1Aborted = _FSP_V1_1_ABORTED,
-	FspV1_1AlreadyStarted = _FSP_V1_1_ALREADY_STARTED,
-	FspV1_1IncompatibleVersion = _FSP_V1_1_INCOMPATIBLE_VERSION,
-	FspV1_1SecurityViolation = _FSP_V1_1_SECURITY_VIOLATION,
-	FspV1_1CrcError = _FSP_V1_1_CRC_ERROR
-};
-
 typedef struct __attribute__((packed))
 {
 	uint64_t pcd_vpd_region_sign;
@@ -100,24 +68,5 @@ typedef struct __attribute__((packed))
 	uint64_t signature;
 	uint64_t _reserved_0;
 } FspV1_1Upd;
-
-#else /* __ASSEMBLER__ */
-
-#define FSP_V1_1_SUCCESS		_FSP_V1_1_SUCCESS
-#define FSP_V1_1_INVALID_PARAMETER	_FSP_V1_1_INVALID_PARAMETER
-#define FSP_V1_1_UNSUPPORTED		_FSP_V1_1_UNSUPPORTED
-#define FSP_V1_1_NOT_READY		_FSP_V1_1_NOT_READY
-#define FSP_V1_1_DEVICE_ERROR		_FSP_V1_1_DEVICE_ERROR
-#define FSP_V1_1_OUT_OF_RESOURCES	_FSP_V1_1_OUT_OF_RESOURCES
-#define FSP_V1_1_VOLUME_CORRUPTED	_FSP_V1_1_VOLUME_CORRUPTED
-#define FSP_V1_1_NOT_FOUND		_FSP_V1_1_NOT_FOUND
-#define FSP_V1_1_TIMEOUT		_FSP_V1_1_TIMEOUT
-#define FSP_V1_1_ABORTED		_FSP_V1_1_ABORTED
-#define FSP_V1_1_ALREADY_STARTED	_FSP_V1_1_ALREADY_STARTED
-#define FSP_V1_1_INCOMPATIBLE_VERSION	_FSP_V1_1_INCOMPATIBLE_VERSION
-#define FSP_V1_1_SECURITY_VIOLATION	_FSP_V1_1_SECURITY_VIOLATION
-#define FSP_V1_1_CRC_ERROR		_FSP_V1_1_CRC_ERROR
-
-#endif
 
 #endif /* __MODULE_FSP_V1_1_FSP_H__ */

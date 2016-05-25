@@ -21,7 +21,7 @@
  */
 
 #include "arch/x86/preram/util.inc"
-#include "module/fsp/v1_1/fsp.h"
+#include "module/fsp/fsp.h"
 
 #define _XSTR(x) #x
 #define XSTR(x) _XSTR(x)
@@ -264,42 +264,42 @@ _entry:
 .Lfsp_temp_ram_init_complete:
 
 	/* Check the FSP return value. */
-	cmp $FSP_V1_1_INVALID_PARAMETER, %eax
+	cmp $FSP_INVALID_PARAMETER, %eax
 	jne 1f
 	mov $0f, %edi
 	jmp .Lbad_fsp_temp_ram_init_return_value
 0:
 	.asciz "FSP_INVALID_PARAMETER.\n"
 1:
-	cmp $FSP_V1_1_NOT_FOUND, %eax
+	cmp $FSP_NOT_FOUND, %eax
 	jne 1f
 	mov $0f, %edi
 	jmp .Lbad_fsp_temp_ram_init_return_value
 0:
 	.asciz "FSP_NOT_FOUND.\n"
 1:
-	cmp $FSP_V1_1_UNSUPPORTED, %eax
+	cmp $FSP_UNSUPPORTED, %eax
 	jne 1f
 	mov $0f, %edi
 	jmp .Lbad_fsp_temp_ram_init_return_value
 0:
 	.asciz "FSP_UNSUPPORTED.\n"
 1:
-	cmp $FSP_V1_1_DEVICE_ERROR, %eax
+	cmp $FSP_DEVICE_ERROR, %eax
 	jne 1f
 	mov $0f, %edi
 	jmp .Lbad_fsp_temp_ram_init_return_value
 0:
 	.asciz "FSP_DEVICE_ERROR.\n"
 1:
-	cmp $FSP_V1_1_ALREADY_STARTED, %eax
+	cmp $FSP_ALREADY_STARTED, %eax
 	jne 1f
 	mov $0f, %edi
 	jmp .Lbad_fsp_temp_ram_init_return_value
 0:
 	.asciz "FSP_ALREADY_STARTED.\n"
 1:
-	cmp $FSP_V1_1_SUCCESS, %eax
+	cmp $FSP_SUCCESS, %eax
 	je 1f
 	mov $0f, %edi
 	jmp .Lbad_fsp_temp_ram_init_return_value
