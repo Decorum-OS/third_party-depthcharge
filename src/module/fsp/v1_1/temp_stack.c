@@ -25,8 +25,8 @@
 #include <string.h>
 
 #include "module/fsp/temp_stack.h"
-#include "module/fsp/fsp.h"
-#include "module/fsp/fsp_memory_init.h"
+#include "module/fsp/v1_1/fsp.h"
+#include "module/fsp/v1_1/fsp_memory_init.h"
 
 static void print_num(uint32_t num)
 {
@@ -128,9 +128,9 @@ static const uint8_t dqs_map_cpu_2_dram[16] = {
 	2, 1, 0, 3, 6, 5, 4, 7,
 };
 
-void temp_stack_fsp(FspInformationHeader *header, void *temp_ram_base,
+void temp_stack_fsp(FspV1_1InformationHeader *header, void *temp_ram_base,
 		    void *temp_ram_end) __attribute__((noreturn));
-void temp_stack_fsp(FspInformationHeader *header, void *temp_ram_base,
+void temp_stack_fsp(FspV1_1InformationHeader *header, void *temp_ram_base,
 		    void *temp_ram_end)
 {
 	temp_stack_puts("Preparing to call FSP memory init.\n");
@@ -138,19 +138,19 @@ void temp_stack_fsp(FspInformationHeader *header, void *temp_ram_base,
 	uintptr_t memory_init_addr = header->image_base +
 				     header->fsp_memory_init_entry_offset;
 
-	FspMemoryInit memory_init = (FspMemoryInit)memory_init_addr;
+	FspV1_1MemoryInit memory_init = (FspV1_1MemoryInit)memory_init_addr;
 
-	FspInitRtBuffer rt_buffer;
+	FspV1_1InitRtBuffer rt_buffer;
 	memset(&rt_buffer, 0, sizeof(rt_buffer));
 
 	uintptr_t vpd_addr = header->image_base + header->cfg_region_offset;
-	VpdDataRegion *vpd_ptr = (VpdDataRegion *)vpd_addr;
+	FspV1_1VpdDataRegion *vpd_ptr = (FspV1_1VpdDataRegion *)vpd_addr;
 
 	uintptr_t upd_addr = header->image_base +
 			     vpd_ptr->pcd_upd_region_offset;
-	UpdDataRegion *upd_ptr = (UpdDataRegion *)upd_addr;
+	FspV1_1UpdDataRegion *upd_ptr = (FspV1_1UpdDataRegion *)upd_addr;
 
-	UpdDataRegion upd;
+	FspV1_1UpdDataRegion upd;
 	memcpy(&upd, upd_ptr, sizeof(upd));
 
 	upd.spd_data_buffer_0_0 = (uintptr_t)hard_coded_spd_data;
@@ -161,10 +161,10 @@ void temp_stack_fsp(FspInformationHeader *header, void *temp_ram_base,
 	       sizeof(upd.dqs_map_cpu_2_dram));
 	upd.dq_dqs_data_effective = 1;
 
-	rt_buffer.common.boot_mode = BootWithFullConfiguration;
+	rt_buffer.common.boot_mode = FspV1_1BootWithFullConfiguration;
 	rt_buffer.common.upd_data_rgn_ptr = &upd;
 
-	FspMemoryInitParams params;
+	FspV1_1MemoryInitParams params;
 	memset(&params, 0, sizeof(params));
 
 	params.rt_buffer_ptr = &rt_buffer;
@@ -174,7 +174,7 @@ void temp_stack_fsp(FspInformationHeader *header, void *temp_ram_base,
 	uint32_t result = memory_init(&params);
 
 	temp_stack_puts("FSP memory init returned ");
-	if (result != FspSuccess) {
+	if (result != FspV1_1Success) {
 		print_num(result);
 		temp_stack_puts(" (failure).\n");
 		halt();

@@ -20,23 +20,23 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __MODULE_FSP_INIT_H__
-#define __MODULE_FSP_INIT_H__
+#ifndef __MODULE_FSP_V1_1_FSP_INIT_H__
+#define __MODULE_FSP_V1_1_FSP_INIT_H__
 
 #include <stdint.h>
 
 enum {
-	BootWithFullConfiguration = 0x0,
-	BootWithMinimalConfiguration = 0x1,
-	BootAssumingNoConfigurationChanges = 0x2,
-	BootWithFullConfigurationPlusDiagnostics = 0x3,
-	BootWithDefaultSettings = 0x4,
-	BootOnS4Resume = 0x5,
-	BootOnS5Resume = 0x6,
-	BootOnS2Resume = 0x10,
-	BootOnS3Resume = 0x11,
-	BootOnFlashUpdate = 0x12,
-	BootInRecoveryMode = 0x20
+	FspV1_1BootWithFullConfiguration = 0x0,
+	FspV1_1BootWithMinimalConfiguration = 0x1,
+	FspV1_1BootAssumingNoConfigurationChanges = 0x2,
+	FspV1_1BootWithFullConfigurationPlusDiagnostics = 0x3,
+	FspV1_1BootWithDefaultSettings = 0x4,
+	FspV1_1BootOnS4Resume = 0x5,
+	FspV1_1BootOnS5Resume = 0x6,
+	FspV1_1BootOnS2Resume = 0x10,
+	FspV1_1BootOnS3Resume = 0x11,
+	FspV1_1BootOnFlashUpdate = 0x12,
+	FspV1_1BootInRecoveryMode = 0x20
 };
 
 typedef struct __attribute__((packed))
@@ -47,13 +47,13 @@ typedef struct __attribute__((packed))
 	uint8_t sdi_no;
 	uint16_t data_dwords;
 	uint32_t reserved;
-} AzaliaHeader;
+} FspV1_1AzaliaHeader;
 
 typedef struct __attribute__((packed))
 {
-	AzaliaHeader header;
+	FspV1_1AzaliaHeader header;
 	uint32_t *data;
-} AudioAzaliaVerbTable;
+} FspV1_1AudioAzaliaVerbTable;
 
 typedef struct __attribute__((packed))
 {
@@ -98,7 +98,7 @@ typedef struct __attribute__((packed))
 	uint8_t pcd_fast_boot;
 	uint8_t pcd_user_crb_board_type;
 	uint8_t unused_upd_space_6[130];
-	AudioAzaliaVerbTable *azalia_verb_table_ptr;
+	FspV1_1AudioAzaliaVerbTable *azalia_verb_table_ptr;
 	uint64_t unused_upd_space7;
 	uint8_t dq_dqs_data_effective;
 	uint8_t unused_upd_space_8[11];
@@ -111,7 +111,7 @@ typedef struct __attribute__((packed))
 	uint32_t spd_data_buffer_1_1;
 	uint8_t unused_upd_space_10[240];
 	uint16_t pcd_region_terminator;
-} UpdDataRegion;
+} FspV1_1UpdDataRegion;
 
 typedef struct __attribute__((packed))
 {
@@ -121,30 +121,30 @@ typedef struct __attribute__((packed))
 	uint8_t unused_vpd_space_0[16];
 	uint32_t pcd_fsp_reserved_memory_length;
 	uint8_t pcd_port_80_route;
-} VpdDataRegion;
+} FspV1_1VpdDataRegion;
 
 typedef struct __attribute__((packed))
 {
 	uint32_t *stack_top;
 	uint32_t boot_mode;
-	UpdDataRegion *upd_data_rgn_ptr;
+	FspV1_1UpdDataRegion *upd_data_rgn_ptr;
 	uint32_t reserved[7];
-} FspInitRtCommonBuffer;
+} FspV1_1InitRtCommonBuffer;
 
 typedef struct __attribute__((packed))
 {
-	FspInitRtCommonBuffer common;
-} FspInitRtBuffer;
+	FspV1_1InitRtCommonBuffer common;
+} FspV1_1InitRtBuffer;
 
-typedef void (*FspInitContinuation)(uint32_t status, void *hob_list_ptr);
+typedef void (*FspV1_1InitContinuation)(uint32_t status, void *hob_list_ptr);
 
 typedef struct __attribute__((packed))
 {
 	void *nvs_buffer_ptr;
-	FspInitRtBuffer *rt_buffer_ptr;
-	FspInitContinuation continuation_func;
-} FspInitParams;
+	FspV1_1InitRtBuffer *rt_buffer_ptr;
+	FspV1_1InitContinuation continuation_func;
+} FspV1_1InitParams;
 
-typedef uint32_t (*FspInitFunc)(FspInitParams *fsp_init_param_ptr);
+typedef uint32_t (*FspV1_1InitFunc)(FspV1_1InitParams *fsp_init_param_ptr);
 
-#endif /* __MODULE_FSP_INIT_H__ */
+#endif /* __MODULE_FSP_V1_1_FSP_INIT_H__ */

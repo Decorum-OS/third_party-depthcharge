@@ -15,8 +15,10 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-subdirs-y += v1_1
-
-classes-y += fsp_common
-
-fsp_common-y += temp_stack_asm.S
+module-y += fsp_v1_1_entry
+mod-fsp_v1_1_entry-title = "fsp v1.1 entry point"
+mod-fsp_v1_1_entry-y += entry.S temp_stack.c
+mod-fsp_v1_1_entry-libs += $(COMMON_OBJECTS) $(fsp_common-objs)
+mod-fsp_v1_1_entry-ldscript += $(src)/src/module/fsp/v1_1/entry.ldscript
+mod-fsp_v1_1_entry-ldopts += -Wl,--relocatable -Wl,-d -Wl,--warn-common
+mod-fsp_v1_1_entry-ldopts += -Wl,--entry=_entry

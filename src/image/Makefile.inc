@@ -117,9 +117,9 @@ STANDARD_IMAGES=y
 endif # CONFIG_BOOTPLAN_CB_IMAGE
 
 
-ifeq ($(CONFIG_BOOTPLAN_FSP),y)
+ifeq ($(CONFIG_BOOTPLAN_FSP_V1_1),y)
 
-BUILD_IMAGE_LAYOUT = fsp
+BUILD_IMAGE_LAYOUT = fsp_v1_1
 
 BUILD_IMAGE_LAYOUT_OPTS = \
 	--size=$(CONFIG_IMAGE_SIZE_KB) \
@@ -131,11 +131,11 @@ modules: $$(module_obj)/cb_payload.payload
 modules: $$(module_obj)/cb_dev.payload
 modules: $$(module_obj)/cb_netboot.payload
 
-modules: $$(module_obj)/fsp_entry.mod
+modules: $$(module_obj)/fsp_v1_1_entry.mod
 
 STANDARD_IMAGES=y
 
-endif # CONFIG_BOOTPLAN_FSP
+endif # CONFIG_BOOTPLAN_FSP_V1_1
 
 
 ifeq ($(CONFIG_BOOTPLAN_QEMU_X86),y)

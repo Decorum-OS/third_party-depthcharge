@@ -63,6 +63,9 @@ config IMAGE_HWID
 	string "The hardware ID stored in the GBB"
 	default ""
 
+config BOOTPLAN_FSP
+        bool "Image based on Intel's firmware support package."
+
 choice
 	prompt "Boot plan"
 	help
@@ -79,8 +82,9 @@ config BOOTPLAN_CB_PAYLOAD
 config BOOTPLAN_CB_IMAGE
 	bool "Coreboot based image (coreboot selects firmware)"
 
-config BOOTPLAN_FSP
-	bool "Image based on Intel's firmware support package."
+config BOOTPLAN_FSP_V1_1
+	bool "Image based on Intel's firmware support package version 1.1."
+	select BOOTPLAN_FSP
 
 config BOOTPLAN_QEMU_X86
 	bool "Basic x86 image suitable for booting on QEMU."

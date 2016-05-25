@@ -196,7 +196,7 @@ def prepare(options):
     gbb_flags = None
     paths = {
         "dc_bin": "cb_payload.payload",
-        "entry": "fsp_entry.mod",
+        "entry": "fsp_v1_1_entry.mod",
         "fsp": "FSP.fd",
         "ifd": "descriptor.bin",
         "me": "me.bin",
