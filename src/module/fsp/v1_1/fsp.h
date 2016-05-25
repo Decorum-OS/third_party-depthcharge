@@ -86,6 +86,21 @@ enum {
 	FspV1_1CrcError = _FSP_V1_1_CRC_ERROR
 };
 
+typedef struct __attribute__((packed))
+{
+	uint64_t pcd_vpd_region_sign;
+	uint32_t pcd_image_revision;
+	uint32_t pcd_upd_region_offset;
+	uint32_t pcd_upd_region_size;
+	uint8_t _reserved_0[12];
+} FspV1_1Vpd;
+
+typedef struct __attribute__((packed))
+{
+	uint64_t signature;
+	uint64_t _reserved_0;
+} FspV1_1Upd;
+
 #else /* __ASSEMBLER__ */
 
 #define FSP_V1_1_SUCCESS		_FSP_V1_1_SUCCESS

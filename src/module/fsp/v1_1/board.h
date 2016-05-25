@@ -20,16 +20,13 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __MODULE_FSP_V1_1_FSP_MEMORY_INIT_H__
-#define __MODULE_FSP_V1_1_FSP_MEMORY_INIT_H__
+#ifndef __MODULE_FSP_BOARD_1_1_H__
+#define __MODULE_FSP_BOARD_1_1_H__
 
-typedef struct __attribute__((packed))
-{
-	void *nvs_buffer_ptr;
-	void *rt_buffer_ptr;
-	void **hob_list_ptr;
-} FspV1_1MemoryInitParams;
+#include "module/fsp/v1_1/fsp.h"
+#include "module/fsp/v1_1/fsp_memory_init.h"
 
-typedef uint32_t (*FspV1_1MemoryInit)(FspV1_1MemoryInitParams *params);
+uint32_t board_fsp_v1_1_memory_init(FspV1_1MemoryInitParams *params,
+				    FspV1_1MemoryInit memory_init_func);
 
-#endif /* __MODULE_FSP_V1_1_FSP_MEMORY_INIT_H__ */
+#endif /* __MODULE_FSP_BOARD_1_1_H__ */
