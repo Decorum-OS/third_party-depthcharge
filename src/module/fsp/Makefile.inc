@@ -19,4 +19,5 @@ subdirs-y += v1_1
 
 classes-y += fsp_common
 
+fsp_common-y += temp_stack.c
 fsp_common-y += temp_stack_asm.S

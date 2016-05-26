@@ -42,7 +42,8 @@
 
 #include <stdint.h>
 
-enum {
+enum
+{
 	FspSuccess = _FSP_SUCCESS,
 	FspInvalidParameter = _FSP_INVALID_PARAMETER,
 	FspUnsupported = _FSP_UNSUPPORTED,
@@ -58,6 +59,136 @@ enum {
 	FspSecurityViolation = _FSP_SECURITY_VIOLATION,
 	FspCrcError = _FSP_CRC_ERROR
 };
+
+typedef struct __attribute__((packed))
+{
+	uint32_t data1;
+	uint16_t data2;
+	uint16_t data3;
+	uint8_t data4[8];
+} EfiGuid;
+
+enum
+{
+	EfiMemTypeReserved,
+	EfiMemTypeLoaderCode,
+	EfiMemTypeLoaderData,
+	EfiMemTypeServicesCode,
+	EfiMemTypeServicesData,
+	EfiMemTypeConventional,
+	EfiMemTypeUnusable,
+	EfiMemTypeAcpiReclaim,
+	EfiMemTypeAcpiNvs,
+	EfiMemTypeMemMappedIo,
+	EfiMemTypeMemMappedIoPortSpace,
+	EfiMemTypePalCode,
+	EfiMemTypeMax,
+};
+
+typedef uint32_t EfiResource;
+typedef uint32_t EfiResourceAttribute;
+
+// Values for resource_type in EfiHobResourceDescriptor.
+enum
+{
+	EfiResourceSystemMemory = 0,
+	EfiResourceMemoryMappedIo = 1,
+	EfiResourceIo = 2,
+	EfiResourceFirmwareDevice = 3,
+	EfiResourceMemoryMappedIoPort = 4,
+	EfiResourceMemoryReserved = 5,
+	EfiResourceIoReserved = 6,
+	EfiResourceMaxMemoryType = 7,
+};
+
+// Resource settings.
+enum
+{
+	EfiResourceAttributePresent = 0x1,
+	EfiResourceAttributeInitialized = 0x2,
+	EfiResourceAttributeTested = 0x4,
+};
+
+// Resource capabilities.
+enum
+{
+	EfiResourceAttributeSingleBitEcc = 0x8,
+	EfiResourceAttributeMultipleBitEcc = 0x10,
+	EfiResourceAttributeEccReserved_1 = 0x20,
+	EfiResourceAttributeEccReserved_2 = 0x40,
+	EfiResourceAttributeReadProtected = 0x80,
+	EfiResourceAttributeWriteProtected = 0x100,
+	EfiResourceAttributeExecutionProtected = 0x200,
+	EfiResourceAttributeUncacheable = 0x400,
+	EfiResourceAttributeWriteCombineable = 0x800,
+	EfiResourceAttributeWriteThroughCacheable = 0x1000,
+	EfiResourceAttributeWriteBackCacheable = 0x2000,
+	EfiResourceAttribute16BitIo = 0x4000,
+	EfiResourceAttribute32BitIo = 0x8000,
+	EfiResourceAttribute64BitIo = 0x10000,
+	EfiResourceAttributeUncachedExported = 0x20000,
+};
+
+// Values for hob_type in EfiHobGenericHeader.
+enum
+{
+	EfiHobTypeHandoff = 0x1,
+	EfiHobTypeMemoryAllocation = 0x2,
+	EfiHobTypeResourceDescriptor = 0x3,
+	EfiHobTypeGuidExtension = 0x4,
+	EfiHobTypeFv = 0x5,
+	EfiHobTypeCpu = 0x6,
+	EfiHobTypeMemoryPool = 0x7,
+	EfiHobTypeUnused = 0xfffe,
+	EfiHobTypeEndOfHobList = 0xffff,
+};
+
+typedef struct __attribute__((packed))
+{
+	uint16_t hob_type;
+	uint16_t hob_length;
+	uint32_t reserved;
+} EfiHobGenericHeader;
+
+typedef struct __attribute__((packed))
+{
+	EfiGuid name;
+	uint64_t memory_base_address;
+	uint64_t memory_length;
+	uint32_t memory_type;
+	uint8_t _reserved_0[4];
+} EfiHobMemoryAllocationHeader;
+
+typedef struct __attribute__((packed))
+{
+	EfiHobGenericHeader header;
+	EfiHobMemoryAllocationHeader alloc_descriptor;
+} EfiHobMemoryAllocation;
+
+typedef struct __attribute__((packed))
+{
+	EfiHobGenericHeader header;
+	EfiGuid owner;
+	EfiResource resource_type;
+	EfiResourceAttribute resource_attribute;
+	uint64_t physical_start;
+	uint64_t resource_length;
+} EfiHobResourceDescriptor;
+
+typedef struct __attribute__((packed))
+{
+	EfiHobGenericHeader header;
+	EfiGuid name;
+} EfiHobGuidType;
+
+typedef union
+{
+	EfiHobGenericHeader *header;
+	EfiHobMemoryAllocation *memory_allocation;
+	EfiHobResourceDescriptor *resource_descriptor;
+	EfiHobGuidType *guid;
+	uint8_t *raw;
+} EfiHobPointers;
 
 #else /* __ASSEMBLER__ */
 

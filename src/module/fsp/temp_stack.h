@@ -23,6 +23,20 @@
 #ifndef __MODULE_FSP_TEMP_STACK_H__
 #define __MODULE_FSP_TEMP_STACK_H__
 
+#include <stdint.h>
+
+#include "module/fsp/fsp.h"
+
 void temp_stack_puts(const char *message);
+
+void temp_stack_print_num(uint64_t num, int width);
+void temp_stack_print_num64(uint64_t num);
+void temp_stack_print_num32(uint32_t num);
+void temp_stack_print_num16(uint16_t num);
+void temp_stack_print_num8(uint8_t num);
+
+void temp_stack_print_guid(EfiGuid *guid);
+
+void temp_stack_print_hob_list(EfiHobPointers hob_list_ptr);
 
 #endif /* __MODULE_FSP_TEMP_STACK_H__ */
