@@ -21,6 +21,7 @@
  */
 
 #include <stdint.h>
+#include <string.h>
 
 #include "module/fsp/temp_stack.h"
 #include "module/fsp/fsp.h"
@@ -29,28 +30,112 @@ void temp_stack_print_num(uint64_t num, int width)
 {
 	for (int digit_idx = width; digit_idx; digit_idx--) {
 		uint64_t digit = (num >> ((digit_idx - 1) * 4)) & 0xf;
-		uint64_t character = (digit < 10) ? ('0' + digit) :
+		uint32_t character = (digit < 10) ? ('0' + digit) :
 						    ('a' + digit - 10);
 		__asm__ __volatile__(
-			"push %%ebx\n"
-			"push %%eax\n"
-			"push %%edx\n"
 			"push %%ebp\n"
 			"pushf\n"
-			"mov %0, %%ebx\n"
-			"mov %%esp, %%ebp\n"
+
+			"mov %%esp, %%dr0\n"
 			"mov $0f, %%esp\n"
 			"jmp preram_uart_send_char\n"
 			"0:\n"
-			"mov %%ebp, %%esp\n"
+			"mov %%dr0, %%esp\n"
+
 			"popf\n"
 			"pop %%ebp\n"
-			"pop %%edx\n"
-			"pop %%eax\n"
-			"pop %%ebx\n"
-		: : "r" (character)
+		: : "b"(character) : "eax", "ecx", "edx", "esi", "edi"
 		);
 	}
+}
+
+void *temp_stack_find_dcdir_anchor(void)
+{
+	void *anchor;
+	__asm__ __volatile__(
+		"push %%ebp\n"
+		"pushf\n"
+
+		"mov %%esp, %%dr0\n"
+		"mov $0f, %%esp\n"
+		"jmp preram_find_dcdir_anchor\n"
+		"0:\n"
+		"mov %%dr0, %%esp\n"
+
+		"popf\n"
+		"pop %%ebp\n"
+	: "=D"(anchor) : : "eax", "ebx", "ecx", "edx", "esi"
+	);
+	return anchor;
+}
+
+void *temp_stack_find_in_dir(uint32_t *size, uint32_t *new_base, int *is_dir,
+			     const char *name, uint32_t base, void *dir)
+{
+	uint32_t name_buf[2];
+	memset(name_buf, 0, sizeof(name_buf));
+	strncpy((void *)name_buf, name, sizeof(name_buf));
+
+	uint32_t _size, _new_base, _is_dir;
+
+	void *child;
+	__asm__ __volatile__(
+		"push %%ebp\n"
+		"pushf\n"
+
+		"mov %%esp, %%dr0\n"
+		"mov $0f, %%esp\n"
+		"jmp preram_find_in_dir\n"
+		"0:\n"
+		"mov %%dr0, %%esp\n"
+
+		"pushf\n"
+		"pop %%edi\n"
+		"and $1, %%edi\n"
+
+		"popf\n"
+		"pop %%ebp\n"
+	: "=a"(child), "=d"(_size), "=S"(_new_base), "=D"(_is_dir)
+	: "a"(name_buf[0]), "d"(name_buf[1]), "S"(base), "D"(dir)
+	: "ebx", "ecx"
+	);
+
+	if (size)
+		*size = _size;
+	if (new_base)
+		*new_base = _new_base;
+	if (is_dir)
+		*is_dir = _is_dir;
+
+	return child;
+}
+
+void *temp_stack_find_dir_in_dir(uint32_t *size, uint32_t *new_base,
+				 const char *name, uint32_t base, void *dir)
+{
+	int is_dir;
+	void *res = temp_stack_find_in_dir(size, new_base, &is_dir,
+					   name, base, dir);
+	if (!is_dir) {
+		temp_stack_puts(name);
+		temp_stack_puts(" is not a directory.\n");
+		return NULL;
+	}
+	return res;
+}
+
+void *temp_stack_find_region_in_dir(uint32_t *size, uint32_t *new_base,
+				    const char *name, uint32_t base, void *dir)
+{
+	int is_dir;
+	void *res = temp_stack_find_in_dir(size, new_base, &is_dir,
+					   name, base, dir);
+	if (is_dir) {
+		temp_stack_puts(name);
+		temp_stack_puts(" is a directory.\n");
+		return NULL;
+	}
+	return res;
 }
 
 void temp_stack_print_num64(uint64_t num)

@@ -39,4 +39,12 @@ void temp_stack_print_guid(EfiGuid *guid);
 
 void temp_stack_print_hob_list(EfiHobPointers hob_list_ptr);
 
+void *temp_stack_find_dcdir_anchor(void);
+void *temp_stack_find_in_dir(uint32_t *size, uint32_t *new_base, int *is_dir,
+			     const char *name, uint32_t base, void *dir);
+void *temp_stack_find_dir_in_dir(uint32_t *size, uint32_t *new_base,
+				 const char *name, uint32_t base, void *dir);
+void *temp_stack_find_region_in_dir(uint32_t *size, uint32_t *new_base,
+				    const char *name, uint32_t base, void *dir);
+
 #endif /* __MODULE_FSP_TEMP_STACK_H__ */
