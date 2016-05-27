@@ -121,6 +121,7 @@ class Image(RootDirectory):
                 Region("VPD").size(16 * KB),
                 Region("FWID", Fwid(model)).shrink(),
                 Directory("FIRMWARE",
+                    Region("FW SEL", File(paths["fw sel"])).shrink(),
                     Region("U_CODE", microcode).shrink(),
                     Region("FSP", fsp).shrink(),
                     backjump.target_marker(),
@@ -197,6 +198,7 @@ def prepare(options):
     paths = {
         "dc_bin": "cb_payload.payload",
         "entry": "fsp_v1_1_entry.mod",
+        "fw sel": "fsp_v1_1_fw_sel.bin",
         "fsp": "FSP.fd",
         "ifd": "descriptor.bin",
         "me": "me.bin",

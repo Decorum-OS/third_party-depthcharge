@@ -132,6 +132,7 @@ modules: $$(module_obj)/cb_dev.payload
 modules: $$(module_obj)/cb_netboot.payload
 
 modules: $$(module_obj)/fsp_v1_1_entry.mod
+modules: $$(module_obj)/fsp_v1_1_fw_sel.bin
 
 STANDARD_IMAGES=y
 
