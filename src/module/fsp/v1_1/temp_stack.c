@@ -24,11 +24,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "base/dcdir_structs.h"
 #include "module/fsp/temp_stack.h"
 #include "module/fsp/v1_1/board.h"
 #include "module/fsp/v1_1/fsp.h"
 #include "module/fsp/v1_1/fsp_init.h"
 #include "module/fsp/v1_1/fsp_memory_init.h"
+#include "module/module.h"
 
 
 // This should probably be moved into a kconfig setting.
@@ -78,6 +80,34 @@ void temp_stack_fsp(FspV1_1InformationHeader *header, uintptr_t temp_ram_base,
 
 	if (debug_print_hob_list)
 		temp_stack_print_hob_list(hob_list_ptr);
+
+	DcDirAnchor *anchor = temp_stack_find_dcdir_anchor();
+	if (!anchor)
+		halt();
+	void *root = (uint8_t *)anchor + sizeof(DcDirAnchor);
+	uint32_t base = anchor->root_base;
+
+	void *ro = temp_stack_find_dir_in_dir(
+		NULL, &base, "RO", base, root);
+	if (!ro) {
+		temp_stack_puts("/RO not found.\n");
+		halt();
+	}
+
+	void *firmware = temp_stack_find_dir_in_dir(
+		NULL, &base, "FIRMWARE", base, ro);
+	if (!firmware) {
+		temp_stack_puts("/RO/FIRMWARE not found.\n");
+		halt();
+	}
+
+	uint32_t size;
+	void *fw_sel = temp_stack_find_region_in_dir(
+		&size, &base, "FW SEL", base, firmware);
+	if (!fw_sel) {
+		temp_stack_puts("/RO/FIRMWARE/FW SEL not found.\n");
+		halt();
+	}
 
 	halt();
 }
