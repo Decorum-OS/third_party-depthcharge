@@ -26,6 +26,7 @@
 ##
 
 libc-y += ctype.c
+libc-y += elf.c
 libc-y += lib.c
 libc-y += malloc.c
 libc-y += memory.c

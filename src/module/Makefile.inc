@@ -15,7 +15,7 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-subdirs-y += cb fsp qemu
+subdirs-y += cb fsp qemu trampoline
 
 depthcharge-y += module.c
 
@@ -85,22 +85,3 @@ COMMON_OBJECTS = $(depthcharge-objs) $(VB_LIB) $(LIBPAYLOAD_OBJECTS)
 
 NET_OBJECTS = $(netboot-objs) $(net-objs) $(uip-objs)
 DEV_OBJECTS = $(NET_OBJECTS) $(dev-objs) $(gdb-objs)
-
-
-
-TRAMPOLINE = $(module_obj)/trampoline.mod
-
-module-y += trampoline
-mod-trampoline-y += trampoline.c
-mod-trampoline-libs += $(libc-objs)
-mod-trampoline-ldscript += $(src)/src/module/trampoline.ldscript
-mod-trampoline-ldopts += -Wl,--relocatable -Wl,-d -Wl,--entry=trampoline
-mod-trampoline-ldopts += -Wl,--undefined=trampoline_stack -Wl,--warn-common
-
-# Make all the symbols in the trampoline local, except the trampoline entry
-# point and stack.
-$(module_obj)/trampoline.mod: $(module_obj)/trampoline.elf
-	@printf "    OBJCOPY    $(subst $(obj)/,,$@)\n"
-	$(Q)$(OBJCOPY) $< $@ \
-		--keep-global-symbol=trampoline \
-		--keep-global-symbol=trampoline_stack

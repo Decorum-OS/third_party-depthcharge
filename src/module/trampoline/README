@@ -1,0 +1,39 @@
+Different depthcharge modules may need to run from overlapping memory regions.
+Loading one from the other directly would be problematic, because parts of the
+first module might be overwritten by the second before they're done being used.
+The trampoline module works around that problem by being loaded somewhere else
+in memory and loading the second module on behalf of the first. It contains
+just enough logic that it can load a pre-vetted ELF file. It has its own stack
+since that might also be overwritten along with the rest of the module, but
+that stack is set up as part of loading the trampoline rather than by the
+trampoline itself since the originating module has facilities for catching
+and reporting exceptions.
+
+To ensure that the trampoline is independent of its parent module it's linked
+independently into its own ELF file. Previously, the trampoline would then be
+linked into the parent module. The problem with that, though, is that the
+linker tricks are necessary to load the trampoline in one place but to make
+it run in another. Also, the BSS of the trampoline would be zeroed when loading
+the parent module. When transplanting the trampoline into place when it's time
+for it to run, either the BSS (a bank of zeroes) will have to be copied, or
+support for recognizing the BSS and treating it specially would have to be
+added.
+
+Instead, the trampoline can be stored as a compressed ELF file in the module
+as a raw binary blob. The code which the trampoline uses to load the next
+module can be used to load the trampoline itself. The few symbols that are
+necessary to load and call into the trampoline are linked into the parent
+module using the --just-symbols linker option. When the trampoline is loaded,
+those symbols will map to locations in it.
+
+To allow putting the trampoline at different locations depending on the needs
+of the parent module, the trampoline is linked twice. The first time it's
+linked as a relocatable module. The subsequent times it's linked into its
+final location based on the base address which is part of the file name.
+
+Two different versions of the trampoline are created. The first is an ELF
+which is used with the --just-symbols option as described above. The second
+is the compressed ELF binary which is wrapped in an object file so it can be
+linked into another ELF. The path of the binary is handled very carefully so
+that the symbols gcc automatically creates which describe it have the names
+we expect.

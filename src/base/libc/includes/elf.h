@@ -128,4 +128,8 @@ typedef struct {
 	uint64_t p_align;
 } Elf64_Phdr;
 
+void elf_load(Elf32_Ehdr *ehdr);
+void elf_start(Elf32_Ehdr *ehdr, void *param) __attribute__((noreturn));
+int elf_check_header(Elf32_Ehdr *ehdr);
+
 #endif /* __BASE_ELF_H__ */

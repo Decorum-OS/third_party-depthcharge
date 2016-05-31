@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Advanced Micro Devices, Inc.
+ * Copyright 2016 Google, Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,68 +25,20 @@
  * SUCH DAMAGE.
  */
 
-/*
- * KERNEL_START, KERNEL_SIZE, BASE_ADDRESS, and GBB_COPY_SIZE come from KConfig
- */
-
-ENTRY(_entry)
 
 SECTIONS
 {
-	. = KERNEL_START;
-	_kernel_start = KERNEL_START;
+	. = _final_link_base;
 
-	. = KERNEL_START + KERNEL_SIZE;
-	_kernel_end = .;
-
-
-	/* The main portion of depthcharge. */
-	. = BASE_ADDRESS;
-
-	. = ALIGN(16);
-	_start = .;
-
-	.text : {
-		*(.text._entry)
-		*(.text)
-		*(.text.*)
+	.load : {
+		_tramp_start = .;
+		*(.load)
 	}
-
-	.rodata : {
-		*(.rodata)
-		*(.rodata.*)
+	.noload : {
+		*(.noload)
+		_tramp_end = .;
 	}
-
-	.data : {
-		*(.data)
-		*(.data.*)
-
-		_init_funcs_start = .;
-		KEEP(*(SORT_BY_NAME(.init_funcs.*)))
-		_init_funcs_end = .;
-	}
-
-	.got : {
-		*(.got)
-		*(.got.*)
-	}
-
-	_edata = .;
-
-	.bss : {
-		*(.sbss)
-		*(.sbss.*)
-		*(.bss)
-		*(.bss.*)
-		*(COMMON)
-	}
-
-	_end = .;
 
 	/* Stuff we don't want in the final image. */
-	/DISCARD/ : {
-		*(.comment)
-		*(.note*)
-		*(.GCC.*)
-	}
+	/DISCARD/ : { *(*) }
 }

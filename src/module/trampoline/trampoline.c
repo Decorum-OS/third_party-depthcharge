@@ -20,26 +20,17 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __MODULE_TRAMPOLINE_H__
-#define __MODULE_TRAMPOLINE_H__
+#include <elf.h>
+#include <string.h>
 
-#include <stdint.h>
+#include "arch/io.h"
+#include "module/trampoline/trampoline.h"
 
-#include "base/elf.h"
+uint8_t trampoline_stack[TrampolineStackSize] __attribute__((aligned(16)));
 
-enum {
-	TrampolineStackSize = 0x200
-};
+void trampoline(Elf32_Ehdr *ehdr, void *param)
+{
+	elf_load(ehdr);
 
-extern uint8_t trampoline_stack[TrampolineStackSize];
-
-// Implemented by each architecture to transfer control to the trampoline,
-// which generally involves switching the stack over and jumping to the
-// trampoline's entry point.
-void enter_trampoline(Elf32_Ehdr *ehdr);
-// The trampoline's actual entry point which unpacks an ELF and transfers
-// control to it. It can't really do anything else including report errors,
-// so we have to be very confident it will succeed before calling into it.
-void trampoline(Elf32_Ehdr *ehdr, void *param);
-
-#endif /* __MODULE_TRAMPOLINE_H__ */
+	elf_start(ehdr, param);
+}

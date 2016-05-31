@@ -20,11 +20,11 @@
  * MA 02111-1307 USA
  */
 
+#include <elf.h>
 #include <stdint.h>
 
-#include "base/elf.h"
 #include "module/symbols.h"
-#include "module/trampoline.h"
+#include "module/trampoline/trampoline.h"
 
 // Temporarily pass the coreboot tables (or whatever else was our parameter)
 // through to the next module.

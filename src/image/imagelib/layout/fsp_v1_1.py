@@ -104,6 +104,7 @@ class Image(RootDirectory):
         image_base = 4 * GB - size
         microcode = File(paths["microcode"])
         xip_entry = Xip(File(paths["entry"])).image_base(image_base)
+        xip_entry.just_symbols_file(File(paths["entry_trampoline"]))
 
         si_bios = Area(
             Directory("RW",
@@ -198,6 +199,7 @@ def prepare(options):
     paths = {
         "dc_bin": "cb_payload.payload",
         "entry": "fsp_v1_1_entry.mod",
+        "entry_trampoline": "fsp_v1_1_entry.trampoline",
         "fw sel": "fsp_v1_1_fw_sel.bin",
         "fsp": "FSP.fd",
         "ifd": "descriptor.bin",

@@ -20,25 +20,25 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __MODULE_SYMBOLS_H__
-#define __MODULE_SYMBOLS_H__
+#ifndef __MODULE_TRAMPOLINE_H__
+#define __MODULE_TRAMPOLINE_H__
 
+#include <elf.h>
 #include <stdint.h>
 
-// C level variable definitions for symbols defined in the linker script.
+enum {
+	TrampolineStackSize = 0x200
+};
 
-extern uint8_t _start;
-extern uint8_t _edata;
-extern uint8_t _end;
-extern uint8_t _tramp_start;
-extern uint8_t _tramp_end;
-extern uint8_t _kernel_start;
-extern uint8_t _kernel_end;
-extern uint8_t _init_funcs_start;
-extern uint8_t _init_funcs_end;
+extern uint8_t trampoline_stack[TrampolineStackSize];
 
-extern uint8_t _binary_trampoline_start;
-extern uint8_t _binary_trampoline_end;
-extern uint8_t _binary_trampoline_size;
+// Implemented by each architecture to transfer control to the trampoline,
+// which generally involves switching the stack over and jumping to the
+// trampoline's entry point.
+void enter_trampoline(Elf32_Ehdr *ehdr);
+// The trampoline's actual entry point which unpacks an ELF and transfers
+// control to it. It can't really do anything else including report errors,
+// so we have to be very confident it will succeed before calling into it.
+void trampoline(Elf32_Ehdr *ehdr, void *param);
 
-#endif /* __MODULE_SYMBOLS_H__ */
+#endif /* __MODULE_TRAMPOLINE_H__ */

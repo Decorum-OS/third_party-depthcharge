@@ -20,10 +20,15 @@ FSP_V1_1_OBJECTS = $(COMMON_OBJECTS) $(fsp_common-objs)
 module-y += fsp_v1_1_entry
 mod-fsp_v1_1_entry-title = "fsp v1.1 entry point"
 mod-fsp_v1_1_entry-y += entry.S temp_stack.c
-mod-fsp_v1_1_entry-libs += $(FSP_V1_1_OBJECTS)
+mod-fsp_v1_1_entry-libs += $(FSP_V1_1_OBJECTS) $(TRAMP_KS_BIN)
 mod-fsp_v1_1_entry-ldscript += $(src)/src/module/fsp/v1_1/entry.ldscript
 mod-fsp_v1_1_entry-ldopts += -Wl,--relocatable -Wl,-d -Wl,--warn-common
 mod-fsp_v1_1_entry-ldopts += -Wl,--entry=_entry
+
+# Make the trampoline ELF easy to find for XIP linking.
+$(module_obj)/fsp_v1_1_entry.trampoline: $(TRAMP_KS_ELF)
+	@printf "    OBJCOPY    $(subst $(obj)/,,$@)\n"
+	$(Q)$(OBJCOPY) $< $@
 
 module-y += fsp_v1_1_fw_sel
 mod-fsp_v1_1_fw_sel-title = "fsp v1.1 firmware selection"

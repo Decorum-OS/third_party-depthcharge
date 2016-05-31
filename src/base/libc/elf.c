@@ -21,24 +21,18 @@
  */
 
 #include <arch/cache.h>
+#include <elf.h>
+#include <stdio.h>
 #include <string.h>
 
-#include "base/elf.h"
-#include "module/trampoline.h"
-
-uint8_t trampoline_stack[TrampolineStackSize] __attribute__((aligned(16)));
-
-void trampoline(Elf32_Ehdr *ehdr, void *param)
+void elf_load(Elf32_Ehdr *ehdr)
 {
 	uintptr_t base = (uintptr_t)ehdr;
 	uintptr_t addr = (uintptr_t)ehdr + ehdr->e_phoff;
 	uintptr_t step = ehdr->e_phentsize;
-	int num = ehdr->e_phnum;
-
-	ehdr->e_phentsize = trampoline_stack[0];
 
 	// Copy over the ELF segments.
-	while (num--) {
+	for (int num = ehdr->e_phnum; num; num--) {
 		Elf32_Phdr *phdr = (Elf32_Phdr *)addr;
 		addr += step;
 
@@ -55,10 +49,29 @@ void trampoline(Elf32_Ehdr *ehdr, void *param)
 		if (memsz > filesz)
 			memset(dest + filesz, 0, memsz - filesz);
 	}
+}
 
+void elf_start(Elf32_Ehdr *ehdr, void *param)
+{
 	cache_sync_instructions();
 
 	// Go for it!
-	typedef void (*entry_func)(void *);
+	typedef void (*entry_func)(void *) __attribute__((noreturn));
 	((entry_func)ehdr->e_entry)(param);
+}
+
+int elf_check_header(Elf32_Ehdr *elf)
+{
+	// Check that it's a reasonable ELF image.
+	unsigned char *e_ident = (unsigned char *)elf;
+	if (e_ident[0] != ElfMag0Val || e_ident[1] != ElfMag1Val ||
+		e_ident[2] != ElfMag2Val || e_ident[3] != ElfMag3Val) {
+		printf("Bad ELF magic value.\n");
+		return -1;
+	}
+	if (e_ident[EI_Class] != ElfClass32) {
+		printf("Only 32 bit ELF files are supported.\n");
+		return -1;
+	}
+	return 0;
 }

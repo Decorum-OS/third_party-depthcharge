@@ -20,40 +20,53 @@
  * MA 02111-1307 USA
  */
 
+#include <elf.h>
 #include <lzma.h>
 #include <stdio.h>
 
-#include "base/elf.h"
 #include "module/module.h"
 #include "module/symbols.h"
-#include "module/trampoline.h"
+#include "module/trampoline/trampoline.h"
 
 int start_module(const void *compressed_image, uint32_t size)
 {
 	// Put the decompressed module at the end of the trampoline.
-	void *elf_image = &_tramp_end;
+	Elf32_Ehdr *elf = (Elf32_Ehdr *)&_tramp_end;
 
-	// Decompress the image.
-	uint32_t out_size = ulzman(compressed_image, size, elf_image,
-				   &_kernel_end - &_tramp_end);
+	//XXX This is a hack for now which assumes the decompression area
+	// ends at the end of the kernel area. Once some sort of global
+	// memory allocator exists which can keep track of these things
+	// explicitly (as opposed to by convention) then this can go away.
+	uint8_t *decomp_end = (uint8_t *)(uintptr_t)(CONFIG_KERNEL_START +
+						     CONFIG_KERNEL_SIZE);
+
+	// Decompress the trampoline itself.
+	uint32_t out_size = ulzman(&_binary_trampoline_start, size,
+				   (unsigned char *)elf,
+				   decomp_end - &_tramp_end);
+	if (!out_size) {
+		printf("Error decompressing trampoline.\n");
+		return -1;
+	}
+
+	// Expand the trampoline into place.
+	if (elf_check_header(elf))
+		return -1;
+	elf_load(elf);
+
+	// Decompress the target image.
+	out_size = ulzman(compressed_image, size, (unsigned char *)elf,
+			  decomp_end - &_tramp_end);
 	if (!out_size) {
 		printf("Error decompressing module.\n");
 		return -1;
 	}
 
-	// Check that it's a reasonable ELF image.
-	unsigned char *e_ident = elf_image;
-	if (e_ident[0] != ElfMag0Val || e_ident[1] != ElfMag1Val ||
-		e_ident[2] != ElfMag2Val || e_ident[3] != ElfMag3Val) {
-		printf("Bad ELF magic value in module.\n");
+	// Do some basic checks on the headers.
+	if (elf_check_header(elf))
 		return -1;
-	}
-	if (e_ident[EI_Class] != ElfClass32) {
-		printf("Only loading of 32 bit modules is supported.\n");
-		return -1;
-	}
 
-	enter_trampoline((Elf32_Ehdr *)elf_image);
+	enter_trampoline(elf);
 
 	// We should never actually reach the end of this function.
 	return 0;
