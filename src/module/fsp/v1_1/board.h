@@ -20,8 +20,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __MODULE_FSP_BOARD_1_1_H__
-#define __MODULE_FSP_BOARD_1_1_H__
+#ifndef __MODULE_FSP_V1_1_BOARD_H__
+#define __MODULE_FSP_V1_1_BOARD_H__
 
 #include "module/fsp/v1_1/fsp.h"
 #include "module/fsp/v1_1/fsp_memory_init.h"
@@ -29,4 +29,4 @@
 uint32_t board_fsp_v1_1_memory_init(FspV1_1MemoryInitParams *params,
 				    FspV1_1MemoryInit memory_init_func);
 
-#endif /* __MODULE_FSP_BOARD_1_1_H__ */
+#endif /* __MODULE_FSP_V1_1_BOARD_H__ */
