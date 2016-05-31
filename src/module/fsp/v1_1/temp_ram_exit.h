@@ -20,15 +20,12 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __MODULE_FSP_V1_1_BOARD_H__
-#define __MODULE_FSP_V1_1_BOARD_H__
+#ifndef __MODULE_FSP_V1_1_TEMP_RAM_EXIT_H__
+#define __MODULE_FSP_V1_1_TEMP_RAM_EXIT_H__
 
-#include "module/fsp/v1_1/fsp.h"
-#include "module/fsp/v1_1/fsp_memory_init.h"
-#include "module/fsp/v1_1/temp_ram_exit.h"
+// The default TempRamExit entry point takes no parameters and should be passed
+// NULL. The integration guide for a specific platform may specify some other
+// type of parameters.
+typedef uint32_t (*FspV1_1TempRamExit)(void *params);
 
-uint32_t board_fsp_v1_1_memory_init(FspV1_1MemoryInitParams *params,
-				    FspV1_1MemoryInit memory_init_func);
-uint32_t board_fsp_v1_1_temp_ram_exit(FspV1_1TempRamExit temp_ram_exit_func);
-
-#endif /* __MODULE_FSP_V1_1_BOARD_H__ */
+#endif /* __MODULE_FSP_V1_1_TEMP_RAM_EXIT_H__ */

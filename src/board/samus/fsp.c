@@ -129,3 +129,8 @@ uint32_t board_fsp_v1_1_memory_init(FspV1_1MemoryInitParams *params,
 
 	return memory_init_func(params);
 }
+
+uint32_t board_fsp_v1_1_temp_ram_exit(FspV1_1TempRamExit temp_ram_exit_func)
+{
+	return temp_ram_exit_func(NULL);
+}

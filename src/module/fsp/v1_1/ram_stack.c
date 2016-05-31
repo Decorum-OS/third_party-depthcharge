@@ -26,7 +26,9 @@
 #include "base/dcdir_structs.h"
 #include "module/fsp/fsp.h"
 #include "module/fsp/temp_stack.h"
+#include "module/fsp/v1_1/board.h"
 #include "module/fsp/v1_1/fsp.h"
+#include "module/fsp/v1_1/temp_ram_exit.h"
 
 // This should probably be moved into a kconfig setting.
 static const int debug_print_hob_list = 0;
@@ -36,6 +38,25 @@ void ram_stack_fsp(FspV1_1InformationHeader *header,
 {
 	if (debug_print_hob_list)
 		temp_stack_print_hob_list(hob_list_ptr);
+
+
+	temp_stack_puts("\nPreparing to call temp ram exit.\n");
+
+	uintptr_t temp_ram_exit_addr = header->image_base +
+				       header->temp_ram_exit_entry_offset;
+	FspV1_1TempRamExit temp_ram_exit =
+		(FspV1_1TempRamExit)temp_ram_exit_addr;
+
+	uint32_t result = board_fsp_v1_1_temp_ram_exit(temp_ram_exit);
+
+	temp_stack_puts("Temp ram exit returned ");
+	if (result != FspSuccess) {
+		temp_stack_print_num32(result);
+		temp_stack_puts(" (failure).\n");
+		halt();
+	}
+	temp_stack_puts("0 (success).\n");
+
 
 	DcDirAnchor *anchor = temp_stack_find_dcdir_anchor();
 	if (!anchor)

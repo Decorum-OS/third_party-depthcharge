@@ -37,7 +37,7 @@ void temp_stack_fsp(FspV1_1InformationHeader *header, uintptr_t temp_ram_base,
 void temp_stack_fsp(FspV1_1InformationHeader *header, uintptr_t temp_ram_base,
 		    uintptr_t temp_ram_end)
 {
-	temp_stack_puts("Preparing to call FSP memory init.\n");
+	temp_stack_puts("\nPreparing to call FSP memory init.\n");
 
 	uintptr_t vpd_addr = header->image_base + header->cfg_region_offset;
 	FspV1_1Vpd *vpd_ptr = (FspV1_1Vpd *)vpd_addr;
