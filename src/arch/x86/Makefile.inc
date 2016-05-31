@@ -15,7 +15,7 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-subdirs-y += handoff preram
+subdirs-y += handoff preram temp_stack
 
 depthcharge-y += boot.c
 depthcharge-y += enter_trampoline.c

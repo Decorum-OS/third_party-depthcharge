@@ -20,27 +20,25 @@
  * MA 02111-1307 USA
  */
 
-.section .text.temp_stack_puts
-.code32
+#ifndef __ARCH_X86_TEMP_STACK_UTIL_H__
+#define __ARCH_X86_TEMP_STACK_UTIL_H__
 
-.global temp_stack_puts
-temp_stack_puts:
-	mov 4(%esp), %eax
-	push %ebx
-	push %ebp
-	push %esi
-	push %edi
+#include <stdint.h>
 
-	mov %eax, %esi
-	mov %esp, %ebp
-	mov $0f, %esp
-	jmp preram_puts
-0:
+void temp_stack_puts(const char *message);
 
-	mov %ebp, %esp
-	pop %edi
-	pop %esi
-	pop %ebp
-	pop %ebx
+void temp_stack_print_num(uint64_t num, int width);
+void temp_stack_print_num64(uint64_t num);
+void temp_stack_print_num32(uint32_t num);
+void temp_stack_print_num16(uint16_t num);
+void temp_stack_print_num8(uint8_t num);
 
-	ret
+void *temp_stack_find_dcdir_anchor(void);
+void *temp_stack_find_in_dir(uint32_t *size, uint32_t *new_base, int *is_dir,
+			     const char *name, uint32_t base, void *dir);
+void *temp_stack_find_dir_in_dir(uint32_t *size, uint32_t *new_base,
+				 const char *name, uint32_t base, void *dir);
+void *temp_stack_find_region_in_dir(uint32_t *size, uint32_t *new_base,
+				    const char *name, uint32_t base, void *dir);
+
+#endif /* __ARCH_X86_TEMP_STACK_UTIL_H__ */

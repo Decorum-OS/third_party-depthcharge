@@ -19,7 +19,7 @@ subdirs-y += cb fsp qemu trampoline
 
 depthcharge-y += module.c
 
-DEFAULT_LDSCRIPT = $(src)/src/module/depthcharge.ldscript
+DEFAULT_LDSCRIPT = $(src)/src/module/module.ldscript
 
 # These options are passed from .config to the linker script. When making
 # changes, update Kconfig as well.

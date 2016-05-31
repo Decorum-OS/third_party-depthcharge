@@ -28,7 +28,6 @@
 // C level variable definitions for symbols defined in the linker script.
 
 extern uint8_t _start;
-extern uint8_t _edata;
 extern uint8_t _end;
 extern uint8_t _tramp_start;
 extern uint8_t _tramp_end;
