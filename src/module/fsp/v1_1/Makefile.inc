@@ -19,7 +19,7 @@ FSP_V1_1_OBJECTS = $(COMMON_OBJECTS) $(fsp_common-objs)
 
 module-y += fsp_v1_1_entry
 mod-fsp_v1_1_entry-title = "fsp v1.1 entry point"
-mod-fsp_v1_1_entry-y += entry.S temp_stack.c
+mod-fsp_v1_1_entry-y += entry.S ram_stack.c temp_stack.c
 mod-fsp_v1_1_entry-libs += $(FSP_V1_1_OBJECTS) $(TRAMP_KS_BIN)
 mod-fsp_v1_1_entry-ldscript += $(src)/src/module/fsp/v1_1/entry.ldscript
 mod-fsp_v1_1_entry-ldopts += -Wl,--relocatable -Wl,-d -Wl,--warn-common

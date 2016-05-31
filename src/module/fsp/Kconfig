@@ -1,0 +1,25 @@
+##
+## Copyright 2016 Google Inc.  All rights reserved.
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; version 2 of the License.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+
+config FSP_EARLY_STACK_BASE
+	hex "The bottom of the stack used by the FSP right after RAM is set up"
+	default 0x2000000
+
+config FSP_EARLY_STACK_SIZE
+	hex "The size of the stack used by the FSP right after RAM is set up"
+	default 0x40000
+	help
+	  The size of the stack in bytes.
