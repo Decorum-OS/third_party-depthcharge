@@ -45,7 +45,8 @@ void handoff_special(void)
 
 	uintptr_t start = (uintptr_t)fwdb_db_pointer();
 	uintptr_t end = start + fwdb_db_max_size();
-	memory_mark_used(start, end);
+	if (start != end)
+		memory_mark_used(start, end);
 
 	// Get information from the coreboot tables if they exist.
 	if (cb_parse_header((void *)0, 0x1000, &lib_sysinfo))
