@@ -29,6 +29,8 @@
 #include "module/fsp/v1_1/board.h"
 #include "module/fsp/v1_1/fsp.h"
 #include "module/fsp/v1_1/temp_ram_exit.h"
+#include "module/module.h"
+
 
 // This should probably be moved into a kconfig setting.
 static const int debug_print_hob_list = 0;
@@ -85,6 +87,8 @@ void ram_stack_fsp(FspV1_1InformationHeader *header,
 		temp_stack_puts("/RO/FIRMWARE/FW SEL not found.\n");
 		halt();
 	}
+
+	start_module(fw_sel, size);
 
 	halt();
 }

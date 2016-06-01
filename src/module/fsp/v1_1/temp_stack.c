@@ -29,7 +29,6 @@
 #include "module/fsp/v1_1/fsp.h"
 #include "module/fsp/v1_1/fsp_init.h"
 #include "module/fsp/v1_1/fsp_memory_init.h"
-#include "module/module.h"
 
 
 void temp_stack_fsp(FspV1_1InformationHeader *header, uintptr_t temp_ram_base,
