@@ -23,7 +23,9 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "arch/x86/temp_stack/util.h"
 #include "board/samus/fsp.h"
+#include "drivers/gpio/lynxpoint_lp.h"
 #include "module/fsp/v1_1/board.h"
 
 // This should be read from a file in dcdir, and which SPD we use should be
@@ -102,6 +104,41 @@ static const uint8_t dqs_map_cpu_2_dram[16] = {
 	2, 1, 0, 3, 6, 5, 4, 7,
 };
 
+static int read_spd_idx(void)
+{
+	uint16_t gpio_base = lp_pch_gpio_base_uncached();
+	LpPchGpio spd_0, spd_1, spd_2, spd_3;
+
+	init_lp_pch_gpio_input(&spd_0, 69);
+	lp_pch_gpio_set_addr(&spd_0, gpio_base);
+	spd_0.use(&spd_0, 1);
+
+	init_lp_pch_gpio_input(&spd_1, 68);
+	lp_pch_gpio_set_addr(&spd_1, gpio_base);
+	spd_1.use(&spd_1, 1);
+
+	init_lp_pch_gpio_input(&spd_2, 67);
+	lp_pch_gpio_set_addr(&spd_2, gpio_base);
+	spd_2.use(&spd_2, 1);
+
+	init_lp_pch_gpio_input(&spd_3, 65);
+	lp_pch_gpio_set_addr(&spd_3, gpio_base);
+	spd_3.use(&spd_3, 1);
+
+	int spd_bit_0 = gpio_get(&spd_0.ops);
+	int spd_bit_1 = gpio_get(&spd_1.ops);
+	int spd_bit_2 = gpio_get(&spd_2.ops);
+	int spd_bit_3 = gpio_get(&spd_3.ops);
+
+	if (spd_bit_0 == -1 || spd_bit_1 == -1 ||
+	    spd_bit_2 == -1 || spd_bit_2 == -1) {
+		return -1;
+	}
+
+	return (spd_bit_0 << 0) | (spd_bit_1 << 1) |
+	       (spd_bit_2 << 2) | (spd_bit_3 << 3);
+}
+
 uint32_t board_fsp_v1_1_memory_init(FspV1_1MemoryInitParams *params,
 				    FspV1_1MemoryInit memory_init_func)
 {
@@ -117,6 +154,15 @@ uint32_t board_fsp_v1_1_memory_init(FspV1_1MemoryInitParams *params,
 	BroadwellUpd upd;
 	memcpy(&upd, rt_buffer.common.upd_data_rgn_ptr, sizeof(upd));
 	rt_buffer.common.upd_data_rgn_ptr = &upd;
+
+	int spd_idx = read_spd_idx();
+	if (spd_idx < 0) {
+		temp_stack_puts("Error reading SPD index strapping.\n");
+	} else {
+		temp_stack_puts("spd_idx = ");
+		temp_stack_print_num16(spd_idx);
+		temp_stack_puts("\n");
+	}
 
 	// Update the upd for samus.
 	upd.spd_data_buffer_0_0 = (uintptr_t)hard_coded_spd_data;
