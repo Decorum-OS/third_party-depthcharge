@@ -18,3 +18,12 @@
 depthcharge-y += board.c
 depthcharge-y += fsp.c
 depthcharge-y += preram_board_init.S
+
+board_obj := $(curobjdir)
+
+$(call add_spd_file,6,$(board_obj)/spd/samsung_4.spd)
+$(call add_spd_file,8,$(board_obj)/spd/hynix_4.spd)
+$(call add_spd_file,a,$(board_obj)/spd/samsung_8.spd)
+$(call add_spd_file,c,$(board_obj)/spd/hynix_8.spd)
+$(call add_spd_file,d,$(board_obj)/spd/hynix_16.spd)
+$(call add_spd_file,f,$(board_obj)/spd/elpida_16.spd)
