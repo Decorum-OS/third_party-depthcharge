@@ -16,7 +16,7 @@
 ##
 
 
-TRAMPOLINE_LDSCRIPT = $(src)/src/module/trampoline/trampoline.ldscript
+TRAMPOLINE_LDSCRIPT := $(cursrcdir)/trampoline.ldscript
 TRAMPOLINE_LDOPTS = -Wl,--entry=trampoline -Wl,--undefined=trampoline_stack
 
 $(module_obj)/trampoline-%.elf: $(module_obj)/trampoline.elf

@@ -112,7 +112,10 @@ evaluate_subdirs= \
 	$(eval cursubdirs:=$(subdirs)) \
 	$(eval subdirs:=) \
 	$(foreach dir,$(cursubdirs), \
-		$(eval $(call includemakefiles,$(dir)/Makefile.inc))) \
+		$(eval cursrcdir:=$(dir)) \
+		$(eval curobjdir:=$(patsubst src/%,$(obj)/%,$(dir))) \
+		$(eval $(call includemakefiles,$(dir)/Makefile.inc)) \
+	) \
 	$(if $(subdirs),$(eval $(call evaluate_subdirs)))
 
 # collect all object files eligible for building

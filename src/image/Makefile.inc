@@ -20,11 +20,13 @@ depthcharge-y += index.c
 
 
 
-image_obj=$(obj)/image
+image_obj := $(curobjdir)
+image_src := $(cursrcdir)
 
 
 
-build_image = $(obj)/image/build_image
+build_image = $(image_obj)/build_image
+build_image_src = $(image_src)/build_image
 BUILD_IMAGE_OPTS = --verbose --log-file $@.log -o $@
 BUILD_IMAGE = BUILD_IMAGE_PATH="${BUILD_IMAGE_PATH}:$(module_obj)" \
         CC="$(CC)" \
@@ -32,11 +34,11 @@ BUILD_IMAGE = BUILD_IMAGE_PATH="${BUILD_IMAGE_PATH}:$(module_obj)" \
         OBJCOPY="$(OBJCOPY)" \
 	$(build_image) $(BUILD_IMAGE_OPTS) $(BUILD_IMAGE_LAYOUT) \
         $(BUILD_IMAGE_LAYOUT_OPTS)
-imagelib_files = $(shell find $(src)/src/image/ -name '*.py')
-$(build_image): $(subst $(obj),$(src)/src,$(build_image)) $(imagelib_files)
+imagelib_files = $(shell find $(image_src) -name '*.py')
+$(build_image): $(build_image_src) $(imagelib_files)
 	@printf "    CP         $(subst $(obj)/,,$@)\n"
 	$(Q)cp $< $@
-	$(Q)cp -a $(src)/src/image/imagelib $(obj)/image/imagelib
+	$(Q)cp -a $(image_src)/imagelib $(image_obj)/imagelib
 
 
 

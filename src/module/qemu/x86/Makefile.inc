@@ -18,8 +18,8 @@
 module-y += qemu_x86_entry
 mod-qemu_x86_entry-title = "real mode entry point"
 mod-qemu_x86_entry-y += entry.S
-mod-qemu_x86_entry-libs += $(COMMON_OBJECTS)
-mod-qemu_x86_entry-ldscript += $(src)/src/module/qemu/x86/entry.ldscript
+mod-qemu_x86_entry-libs += $(COMMON_OBJECTS) $(TRAMP_KS_BIN)
+mod-qemu_x86_entry-ldscript := $(cursrcdir)/entry.ldscript
 mod-qemu_x86_entry-ldopts += -Wl,--relocatable -Wl,-d -Wl,--warn-common
 mod-qemu_x86_entry-ldopts += -Wl,--entry=_entry
 

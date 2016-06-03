@@ -19,7 +19,7 @@ subdirs-y += cb fsp qemu trampoline
 
 depthcharge-y += module.c
 
-DEFAULT_LDSCRIPT = $(src)/src/module/module.ldscript
+DEFAULT_LDSCRIPT := $(cursrcdir)/module.ldscript
 
 # These options are passed from .config to the linker script. When making
 # changes, update Kconfig as well.
@@ -34,7 +34,7 @@ $(foreach option,$(link_config_options), \
 
 
 
-module_obj=$(obj)/module
+module_obj := $(curobjdir)
 
 # The default linking step for a module. You can add linking options by
 # defining a variable with the prefix "mod-", the name of your module, and
