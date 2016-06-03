@@ -20,8 +20,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __DRIVERS_GPIO_PCH_H__
-#define __DRIVERS_GPIO_PCH_H__
+#ifndef __DRIVERS_GPIO_LYNXPOINT_LP_H__
+#define __DRIVERS_GPIO_LYNXPOINT_LP_H__
 
 #include "drivers/gpio/gpio.h"
 
@@ -30,6 +30,7 @@ typedef struct LpPchGpio
 	GpioOps ops;
 	int (*use)(struct LpPchGpio *, unsigned use);
 	int num;
+	uint16_t addr;
 	int dir_set;
 } LpPchGpio;
 
@@ -37,4 +38,14 @@ LpPchGpio *new_lp_pch_gpio(unsigned num);
 LpPchGpio *new_lp_pch_gpio_input(unsigned num);
 LpPchGpio *new_lp_pch_gpio_output(unsigned num);
 
-#endif /* __DRIVERS_GPIO_GPIO_H__ */
+void init_lp_pch_gpio(LpPchGpio *gpio, unsigned num);
+void init_lp_pch_gpio_input(LpPchGpio *gpio, unsigned num);
+void init_lp_pch_gpio_output(LpPchGpio *gpio, unsigned num);
+
+// Read the GPIO configuration base address without caching it. Use this
+// and the lp_pch_gpio_set_addr function to set up a GPIO before RAM is
+// writable.
+uint16_t lp_pch_gpio_base_uncached(void);
+void lp_pch_gpio_set_addr(LpPchGpio *gpio, uint16_t gpio_base);
+
+#endif /* __DRIVERS_GPIO_LYNXPOINT_LP_H__ */

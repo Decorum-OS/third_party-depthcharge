@@ -31,46 +31,58 @@
 #include "drivers/gpio/gpio.h"
 #include "drivers/gpio/lynxpoint_lp.h"
 
-#define LP_GPIO_CONF0(num)         (0x100 + ((num) * 8))
-#define  LP_GPIO_CONF0_MODE_BIT    0
-#define  LP_GPIO_CONF0_DIR_BIT     2
-#define  LP_GPIO_CONF0_GPI_BIT     30
-#define  LP_GPIO_CONF0_GPO_BIT     31
+static inline uint16_t lp_gpio_conf0(unsigned num)
+{
+	return 0x100 + num * 8;
+}
+
+enum {
+	LpGpioConf0ModeBit = 1 << 0,
+	LpGpioConf0DirBit = 1 << 2,
+	LpGpioConf0GpiBit = 1 << 30,
+	LpGpioConf0GpoBit = 1 << 31
+};
 
 /* Functions for manipulating GPIO regs. */
 
-static uint32_t pch_gpiobase(void)
+uint16_t lp_pch_gpio_base_uncached(void)
 {
 	static const uint32_t dev = PCI_DEV(0, 0x1f, 0);
-	static const uint8_t pci_cfg_gpiobase = 0x48;
+	static const uint8_t pci_cfg_gpio_base = 0x48;
 
-	static uint32_t base = ~(uint32_t)0;
-	if (base != ~(uint32_t)0)
-		return base;
-
-	base = pci_read_config32(dev, pci_cfg_gpiobase);
+	uint16_t base = pci_read_config32(dev, pci_cfg_gpio_base);
 	// Drop the IO space bit.
-	base &= ~0x1;
+	return base & ~0x1;
+}
+
+static uint16_t pch_gpio_base(void)
+{
+	static uint32_t base = ~(uint32_t)0;
+
+	if (base == ~(uint32_t)0)
+		base = lp_pch_gpio_base_uncached();
+
 	return base;
 }
 
-static int pch_gpio_set(unsigned num, int bit, int val)
+void lp_pch_gpio_set_addr(LpPchGpio *gpio, uint16_t gpio_base)
 {
-	uint16_t addr = pch_gpiobase() + LP_GPIO_CONF0(num);
-	uint32_t conf0 = inl(addr);
-	if (val)
-		conf0 |= (1 << bit);
-	else
-		conf0 &= ~(1 << bit);
-	outl(conf0, addr);
-	return 0;
+	gpio->addr = gpio_base + lp_gpio_conf0(gpio->num);
 }
 
-static int pch_gpio_get(unsigned num, int bit)
+static void pch_gpio_set(uint16_t addr, uint32_t bit, int val)
 {
-	uint16_t addr = pch_gpiobase() + LP_GPIO_CONF0(num);
-	uint32_t conf0 = inl(addr);
-	return !!(conf0 & (1 << bit));
+	uint32_t conf = inl(addr);
+	if (val)
+		conf |= bit;
+	else
+		conf &= ~bit;
+	outl(conf, addr);
+}
+
+static int pch_gpio_get(uint16_t addr, uint32_t bit)
+{
+	return !!(inl(addr) & bit);
 }
 
 
@@ -80,30 +92,65 @@ static int lp_pch_gpio_get_value(GpioOps *me)
 {
 	assert(me);
 	LpPchGpio *gpio = container_of(me, LpPchGpio, ops);
+
+	if (!gpio->addr)
+		gpio->addr = pch_gpio_base() + lp_gpio_conf0(gpio->num);
 	if (!gpio->dir_set) {
-		if (pch_gpio_set(gpio->num, LP_GPIO_CONF0_DIR_BIT, 1) < 0)
-			return -1;
+		pch_gpio_set(gpio->addr, LpGpioConf0DirBit, 1);
 		gpio->dir_set = 1;
 	}
-	return pch_gpio_get(gpio->num, LP_GPIO_CONF0_GPI_BIT);
+
+	return pch_gpio_get(gpio->addr, LpGpioConf0GpiBit);
 }
 
 static int lp_pch_gpio_set_value(GpioOps *me, unsigned value)
 {
 	assert(me);
 	LpPchGpio *gpio = container_of(me, LpPchGpio, ops);
+
+	if (!gpio->addr)
+		gpio->addr = pch_gpio_base() + lp_gpio_conf0(gpio->num);
 	if (!gpio->dir_set) {
-		if (pch_gpio_set(gpio->num, LP_GPIO_CONF0_DIR_BIT, 0) < 0)
-			return -1;
+		pch_gpio_set(gpio->addr, LpGpioConf0DirBit, 0);
 		gpio->dir_set = 1;
 	}
-	return pch_gpio_set(gpio->num, LP_GPIO_CONF0_GPO_BIT, value);
+
+	pch_gpio_set(gpio->addr, LpGpioConf0GpoBit, value);
+
+	return 0;
 }
 
-static int lp_pch_gpio_use(LpPchGpio *me, unsigned use)
+static int lp_pch_gpio_use(LpPchGpio *gpio, unsigned use)
 {
-	assert(me);
-	return pch_gpio_set(me->num, LP_GPIO_CONF0_MODE_BIT, use);
+	assert(gpio);
+
+	if (!gpio->addr)
+		gpio->addr = pch_gpio_base() + lp_gpio_conf0(gpio->num);
+
+	pch_gpio_set(gpio->addr, LpGpioConf0ModeBit, use);
+
+	return 0;
+}
+
+
+/* Functions to set up a GPIO structure which has already been allocated. */
+
+void init_lp_pch_gpio(LpPchGpio *gpio, unsigned num)
+{
+	gpio->use = &lp_pch_gpio_use;
+	gpio->num = num;
+}
+
+void init_lp_pch_gpio_input(LpPchGpio *gpio, unsigned num)
+{
+	init_lp_pch_gpio(gpio, num);
+	gpio->ops.get = &lp_pch_gpio_get_value;
+}
+
+void init_lp_pch_gpio_output(LpPchGpio *gpio, unsigned num)
+{
+	init_lp_pch_gpio(gpio, num);
+	gpio->ops.set = &lp_pch_gpio_set_value;
 }
 
 
@@ -112,21 +159,20 @@ static int lp_pch_gpio_use(LpPchGpio *me, unsigned use)
 LpPchGpio *new_lp_pch_gpio(unsigned num)
 {
 	LpPchGpio *gpio = xzalloc(sizeof(*gpio));
-	gpio->use = &lp_pch_gpio_use;
-	gpio->num = num;
+	init_lp_pch_gpio(gpio, num);
 	return gpio;
 }
 
 LpPchGpio *new_lp_pch_gpio_input(unsigned num)
 {
-	LpPchGpio *gpio = new_lp_pch_gpio(num);
-	gpio->ops.get = &lp_pch_gpio_get_value;
+	LpPchGpio *gpio = xzalloc(sizeof(*gpio));
+	init_lp_pch_gpio_input(gpio, num);
 	return gpio;
 }
 
 LpPchGpio *new_lp_pch_gpio_output(unsigned num)
 {
-	LpPchGpio *gpio = new_lp_pch_gpio(num);
-	gpio->ops.set = &lp_pch_gpio_set_value;
+	LpPchGpio *gpio = xzalloc(sizeof(*gpio));
+	init_lp_pch_gpio_output(gpio, num);
 	return gpio;
 }
