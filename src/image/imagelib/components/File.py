@@ -28,7 +28,10 @@ roots = os.getenv("BUILD_IMAGE_PATH", default_path).split(path_seperator)
 
 def read_file(filename):
     # Figure out where the file is.
-    paths = [os.path.join(root, filename) for root in roots]
+    if os.path.isabs(filename):
+        paths = [filename]
+    else:
+        paths = [os.path.join(root, filename) for root in roots]
     hits = [path for path in paths if os.path.isfile(path)]
     if len(hits) == 0:
         raise RuntimeError("File %s not found" % filename)
