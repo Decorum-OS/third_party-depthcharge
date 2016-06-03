@@ -20,8 +20,8 @@
  * MA 02111-1307 USA
  */
 
-#include <pci.h>
 #include <libpayload.h>
+#include <pci.h>
 #include <sysinfo.h>
 
 #include "base/init_funcs.h"
