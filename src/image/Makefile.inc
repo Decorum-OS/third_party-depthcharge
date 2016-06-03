@@ -27,8 +27,22 @@ image_src := $(cursrcdir)
 
 build_image = $(image_obj)/build_image
 build_image_src = $(image_src)/build_image
+
+
+space = $(empty) $(empty)
+comma = ,
+BUILD_IMAGE_SPD_OPT = $(BUILD_IMAGE_SPD_OPT_NAME)$(subst $(space),$(comma),$(BUILD_IMAGE_SPD_OPT_SPACE))
+add_spd_file = \
+	$(eval BUILD_IMAGE_SPD_FILES += $(2)) \
+	$(eval BUILD_IMAGE_SPD_OPT_NAME = --spds ) \
+	$(eval BUILD_IMAGE_SPD_OPT_SPACE += $(1):$(2)) \
+
+modules: $$(BUILD_IMAGE_SPD_FILES)
+
+
+
 BUILD_IMAGE_OPTS = --verbose --log-file $@.log -o $@
-BUILD_IMAGE = BUILD_IMAGE_PATH="${BUILD_IMAGE_PATH}:$(module_obj)" \
+BUILD_IMAGE = BUILD_IMAGE_PATH="${BUILD_IMAGE_PATH}:$(obj):$(module_obj)" \
         CC="$(CC)" \
         LINK_FLAGS="$(LINK_FLAGS)" \
         OBJCOPY="$(OBJCOPY)" \
@@ -127,7 +141,8 @@ BUILD_IMAGE_LAYOUT_OPTS = \
 	--size=$(CONFIG_IMAGE_SIZE_KB) \
 	--hwid=$(CONFIG_IMAGE_HWID) \
 	--model=$(CONFIG_BOOTPLAN_FSP_MODEL) \
-	--ecs=$(CONFIG_BOOTPLAN_FSP_ECS)
+	--ecs=$(CONFIG_BOOTPLAN_FSP_ECS) \
+	$(BUILD_IMAGE_SPD_OPT)
 
 modules: $$(module_obj)/cb_payload.payload
 modules: $$(module_obj)/cb_dev.payload
