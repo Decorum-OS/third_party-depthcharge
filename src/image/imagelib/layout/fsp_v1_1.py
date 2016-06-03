@@ -82,7 +82,8 @@ class RwArea(Directory):
         self.expand()
 
 class Image(RootDirectory):
-    def __init__(self, paths, model, size, hwid, gbb_flags=None, ecs=[]):
+    def __init__(self, paths, model, size, hwid, gbb_flags=None,
+                 ecs=[], spds={}):
         # The main firmware blob which starts RW execution and the Intel
         # reference code are necessarily used during an RW boot.
         signed = {
@@ -121,6 +122,9 @@ class Image(RootDirectory):
                 ).expand(),
                 Region("VPD").size(16 * KB),
                 Region("FWID", Fwid(model)).shrink(),
+                Directory("SPD",
+                    *_dict_to_dir(spds)
+                ).shrink(),
                 Directory("FIRMWARE",
                     Region("FW SEL", File(paths["fw sel"])).shrink(),
                     Region("U_CODE", microcode).shrink(),
@@ -191,6 +195,13 @@ def add_arguments(parser):
                         help=('Images for devices which support ' +
                               'EC software sync'))
 
+    parser.add_argument('--spds', dest='spds', default=None,
+                        help='A list of SPD files which will be stored in ' +
+                             'the image. They should be in name:path pairs ' +
+                             'seperated by \',\'s, where name is the name ' +
+                             'that will appear in the dcdir, and path is ' +
+                             'the path to the binary file with the SPD data.')
+
     parser.add_argument('--hwid', dest='hwid', required=True,
                         help='Hardware ID to put in the GBB')
 
@@ -228,8 +239,10 @@ def prepare(options):
     if options.serial:
         pass
 
-    ecs = options.ecs.split(':') if options.ecs else []
+    ecs = options.ecs.split(',') if options.ecs else []
+    pairs = [pair.split(':') for pair in options.spds.split(',')]
+    spds = { name: path for name, path in pairs }
     hwid = options.hwid
 
     return Image(paths=paths, model=options.model, size=options.size * KB,
-                 gbb_flags=gbb_flags, ecs=ecs, hwid=hwid)
+                 gbb_flags=gbb_flags, ecs=ecs, spds=spds, hwid=hwid)
