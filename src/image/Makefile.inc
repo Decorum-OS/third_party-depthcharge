@@ -149,6 +149,7 @@ BUILD_IMAGE_LAYOUT_OPTS = \
 	--hwid=$(CONFIG_IMAGE_HWID)
 
 modules: $$(module_obj)/qemu_x86_entry.mod
+modules: $$(module_obj)/qemu_x86_entry.trampoline
 modules: $$(module_obj)/qemu_firmware_select.elf
 
 STANDARD_IMAGES=y

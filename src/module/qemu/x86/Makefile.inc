@@ -22,3 +22,8 @@ mod-qemu_x86_entry-libs += $(COMMON_OBJECTS)
 mod-qemu_x86_entry-ldscript += $(src)/src/module/qemu/x86/entry.ldscript
 mod-qemu_x86_entry-ldopts += -Wl,--relocatable -Wl,-d -Wl,--warn-common
 mod-qemu_x86_entry-ldopts += -Wl,--entry=_entry
+
+# Make the trampoline ELF easy to find for XIP linking.
+$(module_obj)/qemu_x86_entry.trampoline: $(TRAMP_KS_ELF)
+	@printf "    OBJCOPY    $(subst $(obj)/,,$@)\n"
+	$(Q)$(OBJCOPY) $< $@
