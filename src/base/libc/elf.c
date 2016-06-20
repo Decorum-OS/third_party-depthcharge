@@ -57,7 +57,7 @@ void elf_start(Elf32_Ehdr *ehdr, void *param)
 
 	// Go for it!
 	typedef void (*entry_func)(void *) __attribute__((noreturn));
-	((entry_func)ehdr->e_entry)(param);
+	((entry_func)(uintptr_t)ehdr->e_entry)(param);
 }
 
 int elf_check_header(Elf32_Ehdr *elf)
