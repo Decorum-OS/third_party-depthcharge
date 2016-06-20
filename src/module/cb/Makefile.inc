@@ -31,9 +31,12 @@ $(module_obj)/%.payload: $(module_obj)/%.elf
 .PRECIOUS: $(module_obj)/%.payload
 
 
+CB_ARCH_CODE-$(CONFIG_ARCH_X86) += x86_cleanup.c
+
+
 module-y += cb_payload
 mod-cb_payload-title = "unified payload"
-mod-cb_payload-y += payload.c
+mod-cb_payload-y += payload.c $(CB_ARCH_CODE-y)
 mod-cb_payload-libs += $(COMMON_OBJECTS) $(coreboot_handoff-objs)
 
 module-y += cb_dev
@@ -44,7 +47,7 @@ mod-cb_dev-ldopts = $(DONT_GC_NETBOOT)
 
 module-y += cb_readonly
 mod-cb_readonly-title = "read only payload"
-mod-cb_readonly-y += readonly.c
+mod-cb_readonly-y += readonly.c $(CB_ARCH_CODE-y)
 mod-cb_readonly-libs += $(COMMON_OBJECTS) $(coreboot_handoff-objs)
 mod-cb_readonly-libs += $(TRAMP_KS_BIN)
 mod-cb_readonly-ldopts = -Wl,--just-symbols=$(TRAMP_KS_ELF)
@@ -59,7 +62,7 @@ mod-cb_dev_ro-deps += $(mod-cb_readonly-deps)
 
 module-y += cb_readwrite
 mod-cb_readwrite-title = "read/write payload"
-mod-cb_readwrite-y += readwrite.c
+mod-cb_readwrite-y += readwrite.c $(CB_ARCH_CODE-y)
 mod-cb_readwrite-libs += $(COMMON_OBJECTS) $(module_handoff-objs)
 
 module-y += cb_dev_rw
