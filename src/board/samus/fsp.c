@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "arch/x86/temp_stack/util.h"
+#include "arch/x86/ia32/temp_stack/util.h"
 #include "base/dcdir_structs.h"
 #include "board/samus/fsp.h"
 #include "drivers/gpio/lynxpoint_lp.h"

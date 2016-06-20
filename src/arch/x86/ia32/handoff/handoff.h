@@ -20,10 +20,10 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __ARCH_X86_HANDOFF_HANDOFF_H__
-#define __ARCH_X86_HANDOFF_COMMON_H__
+#ifndef __ARCH_X86_IA32_HANDOFF_HANDOFF_H__
+#define __ARCH_X86_IA32_HANDOFF_HANDOFF_H__
 
 void handoff_common(void) __attribute__((noreturn));
 void handoff_special(void);
 
-#endif /* __ARCH_X86_HANDOFF_HANDOFF_H__ */
+#endif /* __ARCH_X86_IA32_HANDOFF_HANDOFF_H__ */

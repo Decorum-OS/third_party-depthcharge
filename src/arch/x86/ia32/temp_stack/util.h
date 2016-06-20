@@ -20,8 +20,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __ARCH_X86_TEMP_STACK_UTIL_H__
-#define __ARCH_X86_TEMP_STACK_UTIL_H__
+#ifndef __ARCH_X86_IA32_TEMP_STACK_UTIL_H__
+#define __ARCH_X86_IA32_TEMP_STACK_UTIL_H__
 
 #include <stdint.h>
 
@@ -41,4 +41,4 @@ void *temp_stack_find_dir_in_dir(uint32_t *size, uint32_t *new_base,
 void *temp_stack_find_region_in_dir(uint32_t *size, uint32_t *new_base,
 				    const char *name, uint32_t base, void *dir);
 
-#endif /* __ARCH_X86_TEMP_STACK_UTIL_H__ */
+#endif /* __ARCH_X86_IA32_TEMP_STACK_UTIL_H__ */

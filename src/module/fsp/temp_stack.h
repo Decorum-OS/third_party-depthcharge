@@ -25,7 +25,7 @@
 
 #include <stdint.h>
 
-#include "arch/x86/temp_stack/util.h"
+#include "arch/x86/ia32/temp_stack/util.h"
 #include "module/fsp/fsp.h"
 
 void temp_stack_print_guid(EfiGuid *guid);

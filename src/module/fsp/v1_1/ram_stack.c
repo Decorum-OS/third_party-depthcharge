@@ -22,7 +22,7 @@
 
 #include <stdlib.h>
 
-#include "arch/x86/temp_stack/util.h"
+#include "arch/x86/ia32/temp_stack/util.h"
 #include "base/dcdir_structs.h"
 #include "module/fsp/fsp.h"
 #include "module/fsp/temp_stack.h"

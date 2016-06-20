@@ -20,8 +20,8 @@
  * MA 02111-1307 USA
  */
 
-#include "arch/x86/preram/util.inc"
-#include "arch/x86/preram/elf.inc"
+#include "arch/x86/ia32/preram/util.inc"
+#include "arch/x86/ia32/preram/elf.inc"
 
 .code32
 

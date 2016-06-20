@@ -20,7 +20,7 @@
  * MA 02111-1307 USA
  */
 
-#include "arch/x86/gdt.h"
+#include "arch/x86/ia32/gdt.h"
 
 .section .text.preram_real_to_prot32
 .code16

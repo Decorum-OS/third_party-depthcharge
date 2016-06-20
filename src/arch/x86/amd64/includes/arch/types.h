@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Advanced Micro Devices, Inc.
+ * Copyright (C) 2007 Uwe Hermann <uwe@hermann-uwe.de>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,26 +25,26 @@
  * SUCH DAMAGE.
  */
 
-#include <exception.h>
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef __ARCH_TYPES_H__
+#define __ARCH_TYPES_H__
 
-#include "arch/x86/handoff/handoff.h"
-#include "base/init_funcs.h"
-#include "module/module.h"
+typedef unsigned char uint8_t;
+typedef signed char int8_t;
 
-void handoff_common(void)
-{
-	exception_init();
+typedef unsigned short uint16_t;
+typedef signed short int16_t;
 
-	// Do handoff method specific work, if any.
-	handoff_special();
+typedef unsigned int uint32_t;
+typedef signed int int32_t;
 
-	// Run any generic initialization functions that are compiled in.
-	if (run_init_funcs())
-		halt();
+typedef unsigned long uint64_t;
+typedef signed long int64_t;
 
-	module_main();
-	printf("Returned from module_main.\n");
-	halt();
-}
+typedef long time_t;
+typedef long suseconds_t;
+
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
+
+#endif /* __ARCH_TYPES_H__ */

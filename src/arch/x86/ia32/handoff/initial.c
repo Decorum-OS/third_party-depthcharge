@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-#include "arch/x86/handoff/handoff.h"
+#include "arch/x86/ia32/handoff/handoff.h"
 #include "base/fwdb.h"
 #include "vboot/util/memory.h"
 

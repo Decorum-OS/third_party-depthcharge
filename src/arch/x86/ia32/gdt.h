@@ -20,35 +20,26 @@
  * MA 02111-1307 USA
  */
 
-#include "arch/x86/gdt.h"
+#ifndef __ARCH_X86_IA32_GDT_H__
+#define __ARCH_X86_IA32_GDT_H__
 
-.section .text.preram_real_to_prot32
-.code16
-.global preram_real_to_prot32
-preram_real_to_prot32:
-	/* Disable interrupts. */
-	cli
+#define _GDT_CS32_IDX_ 1
+#define _GDT_DS32_IDX_ 2
 
-	/* Enable protected mode. */
-	mov %cr0, %eax
-	btsl $0, %eax
-	mov %eax, %cr0
+#define gdt_idx_to_sel(index, rpl) ((((index) << 3) | (rpl & 0x3)) & 0xffff)
 
-	/* Load the GDT pseudo descriptor. */
-	addr32 lgdtl %cs:(gdt_ptr - 0xffff0000)
+#ifndef __ASSEMBLER__
 
-	/* Do a long jump to switch to 32 bit protected mode. */
-	ljmpl $gdt_idx_to_sel(GDT_CS32_IDX, 0), $0f
+enum {
+	GdtCs32Index = _GDT_CS32_IDX_,
+	GdtDs32Index = _GDT_DS32_IDX_,
+};
 
-.code32
-0:
+#else /* !__ASSEMBLER__ */
 
-	/* Load protected mode data segments. */
-	mov $gdt_idx_to_sel(GDT_DS32_IDX, 0), %eax
-	mov %eax, %ds
-	mov %eax, %es
-	mov %eax, %fs
-	mov %eax, %gs
-	mov %eax, %ss
+#define GDT_CS32_IDX _GDT_CS32_IDX_
+#define GDT_DS32_IDX _GDT_DS32_IDX_
 
-	jmp *%esp
+#endif
+
+#endif /* __ARCH_X86_IA32_GDT_H__ */

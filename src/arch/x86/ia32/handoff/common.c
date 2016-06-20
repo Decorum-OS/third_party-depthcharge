@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Google Inc.
+ * Copyright (C) 2008 Advanced Micro Devices, Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,30 +25,26 @@
  * SUCH DAMAGE.
  */
 
-#include <coreboot_tables.h>
-#include <sysinfo.h>
+#include <exception.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#include "arch/x86/handoff/handoff.h"
-#include "base/fwdb.h"
-#include "vboot/util/memory.h"
+#include "arch/x86/ia32/handoff/handoff.h"
+#include "base/init_funcs.h"
+#include "module/module.h"
 
-extern uint32_t handoff_parameter;
-
-int cb_parse_arch_specific(struct cb_record *rec, struct sysinfo_t *info)
+void handoff_common(void)
 {
-	return 0;
-}
+	exception_init();
 
-void handoff_special(void)
-{
-	fwdb_use_db((FwdbHeader *)(uintptr_t)handoff_parameter);
+	// Do handoff method specific work, if any.
+	handoff_special();
 
-	uintptr_t start = (uintptr_t)fwdb_db_pointer();
-	uintptr_t end = start + fwdb_db_max_size();
-	if (start != end)
-		memory_mark_used(start, end);
+	// Run any generic initialization functions that are compiled in.
+	if (run_init_funcs())
+		halt();
 
-	// Get information from the coreboot tables if they exist.
-	if (cb_parse_header((void *)0, 0x1000, &lib_sysinfo))
-		cb_parse_header((void *)0x000f0000, 0x1000, &lib_sysinfo);
+	module_main();
+	printf("Returned from module_main.\n");
+	halt();
 }

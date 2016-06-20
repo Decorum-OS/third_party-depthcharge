@@ -1,5 +1,6 @@
 # Arch
 CONFIG_ARCH_X86=y
+CONFIG_ARCH_X86_IA32=y
 
 # Board
 CONFIG_BOARD="qemu-x86"

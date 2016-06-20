@@ -22,7 +22,7 @@
 
 #include <stdint.h>
 
-#include "arch/x86/gdt.h"
+#include "arch/x86/ia32/gdt.h"
 
 union
 {

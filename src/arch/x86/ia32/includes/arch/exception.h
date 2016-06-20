@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Advanced Micro Devices, Inc.
+ * Copyright 2013 Google Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,25 +25,43 @@
  * SUCH DAMAGE.
  */
 
-#include <coreboot_tables.h>
-#include <sysinfo.h>
+#ifndef __ARCH_EXCEPTION_H__
+#define __ARCH_EXCEPTION_H__
 
-#include "arch/x86/handoff/handoff.h"
-#include "base/fwdb.h"
-#include "vboot/util/vboot_handoff.h"
-#include "vboot/util/memory.h"
+#include <stdint.h>
 
-int cb_parse_arch_specific(struct cb_record *rec, struct sysinfo_t *info)
+#include "arch/x86/exception_nums.h"
+
+void exception_init_asm(void);
+void exception_dispatch(void);
+
+struct exception_state
 {
-	return 0;
-}
+	// Careful: x86/gdb.c currently relies on the size and order of regs.
+	struct {
+		uint32_t eax;
+		uint32_t ecx;
+		uint32_t edx;
+		uint32_t ebx;
+		uint32_t esp;
+		uint32_t ebp;
+		uint32_t esi;
+		uint32_t edi;
+		uint32_t eip;
+		uint32_t eflags;
+		uint32_t cs;
+		uint32_t ss;
+		uint32_t ds;
+		uint32_t es;
+		uint32_t fs;
+		uint32_t gs;
+	} regs;
+	uint32_t error_code;
+	uint32_t vector;
+} __attribute__((packed));
+extern struct exception_state *exception_state;
 
-void handoff_special(void)
-{
-	fwdb_create_db((void *)(uintptr_t)0x3000000, 0x1000000);
-	memory_mark_used(0x3000000, 0x4000000);
+extern uint32_t exception_stack[];
+extern uint32_t *exception_stack_end;
 
-	// Get information from the coreboot tables if they exist.
-	if (cb_parse_header((void *)0, 0x1000, &lib_sysinfo))
-		cb_parse_header((void *)0x000f0000, 0x1000, &lib_sysinfo);
-}
+#endif /* __ARCH_EXCEPTION_H__ */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,64 +25,30 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _ARCH_EXCEPTION_H
-#define _ARCH_EXCEPTION_H
+#include <coreboot_tables.h>
+#include <sysinfo.h>
 
-#include <stdint.h>
+#include "arch/x86/ia32/handoff/handoff.h"
+#include "base/fwdb.h"
+#include "vboot/util/memory.h"
 
-void exception_init_asm(void);
-void exception_dispatch(void);
+extern uint32_t handoff_parameter;
 
-struct exception_state
+int cb_parse_arch_specific(struct cb_record *rec, struct sysinfo_t *info)
 {
-	/* Careful: x86/gdb.c currently relies on the size and order of regs. */
-	struct {
-		uint32_t eax;
-		uint32_t ecx;
-		uint32_t edx;
-		uint32_t ebx;
-		uint32_t esp;
-		uint32_t ebp;
-		uint32_t esi;
-		uint32_t edi;
-		uint32_t eip;
-		uint32_t eflags;
-		uint32_t cs;
-		uint32_t ss;
-		uint32_t ds;
-		uint32_t es;
-		uint32_t fs;
-		uint32_t gs;
-	} regs;
-	uint32_t error_code;
-	uint32_t vector;
-} __attribute__((packed));
-extern struct exception_state *exception_state;
+	return 0;
+}
 
-extern uint32_t exception_stack[];
-extern uint32_t *exception_stack_end;
+void handoff_special(void)
+{
+	fwdb_use_db((FwdbHeader *)(uintptr_t)handoff_parameter);
 
-enum {
-	EXC_DE = 0, /* Divide by zero */
-	EXC_DB = 1, /* Debug */
-	EXC_NMI = 2, /* Non maskable interrupt */
-	EXC_BP = 3, /* Breakpoint */
-	EXC_OF = 4, /* Overflow */
-	EXC_BR = 5, /* Bound range */
-	EXC_UD = 6, /* Invalid opcode */
-	EXC_NM = 7, /* Device not available */
-	EXC_DF = 8, /* Double fault */
-	EXC_TS = 10, /* Invalid TSS */
-	EXC_NP = 11, /* Segment not present */
-	EXC_SS = 12, /* Stack */
-	EXC_GP = 13, /* General protection */
-	EXC_PF = 14, /* Page fault */
-	EXC_MF = 16, /* x87 floating point */
-	EXC_AC = 17, /* Alignment check */
-	EXC_MC = 18, /* Machine check */
-	EXC_XF = 19, /* SIMD floating point */
-	EXC_SX = 30, /* Security */
-	EXC_COUNT
-};
+	uintptr_t start = (uintptr_t)fwdb_db_pointer();
+	uintptr_t end = start + fwdb_db_max_size();
+	if (start != end)
+		memory_mark_used(start, end);
 
-#endif
+	// Get information from the coreboot tables if they exist.
+	if (cb_parse_header((void *)0, 0x1000, &lib_sysinfo))
+		cb_parse_header((void *)0x000f0000, 0x1000, &lib_sysinfo);
+}

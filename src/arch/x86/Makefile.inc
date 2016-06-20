@@ -15,23 +15,12 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-subdirs-y += handoff preram temp_stack
+subdirs-$(CONFIG_ARCH_X86_IA32) += ia32
+subdirs-$(CONFIG_ARCH_X86_AMD64) += amd64
 
 depthcharge-y += boot.c
-depthcharge-y += coreboot.c
-depthcharge-y += enter_trampoline.c
-libc-y += exception.c
-libc-y += exception_asm.S
-depthcharge-y += gdt.c
-depthcharge-y += physmem.c
 depthcharge-y += sign_of_life.c
 depthcharge-y += util.S
 depthcharge-$(CONFIG_KERNEL_ZIMAGE) += zimage.c
 
-gdb-y += gdb.c
-
 libc-y += string.c
-
-ARCH_ABI_FLAGS += -mpreferred-stack-boundary=2 -m32
-
-TC_ARCH = x86_32

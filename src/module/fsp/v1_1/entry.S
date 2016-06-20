@@ -20,7 +20,7 @@
  * MA 02111-1307 USA
  */
 
-#include "arch/x86/preram/util.inc"
+#include "arch/x86/ia32/preram/util.inc"
 #include "module/fsp/fsp.h"
 
 #define _XSTR(x) #x

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Uwe Hermann <uwe@hermann-uwe.de>
+ * Copyright 2013 Google Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,26 +25,30 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _ARCH_TYPES_H
-#define _ARCH_TYPES_H
+#ifndef __ARCH_X86_EXCEPTION_NUMS_H__
+#define __ARCH_X86_EXCEPTION_NUMS_H__
 
-typedef unsigned char uint8_t;
-typedef signed char int8_t;
+enum {
+	EXC_DE = 0, // Divide by zero
+	EXC_DB = 1, // Debug 
+	EXC_NMI = 2, // Non maskable interrupt 
+	EXC_BP = 3, // Breakpoint 
+	EXC_OF = 4, // Overflow 
+	EXC_BR = 5, // Bound range 
+	EXC_UD = 6, // Invalid opcode 
+	EXC_NM = 7, // Device not available 
+	EXC_DF = 8, // Double fault 
+	EXC_TS = 10, // Invalid TSS 
+	EXC_NP = 11, // Segment not present 
+	EXC_SS = 12, // Stack 
+	EXC_GP = 13, // General protection 
+	EXC_PF = 14, // Page fault 
+	EXC_MF = 16, // x87 floating point 
+	EXC_AC = 17, // Alignment check 
+	EXC_MC = 18, // Machine check 
+	EXC_XF = 19, // SIMD floating point 
+	EXC_SX = 30, // Security 
+	EXC_COUNT
+};
 
-typedef unsigned short uint16_t;
-typedef signed short int16_t;
-
-typedef unsigned int uint32_t;
-typedef signed int int32_t;
-
-typedef unsigned long long uint64_t;
-typedef signed long long int64_t;
-
-typedef long time_t;
-typedef long suseconds_t;
-
-#ifndef NULL
-#define NULL ((void *)0)
-#endif
-
-#endif
+#endif /* __ARCH_X86_EXCEPTION_NUMS_H__ */
