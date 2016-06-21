@@ -174,6 +174,17 @@ STANDARD_IMAGES=y
 endif # CONFIG_BOOTPLAN_QEMU_X86
 
 
+ifeq ($(CONFIG_BOOTPLAN_UEFI),y)
+
+image-y += uefi.efi
+
+$(image_obj)/uefi.efi: $$(module_obj)/uefi.efi
+	@printf "    CP         $(subst $(obj)/,,$@)\n"
+	$(Q)cp $< $@
+
+endif # CONFIG_BOOTPLAN_UEFI
+
+
 ifeq ($(STANDARD_IMAGES),y)
 
 image-y += image.bin image.serial.bin image.dev.bin image.net.bin

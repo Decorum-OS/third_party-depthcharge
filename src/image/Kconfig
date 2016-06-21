@@ -89,6 +89,9 @@ config BOOTPLAN_FSP_V1_1
 config BOOTPLAN_QEMU_X86
 	bool "Basic x86 image suitable for booting on QEMU."
 
+config BOOTPLAN_UEFI
+	bool "Chain load from a UEFI based firmware."
+
 endchoice
 
 config BOOTPLAN_CB_IMAGE_MODEL
