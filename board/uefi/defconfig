@@ -1,0 +1,20 @@
+# Arch
+CONFIG_ARCH_X86=y
+CONFIG_ARCH_X86_AMD64=y
+
+# Board
+CONFIG_BOARD="uefi"
+
+# Image
+CONFIG_BOOTPLAN_UEFI=y
+
+CONFIG_IMAGE_HWID="UEFI TEST"
+
+# Vboot
+
+# Kernel format
+CONFIG_KERNEL_ZIMAGE=y
+
+# Drivers
+
+# libpayload
