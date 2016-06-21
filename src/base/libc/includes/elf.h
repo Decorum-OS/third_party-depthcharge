@@ -23,6 +23,7 @@
 #ifndef __BASE_ELF_H__
 #define __BASE_ELF_H__
 
+#include <arch/elf.h>
 #include <stdint.h>
 
 /* ELF file header. */
@@ -127,6 +128,80 @@ typedef struct {
 	uint64_t p_flags;
 	uint64_t p_align;
 } Elf64_Phdr;
+
+enum {
+	DT_NULL = 0,
+	DT_NEEDED = 1,
+	DT_PLTRELSZ = 2,
+	DT_PLTGOT = 3,
+	DT_HASH = 4,
+	DT_STRTAB = 5,
+	DT_SYMTAB = 6,
+	DT_RELA = 7,
+	DT_RELASZ = 8,
+	DT_RELAENT = 9,
+	DT_STRSZ = 10,
+	DT_SYMENT = 11,
+	DT_INIT = 12,
+	DT_FINI = 13,
+	DT_SONAME = 14,
+	DT_RPATH = 15,
+	DT_SYMBOLIC = 16,
+	DT_REL = 17,
+	DT_RELSZ = 18,
+	DT_RELENT = 19,
+	DT_PLTREL = 20,
+	DT_DEBUG = 21,
+	DT_TEXTREL = 22,
+	DT_JMPREL = 23,
+	DT_ENCODING = 32,
+};
+
+typedef struct {
+	uint32_t r_offset;
+	uint32_t r_info;
+} Elf32_Rel;
+
+typedef struct {
+	uint64_t r_offset;
+	uint64_t r_info;
+} Elf64_Rel;
+
+static inline uint32_t Elf64_R_Type(uint64_t i)
+{
+	return i & 0xffffffff;
+}
+
+static inline uint32_t Elf64_R_Sym(uint64_t i)
+{
+	return i >> 32;
+}
+
+static inline uint8_t Elf32_R_Type(uint32_t i)
+{
+	return i & 0xff;
+}
+
+static inline uint8_t Elf32_R_Sym(uint32_t i)
+{
+	return i >> 8;
+}
+
+typedef struct {
+	int32_t d_tag;
+	union {
+		uint32_t d_val;
+		uint32_t d_ptr;
+	} d_un;
+} Elf32_Dyn;
+
+typedef struct {
+	int64_t d_tag;
+	union {
+		uint64_t d_val;
+		uint64_t d_ptr;
+	} d_un;
+} Elf64_Dyn;
 
 void elf_load(Elf32_Ehdr *ehdr);
 void elf_start(Elf32_Ehdr *ehdr, void *param) __attribute__((noreturn));
