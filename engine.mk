@@ -51,16 +51,19 @@ tryldoption = \
 	$(shell $(CC) $(1) -static -nostdlib -fuse-ld=bfd -xc /dev/null -o /dev/null &> /dev/null; echo $$?)
 
 # There are no include dirs to start with, these will be filled in by included
-# Makefiles.
+# Makefiles. The double quotes around config options are removed by passing
+# them through the shell one extra time.
 INCLUDE_DIRS =
 ABI_FLAGS = $(ARCH_ABI_FLAGS) -ffreestanding -fno-builtin \
 	-fno-stack-protector -fomit-frame-pointer
 LINK_FLAGS = $(ARCH_LINK_FLAGS) $(ABI_FLAGS) -fuse-ld=bfd -nostdlib \
-	-Wl,--gc-sections -Wl,-Map=$@.map -static -Wl,--build-id=none
+	-Wl,--gc-sections -Wl,-Map=$@.map -static -Wl,--build-id=none \
+	$(shell echo $(CONFIG_EXTRA_LINK_FLAGS))
 CFLAGS = $(ARCH_CFLAGS) -Wall -Werror $(INCLUDE_DIRS) -include $(obj)/config.h \
 	-std=gnu99 $(ABI_FLAGS) -ffunction-sections -fdata-sections \
 	-ggdb3 -nostdinc -nostdlib -fno-stack-protector -fno-common \
-	-MT $(@) -MMD -MP -MF $(@:.o=.Td)
+	-MT $(@) -MMD -MP -MF $(@:.o=.Td) \
+	$(shell echo $(CONFIG_EXTRA_CFLAGS))
 POSTCOMPILE = mv -f $(@:.o=.Td) $(@:.o=.d)
 
 ifneq ($(SOURCE_DEBUG),)

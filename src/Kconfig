@@ -46,6 +46,14 @@ config ARCH_ARM
 
 endchoice
 
+config EXTRA_CFLAGS
+	string "Extra flags for the compiler when compiling"
+	default ""
+
+config EXTRA_LINK_FLAGS
+	string "Extra flags for the compiler when linking"
+	default ""
+
 source src/arch/Kconfig
 
 source src/base/Kconfig
