@@ -2,6 +2,9 @@
 CONFIG_ARCH_X86=y
 CONFIG_ARCH_X86_AMD64=y
 
+CONFIG_EXTRA_CFLAGS="-fpic -fshort-wchar -mno-red-zone -DEFIAPI='__attribute__((ms_abi))'"
+CONFIG_EXTRA_LINK_FLAGS="-Wl,-znocombreloc -Wl,-shared -Wl,-Bsymbolic -Wl,--hash-style=sysv"
+
 # Board
 CONFIG_BOARD="uefi"
 

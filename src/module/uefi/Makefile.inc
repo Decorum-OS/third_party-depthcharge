@@ -33,9 +33,4 @@ mod-uefi-$(CONFIG_ARCH_X86_AMD64) += crt0-efi-x86_64.S reloc_x86_64.c
 mod-uefi-y += uefi.c
 mod-uefi-c-ccopts := -I$(cursrcdir)/efi-include
 mod-uefi-c-ccopts += -I$(cursrcdir)/efi-include/$(UEFI_INCLUDE_ARCH-y)
-mod-uefi-c-ccopts += -fpic -fshort-wchar -mno-red-zone
-mod-uefi-c-ccopts += '-DEFIAPI=__attribute__((ms_abi))'
-mod-uefi-S-ccopts := $(mod-uefi-c-ccopts)
-mod-uefi-ldopts += -Wl,-znocombreloc -Wl,-shared -Wl,-Bsymbolic
-mod-uefi-ldopts += -Wl,--hash-style=sysv
 mod-uefi-ldscript := $(cursrcdir)/uefi.ldscript
