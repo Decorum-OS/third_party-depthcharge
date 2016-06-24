@@ -21,6 +21,7 @@
  */
 
 #include <coreboot_tables.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <sysinfo.h>
@@ -55,7 +56,7 @@ void memory_mark_used(uint64_t start, uint64_t end)
 
 static void unused_memset(uint64_t start, uint64_t end, void *data)
 {
-	printf("\t[%#016llx, %#016llx)\n", start, end);
+	printf("\t[%#016"PRIx64", %#016"PRIx64")\n", start, end);
 	arch_phys_memset(start, 0, end - start);
 }
 

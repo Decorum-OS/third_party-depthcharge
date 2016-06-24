@@ -21,7 +21,7 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
+#include <inttypes.h>
 
 #include "base/cleanup_funcs.h"
 #include "base/time.h"
@@ -42,7 +42,7 @@ int run_cleanup_funcs(CleanupType type)
 
 	gdb_exit(type);
 
-	printf("Exiting depthcharge with code %d at timestamp: %llu\n",
+	printf("Exiting depthcharge with code %d at timestamp: %"PRIu64"\n",
 	       type, time_us(0));
 
 	return res;

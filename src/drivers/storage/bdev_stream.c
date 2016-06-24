@@ -21,7 +21,7 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -38,12 +38,13 @@ static uint64_t bdev_stream_read(StreamOps *me, uint64_t count, void *buffer)
 	// TODO(dehrenberg): implement buffering so that unaligned reads are
 	// possible because alignment constraints are obscure.
 	if (count & (block_size - 1))
-		die("read_stream_simple(%lld) not LBA multiple\n", count);
+		die("read_stream_simple(%"PRId64") not LBA multiple\n", count);
 
 	uint64_t sectors = count / block_size;
 	if (sectors > stream->end_sector - stream->current_sector)
 		die("read_stream_simple past the end, "
-		    "end_sector=%lld, current_sector=%lld, sectors=%lld\n",
+		    "end_sector=%"PRId64", current_sector=%"PRId64", "
+		    "sectors=%"PRId64"\n",
 		    stream->end_sector, stream->current_sector, sectors);
 
 	int ret = stream->bdev->ops.read(&stream->bdev->ops,

@@ -25,7 +25,7 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -86,7 +86,7 @@ uint64_t time_us(uint64_t base)
 	if (hz == 0) {
 		hz = timer_hz();
 		if (hz < 1000000) {
-			printf("Timer frequency %lld is too low, "
+			printf("Timer frequency %"PRId64" is too low, "
 			       "must be at least 1MHz.\n", hz);
 			halt();
 		}
