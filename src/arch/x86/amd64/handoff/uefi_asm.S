@@ -1,4 +1,4 @@
-/* reloc_x86_64.c - position independent x86_64 ELF shared object relocator
+/* crt0-efi-x86_64.S - x86_64 EFI startup code.
    Copyright (C) 1999 Hewlett-Packard Co.
 	Contributed by David Mosberger <davidm@hpl.hp.com>.
    Copyright (C) 2005 Intel Co.
@@ -35,61 +35,48 @@
     SUCH DAMAGE.
 */
 
-// Include this first, since depthcharge checks if NULL is already defined
-// and the UEFI headers do not.
-#include <Uefi.h>
+	.code64
+	.global _entry
+	.section .text._entry
+	.align 4
 
-#include <elf.h>
-#include <stdint.h>
+_entry:
+	sub $8, %rsp
+	push %rcx
+	push %rdx
 
-typedef int size_t;
+	lea ImageBase(%rip), %rdi
+	lea _DYNAMIC(%rip), %rsi
 
-EFI_STATUS _relocate(uintptr_t ldbase, Elf64_Dyn *dyn)
-{
-	size_t relsz = 0, relent = 0;
-	Elf64_Rel *rel = 0;
+	call _uefi_handoff_relocate
 
-	for (int i = 0; dyn[i].d_tag != DT_NULL; i++) {
-		switch (dyn[i].d_tag) {
-		case DT_RELA:
-			rel = (Elf64_Rel*)((uintptr_t)dyn[i].d_un.d_ptr +
-                                           ldbase);
-			break;
+	pop %rdx
+	mov %rdx, _uefi_handoff_system_table(%rip)
+	pop %rcx
+	mov %rcx, _uefi_handoff_image_handle(%rip)
 
-		case DT_RELASZ:
-			relsz = dyn[i].d_un.d_val;
-			break;
+	jmp handoff_common_asm
 
-		case DT_RELAENT:
-			relent = dyn[i].d_un.d_val;
-			break;
+	.data
+	.align 4
 
-		default:
-			break;
-		}
-	}
+	.global _uefi_handoff_image_handle
+_uefi_handoff_image_handle:
+	.quad 0
 
-        if (!rel && relent == 0)
-                return EFI_SUCCESS;
+	.global _uefi_handoff_system_table
+_uefi_handoff_system_table:
+	.quad 0
 
-	if (!rel || relent == 0)
-		return EFI_LOAD_ERROR;
+ 	// hand-craft a dummy .reloc section so EFI knows it's a relocatable executable:
 
-	while (relsz > 0) {
-		// Apply the relocs.
-		switch (Elf64_R_Type(rel->r_info)) {
-		case R_X86_64_NONE:
-			break;
+ 	.data
+dummy:	.long	0
 
-		case R_X86_64_RELATIVE:
-			*(uintptr_t *)(ldbase + rel->r_offset) += ldbase;
-			break;
+#define IMAGE_REL_ABSOLUTE	0
+ 	.section .reloc, "a"
+label1:
+	.long	dummy-label1				// Page RVA
+ 	.long	10					// Block Size (2*4+2)
+	.word	(IMAGE_REL_ABSOLUTE<<12) +  0		// reloc for dummy
 
-		default:
-			break;
-		}
-		rel = (Elf64_Rel*)((char *)rel + relent);
-		relsz -= relent;
-	}
-	return EFI_SUCCESS;
-}

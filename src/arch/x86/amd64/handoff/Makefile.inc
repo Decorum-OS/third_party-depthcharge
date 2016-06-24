@@ -15,10 +15,7 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-subdirs-y += handoff
+classes-y += uefi_handoff
 
-src-includes-y += includes
-
-ARCH_ABI_FLAGS += -mpreferred-stack-boundary=4 -m64
-
-TC_ARCH = x86_64
+uefi_handoff-y += uefi_asm.S common_asm.S reloc.c
+uefi_handoff-y += uefi.c common.c

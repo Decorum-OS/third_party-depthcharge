@@ -1,4 +1,4 @@
-/* crt0-efi-x86_64.S - x86_64 EFI startup code.
+/* reloc_x86_64.c - position independent x86_64 ELF shared object relocator
    Copyright (C) 1999 Hewlett-Packard Co.
 	Contributed by David Mosberger <davidm@hpl.hp.com>.
    Copyright (C) 2005 Intel Co.
@@ -34,43 +34,58 @@
     THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
 */
-	.text
-	.align 4
 
-	.globl _start
-_start:
-	subq $8, %rsp
-	pushq %rcx
-	pushq %rdx
+#include <elf.h>
+#include <stdint.h>
 
-0:
-	lea ImageBase(%rip), %rdi
-	lea _DYNAMIC(%rip), %rsi
+typedef int size_t;
 
-	popq %rcx
-	popq %rdx
-	pushq %rcx
-	pushq %rdx
-	call _relocate
+void _uefi_handoff_relocate(uintptr_t ldbase, Elf64_Dyn *dyn)
+{
+	size_t relsz = 0, relent = 0;
+	Elf64_Rel *rel = 0;
 
-	popq %rdi
-	popq %rsi
+	for (int i = 0; dyn[i].d_tag != DT_NULL; i++) {
+		switch (dyn[i].d_tag) {
+		case DT_RELA:
+			rel = (Elf64_Rel*)((uintptr_t)dyn[i].d_un.d_ptr +
+                                           ldbase);
+			break;
 
-	call efi_main
-	addq $8, %rsp
+		case DT_RELASZ:
+			relsz = dyn[i].d_un.d_val;
+			break;
 
-.exit:	
-  	ret
+		case DT_RELAENT:
+			relent = dyn[i].d_un.d_val;
+			break;
 
- 	// hand-craft a dummy .reloc section so EFI knows it's a relocatable executable:
- 
- 	.data
-dummy:	.long	0
+		default:
+			break;
+		}
+	}
 
-#define IMAGE_REL_ABSOLUTE	0
- 	.section .reloc, "a"
-label1:
-	.long	dummy-label1				// Page RVA
- 	.long	10					// Block Size (2*4+2)
-	.word	(IMAGE_REL_ABSOLUTE<<12) +  0		// reloc for dummy
+        if (!rel && relent == 0)
+                return;
 
+	if (!rel || relent == 0)
+		return;
+
+	while (relsz > 0) {
+		// Apply the relocs.
+		switch (Elf64_R_Type(rel->r_info)) {
+		case R_X86_64_NONE:
+			break;
+
+		case R_X86_64_RELATIVE:
+			*(uintptr_t *)(ldbase + rel->r_offset) += ldbase;
+			break;
+
+		default:
+			break;
+		}
+		rel = (Elf64_Rel*)((char *)rel + relent);
+		relsz -= relent;
+	}
+	return;
+}

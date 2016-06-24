@@ -29,8 +29,8 @@ UEFI_INCLUDE_ARCH-$(CONFIG_ARCH_X86_IA32) = Ia32
 
 module-y += uefi
 mod-uefi-title = "UEFI chain loader"
-mod-uefi-$(CONFIG_ARCH_X86_AMD64) += crt0-efi-x86_64.S reloc_x86_64.c
 mod-uefi-y += uefi.c
+mod-uefi-libs += $(depthcharge-objs) $(uefi_handoff-objs)
 mod-uefi-c-ccopts := -I$(cursrcdir)/efi-include
 mod-uefi-c-ccopts += -I$(cursrcdir)/efi-include/$(UEFI_INCLUDE_ARCH-y)
 mod-uefi-ldscript := $(cursrcdir)/uefi.ldscript

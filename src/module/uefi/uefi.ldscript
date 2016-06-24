@@ -1,6 +1,6 @@
 OUTPUT_FORMAT("elf64-x86-64", "elf64-x86-64", "elf64-x86-64")
 OUTPUT_ARCH(i386:x86-64)
-ENTRY(_start)
+ENTRY(_entry)
 
 SECTIONS
 {
@@ -37,6 +37,7 @@ SECTIONS
 	.data :	{
 		_data = .;
 		*(.rodata*)
+		*(.plt)
 		*(.got.plt)
 		*(.got)
 		*(.data*)
@@ -48,8 +49,11 @@ SECTIONS
 		*(.sbss)
 		*(.scommon)
 		*(.dynbss)
-		*(.bss)
+		*(.bss*)
 		*(COMMON)
+		_init_funcs_start = .;
+		KEEP(*(SORT_BY_NAME(.init_funcs.*)))
+		_init_funcs_end = .;
 		*(.rel.local)
 	}
 	_edata = .;
@@ -64,7 +68,9 @@ SECTIONS
 	.rela : {
 		*(.rela.data*)
 		*(.rela.got)
+		*(.rela.plt)
 		*(.rela.stab)
+		*(.rela.init_funcs*)
 	}
 
 	. = ALIGN(4096);

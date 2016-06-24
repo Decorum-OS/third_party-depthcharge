@@ -20,21 +20,19 @@
  * MA 02111-1307 USA
  */
 
-#include <Uefi.h>
+#include <exception.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#include <stdint.h>
+#include "arch/x86/amd64/handoff/handoff.h"
+#include "base/init_funcs.h"
+#include "module/module.h"
 
-#define _XSTR(x) #x
-#define XSTR(x) _XSTR(x)
-
-extern EFI_HANDLE _uefi_handoff_image_handle;
-extern EFI_SYSTEM_TABLE *_uefi_handoff_system_table;
-
-void module_main(void)
+void handoff_common(void)
 {
-	EFI_SYSTEM_TABLE *sys = _uefi_handoff_system_table;
+	// Do handoff method specific work, if any.
+	handoff_special();
 
-        SIMPLE_TEXT_OUTPUT_INTERFACE *ConOut = sys->ConOut;
-	ConOut->OutputString(ConOut,
-		L"\n\r\n\rStarting " XSTR(__MODULE_TITLE__) " from EFI...\r\n");
+	module_main();
+	halt();
 }

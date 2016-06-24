@@ -10,7 +10,7 @@
  * the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * but without any warranty; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
@@ -20,21 +20,10 @@
  * MA 02111-1307 USA
  */
 
-#include <Uefi.h>
+#ifndef __ARCH_X86_AMD64_HANDOFF_HANDOFF_H__
+#define __ARCH_X86_AMD64_HANDOFF_HANDOFF_H__
 
-#include <stdint.h>
+void handoff_common(void) __attribute__((noreturn));
+void handoff_special(void);
 
-#define _XSTR(x) #x
-#define XSTR(x) _XSTR(x)
-
-extern EFI_HANDLE _uefi_handoff_image_handle;
-extern EFI_SYSTEM_TABLE *_uefi_handoff_system_table;
-
-void module_main(void)
-{
-	EFI_SYSTEM_TABLE *sys = _uefi_handoff_system_table;
-
-        SIMPLE_TEXT_OUTPUT_INTERFACE *ConOut = sys->ConOut;
-	ConOut->OutputString(ConOut,
-		L"\n\r\n\rStarting " XSTR(__MODULE_TITLE__) " from EFI...\r\n");
-}
+#endif /* __ARCH_X86_AMD64_HANDOFF_HANDOFF_H__ */
