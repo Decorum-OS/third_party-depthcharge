@@ -25,6 +25,7 @@
  * SUCH DAMAGE.
  */
 
+#include <arch/exception.h>
 #include <exception.h>
 #include <stdint.h>
 #include <stdio.h>

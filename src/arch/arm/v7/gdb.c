@@ -16,6 +16,7 @@
  * Foundation, Inc.
  */
 
+#include <arch/exception.h>
 #include <exception.h>
 #include <stddef.h>
 #include <stdint.h>

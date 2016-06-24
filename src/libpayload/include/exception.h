@@ -25,10 +25,10 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _EXCEPTION_H
-#define _EXCEPTION_H
+#ifndef __EXCEPTION_H__
+#define __EXCEPTION_H__
 
-#include <arch/exception.h>
+#include <stdint.h>
 
 /* Return 1 if the exception was handled, 0 to proceed to the next handler. */
 typedef int (*exception_hook)(uint32_t type);
@@ -36,4 +36,4 @@ typedef int (*exception_hook)(uint32_t type);
 void exception_init(void);
 void exception_install_hook(exception_hook h);
 
-#endif
+#endif /* __EXCEPTION_H__ */
