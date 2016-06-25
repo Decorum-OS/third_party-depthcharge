@@ -25,8 +25,8 @@
  * SUCH DAMAGE.
  */
 
-#include <arch/exception.h>
-#include <exception.h>
+#include <arch/arm/v8/exception.h>
+#include <base/exception.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,57 +35,50 @@
 
 uint8_t exception_stack[0x4000] __attribute__((aligned(8)));
 
-struct exception_handler_info
-{
-	const char *name;
+static ExceptionHook hook;
+ExceptionState *exception_state;
+
+static char *exception_names[EXC_COUNT] = {
+	[EXC_SYNC_SP0] = "_sync_sp_el0",
+	[EXC_IRQ_SP0]  = "_irq_sp_el0",
+	[EXC_FIQ_SP0]  = "_fiq_sp_el0",
+	[EXC_SERROR_SP0] = "_serror_sp_el0",
+	[EXC_SYNC_SPX] = "_sync_spx",
+	[EXC_IRQ_SPX]  = "_irq_spx",
+	[EXC_FIQ_SPX]  = "_fiq_spx",
+	[EXC_SERROR_SPX] = "_serror_spx",
+	[EXC_SYNC_ELX_64] = "_sync_elx_64",
+	[EXC_IRQ_ELX_64]  = "_irq_elx_64",
+	[EXC_FIQ_ELX_64]  = "_fiq_elx_64",
+	[EXC_SERROR_ELX_64] = "_serror_elx_64",
+	[EXC_SYNC_ELX_32] = "_sync_elx_32",
+	[EXC_IRQ_ELX_32]  = "_irq_elx_32",
+	[EXC_FIQ_ELX_32]  = "_fiq_elx_32",
+	[EXC_SERROR_ELX_32] = "_serror_elx_32",
 };
 
-static exception_hook hook;
-struct exception_state *exception_state;
-
-static struct exception_handler_info exceptions[EXC_COUNT] = {
-	[EXC_SYNC_SP0] = { "_sync_sp_el0" },
-	[EXC_IRQ_SP0]  = { "_irq_sp_el0" },
-	[EXC_FIQ_SP0]  = { "_fiq_sp_el0" },
-	[EXC_SERROR_SP0] = {"_serror_sp_el0"},
-	[EXC_SYNC_SPX] = { "_sync_spx" },
-	[EXC_IRQ_SPX]  = { "_irq_spx" },
-	[EXC_FIQ_SPX]  = { "_fiq_spx" },
-	[EXC_SERROR_SPX] = {"_serror_spx"},
-	[EXC_SYNC_ELX_64] = { "_sync_elx_64" },
-	[EXC_IRQ_ELX_64]  = { "_irq_elx_64" },
-	[EXC_FIQ_ELX_64]  = { "_fiq_elx_64" },
-	[EXC_SERROR_ELX_64] = {"_serror_elx_64"},
-	[EXC_SYNC_ELX_32] = { "_sync_elx_32" },
-	[EXC_IRQ_ELX_32]  = { "_irq_elx_32" },
-	[EXC_FIQ_ELX_32]  = { "_fiq_elx_32" },
-	[EXC_SERROR_ELX_32] = {"_serror_elx_32"},
-};
-
-static void print_regs(struct exception_state *state)
+static void print_regs(ExceptionState *state)
 {
-	int i;
-
-	printf("ELR = 0x%016llx\n",state->elr);
-	printf("ESR = 0x%08llx\n",state->esr);
-	for (i = 0; i < 31; i++) {
-		printf("X%02d = 0x%016llx\n", i, state->regs[i]);
+	printf("ELR = %#016llx\n", state->elr);
+	printf("ESR = %#08llx\n", state->esr);
+	for (int i = 0; i < 31; i++) {
+		printf("X%02d = %#016llx\n", i, state->regs[i]);
 	}
 }
 
-void exception_dispatch(struct exception_state *state, int idx)
+void exception_dispatch(ExceptionState *state, int idx)
 {
 	exception_state = state;
 
 	if (idx >= EXC_COUNT) {
 		printf("Bad exception index %d.\n", idx);
 	} else {
-		struct exception_handler_info *info = &exceptions[idx];
+		char *name = exception_names[idx];
 		if (hook && hook(idx))
 			return;
 
-		if (info->name)
-			printf("exception %s\n", info->name);
+		if (name)
+			printf("exception %s\n", name);
 		else
 			printf("exception _not_used.\n");
 	}
@@ -108,7 +101,7 @@ void exception_init(void)
 	set_vbar(&exception_table);
 }
 
-void exception_install_hook(exception_hook h)
+void exception_install_hook(ExceptionHook h)
 {
 	die_if(hook, "Implement support for a list of hooks if you need it.");
 	hook = h;

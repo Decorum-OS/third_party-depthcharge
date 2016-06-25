@@ -16,8 +16,8 @@
  * Foundation, Inc.
  */
 
-#include <arch/exception.h>
-#include <exception.h>
+#include <arch/arm/v8/exception.h>
+#include <base/exception.h>
 #include <libpayload.h>
 
 #include "debug/gdb/gdb_int.h"

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Google Inc.
+ * Copyright 2013 Google Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,41 +25,33 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _ARCH_EXCEPTION_H
-#define _ARCH_EXCEPTION_H
+#ifndef __ARCH_ARM_V7_EXCEPTION_H__
+#define __ARCH_ARM_V7_EXCEPTION_H__
 
 #include <stdint.h>
 
-struct exception_state
+void exception_dispatch(uint32_t idx);
+void set_vbar(uint32_t vbar);
+
+typedef struct __attribute__((packed))
 {
-	uint64_t elr;
-	uint64_t esr;
-	uint64_t regs[31];
-} __attribute__((packed));
+	uint32_t regs[16];
+	uint32_t cpsr;
+} ExceptionState;
+extern ExceptionState exception_state;
 
-void exception_dispatch(struct exception_state *state, int idx);
-void set_vbar(void* vbar);
-
-extern struct exception_state *exception_state;
+extern uint32_t exception_stack[];
+extern uint32_t *exception_stack_end;
+extern ExceptionState *exception_state_ptr;
 
 enum {
-	EXC_SYNC_SP0 = 0,
-	EXC_IRQ_SP0,
-	EXC_FIQ_SP0,
-	EXC_SERROR_SP0,
-	EXC_SYNC_SPX,
-	EXC_IRQ_SPX,
-	EXC_FIQ_SPX,
-	EXC_SERROR_SPX,
-	EXC_SYNC_ELX_64,
-	EXC_IRQ_ELX_64,
-	EXC_FIQ_ELX_64,
-	EXC_SERROR_ELX_64,
-	EXC_SYNC_ELX_32,
-	EXC_IRQ_ELX_32,
-	EXC_FIQ_ELX_32,
-	EXC_SERROR_ELX_32,
+	EXC_UNDEF = 1,
+	EXC_SWI = 2,
+	EXC_PABORT = 3,
+	EXC_DABORT = 4,
+	EXC_IRQ = 6,
+	EXC_FIQ = 7,
 	EXC_COUNT
 };
 
-#endif
+#endif /* __ARCH_ARM_V7_EXCEPTION_H__ */

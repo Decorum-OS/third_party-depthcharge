@@ -25,43 +25,15 @@
  * SUCH DAMAGE.
  */
 
-#ifndef __ARCH_EXCEPTION_H__
-#define __ARCH_EXCEPTION_H__
+#ifndef __BASE_EXCEPTION_H__
+#define __BASE_EXCEPTION_H__
 
 #include <stdint.h>
 
-#include "arch/x86/exception_nums.h"
+// Return 1 if the exception was handled, 0 to proceed to the next handler.
+typedef int (*ExceptionHook)(uint32_t type);
 
-void exception_init_asm(void);
-void exception_dispatch(void);
+void exception_init(void);
+void exception_install_hook(ExceptionHook h);
 
-struct exception_state
-{
-	// Careful: x86/gdb.c currently relies on the size and order of regs.
-	struct {
-		uint32_t eax;
-		uint32_t ecx;
-		uint32_t edx;
-		uint32_t ebx;
-		uint32_t esp;
-		uint32_t ebp;
-		uint32_t esi;
-		uint32_t edi;
-		uint32_t eip;
-		uint32_t eflags;
-		uint32_t cs;
-		uint32_t ss;
-		uint32_t ds;
-		uint32_t es;
-		uint32_t fs;
-		uint32_t gs;
-	} regs;
-	uint32_t error_code;
-	uint32_t vector;
-} __attribute__((packed));
-extern struct exception_state *exception_state;
-
-extern uint32_t exception_stack[];
-extern uint32_t *exception_stack_end;
-
-#endif /* __ARCH_EXCEPTION_H__ */
+#endif /* __BASE_EXCEPTION_H__ */

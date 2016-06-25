@@ -25,33 +25,43 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _ARCH_EXCEPTION_H
-#define _ARCH_EXCEPTION_H
+#ifndef __ARCH_X86_IA32_EXCEPTION_H__
+#define __ARCH_X86_IA32_EXCEPTION_H__
 
 #include <stdint.h>
 
-void exception_dispatch(uint32_t idx);
-void set_vbar(uint32_t vbar);
+#include "arch/x86/exception_nums.h"
 
-struct exception_state
+void exception_init_asm(void);
+void exception_dispatch(void);
+
+typedef struct __attribute__((packed))
 {
-	uint32_t regs[16];
-	uint32_t cpsr;
-} __attribute__((packed));
-extern struct exception_state exception_state;
+	// Careful: x86/gdb.c currently relies on the size and order of regs.
+	struct {
+		uint32_t eax;
+		uint32_t ecx;
+		uint32_t edx;
+		uint32_t ebx;
+		uint32_t esp;
+		uint32_t ebp;
+		uint32_t esi;
+		uint32_t edi;
+		uint32_t eip;
+		uint32_t eflags;
+		uint32_t cs;
+		uint32_t ss;
+		uint32_t ds;
+		uint32_t es;
+		uint32_t fs;
+		uint32_t gs;
+	} regs;
+	uint32_t error_code;
+	uint32_t vector;
+} ExceptionState;
+extern ExceptionState *exception_state;
 
 extern uint32_t exception_stack[];
 extern uint32_t *exception_stack_end;
-extern struct exception_state *exception_state_ptr;
 
-enum {
-	EXC_UNDEF = 1,
-	EXC_SWI = 2,
-	EXC_PABORT = 3,
-	EXC_DABORT = 4,
-	EXC_IRQ = 6,
-	EXC_FIQ = 7,
-	EXC_COUNT
-};
-
-#endif
+#endif /* __ARCH_X86_IA32_EXCEPTION_H__ */

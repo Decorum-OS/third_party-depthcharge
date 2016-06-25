@@ -25,8 +25,8 @@
  * SUCH DAMAGE.
  */
 
-#include <arch/exception.h>
-#include <exception.h>
+#include <arch/x86/ia32/exception.h>
+#include <base/exception.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,7 +36,7 @@
 
 uint32_t exception_stack[0x400] __attribute__((aligned(8)));
 
-static exception_hook hook;
+static ExceptionHook hook;
 static const char *names[EXC_COUNT] = {
 	[EXC_DE]  = "Divide by Zero",
 	[EXC_DB]  = "Debug",
@@ -179,7 +179,7 @@ void exception_init(void)
 	exception_init_asm();
 }
 
-void exception_install_hook(exception_hook h)
+void exception_install_hook(ExceptionHook h)
 {
 	die_if(hook, "Implement support for a list of hooks if you need it.");
 	hook = h;

@@ -26,8 +26,8 @@
  */
 
 #include <arch/cache.h>
-#include <arch/exception.h>
-#include <exception.h>
+#include <arch/arm/v7/exception.h>
+#include <base/exception.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,9 +36,9 @@
 #include "base/die.h"
 
 uint32_t exception_stack[0x400] __attribute__((aligned(8)));
-struct exception_state exception_state;
+ExceptionState exception_state;
 
-static exception_hook hook;
+static ExceptionHook hook;
 static const char *names[EXC_COUNT] = {
 	[EXC_UNDEF]  = "Undefined Instruction",
 	[EXC_SWI]    = "Software Interrupt",
@@ -124,7 +124,7 @@ void exception_init(void)
 	exception_state_ptr = &exception_state;
 }
 
-void exception_install_hook(exception_hook h)
+void exception_install_hook(ExceptionHook h)
 {
 	die_if(hook, "Implement support for a list of hooks if you need it.");
 	hook = h;

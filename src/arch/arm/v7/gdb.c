@@ -16,8 +16,8 @@
  * Foundation, Inc.
  */
 
-#include <arch/exception.h>
-#include <exception.h>
+#include <arch/arm/v7/exception.h>
+#include <base/exception.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -36,14 +36,14 @@ typedef struct __attribute__((packed))
 } GdbRegs;
 
 static const uint8_t type_to_signal[] = {
-	[EXC_UNDEF]  = GDB_SIGILL,
-	[EXC_SWI]    = GDB_SIGTRAP,
+	[EXC_UNDEF] = GDB_SIGILL,
+	[EXC_SWI] = GDB_SIGTRAP,
 	[EXC_PABORT] = GDB_SIGSEGV,
 	[EXC_DABORT] = GDB_SIGSEGV,
 };
 
-/* Scratch value to write reentrant exception states to. We never read it. */
-static struct exception_state sentinel_exception_state;
+// Scratch value to write reentrant exception states to. We never read it.
+static ExceptionState sentinel_exception_state;
 
 static int gdb_exception_hook(uint32_t type)
 {
@@ -55,14 +55,14 @@ static int gdb_exception_hook(uint32_t type)
 	 * exception state ("jumping over" all the nested ones).
 	 */
 	if (gdb_state.connected && !gdb_state.resumed) {
-		static const char error_code[] = "E22";	/* EINVAL? */
+		static const char error_code[] = "E22";	// EINVAL?
 		static const GdbMessage tmp_reply = {
 			.buf = (uint8_t *)error_code,
 			.used = sizeof(error_code),
 			.size = sizeof(error_code),
 		};
 		gdb_send_reply(&tmp_reply);
-		gdb_command_loop(gdb_state.signal); /* preserve old signal */
+		gdb_command_loop(gdb_state.signal); // Preserve old signal.
 	} else {
 		if (type >= ARRAY_SIZE(type_to_signal) || !type_to_signal[type])
 			return 0;
@@ -83,18 +83,18 @@ void gdb_arch_enter(void)
 {
 	uint32_t *sp;
 
-	asm volatile ("mov %0, %%sp" : "=r"(sp) );
+	__asm__ __volatile__ ("mov %0, %%sp" : "=r"(sp));
 
-	/* Avoid reentrant exceptions, just call the hook if in one already. */
+	// Avoid reentrant exceptions, just call the hook if in one already.
 	if (sp >= exception_stack && sp <= exception_stack_end)
 		gdb_exception_hook(EXC_SWI);
 	else
-		asm volatile ("svc #0");
+		__asm__ __volatile__ ("svc #0");
 }
 
 int gdb_arch_set_single_step(int on)
 {
-	/* GDB seems to only need this on x86, ARM works fine without it. */
+	// GDB seems to only need this on x86, ARM works fine without it.
 	return -1;
 }
 

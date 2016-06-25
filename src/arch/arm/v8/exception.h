@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Google Inc.
+ * Copyright 2014 Google Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,15 +25,41 @@
  * SUCH DAMAGE.
  */
 
-#ifndef __EXCEPTION_H__
-#define __EXCEPTION_H__
+#ifndef __ARCH_ARM_V7_EXCEPTION_H__
+#define __ARCH_ARM_V7_EXCEPTION_H__
 
 #include <stdint.h>
 
-/* Return 1 if the exception was handled, 0 to proceed to the next handler. */
-typedef int (*exception_hook)(uint32_t type);
+typedef struct __attribute__((packed))
+{
+	uint64_t elr;
+	uint64_t esr;
+	uint64_t regs[31];
+} ExceptionState;
 
-void exception_init(void);
-void exception_install_hook(exception_hook h);
+void exception_dispatch(ExceptionState *state, int idx);
+void set_vbar(void* vbar);
 
-#endif /* __EXCEPTION_H__ */
+extern ExceptionState *exception_state;
+
+enum {
+	EXC_SYNC_SP0 = 0,
+	EXC_IRQ_SP0,
+	EXC_FIQ_SP0,
+	EXC_SERROR_SP0,
+	EXC_SYNC_SPX,
+	EXC_IRQ_SPX,
+	EXC_FIQ_SPX,
+	EXC_SERROR_SPX,
+	EXC_SYNC_ELX_64,
+	EXC_IRQ_ELX_64,
+	EXC_FIQ_ELX_64,
+	EXC_SERROR_ELX_64,
+	EXC_SYNC_ELX_32,
+	EXC_IRQ_ELX_32,
+	EXC_FIQ_ELX_32,
+	EXC_SERROR_ELX_32,
+	EXC_COUNT
+};
+
+#endif /* __ARCH_ARM_V7_EXCEPTION_H__ */

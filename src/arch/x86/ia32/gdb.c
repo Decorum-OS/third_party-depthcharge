@@ -16,8 +16,8 @@
  * Foundation, Inc.
  */
 
-#include <arch/exception.h>
-#include <exception.h>
+#include <arch/x86/ia32/exception.h>
+#include <base/exception.h>
 #include <libpayload.h>
 
 #include "base/algorithm.h"
