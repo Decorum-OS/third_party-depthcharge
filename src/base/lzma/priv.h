@@ -19,15 +19,13 @@
   to this file, however, are subject to the LGPL or CPL terms.
 */
 
-#ifndef __LZMADECODE_H
-#define __LZMADECODE_H
+#ifndef __BASE_LZMA_PRIV_H__
+#define __BASE_LZMA_PRIV_H__
 
-typedef unsigned char Byte;
-typedef unsigned short UInt16;
-typedef unsigned int UInt32;
-typedef UInt32 SizeT;
+#include <stddef.h>
+#include <stdint.h>
 
-#define CProb UInt16
+typedef uint16_t CProb;
 
 #define LZMA_RESULT_OK 0
 #define LZMA_RESULT_DATA_ERROR 1
@@ -38,30 +36,31 @@ typedef UInt32 SizeT;
 
 #define LZMA_PROPERTIES_SIZE 5
 
-typedef struct _CLzmaProperties
+typedef struct
 {
-  int lc;
-  int lp;
-  int pb;
-}CLzmaProperties;
+	int lc;
+	int lp;
+	int pb;
+} CLzmaProperties;
 
-int LzmaDecodeProperties(CLzmaProperties *propsRes, const unsigned char *propsData, int size);
+int LzmaDecodeProperties(CLzmaProperties *propsRes, const uint8_t *propsData,
+			 int size);
 
-#define LzmaGetNumProbs(Properties) (LZMA_BASE_SIZE + (LZMA_LIT_SIZE << ((Properties)->lc + (Properties)->lp)))
+#define LzmaGetNumProbs(Properties) \
+	(LZMA_BASE_SIZE + (LZMA_LIT_SIZE << ((Properties)->lc + \
+			   (Properties)->lp)))
 
-#define kLzmaNeedInitId (-2)
+#define kLzmaNeedInitId -2
 
-typedef struct _CLzmaDecoderState
+typedef struct
 {
-  CLzmaProperties Properties;
-  CProb *Probs;
-
-
+	CLzmaProperties Properties;
+	CProb *Probs;
 } CLzmaDecoderState;
 
 
 int LzmaDecode(CLzmaDecoderState *vs,
-    const unsigned char *inStream, SizeT inSize, SizeT *inSizeProcessed,
-    unsigned char *outStream, SizeT outSize, SizeT *outSizeProcessed);
+	       const uint8_t *inStream, size_t inSize, size_t *inSizeProcessed,
+	       uint8_t *outStream, size_t outSize, size_t *outSizeProcessed);
 
-#endif
+#endif /* __BASE_LZMA_PRIV_H__ */

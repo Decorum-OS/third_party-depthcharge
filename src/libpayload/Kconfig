@@ -34,13 +34,6 @@ config CBFS
 	help
 	  CBFS is the archive format of coreboot
 
-config LZMA
-	bool "LZMA decoder"
-	default y
-	help
-	  LZMA decoder implementation, usable eg. by CBFS,
-	  but also externally.
-
 config LZ4
 	bool "LZ4 decoder"
 	default y

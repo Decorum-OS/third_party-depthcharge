@@ -26,10 +26,6 @@
  * SUCH DAMAGE.
  */
 
-#if CONFIG_LZMA
-# include <lzma.h>
-# define CBFS_CORE_WITH_LZMA
-#endif
 #define CBFS_MINI_BUILD
 
 #include <cbfs.h>

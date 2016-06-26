@@ -25,4 +25,5 @@
 ## SUCH DAMAGE.
 ##
 
-liblzma-$(CONFIG_LZMA) += lzma.c
+depthcharge-y += lzma.c
+depthcharge-y += lzmadecode.c

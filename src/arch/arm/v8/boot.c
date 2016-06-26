@@ -21,7 +21,6 @@
  */
 
 #include <coreboot_tables.h>
-#include <lzma.h>
 #include <lz4.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,6 +28,7 @@
 
 #include "arch/arm/boot.h"
 #include "base/io.h"
+#include "base/lzma/lzma.h"
 #include "base/physmem.h"
 #include "base/ranges.h"
 #include "base/timestamp.h"

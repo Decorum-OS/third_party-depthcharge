@@ -20,11 +20,11 @@
  * MA 02111-1307 USA
  */
 
-#include <lzma.h>
 #include <stdio.h>
 #include <vboot_api.h>
 
 #include "base/die.h"
+#include "base/lzma/lzma.h"
 #include "board/board.h"
 #include "drivers/flash/flash.h"
 #include "image/fmap.h"

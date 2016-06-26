@@ -23,7 +23,6 @@
 #include <cbfs.h>
 #include <cbfs_ram.h>
 #include <endian.h>
-#include <lzma.h>
 #include <stdio.h>
 #include <string.h>
 #include <sysinfo.h>
@@ -31,6 +30,7 @@
 
 #include "arch/cache.h"
 #include "base/cleanup_funcs.h"
+#include "base/lzma/lzma.h"
 #include "drivers/flash/flash.h"
 #include "image/fmap.h"
 

@@ -30,9 +30,8 @@
 classes-y += libc
 classes-$(CONFIG_CBFS) += libcbfs
 classes-$(CONFIG_LZ4) += liblz4
-classes-$(CONFIG_LZMA) += liblzma
 
-subdirs-y += drivers libc libcbfs liblz4 liblzma
+subdirs-y += drivers libc libcbfs liblz4
 
 src-includes-y += include
 

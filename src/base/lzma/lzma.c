@@ -9,22 +9,23 @@
  *
  */
 
-#include <lzma.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include "lzmadecode.c"
 
-unsigned long ulzman(const unsigned char *src, unsigned long srcn,
-		     unsigned char *dst, unsigned long dstn)
+#include "base/lzma/lzma.h"
+#include "base/lzma/priv.h"
+
+size_t ulzman(const void *src, size_t srcn, void *dst, size_t dstn)
 {
 	unsigned char properties[LZMA_PROPERTIES_SIZE];
 	const int data_offset = LZMA_PROPERTIES_SIZE + 8;
-	UInt32 outSize;
-	SizeT inProcessed;
-	SizeT outProcessed;
+	uint32_t outSize;
+	size_t inProcessed;
+	size_t outProcessed;
 	int res;
 	CLzmaDecoderState state;
-	SizeT mallocneeds;
+	size_t mallocneeds;
 	unsigned char scratchpad[15980];
 
 	memcpy(properties, src, LZMA_PROPERTIES_SIZE);
@@ -42,8 +43,9 @@ unsigned long ulzman(const unsigned char *src, unsigned long srcn,
 		return 0;
 	}
 	state.Probs = (CProb *)scratchpad;
-	res = LzmaDecode(&state, src + data_offset, srcn - data_offset,
-			 &inProcessed, dst, outSize, &outProcessed);
+	res = LzmaDecode(&state, (uint8_t *)src + data_offset,
+			 srcn - data_offset, &inProcessed,
+			 (uint8_t *)dst, outSize, &outProcessed);
 	if (res != 0) {
 		printf("lzma: Decoding error = %d\n", res);
 		return 0;
@@ -51,7 +53,7 @@ unsigned long ulzman(const unsigned char *src, unsigned long srcn,
 	return outProcessed;
 }
 
-unsigned long ulzma(const unsigned char *src, unsigned char *dst)
+size_t ulzma(const void *src, void *dst)
 {
-	return ulzman(src, (unsigned long)(-1), dst, (unsigned long)(-1));
+	return ulzman(src, (size_t)(-1), dst, (size_t)(-1));
 }

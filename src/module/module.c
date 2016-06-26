@@ -21,9 +21,9 @@
  */
 
 #include <elf.h>
-#include <lzma.h>
 #include <stdio.h>
 
+#include "base/lzma/lzma.h"
 #include "module/module.h"
 #include "module/symbols.h"
 #include "module/trampoline/trampoline.h"

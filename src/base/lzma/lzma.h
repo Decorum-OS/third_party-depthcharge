@@ -25,22 +25,25 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _LZMA_H
-#define _LZMA_H
+#ifndef __BASE_LZMA_LZMA_H__
+#define __BASE_LZMA_LZMA_H__
 
-/* Decompresses the data stream at src to dst. The sizes of the source and
+#include <stddef.h>
+
+/*
+ * Decompresses the data stream at src to dst. The sizes of the source and
  * destination buffers are in srcn and dstn.
  *
  * Returns the decompressed size, or 0 on error
  */
-unsigned long ulzman(const unsigned char *src, unsigned long srcn,
-		     unsigned char *dst, unsigned long dstn);
+size_t ulzman(const void *src, size_t srcn, void *dst, size_t dstn);
 
-/* Decompresses the data stream at src to dst, determining its length from
+/*
+ * Decompresses the data stream at src to dst, determining its length from
  * the data stream itself.
  *
  * Returns the decompressed size, or 0 on error
  */
-unsigned long ulzma(const unsigned char *src, unsigned char *dst);
+size_t ulzma(const void *src, void *dst);
 
-#endif
+#endif /* __BASE_LZMA_LZMA_H__ */
