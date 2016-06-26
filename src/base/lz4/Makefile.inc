@@ -25,4 +25,4 @@
 ## SUCH DAMAGE.
 ##
 
-liblz4-$(CONFIG_LZ4) += lz4_wrapper.c
+depthcharge-y += wrapper.c

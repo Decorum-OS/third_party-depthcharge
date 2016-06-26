@@ -33,9 +33,9 @@
 #include <endian.h>
 #include <stdint.h>
 #include <string.h>
-#include <lz4.h>
 
 #include "base/algorithm.h"
+#include "base/lz4/lz4.h"
 
 /* LZ4 comes with its own supposedly portable memory access functions, but they
  * seem to be very inefficient in practice (at least on ARM64). Since libpayload
