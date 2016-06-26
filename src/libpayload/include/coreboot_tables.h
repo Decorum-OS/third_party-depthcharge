@@ -28,8 +28,9 @@
 #ifndef _COREBOOT_TABLES_H
 #define _COREBOOT_TABLES_H
 
-#include <arch/types.h>
-#include <ipchksum.h>
+#include <stdint.h>
+
+#include "base/ipchecksum.h"
 
 struct cbuint64 {
 	uint32_t lo;
@@ -330,7 +331,7 @@ static inline uint64_t cb_unpack64(struct cbuint64 val)
 
 static inline uint16_t cb_checksum(const void *ptr, unsigned len)
 {
-	return ipchksum(ptr, len);
+	return ipchecksum(ptr, len);
 }
 
 static inline const char *cb_mb_vendor_string(const struct cb_mainboard *cbm)

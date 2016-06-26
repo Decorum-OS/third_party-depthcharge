@@ -27,12 +27,13 @@
  * SUCH DAMAGE.
  */
 
+#include <stddef.h>
 #include <stdint.h>
 
-unsigned short ipchksum(const void *vptr, unsigned long nbytes)
+uint16_t ipchecksum(const void *vptr, size_t nbytes)
 {
 	int sum, oddbyte;
-	const unsigned short *ptr = vptr;
+	const uint16_t *ptr = vptr;
 
 	sum = 0;
 	while (nbytes > 1) {
@@ -41,7 +42,7 @@ unsigned short ipchksum(const void *vptr, unsigned long nbytes)
 	}
 	if (nbytes == 1) {
 		oddbyte = 0;
-		((uint8_t *)&oddbyte)[0] = *(uint8_t *) ptr;
+		((uint8_t *)&oddbyte)[0] = *(uint8_t *)ptr;
 		((uint8_t *)&oddbyte)[1] = 0;
 		sum += oddbyte;
 	}

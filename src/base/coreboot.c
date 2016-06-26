@@ -225,14 +225,14 @@ int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 		return -1;
 
 	/* Make sure the checksums match. */
-	if (ipchksum((uint16_t *)header, sizeof(*header)) != 0)
+	if (ipchecksum((uint16_t *)header, sizeof(*header)) != 0)
 		return -1;
 
 	if (!header->table_bytes)
 		return 0;
 
-	if (ipchksum((uint16_t *)(ptr + sizeof(*header)),
-		     header->table_bytes) != header->table_checksum)
+	if (ipchecksum((uint16_t *)(ptr + sizeof(*header)),
+		       header->table_bytes) != header->table_checksum)
 		return -1;
 
 	info->header = header;

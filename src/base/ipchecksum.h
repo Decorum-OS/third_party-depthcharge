@@ -25,14 +25,12 @@
  * SUCH DAMAGE.
  */
 
-#ifndef __IPCHKSUM_H__
-#define __IPCHKSUM_H__
+#ifndef __BASE_IPCHECKSUM_H__
+#define __BASE_IPCHECKSUM_H__
 
-/**
- * @defgroup ipchecksum IP checksum functions
- * @{
- */
-unsigned short ipchksum(const void *ptr, unsigned long nbytes);
-/** @} */
+#include <stddef.h>
+#include <stdint.h>
+
+uint16_t ipchecksum(const void *ptr, size_t nbytes);
 
 #endif
