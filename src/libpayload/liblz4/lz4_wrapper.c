@@ -31,7 +31,8 @@
 
 #include <assert.h>
 #include <endian.h>
-#include <libpayload.h>
+#include <stdint.h>
+#include <string.h>
 #include <lz4.h>
 
 #include "base/algorithm.h"

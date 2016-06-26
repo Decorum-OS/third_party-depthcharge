@@ -22,7 +22,7 @@
  */
 
 #include <pci.h>
-#include <libpayload.h>
+#include <stdint.h>
 #include <sysinfo.h>
 
 #include "base/init_funcs.h"

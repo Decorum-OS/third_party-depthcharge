@@ -22,7 +22,7 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
+#include <stdint.h>
 
 #include "base/state_machine.h"
 #include "base/xalloc.h"

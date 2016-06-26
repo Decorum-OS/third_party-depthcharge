@@ -22,7 +22,7 @@
 #ifndef __DRIVERS_BUS_I2S_BAYTRAIL_REGS_H__
 #define __DRIVERS_BUS_I2S_BAYTRAIL_REGS_H__
 
-#include <libpayload.h>
+#include <stdint.h>
 
 #include "base/io.h"
 

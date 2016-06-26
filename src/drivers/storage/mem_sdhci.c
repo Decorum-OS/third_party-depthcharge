@@ -20,8 +20,6 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
-
 #include "base/xalloc.h"
 #include "drivers/storage/sdhci.h"
 

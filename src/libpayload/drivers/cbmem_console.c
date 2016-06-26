@@ -25,7 +25,6 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <sysinfo.h>

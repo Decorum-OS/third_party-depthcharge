@@ -18,7 +18,6 @@
 
 #include <arch/x86/ia32/exception.h>
 #include <base/exception.h>
-#include <libpayload.h>
 
 #include "base/algorithm.h"
 #include "debug/gdb/gdb_int.h"

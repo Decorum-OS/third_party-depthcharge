@@ -22,8 +22,8 @@
 
 #include <assert.h>
 #include <endian.h>
-#include <libpayload.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <usb/usb.h>
 
 #include "base/algorithm.h"

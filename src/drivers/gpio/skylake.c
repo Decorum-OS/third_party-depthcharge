@@ -16,7 +16,6 @@
  * Foundation, Inc.
  */
 
-#include <libpayload.h>
 #include <stdint.h>
 
 #include "base/algorithm.h"

@@ -21,7 +21,7 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
+#include <stdio.h>
 
 #include "base/cleanup_funcs.h"
 #include "board/board.h"

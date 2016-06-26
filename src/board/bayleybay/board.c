@@ -20,8 +20,6 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
-
 #include "base/init_funcs.h"
 #include "board/board.h"
 #include "board/board_helpers.h"

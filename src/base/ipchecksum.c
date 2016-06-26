@@ -27,7 +27,7 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
+#include <stdint.h>
 
 unsigned short ipchksum(const void *vptr, unsigned long nbytes)
 {

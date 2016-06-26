@@ -18,7 +18,7 @@
 
 #include <arch/arm/v8/exception.h>
 #include <base/exception.h>
-#include <libpayload.h>
+#include <stdint.h>
 
 #include "debug/gdb/gdb_int.h"
 

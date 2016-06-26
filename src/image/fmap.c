@@ -21,7 +21,7 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
+#include <stdint.h>
 
 #include "base/init_funcs.h"
 #include "drivers/flash/flash.h"

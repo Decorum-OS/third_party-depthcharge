@@ -22,7 +22,7 @@
 
 #include <assert.h>
 #include <endian.h>
-#include <libpayload.h>
+#include <stdio.h>
 
 #include "base/time.h"
 #include "drivers/net/net.h"

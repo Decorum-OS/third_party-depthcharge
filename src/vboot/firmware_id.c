@@ -20,7 +20,6 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
 #include <vboot_struct.h>
 
 #include "base/algorithm.h"

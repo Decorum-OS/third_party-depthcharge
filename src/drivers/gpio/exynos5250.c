@@ -21,7 +21,6 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
 #include <stdint.h>
 
 #include "base/algorithm.h"

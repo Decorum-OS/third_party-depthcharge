@@ -26,7 +26,6 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
 #include <coreboot_tables.h>
 #include <stdint.h>
 #include <stdlib.h>

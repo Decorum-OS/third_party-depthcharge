@@ -21,7 +21,7 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
+#include <stdio.h>
 #include <usb/usb.h>
 
 #include "base/init_funcs.h"

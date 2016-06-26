@@ -2,9 +2,9 @@
  * Copyright (C) 2015 Google, Inc.
  */
 
-#include <libpayload.h>
 #include <arch/types.h>
 #include <stddef.h>
+#include <stdint.h>
 
 /*
  * API error codes

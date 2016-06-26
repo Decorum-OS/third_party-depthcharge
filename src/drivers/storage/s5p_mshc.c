@@ -23,7 +23,6 @@
 
 #include <assert.h>
 #include <endian.h>
-#include <libpayload.h>
 #include <stdint.h>
 
 #include "arch/cache.h"

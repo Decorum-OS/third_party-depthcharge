@@ -20,7 +20,7 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
+#include <stdint.h>
 
 #include "arch/arm/boot.h"
 #include "base/cleanup_funcs.h"

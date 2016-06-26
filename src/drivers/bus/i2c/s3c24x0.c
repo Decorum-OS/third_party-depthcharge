@@ -9,7 +9,8 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
+#include <stdint.h>
+#include <stdio.h>
 
 #include "base/container_of.h"
 #include "base/io.h"

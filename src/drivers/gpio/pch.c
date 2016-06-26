@@ -30,7 +30,6 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
 #include <pci.h>
 #include <stdint.h>
 

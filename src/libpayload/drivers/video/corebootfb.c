@@ -27,8 +27,8 @@
  */
 
 #include <coreboot_tables.h>
-#include <libpayload.h>
 #include <pci.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sysinfo.h>

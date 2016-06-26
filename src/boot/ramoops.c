@@ -21,7 +21,6 @@
  */
 
 #include <endian.h>
-#include <libpayload.h>
 #include <stdint.h>
 #include <string.h>
 #include <sysinfo.h>

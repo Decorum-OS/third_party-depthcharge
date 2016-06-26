@@ -22,7 +22,6 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
 
 #include "base/algorithm.h"
 #include "base/die.h"

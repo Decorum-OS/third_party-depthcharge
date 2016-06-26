@@ -9,7 +9,6 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
 
 #include "base/list.h"
 #include "base/time.h"

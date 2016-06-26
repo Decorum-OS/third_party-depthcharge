@@ -22,7 +22,7 @@
 
 #include <assert.h>
 #include <endian.h>
-#include <libpayload.h>
+#include <stdint.h>
 
 #include "base/time.h"
 #include "base/xalloc.h"

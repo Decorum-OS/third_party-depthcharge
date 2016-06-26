@@ -26,7 +26,6 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
 #include <stdint.h>
 
 #include "arch/io.h"

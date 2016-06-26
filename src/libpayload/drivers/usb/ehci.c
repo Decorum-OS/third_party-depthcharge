@@ -27,11 +27,11 @@
 
 //#define USB_DEBUG
 
-#include <libpayload.h>
 #include <arch/barrier.h>
 #include <arch/cache.h>
 #include "ehci.h"
 #include "ehci_private.h"
+#include <stdint.h>
 
 #include "base/die.h"
 #include "base/time.h"

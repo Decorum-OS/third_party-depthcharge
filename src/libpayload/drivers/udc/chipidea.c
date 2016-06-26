@@ -25,7 +25,6 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
 #include <arch/cache.h>
 #include <assert.h>
 #include <endian.h>

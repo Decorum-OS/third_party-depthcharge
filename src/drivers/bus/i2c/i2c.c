@@ -15,7 +15,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA, 02110-1301 USA
  */
 
-#include <libpayload.h>
+#include <stdint.h>
 
 #include "base/algorithm.h"
 #include "drivers/bus/i2c/i2c.h"

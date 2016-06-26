@@ -8,8 +8,6 @@
  * Software Foundation.
  */
 
-#include <libpayload.h>
-
 #include "base/container_of.h"
 #include "base/list.h"
 #include "base/xalloc.h"

@@ -28,7 +28,6 @@
 #ifndef __USB_H
 #define __USB_H
 
-#include <libpayload.h>
 #include <pci.h>
 #include <stddef.h>
 #include <stdint.h>

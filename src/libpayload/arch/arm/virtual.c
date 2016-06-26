@@ -25,8 +25,9 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
 #include <assert.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <arch/barrier.h>
 #include <arch/cache.h>

@@ -17,7 +17,7 @@
  */
 
 #include <endian.h>
-#include <libpayload.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 

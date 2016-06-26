@@ -20,8 +20,6 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
-
 #include "vboot/boot.h"
 
 int boot(void *kernel, void *cmd_line, void *params, void *loader)

@@ -20,8 +20,6 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
-
 #include "base/die.h"
 #include "drivers/flash/flash.h"
 

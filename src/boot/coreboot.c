@@ -21,7 +21,7 @@
  */
 
 #include <coreboot_tables.h>
-#include <libpayload.h>
+#include <stdint.h>
 #include <sysinfo.h>
 
 #include "base/device_tree.h"

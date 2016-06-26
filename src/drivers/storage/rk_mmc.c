@@ -17,7 +17,7 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
+#include <stdint.h>
 
 #include "base/io.h"
 #include "drivers/storage/dw_mmc.h"

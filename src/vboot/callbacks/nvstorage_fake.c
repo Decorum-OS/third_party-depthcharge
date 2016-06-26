@@ -20,7 +20,8 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
+#include <stdint.h>
+#include <string.h>
 #include <vboot_api.h>
 
 static uint8_t fake_nvram[VBNV_BLOCK_SIZE];

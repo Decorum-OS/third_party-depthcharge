@@ -23,7 +23,7 @@
 #include <assert.h>
 #include <endian.h>
 #include <gbb_header.h>
-#include <libpayload.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <vboot_api.h>

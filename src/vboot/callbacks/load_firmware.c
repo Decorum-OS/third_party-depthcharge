@@ -21,7 +21,8 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <vboot_api.h>
 
 #include "drivers/flash/flash.h"

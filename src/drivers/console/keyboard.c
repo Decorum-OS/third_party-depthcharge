@@ -25,8 +25,6 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
-
 #include "base/init_funcs.h"
 #include "board/board.h"
 #include "drivers/console/console.h"

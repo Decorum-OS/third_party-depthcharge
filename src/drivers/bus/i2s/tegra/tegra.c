@@ -23,7 +23,7 @@
  * The I2S driver will send an audio stream (PCM, 16-bit stereo) to the codec.
  */
 
-#include <libpayload.h>
+#include <stdint.h>
 
 #include "base/container_of.h"
 #include "base/io.h"

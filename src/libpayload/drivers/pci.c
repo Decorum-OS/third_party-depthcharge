@@ -26,8 +26,8 @@
  * SUCH DAMAGE.
  */
 
-#include <libpayload.h>
 #include <pci.h>
+#include <stdint.h>
 
 #include "base/io.h"
 

@@ -21,8 +21,8 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include "drivers/flash/flash.h"
 #include "image/fmap.h"

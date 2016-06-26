@@ -21,7 +21,7 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
+#include <stdio.h>
 
 #include "base/physmem.h"
 #include "base/ranges.h"

@@ -9,7 +9,8 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
+#include <stdint.h>
+#include <stdio.h>
 
 #include "base/die.h"
 #include "drivers/sound/sound.h"

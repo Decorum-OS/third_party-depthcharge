@@ -21,7 +21,7 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
+#include <stdint.h>
 #include <vboot_api.h>
 
 #include "base/xalloc.h"

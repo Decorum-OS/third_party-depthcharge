@@ -29,7 +29,8 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
+#include <stdint.h>
+#include <stdio.h>
 
 #include "base/algorithm.h"
 #include "base/time.h"

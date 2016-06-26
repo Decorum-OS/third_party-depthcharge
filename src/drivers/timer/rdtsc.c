@@ -30,8 +30,8 @@
  * x86 specific timer routines
  */
 
-#include <libpayload.h>
 #include <arch/rdtsc.h>
+#include <stdint.h>
 
 #include "base/io.h"
 #include "drivers/timer/timer.h"

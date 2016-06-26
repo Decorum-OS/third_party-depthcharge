@@ -27,7 +27,6 @@
 
 //#define USB_DEBUG
 
-#include <libpayload.h>
 #include "ehci.h"
 #include "ehci_private.h"
 

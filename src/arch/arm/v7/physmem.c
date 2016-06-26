@@ -21,8 +21,8 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "arch/cache.h"

@@ -18,7 +18,7 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
+#include <stdint.h>
 
 #include "base/algorithm.h"
 #include "base/container_of.h"

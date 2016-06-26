@@ -20,7 +20,7 @@
  * MA 02111-1307 USA
  */
 
-#include <libpayload.h>
+#include <stdint.h>
 #include <vboot_api.h>
 
 #include "drivers/ec/cros/ec.h"

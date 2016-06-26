@@ -17,8 +17,8 @@
  * Foundation, Inc.
  */
 
-#include <libpayload.h>
 #include <arch/cache.h>
+#include <stdint.h>
 
 #include "dwc2.h"
 #include "dwc2_private.h"

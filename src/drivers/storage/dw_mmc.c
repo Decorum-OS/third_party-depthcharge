@@ -21,9 +21,9 @@
  */
 
 #include <assert.h>
-#include <libpayload.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include "arch/cache.h"
 #include "base/xalloc.h"

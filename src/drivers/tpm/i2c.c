@@ -35,7 +35,8 @@
 
 #include <assert.h>
 #include <endian.h>
-#include <libpayload.h>
+#include <stdint.h>
+#include <stdio.h>
 
 #include "base/time.h"
 #include "drivers/bus/i2c/i2c.h"
