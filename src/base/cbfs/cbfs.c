@@ -26,30 +26,22 @@
  * SUCH DAMAGE.
  */
 
-/* The CBFS core requires a couple of #defines or functions to adapt it to the
- * target environment:
- *
- * CBFS_CORE_WITH_LZMA (must be #define)
- *      if defined, ulzma() must exist for decompression of data streams
- *
- * ERROR(x...)
- *      print an error message x (in printf format)
- *
- * LOG(x...)
- *      print a message x (in printf format)
- *
- * DEBUG(x...)
- *      print a debug message x (in printf format)
- *
- */
-
-#include <cbfs.h>
+#include <stdio.h>
 #include <string.h>
 #include <sysinfo.h>
 
-/* returns a pointer to CBFS master header, or CBFS_HEADER_INVALID_ADDRESS
- *  on failure */
-const struct cbfs_header *cbfs_get_header(struct cbfs_media *media)
+#include "base/cbfs/cbfs.h"
+#include "base/lzma/lzma.h"
+
+#define DEBUG(x...)
+#define LOG(x...)
+#define ERROR(x...) printf(x)
+
+/*
+ * Returns a pointer to CBFS master header, or CBFS_HEADER_INVALID_ADDRESS
+ * on failure
+ */
+static const struct cbfs_header *cbfs_get_header(struct cbfs_media *media)
 {
 	int32_t rel_offset;
 	const struct cbfs_header *header;
@@ -134,7 +126,6 @@ static int get_cbfs_range(uint32_t *offset, uint32_t *cbfs_end,
 	return 0;
 }
 
-/* public API starts here*/
 struct cbfs_file *cbfs_get_file(struct cbfs_media *media, const char *name)
 {
 	const char *vardata;
@@ -208,6 +199,76 @@ struct cbfs_file *cbfs_get_file(struct cbfs_media *media, const char *name)
 	return NULL;
 }
 
+static struct cbfs_file_attribute *cbfs_file_first_attr(struct cbfs_file *file)
+{
+	/* attributes_offset should be 0 when there is no attribute, but all
+	 * values that point into the cbfs_file header are invalid, too. */
+	if (ntohl(file->attributes_offset) <= sizeof(*file))
+		return NULL;
+
+	/* There needs to be enough space for the file header and one
+	 * attribute header for this to make sense. */
+	if (ntohl(file->offset) <=
+		sizeof(*file) + sizeof(struct cbfs_file_attribute))
+		return NULL;
+
+	return (struct cbfs_file_attribute *)
+		(((uint8_t *)file) + ntohl(file->attributes_offset));
+}
+
+static struct cbfs_file_attribute *cbfs_file_next_attr(struct cbfs_file *file,
+	struct cbfs_file_attribute *attr)
+{
+	/* ex falso sequitur quodlibet */
+	if (attr == NULL)
+		return NULL;
+
+	/* Is there enough space for another attribute? */
+	if ((uint8_t *)attr + ntohl(attr->len) +
+		sizeof(struct cbfs_file_attribute) >=
+		(uint8_t *)file + ntohl(file->offset))
+		return NULL;
+
+	struct cbfs_file_attribute *next = (struct cbfs_file_attribute *)
+		(((uint8_t *)attr) + ntohl(attr->len));
+	/* If any, "unused" attributes must come last. */
+	if (ntohl(next->tag) == CBFS_FILE_ATTR_TAG_UNUSED)
+		return NULL;
+	if (ntohl(next->tag) == CBFS_FILE_ATTR_TAG_UNUSED2)
+		return NULL;
+
+	return next;
+}
+
+static struct cbfs_file_attribute *cbfs_file_find_attr(struct cbfs_file *file,
+	uint32_t tag)
+{
+	struct cbfs_file_attribute *attr = cbfs_file_first_attr(file);
+	while (attr) {
+		if (ntohl(attr->tag) == tag)
+			break;
+		attr = cbfs_file_next_attr(file, attr);
+	}
+	return attr;
+
+}
+
+static int cbfs_decompress(int algo, void *src, void *dst, int len)
+{
+	switch (algo) {
+		case CBFS_COMPRESS_NONE:
+			memcpy(dst, src, len);
+			return len;
+		case CBFS_COMPRESS_LZMA:
+			return ulzma(src, dst);
+		default:
+			ERROR("tried to decompress %d bytes with algorithm #%x,"
+			      "but that algorithm id is unsupported.\n", len,
+			      algo);
+			return 0;
+	}
+}
+
 void *cbfs_get_file_content(struct cbfs_media *media, const char *name,
 			    int type, size_t *sz)
 {
@@ -272,74 +333,8 @@ err:
 	return NULL;
 }
 
-struct cbfs_file_attribute *cbfs_file_first_attr(struct cbfs_file *file)
+void *cbfs_load_payload(struct cbfs_media *media, const char *name)
 {
-	/* attributes_offset should be 0 when there is no attribute, but all
-	 * values that point into the cbfs_file header are invalid, too. */
-	if (ntohl(file->attributes_offset) <= sizeof(*file))
-		return NULL;
-
-	/* There needs to be enough space for the file header and one
-	 * attribute header for this to make sense. */
-	if (ntohl(file->offset) <=
-		sizeof(*file) + sizeof(struct cbfs_file_attribute))
-		return NULL;
-
-	return (struct cbfs_file_attribute *)
-		(((uint8_t *)file) + ntohl(file->attributes_offset));
-}
-
-struct cbfs_file_attribute *cbfs_file_next_attr(struct cbfs_file *file,
-	struct cbfs_file_attribute *attr)
-{
-	/* ex falso sequitur quodlibet */
-	if (attr == NULL)
-		return NULL;
-
-	/* Is there enough space for another attribute? */
-	if ((uint8_t *)attr + ntohl(attr->len) +
-		sizeof(struct cbfs_file_attribute) >=
-		(uint8_t *)file + ntohl(file->offset))
-		return NULL;
-
-	struct cbfs_file_attribute *next = (struct cbfs_file_attribute *)
-		(((uint8_t *)attr) + ntohl(attr->len));
-	/* If any, "unused" attributes must come last. */
-	if (ntohl(next->tag) == CBFS_FILE_ATTR_TAG_UNUSED)
-		return NULL;
-	if (ntohl(next->tag) == CBFS_FILE_ATTR_TAG_UNUSED2)
-		return NULL;
-
-	return next;
-}
-
-struct cbfs_file_attribute *cbfs_file_find_attr(struct cbfs_file *file,
-	uint32_t tag)
-{
-	struct cbfs_file_attribute *attr = cbfs_file_first_attr(file);
-	while (attr) {
-		if (ntohl(attr->tag) == tag)
-			break;
-		attr = cbfs_file_next_attr(file, attr);
-	}
-	return attr;
-
-}
-
-int cbfs_decompress(int algo, void *src, void *dst, int len)
-{
-	switch (algo) {
-		case CBFS_COMPRESS_NONE:
-			memcpy(dst, src, len);
-			return len;
-#ifdef CBFS_CORE_WITH_LZMA
-		case CBFS_COMPRESS_LZMA:
-			return ulzma(src, dst);
-#endif
-		default:
-			ERROR("tried to decompress %d bytes with algorithm #%x,"
-			      "but that algorithm id is unsupported.\n", len,
-			      algo);
-			return 0;
-	}
+	return (struct cbfs_payload *)cbfs_get_file_content(
+		media, name, CBFS_TYPE_PAYLOAD, NULL);
 }

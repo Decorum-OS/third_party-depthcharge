@@ -44,8 +44,8 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef _CBFS_RAM_H_
-#define _CBFS_RAM_H_
+#ifndef __BASE_CBFS_RAM_MEDIA_H__
+#define __BASE_CBFS_RAM_MEDIA_H__
 
 #include <stdint.h>
 
@@ -56,4 +56,4 @@ int init_cbfs_ram_media(struct cbfs_media *media, void *start, size_t size);
 int setup_cbfs_from_ram(void *start, uint32_t size);
 int setup_cbfs_from_flash(void);
 
-#endif  /* _CBFS_RAM_H_ */
+#endif  /* __BASE_CBFS_RAM_MEDIA_H__ */

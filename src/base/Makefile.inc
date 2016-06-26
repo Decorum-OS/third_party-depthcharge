@@ -15,7 +15,7 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-subdirs-y += libc lz4 lzma
+subdirs-y += cbfs libc lz4 lzma
 
 depthcharge-y += banner.c
 depthcharge-y += cleanup_funcs.c

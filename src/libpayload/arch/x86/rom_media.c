@@ -25,8 +25,9 @@
  * SUCH DAMAGE.
  */
 
-#include <cbfs.h>
 #include <string.h>
+
+#include "base/cbfs/cbfs.h"
 
 // Implementation of memory-mapped ROM media source on X86.
 static int x86_rom_open(struct cbfs_media *media) {

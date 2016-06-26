@@ -28,9 +28,8 @@
 ##
 
 classes-y += libc
-classes-$(CONFIG_CBFS) += libcbfs
 
-subdirs-y += drivers libc libcbfs
+subdirs-y += drivers libc
 
 src-includes-y += include
 

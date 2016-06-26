@@ -25,5 +25,5 @@
 ## SUCH DAMAGE.
 ##
 
-libcbfs-$(CONFIG_CBFS) += cbfs.c
-libcbfs-$(CONFIG_CBFS) += ram_media.c
+depthcharge-y += cbfs.c
+depthcharge-y += ram_media.c

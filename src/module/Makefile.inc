@@ -78,9 +78,7 @@ $(call add-special-class,module)
 
 DONT_GC_NETBOOT = -Wl,-u,netboot_entry
 
-LIBPAYLOAD_OBJECTS += $(libc-objs) $(libcbfs-objs)
-
-COMMON_OBJECTS = $(depthcharge-objs) $(VB_LIB) $(LIBPAYLOAD_OBJECTS)
+COMMON_OBJECTS = $(depthcharge-objs) $(VB_LIB) $(libc-objs)
 
 NET_OBJECTS = $(netboot-objs) $(net-objs) $(uip-objs)
 DEV_OBJECTS = $(NET_OBJECTS) $(dev-objs) $(gdb-objs)

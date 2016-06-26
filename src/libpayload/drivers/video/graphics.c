@@ -2,11 +2,12 @@
  * Copyright (C) 2015 Google, Inc.
  */
 
-#include <cbfs.h>
 #include <cbgfx.h>
 #include <stdio.h>
 #include <sysinfo.h>
 #include "bitmap.h"
+
+#include "base/cbfs/cbfs.h"
 
 /*
  * 'canvas' is the drawing area located in the center of the screen. It's a

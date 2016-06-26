@@ -20,8 +20,6 @@
  * MA 02111-1307 USA
  */
 
-#include <cbfs.h>
-#include <cbfs_ram.h>
 #include <endian.h>
 #include <stdio.h>
 #include <string.h>
@@ -29,6 +27,8 @@
 #include <vboot_api.h>
 
 #include "arch/cache.h"
+#include "base/cbfs/cbfs.h"
+#include "base/cbfs/ram_media.h"
 #include "base/cleanup_funcs.h"
 #include "base/lzma/lzma.h"
 #include "drivers/flash/flash.h"

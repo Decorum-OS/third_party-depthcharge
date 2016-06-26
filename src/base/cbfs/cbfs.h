@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2008 Jordan Crouse <jordan@cosmicpenguin.net>
- * Copyright (C) 2012 Google, Inc.
+ * Copyright (C) 2013 Google, Inc.
  *
  * This file is dual-licensed. You can choose between:
  *   - The GNU GPL, version 2, as published by the Free Software Foundation
@@ -45,8 +45,8 @@
  * ---------------------------------------------------------------------------
  */
 
-#ifndef _CBFS_CORE_H_
-#define _CBFS_CORE_H_
+#ifndef __BASE_CBFS_CBFS_H__
+#define __BASE_CBFS_CBFS_H__
 
 #include <endian.h>
 #include <stddef.h>
@@ -66,21 +66,10 @@
     Users are welcome to use any other value for their
     components */
 
-#define CBFS_TYPE_STAGE      0x10
 #define CBFS_TYPE_PAYLOAD    0x20
-#define CBFS_TYPE_OPTIONROM  0x30
-#define CBFS_TYPE_BOOTSPLASH 0x40
 #define CBFS_TYPE_RAW        0x50
-#define CBFS_TYPE_VSA        0x51
-#define CBFS_TYPE_MBI        0x52
-#define CBFS_TYPE_MICROCODE  0x53
-#define CBFS_COMPONENT_CMOS_DEFAULT 0xaa
-#define CBFS_COMPONENT_CMOS_LAYOUT 0x01aa
 
 #define CBFS_HEADER_MAGIC  0x4F524243
-#define CBFS_HEADER_VERSION1 0x31313131
-#define CBFS_HEADER_VERSION2 0x31313132
-#define CBFS_HEADER_VERSION  CBFS_HEADER_VERSION2
 
 #define CBFS_HEADER_INVALID_ADDRESS	((void*)(0xffffffff))
 
@@ -101,14 +90,6 @@ struct cbfs_header {
 
 /* this used to be flexible, but wasn't ever set to something different. */
 #define CBFS_ALIGNMENT 64
-
-/* "Unknown" refers to CBFS headers version 1,
- * before the architecture was defined (i.e., x86 only).
- */
-#define CBFS_ARCHITECTURE_UNKNOWN  0xFFFFFFFF
-#define CBFS_ARCHITECTURE_X86      0x00000001
-#define CBFS_ARCHITECTURE_ARM      0x00000010
-#define CBFS_ARCHITECTURE_ARM64    0x00000011
 
 /** This is a component header - every entry in the CBFS
     will have this header.
@@ -161,42 +142,10 @@ struct cbfs_file_attr_compression {
 	uint32_t decompressed_size;
 } __attribute__((packed));
 
-struct cbfs_file_attr_hash {
-	uint32_t tag;
-	uint32_t len;
-	uint32_t hash_type;
-	/* hash_data is len - sizeof(struct) bytes */
-	uint8_t  hash_data[];
-} __attribute__((packed));
-
-/* Given a cbfs_file, return the first file attribute, or NULL. */
-struct cbfs_file_attribute *cbfs_file_first_attr(struct cbfs_file *file);
-
-/* Given a cbfs_file and a cbfs_file_attribute, return the attribute that
- * follows it, or NULL. */
-struct cbfs_file_attribute *cbfs_file_next_attr(struct cbfs_file *file,
-	struct cbfs_file_attribute *attr);
-
-/* Given a cbfs_file and an attribute tag, return the first instance of the
- * attribute or NULL if none found. */
-struct cbfs_file_attribute *cbfs_file_find_attr(struct cbfs_file *file,
-	uint32_t tag);
-
 /*** Component sub-headers ***/
 
 /* Following are component sub-headers for the "standard"
    component types */
-
-/** This is the sub-header for stage components.  Stages are
-    loaded by coreboot during the normal boot process */
-
-struct cbfs_stage {
-	uint32_t compression;  /** Compression type */
-	uint64_t entry;  /** entry point */
-	uint64_t load;   /** Where to load in memory */
-	uint32_t len;          /** length of data to load */
-	uint32_t memlen;	   /** total length of object in memory */
-} __attribute__((packed));
 
 /** this is the sub-header for payload components.  Payloads
     are loaded by coreboot at the end of the boot process */
@@ -220,12 +169,6 @@ struct cbfs_payload {
 #define PAYLOAD_SEGMENT_PARAMS 0x41524150
 #define PAYLOAD_SEGMENT_ENTRY  0x52544E45
 
-struct cbfs_optionrom {
-	uint32_t compression;
-	uint32_t len;
-} __attribute__((packed));
-
-#define CBFS_NAME(_c) (((char *) (_c)) + sizeof(struct cbfs_file))
 #define CBFS_SUBHEADER(_p) ( (void *) ((((uint8_t *) (_p)) + ntohl((_p)->offset))) )
 
 #define CBFS_MEDIA_INVALID_MAP_ADDRESS	((void*)(0xffffffff))
@@ -249,11 +192,11 @@ struct cbfs_media {
 	 * starting from offset, or CBFS_MEDIA_INVALID_MAP_ADDRESS on failure.
 	 * Note: mapped data can't be free unless unmap is called, even if you
 	 * do close first. */
-	void * (*map)(struct cbfs_media *media, size_t offset, size_t count);
+	void *(*map)(struct cbfs_media *media, size_t offset, size_t count);
 
 	/* returns NULL and releases the memory by address, which was allocated
 	 * by map */
-	void * (*unmap)(struct cbfs_media *media, const void *address);
+	void *(*unmap)(struct cbfs_media *media, const void *address);
 
 	/* closes media and returns 0 on success, -1 on failure. */
 	int (*close)(struct cbfs_media *media);
@@ -270,11 +213,10 @@ struct cbfs_file *cbfs_get_file(struct cbfs_media *media, const char *name);
 void *cbfs_get_file_content(struct cbfs_media *media, const char *name,
 			    int type, size_t *sz);
 
-/* returns decompressed size on success, 0 on failure */
-int cbfs_decompress(int algo, void *src, void *dst, int len);
+/* legacy APIs */
+void *cbfs_load_payload(struct cbfs_media *media, const char *name);
 
-/* returns a pointer to CBFS master header, or CBFS_HEADER_INVALID_ADDRESS
- *  on failure */
-const struct cbfs_header *cbfs_get_header(struct cbfs_media *media);
+/* Defined in individual arch / board implementation. */
+int init_default_cbfs_media(struct cbfs_media *media);
 
 #endif
