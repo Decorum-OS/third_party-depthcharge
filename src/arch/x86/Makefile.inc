@@ -22,5 +22,3 @@ depthcharge-y += boot.c
 depthcharge-y += sign_of_life.c
 depthcharge-y += util.S
 depthcharge-$(CONFIG_KERNEL_ZIMAGE) += zimage.c
-
-libc-y += string.c

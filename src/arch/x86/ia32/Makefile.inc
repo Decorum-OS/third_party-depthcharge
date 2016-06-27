@@ -25,6 +25,8 @@ depthcharge-y += physmem.c
 
 gdb-y += gdb.c
 
+libc-y += string.c
+
 src-includes-y += includes
 
 ARCH_ABI_FLAGS += -mpreferred-stack-boundary=2 -m32
