@@ -26,5 +26,5 @@ $(module_obj)/%.efi: $(module_obj)/%.elf
 module-y += uefi
 mod-uefi-title = "UEFI chain loader"
 mod-uefi-y += uefi.c
-mod-uefi-libs += $(depthcharge-objs) $(uefi_handoff-objs)
+mod-uefi-libs += $(COMMON_OBJECTS) $(uefi_handoff-objs)
 mod-uefi-ldscript := $(cursrcdir)/uefi.ldscript
