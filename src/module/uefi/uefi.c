@@ -20,9 +20,9 @@
  * MA 02111-1307 USA
  */
 
-#include "uefi/Uefi.h"
-
 #include <stdint.h>
+
+#include "uefi/Uefi.h"
 
 #define _XSTR(x) #x
 #define XSTR(x) _XSTR(x)

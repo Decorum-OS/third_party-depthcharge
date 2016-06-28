@@ -22,6 +22,8 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #ifndef __BASE_H__
 #define __BASE_H__
 
+#include "base/algorithm.h"
+
 //
 // Include processor specific binding
 //
@@ -209,7 +211,9 @@ struct _LIST_ENTRY {
 ///
 /// NULL pointer (VOID *)
 ///
+#ifndef NULL // May already be defined by depthcharge.
 #define NULL  ((VOID *) 0)
+#endif
 
 ///
 /// Maximum values for common UEFI Data Types
@@ -700,8 +704,10 @@ typedef UINTN  *BASE_LIST;
   @return  Maximum of two operands.
 
 **/
+#if 0 // Defined in base/algorithm.h.
 #define MAX(a, b)                       \
   (((a) > (b)) ? (a) : (b))
+#endif
 
 /**
   Return the minimum of two operands.
@@ -715,8 +721,10 @@ typedef UINTN  *BASE_LIST;
   @return  Minimum of two operands.
 
 **/
+#if 0 // Defined in base/algorithm.h.
 #define MIN(a, b)                       \
   (((a) < (b)) ? (a) : (b))
+#endif
 
 /**
   Return the absolute value of a signed operand.
