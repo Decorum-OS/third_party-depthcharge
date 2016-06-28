@@ -24,3 +24,10 @@
 
 #include "board/board.h"
 #include "board/board_helpers.h"
+
+// Force these to acceptable values for now.
+PUB_STAT(flag_write_protect, 1)
+PUB_STAT(flag_recovery, 0)
+PUB_STAT(flag_developer_mode, 1)
+PUB_STAT(flag_lid_open, 1)
+PUB_STAT(flag_power, 0)
