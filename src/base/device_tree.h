@@ -164,8 +164,6 @@ void dt_add_string_prop(DeviceTreeNode *node, char *name, char *str);
 void dt_add_u32_prop(DeviceTreeNode *node, char *name, uint32_t val);
 void dt_add_reg_prop(DeviceTreeNode *node, uint64_t *addrs, uint64_t *sizes,
 		     int count, uint32_t addr_cells, uint32_t size_cells);
-int dt_set_bin_prop_by_path(DeviceTree *tree, const char *path,
-			    void *data, size_t size, int create);
 
 void dt_find_bin_prop(DeviceTreeNode *node, const char *name, void **data,
 		      size_t *size);
