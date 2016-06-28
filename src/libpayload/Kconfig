@@ -42,14 +42,10 @@ config CBMEM_CONSOLE
 	bool "Send output to the in memory CBMEM console"
 	default y
 
-config SERIAL_CONSOLE
-	bool "See output on the serial port console"
-	default y
-
 config SERIAL_SET_SPEED
 	bool "Override the serial console baud rate"
 	default n
-	depends on SERIAL_CONSOLE
+	depends on DRIVER_CONSOLE_UART
 
 config SERIAL_BAUD_RATE
 	int "Serial console baud rate (default 115200)"
