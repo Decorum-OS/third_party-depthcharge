@@ -34,28 +34,28 @@
 
 static inline void clrsetbits_le32(void *addr, uint32_t clear, uint32_t set)
 {
-	writel(htole32((le32toh(readl(addr)) & ~clear) | set), addr);
+	write32(addr, htole32((le32toh(read32(addr)) & ~clear) | set));
 }
 static inline void setbits_le32(void *addr, uint32_t set)
 {
-	writel(htole32(le32toh(readl(addr)) | set), addr);
+	write32(addr, htole32(le32toh(read32(addr)) | set));
 }
 static inline void clrbits_le32(void *addr, uint32_t clear)
 {
-	writel(htole32(le32toh(readl(addr)) & ~clear), addr);
+	write32(addr, htole32(le32toh(read32(addr)) & ~clear));
 }
 
 static inline void clrsetbits_be32(void *addr, uint32_t clear, uint32_t set)
 {
-	writel(htobe32((be32toh(readl(addr)) & ~clear) | set), addr);
+	write32(addr, htobe32((be32toh(read32(addr)) & ~clear) | set));
 }
 static inline void setbits_be32(void *addr, uint32_t set)
 {
-	writel(htobe32(be32toh(readl(addr)) | set), addr);
+	write32(addr, htobe32(be32toh(read32(addr)) | set));
 }
 static inline void clrbits_be32(void *addr, uint32_t clear)
 {
-	writel(htobe32(be32toh(readl(addr)) & ~clear), addr);
+	write32(addr, htobe32(be32toh(read32(addr)) & ~clear));
 }
 
 #endif /* __BASE_IO_H__ */

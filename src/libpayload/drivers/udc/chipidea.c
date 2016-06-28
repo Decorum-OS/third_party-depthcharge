@@ -63,12 +63,12 @@ static unsigned int ep_to_bits(int ep, int in_dir)
 
 static void clear_setup_ep(struct chipidea_pdata *p, int endpoint)
 {
-	writel(1 << endpoint, &p->opreg->epsetupstat);
+	write32(&p->opreg->epsetupstat, 1 << endpoint);
 }
 
 static void clear_ep(struct chipidea_pdata *p, int endpoint, int in_dir)
 {
-	writel(1 << ep_to_bits(endpoint, in_dir), &p->opreg->epcomplete);
+	write32(&p->opreg->epcomplete, 1 << ep_to_bits(endpoint, in_dir));
 }
 
 static int chipidea_hw_init(struct usbdev_ctrl *this, void *_opreg,
@@ -102,30 +102,30 @@ static int chipidea_hw_init(struct usbdev_ctrl *this, void *_opreg,
 
 	do {
 		debug("waiting for usb phy clk valid: %x\n",
-			readl(&p->opreg->susp_ctrl));
+			read32(&p->opreg->susp_ctrl));
 		mdelay(1);
-	} while ((readl(&p->opreg->susp_ctrl) & (1 << 7)) == 0);
+	} while ((read32(&p->opreg->susp_ctrl) & (1 << 7)) == 0);
 
-	writel(USBCMD_8MICRO | USBCMD_RST, &p->opreg->usbcmd);
+	write32(&p->opreg->usbcmd, USBCMD_8MICRO | USBCMD_RST);
 	mdelay(1);
 
 	/* enable device mode */
-	writel(2, &p->opreg->usbmode);
+	write32(&p->opreg->usbmode, 2);
 
 	dcache_clean_by_mva(p->qhlist, sizeof(struct qh) * CI_QHELEMENTS);
 
-	writel((uintptr_t)p->qhlist, &p->opreg->epbase);
-	writel(0xffffffff, &p->opreg->epflush);
+	write32(&p->opreg->epbase, (uintptr_t)p->qhlist);
+	write32(&p->opreg->epflush, 0xffffffff);
 
 	/* enable EP0 */
-	writel((1 << 23) | (1 << 22) | (1 << 7) | (1 << 6),
-		&p->opreg->epctrl[0]);
+	write32(&p->opreg->epctrl[0],
+		(1 << 23) | (1 << 22) | (1 << 7) | (1 << 6));
 
 	/* clear status register */
-	writel(readl(&p->opreg->usbsts), &p->opreg->usbsts);
+	write32(&p->opreg->usbsts, read32(&p->opreg->usbsts));
 
 	debug("taking controller out of reset\n");
-	writel(USBCMD_8MICRO | USBCMD_RUN, &p->opreg->usbcmd);
+	write32(&p->opreg->usbcmd, USBCMD_8MICRO | USBCMD_RUN);
 
 	this->stall(this, 0, 0, 0);
 	this->stall(this, 0, 1, 0);
@@ -136,8 +136,8 @@ static int chipidea_hw_init(struct usbdev_ctrl *this, void *_opreg,
 static void chipidea_halt_ep(struct usbdev_ctrl *this, int ep, int in_dir)
 {
 	struct chipidea_pdata *p = CI_PDATA(this);
-	writel(1 << ep_to_bits(ep, in_dir), &p->opreg->epflush);
-	while (readl(&p->opreg->epflush))
+	write32(&p->opreg->epflush, 1 << ep_to_bits(ep, in_dir));
+	while (read32(&p->opreg->epflush))
 		;
 	clrbits_le32(&p->opreg->epctrl[ep], 1 << (7 + (in_dir ? 16 : 0)));
 
@@ -229,8 +229,8 @@ static void advance_endpoint(struct chipidea_pdata *p, int endpoint, int in_dir)
 
 	debug("priming EP %d-%d with %zx bytes starting at %x (%p)\n", endpoint,
 		in_dir, job->length, tds[0].page0, job->data);
-	writel(1 << ep_to_bits(endpoint, in_dir), &p->opreg->epprime);
-	while (readl(&p->opreg->epprime))
+	write32(&p->opreg->epprime, 1 << ep_to_bits(endpoint, in_dir));
+	while (read32(&p->opreg->epprime))
 		;
 	p->ep_busy[endpoint][in_dir] = 1;
 }
@@ -323,13 +323,13 @@ static void chipidea_enqueue_packet(struct usbdev_ctrl *this, int endpoint,
 static int chipidea_poll(struct usbdev_ctrl *this)
 {
 	struct chipidea_pdata *p = CI_PDATA(this);
-	uint32_t sts = readl(&p->opreg->usbsts);
-	writel(sts, &p->opreg->usbsts); /* clear */
+	uint32_t sts = read32(&p->opreg->usbsts);
+	write32(&p->opreg->usbsts, sts); /* clear */
 
 	/* new information if the bus is high speed or not */
 	if (sts & USBSTS_PCI) {
 		debug("USB speed negotiation: ");
-		if ((readl(&p->opreg->devlc) & DEVLC_HOSTSPEED_MASK)
+		if ((read32(&p->opreg->devlc) & DEVLC_HOSTSPEED_MASK)
 		   == DEVLC_HOSTSPEED(2)) {
 			debug("high speed\n");
 			// TODO: implement
@@ -344,15 +344,15 @@ static int chipidea_poll(struct usbdev_ctrl *this)
 		int i;
 		debug("USB reset requested\n");
 		if (this->initialized) {
-			writel(readl(&p->opreg->epstat), &p->opreg->epstat);
-			writel(readl(&p->opreg->epsetupstat),
-				&p->opreg->epsetupstat);
-			writel(0xffffffff, &p->opreg->epflush);
+			write32(&p->opreg->epstat, read32(&p->opreg->epstat));
+			write32(&p->opreg->epsetupstat,
+				read32(&p->opreg->epsetupstat));
+			write32(&p->opreg->epflush, 0xffffffff);
 			for (i = 1; i < 16; i++)
-				writel(0, &p->opreg->epctrl[i]);
+				write32(&p->opreg->epctrl[i], 0);
 			this->initialized = 0;
 		}
-		writel((1 << 22) | (1 << 6), &p->opreg->epctrl[0]);
+		write32(&p->opreg->epctrl[0], (1 << 22) | (1 << 6));
 		p->qhlist[0].config = QH_MPS(64) | QH_NO_AUTO_ZLT | QH_IOS;
 		p->qhlist[1].config = QH_MPS(64) | QH_NO_AUTO_ZLT | QH_IOS;
 		dcache_clean_by_mva(p->qhlist, 2 * sizeof(struct qh));
@@ -372,7 +372,7 @@ static int chipidea_poll(struct usbdev_ctrl *this)
 		 */
 
 		/* in transfers */
-		bitmap = (readl(&p->opreg->epcomplete) >> 16) & 0xffff;
+		bitmap = (read32(&p->opreg->epcomplete) >> 16) & 0xffff;
 		ep = 0;
 		while (bitmap) {
 			if (bitmap & 1) {
@@ -385,7 +385,7 @@ static int chipidea_poll(struct usbdev_ctrl *this)
 		}
 
 		/* out transfers */
-		bitmap = readl(&p->opreg->epcomplete) & 0xffff;
+		bitmap = read32(&p->opreg->epcomplete) & 0xffff;
 		ep = 0;
 		while (bitmap) {
 			if (bitmap & 1) {
@@ -398,7 +398,7 @@ static int chipidea_poll(struct usbdev_ctrl *this)
 		}
 
 		/* setup transfers */
-		bitmap = readl(&p->opreg->epsetupstat);
+		bitmap = read32(&p->opreg->epsetupstat);
 		ep = 0;
 		while (bitmap) {
 			if (bitmap & 1) {
@@ -416,10 +416,10 @@ static int chipidea_poll(struct usbdev_ctrl *this)
 static void chipidea_force_shutdown(struct usbdev_ctrl *this)
 {
 	struct chipidea_pdata *p = CI_PDATA(this);
-	writel(0xffffffff, &p->opreg->epflush);
-	writel(USBCMD_8MICRO | USBCMD_RST, &p->opreg->usbcmd);
-	writel(0, &p->opreg->usbmode);
-	writel(USBCMD_8MICRO, &p->opreg->usbcmd);
+	write32(&p->opreg->epflush, 0xffffffff);
+	write32(&p->opreg->usbcmd, USBCMD_8MICRO | USBCMD_RST);
+	write32(&p->opreg->usbmode, 0);
+	write32(&p->opreg->usbcmd, USBCMD_8MICRO);
 	free(p->qhlist);
 	free(p);
 	free(this);
@@ -444,7 +444,7 @@ static void chipidea_shutdown(struct usbdev_ctrl *this)
 static void chipidea_set_address(struct usbdev_ctrl *this, int address)
 {
 	struct chipidea_pdata *p = CI_PDATA(this);
-	writel((address << 25) | (1 << 24), &p->opreg->usbadr);
+	write32(&p->opreg->usbadr, (address << 25) | (1 << 24));
 }
 
 static void chipidea_stall(struct usbdev_ctrl *this,

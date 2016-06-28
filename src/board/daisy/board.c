@@ -67,7 +67,7 @@ static int board_setup(void)
 	fit_set_compat("google,snow");
 
 	// Switch from hi speed I2C to the normal one.
-	writel(0x0, i2c_cfg);
+	write32(i2c_cfg, 0x0);
 
 	S3c24x0I2c *i2c3 = new_s3c24x0_i2c(0x12c90000);
 	S3c24x0I2c *i2c4 = new_s3c24x0_i2c(0x12ca0000);

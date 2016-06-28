@@ -237,7 +237,7 @@ static int smaug_backlight_update(DisplayOps *me, uint8_t enable)
 	}
 
 	for (i = 0; i < size; ++i) {
-		i2c_writeb(get_i2c6(), 0x2c, current->reg, current->val);
+		i2c_write8(get_i2c6(), 0x2c, current->reg, current->val);
 		++current;
 	}
 	return 0;

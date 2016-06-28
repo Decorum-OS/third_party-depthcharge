@@ -58,10 +58,10 @@ static void put_char(UartOps *me, uint8_t c)
 	UartS5p *uart = container_of(me, UartS5p, ops);
 	S5pRegs *regs = (S5pRegs *)uart->base;
 
-	while (readl(&regs->ufstat) & TxFifoFullBit)
+	while (read32(&regs->ufstat) & TxFifoFullBit)
 	{;}
 
-	writeb(c, &regs->utxh);
+	write8(&regs->utxh, c);
 	if (c == '\n')
 		me->put_char(me, '\r');
 }
@@ -73,7 +73,7 @@ static int have_char(UartOps *me)
 	UartS5p *uart = container_of(me, UartS5p, ops);
 	S5pRegs *regs = (S5pRegs *)uart->base;
 
-	return (readl(&regs->ufstat) & DataReadyMask) != 0;
+	return (read32(&regs->ufstat) & DataReadyMask) != 0;
 }
 
 static int get_char(UartOps *me)
@@ -84,7 +84,7 @@ static int get_char(UartOps *me)
 	UartS5p *uart = container_of(me, UartS5p, ops);
 	S5pRegs *regs = (S5pRegs *)uart->base;
 
-	return readb(&regs->urxh);
+	return read8(&regs->urxh);
 }
 
 UartS5p *new_uart_s5p(uintptr_t base)

@@ -31,22 +31,6 @@
 
 #include <stdint.h>
 
-/*
- * readb/w/l writeb/w/l are deprecated. use read8/16/32 and write8/16/32
- * instead for future development.
- *
- * TODO: make the existing code use read8/16/32 and write8/16/32 then remove
- * readb/w/l and writeb/w/l.
- */
-
-#define readb(_a) (*(volatile const unsigned char *) (_a))
-#define readw(_a) (*(volatile const unsigned short *) (_a))
-#define readl(_a) (*(volatile const unsigned int *) (_a))
-
-#define writeb(_v, _a) (*(volatile unsigned char *) (_a) = (_v))
-#define writew(_v, _a) (*(volatile unsigned short *) (_a) = (_v))
-#define writel(_v, _a) (*(volatile unsigned int *) (_a) = (_v))
-
 static inline __attribute__((always_inline)) uint8_t read8(const volatile void *addr)
 {
 	return *((volatile uint8_t *)(addr));
@@ -77,70 +61,70 @@ static inline __attribute__((always_inline)) void write32(volatile void *addr, u
 	*((volatile uint32_t *)(addr)) = value;
 }
 
-static inline unsigned int inl(int port)
+static inline uint32_t inl(int port)
 {
-	unsigned long val;
+	uint32_t val;
 	__asm__ __volatile__("inl %w1, %0" : "=a"(val) : "Nd"(port));
 	return val;
 }
 
-static inline unsigned short inw(int port)
+static inline uint16_t inw(int port)
 {
-	unsigned short val;
+	uint16_t val;
 	__asm__ __volatile__("inw %w1, %w0" : "=a"(val) : "Nd"(port));
 	return val;
 }
 
-static inline unsigned char inb(int port)
+static inline uint8_t inb(int port)
 {
-	unsigned char val;
+	uint8_t val;
 	__asm__ __volatile__("inb %w1, %b0" : "=a"(val) : "Nd"(port));
 	return val;
 }
 
-static inline void outl(unsigned int val, int port)
+static inline void outl(uint32_t val, int port)
 {
 	__asm__ __volatile__("outl %0, %w1" : : "a"(val), "Nd"(port));
 }
 
-static inline void outw(unsigned short val, int port)
+static inline void outw(uint16_t val, int port)
 {
 	__asm__ __volatile__("outw %w0, %w1" : : "a"(val), "Nd"(port));
 }
 
-static inline void outb(unsigned char val, int port)
+static inline void outb(uint8_t val, int port)
 {
 	__asm__ __volatile__("outb %b0, %w1" : : "a"(val), "Nd"(port));
 }
 
-static inline void outsl(int port, const void *addr, unsigned long count)
+static inline void outsl(int port, const void *addr, uint32_t count)
 {
 	__asm__ __volatile__("rep; outsl" : "+S"(addr), "+c"(count) : "d"(port));
 }
 
-static inline void outsw(int port, const void *addr, unsigned long count)
+static inline void outsw(int port, const void *addr, uint32_t count)
 {
 	__asm__ __volatile__("rep; outsw" : "+S"(addr), "+c"(count) : "d"(port));
 }
 
-static inline void outsb(int port, const void *addr, unsigned long count)
+static inline void outsb(int port, const void *addr, uint32_t count)
 {
 	__asm__ __volatile__("rep; outsb" : "+S"(addr), "+c"(count) : "d"(port));
 }
 
-static inline void insl(int port, void *addr, unsigned long count)
+static inline void insl(int port, void *addr, uint32_t count)
 {
 	__asm__ __volatile__("rep; insl" : "+D"(addr), "+c"(count) : "d"(port)
 			     : "memory");
 }
 
-static inline void insw(int port, void *addr, unsigned long count)
+static inline void insw(int port, void *addr, uint32_t count)
 {
 	__asm__ __volatile__("rep; insw" : "+D"(addr), "+c"(count) : "d"(port)
 			     : "memory");
 }
 
-static inline void insb(int port, void *addr, unsigned long count)
+static inline void insb(int port, void *addr, uint32_t count)
 {
 	__asm__ __volatile__("rep; insb" : "+D"(addr), "+c"(count) : "d"(port)
 			     : "memory");

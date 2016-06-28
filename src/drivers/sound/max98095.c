@@ -20,12 +20,12 @@
 
 static int max98095_i2c_write(Max98095Codec *codec, uint8_t reg, uint8_t data)
 {
-	return i2c_writeb(codec->i2c, codec->chip, reg, data);
+	return i2c_write8(codec->i2c, codec->chip, reg, data);
 }
 
 static int max98095_i2c_read(Max98095Codec *codec, uint8_t reg, uint8_t *data)
 {
-	return i2c_readb(codec->i2c, codec->chip, reg, data);
+	return i2c_read8(codec->i2c, codec->chip, reg, data);
 }
 
 static int max98095_update_bits(Max98095Codec *codec, uint8_t reg,

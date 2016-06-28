@@ -40,5 +40,5 @@ uint64_t timer_hz(void)
 
 uint64_t timer_raw_value(void)
 {
-	return readl(tegra_tmrus);
+	return read32(tegra_tmrus);
 }

@@ -160,12 +160,12 @@ static inline void set_speed_regs(DesignwareI2cRegs *regs, uint32_t cntl_mask,
 {
 	uint32_t cntl;
 
-	writel(CLK_MHZ * high_time / 1000, high_reg);
-	writel(CLK_MHZ * low_time / 1000, low_reg);
+	write32(high_reg, CLK_MHZ * high_time / 1000);
+	write32(low_reg, CLK_MHZ * low_time / 1000);
 
-	cntl = (readl(&regs->control) & (~CONTROL_SPEED_MASK));
+	cntl = (read32(&regs->control) & (~CONTROL_SPEED_MASK));
 	cntl |= CONTROL_RE;
-	writel(cntl | cntl_mask, &regs->control);
+	write32(&regs->control, cntl | cntl_mask);
 }
 
 /*
@@ -180,9 +180,9 @@ static int i2c_set_bus_speed(DesignwareI2c *bus)
 	uint32_t enable;
 
 	/* Disable controller before setting speed. */
-	enable = readl(&regs->enable);
+	enable = read32(&regs->enable);
 	enable &= ~ENABLE_0B;
-	writel(enable, &regs->enable);
+	write32(&regs->enable, enable);
 
 	if (bus->speed >= MAX_SPEED_HZ)
 		set_speed_regs(regs, CONTROL_SPEED_HS,
@@ -199,7 +199,7 @@ static int i2c_set_bus_speed(DesignwareI2c *bus)
 
 	/* Re-enable controller. */
 	enable |= ENABLE_0B;
-	writel(enable, &regs->enable);
+	write32(&regs->enable, enable);
 
 	return 0;
 }
@@ -217,20 +217,20 @@ static void i2c_init(DesignwareI2c *bus)
 	uint32_t enable;
 
 	/* Disable controller. */
-	enable = readl(&regs->enable);
+	enable = read32(&regs->enable);
 	enable &= ~ENABLE_0B;
-	writel(enable, &regs->enable);
+	write32(&regs->enable, enable);
 
-	writel(CONTROL_SD | CONTROL_SPEED_FS | CONTROL_MM, &regs->control);
-	writel(RX_THRESH, &regs->rx_thresh);
-	writel(TX_THRESH, &regs->tx_thresh);
+	write32(&regs->control, CONTROL_SD | CONTROL_SPEED_FS | CONTROL_MM);
+	write32(&regs->rx_thresh, RX_THRESH);
+	write32(&regs->tx_thresh, TX_THRESH);
 	i2c_set_bus_speed(bus);
-	writel(INTR_STOP_DET, &regs->intr_mask);
+	write32(&regs->intr_mask, INTR_STOP_DET);
 
 	/* Re-enable controller. */
-	enable = readl(&regs->enable);
+	enable = read32(&regs->enable);
 	enable |= ENABLE_0B;
-	writel(enable, &regs->enable);
+	write32(&regs->enable, enable);
 
 	bus->initialized = 1;
 }
@@ -243,8 +243,8 @@ static void i2c_init(DesignwareI2c *bus)
  */
 static void i2c_flush_rxfifo(DesignwareI2cRegs *regs)
 {
-	while (readl(&regs->status) & STATUS_RFNE)
-		readl(&regs->cmd_data);
+	while (read32(&regs->status) & STATUS_RFNE)
+		read32(&regs->cmd_data);
 }
 
 /*
@@ -257,8 +257,8 @@ static int i2c_wait_for_bus_idle(DesignwareI2cRegs *regs)
 {
 	uint64_t start = time_us(0);
 
-	while ((readl(&regs->status) & STATUS_MA) ||
-	       !(readl(&regs->status) & STATUS_TFE))
+	while ((read32(&regs->status) & STATUS_MA) ||
+	       !(read32(&regs->status) & STATUS_TFE))
 		/* Evaluate timeout, wait for up to 16 bytes in FIFO. */
 		if (time_us(start) > 2000 * 16)
 			return -1;
@@ -277,8 +277,8 @@ static int i2c_xfer_finish(DesignwareI2cRegs *regs)
 	uint64_t start = time_us(0);
 
 	while (1) {
-		if ((readl(&regs->raw_intr_stat) & INTR_STOP_DET)) {
-			readl(&regs->clear_stop_det_intr);
+		if ((read32(&regs->raw_intr_stat) & INTR_STOP_DET)) {
+			read32(&regs->clear_stop_det_intr);
 			break;
 		} else if (time_us(start) > 2000)
 			break;
@@ -314,7 +314,7 @@ static int i2c_transfer_segment(DesignwareI2cRegs *regs,
 	int i;
 
 	/* Set slave device bus address. */
-	writel(segment->chip, &regs->target_addr);
+	write32(&regs->target_addr, segment->chip);
 
 	/* Read or write each byte in segment. */
 	for (i = 0; i < segment->len; ++i) {
@@ -323,7 +323,7 @@ static int i2c_transfer_segment(DesignwareI2cRegs *regs,
 
 		/* Write op only: Wait for FIFO not full. */
 		if (!segment->read) {
-			while (!(readl(&regs->status) & STATUS_TFNF))
+			while (!(read32(&regs->status) & STATUS_TFNF))
 				if (time_us(start) > 2000)
 					return -1;
 			cmd = segment->buf[i];
@@ -334,14 +334,14 @@ static int i2c_transfer_segment(DesignwareI2cRegs *regs,
 		if (send_stop && i == segment->len - 1)
 			cmd |= CMD_DATA_STOP;
 
-		writel(cmd, &regs->cmd_data);
+		write32(&regs->cmd_data, cmd);
 
 		/* Read op only: Wait FIFO data and store it. */
 		if (segment->read) {
-			while (!(readl(&regs->status) & STATUS_RFNE))
+			while (!(read32(&regs->status) & STATUS_RFNE))
 				if (time_us(start) > 2000)
 					return -1;
-			segment->buf[i] = (uint8_t)readl(&regs->cmd_data);
+			segment->buf[i] = (uint8_t)read32(&regs->cmd_data);
 		}
 	}
 	return 0;

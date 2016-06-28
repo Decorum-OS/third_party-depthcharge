@@ -49,10 +49,10 @@ static int rockchip_backlight_update(DisplayOps *me, uint8_t enable)
 static int rockchip_display_stop(DisplayOps *me)
 {
 	/* set vop0 to standby */
-	writel(RK_SETBITS(1 << VOP_STANDBY_EN), vop0_sys_ctrl);
+	write32(vop0_sys_ctrl, RK_SETBITS(1 << VOP_STANDBY_EN));
 
 	/* set vop1 to standby */
-	writel(RK_SETBITS(1 << VOP_STANDBY_EN), vop1_sys_ctrl);
+	write32(vop1_sys_ctrl, RK_SETBITS(1 << VOP_STANDBY_EN));
 
 	/* wait frame complete (60Hz) to enter standby */
 	mdelay(17);

@@ -29,8 +29,8 @@
 static int rk808_set_bit(Rk808Pmic *pmic, uint8_t reg, uint8_t bit)
 {
 	uint8_t val;
-	if (i2c_readb(pmic->bus, pmic->chip, reg, &val) ||
-	    i2c_writeb(pmic->bus, pmic->chip, reg, val | bit))
+	if (i2c_read8(pmic->bus, pmic->chip, reg, &val) ||
+	    i2c_write8(pmic->bus, pmic->chip, reg, val | bit))
 		return -1;
 	return 0;
 }

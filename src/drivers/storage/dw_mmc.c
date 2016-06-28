@@ -42,7 +42,7 @@ static int dwmci_wait_reset(DwmciHost *host, uint32_t value)
 {
 	unsigned long timeout_ms = 10;
 
-	dwmci_writel(host, DWMCI_CTRL, value);
+	dwmci_write32(host, DWMCI_CTRL, value);
 	return !mmc_busy_wait_io(dwmci_get_ioaddr(host, DWMCI_CTRL), NULL,
 				 DWMCI_RESET_ALL, timeout_ms);
 }
@@ -73,7 +73,7 @@ static void dwmci_prepare_data(DwmciHost *host, MmcData *data)
 	dwmci_wait_reset(host, DWMCI_CTRL_FIFO_RESET);
 
 	data_start = cur_idmac;
-	dwmci_writel(host, DWMCI_DBADDR, (uintptr_t)cur_idmac);
+	dwmci_write32(host, DWMCI_DBADDR, (uintptr_t)cur_idmac);
 
 	if (data->flags == MMC_DATA_READ)
 		start_addr = data->dest;
@@ -105,16 +105,16 @@ static void dwmci_prepare_data(DwmciHost *host, MmcData *data)
 	dcache_clean_invalidate_by_mva(start_addr,
 				       (data->blocks * data->blocksize));
 
-	ctrl = dwmci_readl(host, DWMCI_CTRL);
+	ctrl = dwmci_read32(host, DWMCI_CTRL);
 	ctrl |= DWMCI_IDMAC_EN | DWMCI_DMA_EN;
-	dwmci_writel(host, DWMCI_CTRL, ctrl);
+	dwmci_write32(host, DWMCI_CTRL, ctrl);
 
-	ctrl = dwmci_readl(host, DWMCI_BMOD);
+	ctrl = dwmci_read32(host, DWMCI_BMOD);
 	ctrl |= DWMCI_BMOD_IDMAC_FB | DWMCI_BMOD_IDMAC_EN;
-	dwmci_writel(host, DWMCI_BMOD, ctrl);
+	dwmci_write32(host, DWMCI_BMOD, ctrl);
 
-	dwmci_writel(host, DWMCI_BLKSIZ, data->blocksize);
-	dwmci_writel(host, DWMCI_BYTCNT, data->blocksize * data->blocks);
+	dwmci_write32(host, DWMCI_BLKSIZ, data->blocksize);
+	dwmci_write32(host, DWMCI_BYTCNT, data->blocksize * data->blocks);
 }
 
 static int dwmci_set_transfer_mode(DwmciHost *host, MmcData *data)
@@ -141,12 +141,12 @@ static int dwmci_send_cmd(MmcCtrlr *ctrlr, MmcCommand *cmd, MmcData *data)
 		return MMC_TIMEOUT;
 	}
 
-	dwmci_writel(host, DWMCI_RINTSTS, DWMCI_INTMSK_ALL);
+	dwmci_write32(host, DWMCI_RINTSTS, DWMCI_INTMSK_ALL);
 
 	if (data)
 		dwmci_prepare_data(host, data);
 
-	dwmci_writel(host, DWMCI_CMDARG, cmd->cmdarg);
+	dwmci_write32(host, DWMCI_CMDARG, cmd->cmdarg);
 
 	if (data)
 		flags = dwmci_set_transfer_mode(host, data);
@@ -172,7 +172,7 @@ static int dwmci_send_cmd(MmcCtrlr *ctrlr, MmcCommand *cmd, MmcData *data)
 
 	mmc_debug("Sending CMD%d\n", cmd->cmdidx);
 
-	dwmci_writel(host, DWMCI_CMD, flags);
+	dwmci_write32(host, DWMCI_CMD, flags);
 
 	mask = 0;
 	if (mmc_busy_wait_io_until(
@@ -182,7 +182,7 @@ static int dwmci_send_cmd(MmcCtrlr *ctrlr, MmcCommand *cmd, MmcData *data)
 		return MMC_TIMEOUT;
 	}
 	if (!data)
-		dwmci_writel(host, DWMCI_RINTSTS, mask);
+		dwmci_write32(host, DWMCI_RINTSTS, mask);
 	if (mask & DWMCI_INTMSK_RTO) {
 		mmc_debug("Response Timeout..\n");
 		return MMC_TIMEOUT;
@@ -193,12 +193,12 @@ static int dwmci_send_cmd(MmcCtrlr *ctrlr, MmcCommand *cmd, MmcData *data)
 
 	if (cmd->resp_type & MMC_RSP_PRESENT) {
 		if (cmd->resp_type & MMC_RSP_136) {
-			cmd->response[0] = dwmci_readl(host, DWMCI_RESP3);
-			cmd->response[1] = dwmci_readl(host, DWMCI_RESP2);
-			cmd->response[2] = dwmci_readl(host, DWMCI_RESP1);
-			cmd->response[3] = dwmci_readl(host, DWMCI_RESP0);
+			cmd->response[0] = dwmci_read32(host, DWMCI_RESP3);
+			cmd->response[1] = dwmci_read32(host, DWMCI_RESP2);
+			cmd->response[2] = dwmci_read32(host, DWMCI_RESP1);
+			cmd->response[3] = dwmci_read32(host, DWMCI_RESP0);
 		} else {
-			cmd->response[0] = dwmci_readl(host, DWMCI_RESP0);
+			cmd->response[0] = dwmci_read32(host, DWMCI_RESP0);
 		}
 	}
 
@@ -218,11 +218,11 @@ static int dwmci_send_cmd(MmcCtrlr *ctrlr, MmcCommand *cmd, MmcData *data)
 			return -1;
 		}
 
-		dwmci_writel(host, DWMCI_RINTSTS, mask);
+		dwmci_write32(host, DWMCI_RINTSTS, mask);
 
-		ctrl = dwmci_readl(host, DWMCI_CTRL);
+		ctrl = dwmci_read32(host, DWMCI_CTRL);
 		ctrl &= ~(DWMCI_DMA_EN);
-		dwmci_writel(host, DWMCI_CTRL, ctrl);
+		dwmci_write32(host, DWMCI_CTRL, ctrl);
 		if (data->flags & MMC_DATA_READ) {
 			unsigned long data_len = data->blocks * data->blocksize;
 			/*
@@ -244,7 +244,7 @@ static void dwmci_set_clock(DwmciHost *host, uint32_t freq)
 
 	sclk = host->src_hz / (DWMCI_GET_DIV_RATIO(host->clksel_val) + 1);
 	div = (sclk + (2 * freq) - 1) / (2 * freq);
-	dwmci_writel(host, DWMCI_CLKDIV, div);
+	dwmci_write32(host, DWMCI_CLKDIV, div);
 }
 
 static int dwmci_setup_bus(DwmciHost *host, uint32_t freq)
@@ -254,10 +254,10 @@ static int dwmci_setup_bus(DwmciHost *host, uint32_t freq)
 	if ((freq == host->clock) || (freq == 0))
 		return 0;
 
-	dwmci_writel(host, DWMCI_CLKENA, 0);
-	dwmci_writel(host, DWMCI_CLKSRC, 0);
+	dwmci_write32(host, DWMCI_CLKENA, 0);
+	dwmci_write32(host, DWMCI_CLKSRC, 0);
 	host->set_clk(host, freq);
-	dwmci_writel(host, DWMCI_CMD, DWMCI_CMD_PRV_DAT_WAIT |
+	dwmci_write32(host, DWMCI_CMD, DWMCI_CMD_PRV_DAT_WAIT |
 			DWMCI_CMD_UPD_CLK | DWMCI_CMD_START);
 
 	if (mmc_busy_wait_io(dwmci_get_ioaddr(host, DWMCI_CMD),
@@ -266,10 +266,10 @@ static int dwmci_setup_bus(DwmciHost *host, uint32_t freq)
 		return -1;
 	}
 
-	dwmci_writel(host, DWMCI_CLKENA, DWMCI_CLKEN_ENABLE |
+	dwmci_write32(host, DWMCI_CLKENA, DWMCI_CLKEN_ENABLE |
 			DWMCI_CLKEN_LOW_PWR);
 
-	dwmci_writel(host, DWMCI_CMD, DWMCI_CMD_PRV_DAT_WAIT |
+	dwmci_write32(host, DWMCI_CMD, DWMCI_CMD_PRV_DAT_WAIT |
 			DWMCI_CMD_UPD_CLK | DWMCI_CMD_START);
 
 	if (mmc_busy_wait_io(dwmci_get_ioaddr(host, DWMCI_CMD),
@@ -303,8 +303,8 @@ static void dwmci_set_ios(MmcCtrlr *ctrlr)
 		break;
 	}
 
-	dwmci_writel(host, DWMCI_CTYPE, ctype);
-	dwmci_writel(host, DWMCI_CLKSEL, host->clksel_val);
+	dwmci_write32(host, DWMCI_CTYPE, ctype);
+	dwmci_write32(host, DWMCI_CLKSEL, host->clksel_val);
 }
 
 static int dwmci_init(BlockDevCtrlrOps *me)
@@ -312,14 +312,14 @@ static int dwmci_init(BlockDevCtrlrOps *me)
 	DwmciHost *host = container_of(me, DwmciHost, mmc.ctrlr.ops);
 	uint32_t fifo_size, fifoth_val;
 
-	dwmci_writel(host, EMMCP_MPSBEGIN0, 0);
-	dwmci_writel(host, EMMCP_SEND0, 0);
-	dwmci_writel(host, EMMCP_CTRL0,
+	dwmci_write32(host, EMMCP_MPSBEGIN0, 0);
+	dwmci_write32(host, EMMCP_SEND0, 0);
+	dwmci_write32(host, EMMCP_CTRL0,
 		MPSCTRL_SECURE_READ_BIT | MPSCTRL_SECURE_WRITE_BIT |
 		MPSCTRL_NON_SECURE_READ_BIT | MPSCTRL_NON_SECURE_WRITE_BIT |
 		MPSCTRL_VALID);
 
-	dwmci_writel(host, DWMCI_PWREN, 1);
+	dwmci_write32(host, DWMCI_PWREN, 1);
 
 	if (!dwmci_wait_reset(host, DWMCI_RESET_ALL)) {
 		printf("%s[%d] Reset failed!!\n", __func__, __LINE__);
@@ -329,15 +329,15 @@ static int dwmci_init(BlockDevCtrlrOps *me)
 	/* Enumerate at 400KHz */
 	dwmci_setup_bus(host, host->mmc.f_min);
 
-	dwmci_writel(host, DWMCI_RINTSTS, 0xFFFFFFFF);
-	dwmci_writel(host, DWMCI_INTMASK, 0);
+	dwmci_write32(host, DWMCI_RINTSTS, 0xFFFFFFFF);
+	dwmci_write32(host, DWMCI_INTMASK, 0);
 
-	dwmci_writel(host, DWMCI_TMOUT, 0xFFFFFFFF);
+	dwmci_write32(host, DWMCI_TMOUT, 0xFFFFFFFF);
 
-	dwmci_writel(host, DWMCI_IDINTEN, 0);
-	dwmci_writel(host, DWMCI_BMOD, 1);
+	dwmci_write32(host, DWMCI_IDINTEN, 0);
+	dwmci_write32(host, DWMCI_BMOD, 1);
 
-	fifo_size = dwmci_readl(host, DWMCI_FIFOTH);
+	fifo_size = dwmci_read32(host, DWMCI_FIFOTH);
 	fifo_size = ((fifo_size & RX_WMARK_MASK) >> RX_WMARK_SHIFT) + 1;
 	if (host->fifoth_val) {
 		fifoth_val = host->fifoth_val;
@@ -346,10 +346,10 @@ static int dwmci_init(BlockDevCtrlrOps *me)
 			TX_WMARK(fifo_size / 2);
 		host->fifoth_val = fifoth_val;
 	}
-	dwmci_writel(host, DWMCI_FIFOTH, fifoth_val);
+	dwmci_write32(host, DWMCI_FIFOTH, fifoth_val);
 
-	dwmci_writel(host, DWMCI_CLKENA, 0);
-	dwmci_writel(host, DWMCI_CLKSRC, 0);
+	dwmci_write32(host, DWMCI_CLKENA, 0);
+	dwmci_write32(host, DWMCI_CLKSRC, 0);
 
 	return 0;
 }
@@ -369,7 +369,7 @@ static int dwmci_update(BlockDevCtrlrOps *me)
 		if (host->cd_gpio)	//use gpio detect
 			present = gpio_get(host->cd_gpio);
 		else
-			present = !dwmci_readl(host, DWMCI_CDETECT);
+			present = !dwmci_read32(host, DWMCI_CDETECT);
 		if (present && !host->mmc.media) {
 			// A card is present and not set up yet. Get it ready.
 			if (mmc_setup_media(&host->mmc))

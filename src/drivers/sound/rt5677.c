@@ -81,14 +81,14 @@ static struct rt5677_init_reg bypass_init_list[] = {
 	{RT5677_TDM2_CTRL1,	  0X1300},
 };
 
-static int rt5677_i2c_readw(rt5677Codec *codec, uint8_t reg, uint16_t *data)
+static int rt5677_i2c_read16(rt5677Codec *codec, uint8_t reg, uint16_t *data)
 {
-	return i2c_readw(codec->i2c, codec->chip, reg, data);
+	return i2c_read16(codec->i2c, codec->chip, reg, data);
 }
 
-static int rt5677_i2c_writew(rt5677Codec *codec, uint8_t reg, uint16_t data)
+static int rt5677_i2c_write16(rt5677Codec *codec, uint8_t reg, uint16_t data)
 {
-	return i2c_writew(codec->i2c, codec->chip, reg, data);
+	return i2c_write16(codec->i2c, codec->chip, reg, data);
 }
 
 static int rt5677_update_bits(rt5677Codec *codec, uint8_t reg,
@@ -96,12 +96,12 @@ static int rt5677_update_bits(rt5677Codec *codec, uint8_t reg,
 {
 	uint16_t old, new_value;
 
-	if (rt5677_i2c_readw(codec, reg, &old))
+	if (rt5677_i2c_read16(codec, reg, &old))
 		return 1;
 
 	new_value = (old & ~mask) | (value & mask);
 
-	if (old != new_value && rt5677_i2c_writew(codec, reg, new_value))
+	if (old != new_value && rt5677_i2c_write16(codec, reg, new_value))
 		return 1;
 
 	return 0;
@@ -114,11 +114,11 @@ static void rt5677_reg_init(rt5677Codec *codec)
 
 	if (codec->bypass) {
 		for (i = 0; i < ARRAY_SIZE(bypass_init_list); i++)
-			rt5677_i2c_writew(codec, bypass_init_list[i].reg,
+			rt5677_i2c_write16(codec, bypass_init_list[i].reg,
 					  bypass_init_list[i].val);
 	} else {
 		for (i = 0; i < ARRAY_SIZE(init_list); i++)
-			rt5677_i2c_writew(codec, init_list[i].reg,
+			rt5677_i2c_write16(codec, init_list[i].reg,
 					  init_list[i].val);
 	}
 }
@@ -133,7 +133,7 @@ static void debug_dump_5677_regs(rt5677Codec *codec, int swap)
 		if (i % 8 == 0)
 			printf("\nMX%02X: ", i);
 
-		rt5677_i2c_readw(codec, (uint8_t)i, &reg_word);
+		rt5677_i2c_read16(codec, (uint8_t)i, &reg_word);
 		if (swap)
 			printf("%04X ", swap_bytes16(reg_word));
 		else
@@ -146,8 +146,8 @@ static void debug_dump_5677_regs(rt5677Codec *codec, int swap)
 		if (i % 8 == 0)
 			printf("\nPR%02X: ", i);
 
-		rt5677_i2c_writew(codec, RT5677_PRIV_INDEX, i);
-		rt5677_i2c_readw(codec, RT5677_PRIV_DATA, &reg_word);
+		rt5677_i2c_write16(codec, RT5677_PRIV_INDEX, i);
+		rt5677_i2c_read16(codec, RT5677_PRIV_DATA, &reg_word);
 		if (swap)
 			printf("%04X ", swap_bytes16(reg_word));
 		else
@@ -214,7 +214,7 @@ static int rt5677_set_fmt(rt5677Codec *codec)
 static int rt5677_reset(rt5677Codec *codec)
 {
 	/* Reset the codec registers to their defaults */
-	if (rt5677_i2c_writew(codec, RT5677_RESET, RT5677_SW_RESET)) {
+	if (rt5677_i2c_write16(codec, RT5677_RESET, RT5677_SW_RESET)) {
 		printf("%s: Error resetting codec!\n", __func__);
 		return 1;
 	}
@@ -229,7 +229,7 @@ int rt5677_device_init(rt5677Codec *codec)
 	uint16_t id, reg;
 
 	/* Read status reg */
-	rt5677_i2c_readw(codec, RT5677_RESET, &reg);
+	rt5677_i2c_read16(codec, RT5677_RESET, &reg);
 	printf("%s: reg 00h, Software Reset & Status = 0x%04X\n", __func__,
 	       reg);
 
@@ -238,13 +238,13 @@ int rt5677_device_init(rt5677Codec *codec)
 		return 1;
 	}
 
-	if (rt5677_i2c_readw(codec, RT5677_VENDOR_ID1, &id)) {
+	if (rt5677_i2c_read16(codec, RT5677_VENDOR_ID1, &id)) {
 		printf("%s: Error reading vendor ID!\n", __func__);
 		return 1;
 	}
 	printf("%s: Hardware ID: %04X\n", __func__, id);
 
-	if (rt5677_i2c_readw(codec, RT5677_VENDOR_ID2, &reg)) {
+	if (rt5677_i2c_read16(codec, RT5677_VENDOR_ID2, &reg)) {
 		printf("%s: Error reading vendor rev!\n", __func__);
 		return 1;
 	}

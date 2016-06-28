@@ -69,23 +69,25 @@ PUB_STAT(flag_ec_in_rw, gpio_get(get_ec_in_rw_gpio()))
 static void device_enable(int sio_index)
 {
 	device_nvs_t *nvs = lib_sysinfo.acpi_gnvs + DEVICE_NVS_OFFSET;
-	uint32_t reg_pcs = nvs->bar1[sio_index] + 0x84;
+	uint32_t *reg_pcs =
+		(uint32_t *)(uintptr_t)(nvs->bar1[sio_index] + 0x84);
 
 	// Put device in D0 state. Disable D3Hot.
-	writel(readl(reg_pcs) & ~3, reg_pcs);
-	(void)readl(reg_pcs);
+	write32(reg_pcs, read32(reg_pcs) & ~3);
+	(void)read32(reg_pcs);
 }
 
 static DesignwareI2c *i2c_enable(int sio_index)
 {
 	device_nvs_t *nvs = lib_sysinfo.acpi_gnvs + DEVICE_NVS_OFFSET;
-	uint32_t ppr_clock = nvs->bar0[sio_index] + 0x800;
+	uint32_t *ppr_clock =
+		(uint32_t *)(uintptr_t)(nvs->bar0[sio_index] + 0x800);
 
 	device_enable(sio_index);
 
 	// Enable clock to the device.
-	writel(readl(ppr_clock) | (1 << 0), ppr_clock);
-	(void)readl(ppr_clock);
+	write32(ppr_clock, read32(ppr_clock) | (1 << 0));
+	(void)read32(ppr_clock);
 
 	return new_designware_i2c(nvs->bar0[sio_index], 400000);
 }

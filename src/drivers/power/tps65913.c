@@ -37,15 +37,15 @@ enum {
 static int tps65913_set_bit(Tps65913Pmic *pmic, uint8_t reg, uint8_t bit)
 {
 	uint8_t val;
-	if (i2c_readb(pmic->bus, pmic->chip, reg, &val) ||
-	    i2c_writeb(pmic->bus, pmic->chip, reg, val | bit))
+	if (i2c_read8(pmic->bus, pmic->chip, reg, &val) ||
+	    i2c_write8(pmic->bus, pmic->chip, reg, val | bit))
 		return -1;
 	return 0;
 }
 
 static int tps65913_set_reg(Tps65913Pmic *pmic, uint8_t reg, uint8_t value)
 {
-	return i2c_writeb(pmic->bus, pmic->chip, reg, value);
+	return i2c_write8(pmic->bus, pmic->chip, reg, value);
 }
 
 static int tps65913_cold_reboot(PowerOps *me)

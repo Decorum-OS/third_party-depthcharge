@@ -52,7 +52,7 @@ static void dwc2_reinit(UsbDevHc *controller)
 	/* Wait for AHB idle */
 	for (i = 0; i < timeout; i++) {
 		udelay(1);
-		grstctl.d32 = readl(&reg->core.grstctl);
+		grstctl.d32 = read32(&reg->core.grstctl);
 		if (grstctl.ahbidle)
 			break;
 	}
@@ -60,13 +60,13 @@ static void dwc2_reinit(UsbDevHc *controller)
 		die("DWC2 Init error AHB Idle\n");
 
 	/* Restart the Phy Clock */
-	writel(0x0, &reg->pcgr.pcgcctl);
+	write32(&reg->pcgr.pcgcctl, 0x0);
 	/* Core soft reset */
 	grstctl.csftrst = 1;
-	writel(grstctl.d32, &reg->core.grstctl);
+	write32(&reg->core.grstctl, grstctl.d32);
 	for (i = 0; i < timeout; i++) {
 		udelay(1);
-		grstctl.d32 = readl(&reg->core.grstctl);
+		grstctl.d32 = read32(&reg->core.grstctl);
 		if (!grstctl.csftrst)
 			break;
 	}
@@ -74,15 +74,15 @@ static void dwc2_reinit(UsbDevHc *controller)
 		die("DWC2 Init error reset fail\n");
 
 	/* Set 16bit PHY if & Force host mode */
-	gusbcfg.d32 = readl(&reg->core.gusbcfg);
+	gusbcfg.d32 = read32(&reg->core.gusbcfg);
 	gusbcfg.phyif = 1;
 	gusbcfg.forcehstmode = 1;
 	gusbcfg.forcedevmode = 0;
-	writel(gusbcfg.d32, &reg->core.gusbcfg);
+	write32(&reg->core.gusbcfg, gusbcfg.d32);
 	/* Wait for force host mode effect, it may takes 100ms */
 	for (i = 0; i < timeout; i++) {
 		udelay(10);
-		gintsts.d32 = readl(&reg->core.gintsts);
+		gintsts.d32 = read32(&reg->core.gintsts);
 		if (gintsts.curmod)
 			break;
 	}
@@ -99,7 +99,7 @@ static void dwc2_reinit(UsbDevHc *controller)
 	 * Read total data FIFO depth from HWCFG3
 	 * this value is in terms of 32-bit words
 	 */
-	hwcfg3.d32 = readl(&reg->core.ghwcfg3);
+	hwcfg3.d32 = read32(&reg->core.ghwcfg3);
 	/*
 	 * Reserve 2 spaces for the status entries of received packets
 	 * and 2 spaces for bulk and control OUT endpoints. Calculate how
@@ -110,13 +110,13 @@ static void dwc2_reinit(UsbDevHc *controller)
 	tx_blocks = fifo_blocks / 2;
 
 	grxfsiz.rxfdep = (fifo_blocks - tx_blocks) * (512 / 4) + 4;
-	writel(grxfsiz.d32, &reg->core.grxfsiz);
+	write32(&reg->core.grxfsiz, grxfsiz.d32);
 	gnptxfsiz.txfstaddr = grxfsiz.rxfdep;
 	gnptxfsiz.txfdep = tx_blocks * (512 / 4);
-	writel(gnptxfsiz.d32, &reg->core.gnptxfsiz);
+	write32(&reg->core.gnptxfsiz, gnptxfsiz.d32);
 	hptxfsiz.txfstaddr = gnptxfsiz.txfstaddr + gnptxfsiz.txfdep;
 	hptxfsiz.txfdep = 16;
-	writel(hptxfsiz.d32, &reg->core.hptxfsiz);
+	write32(&reg->core.hptxfsiz, hptxfsiz.d32);
 
 	/* Init host channels */
 	hcintmsk.xfercomp = 1;
@@ -125,13 +125,13 @@ static void dwc2_reinit(UsbDevHc *controller)
 	hcintmsk.chhltd = 1;
 	hcintmsk.bblerr = 1;
 	for (i = 0; i < MAX_EPS_CHANNELS; i++)
-		writel(hcintmsk.d32, &reg->host.hchn[i].hcintmaskn);
+		write32(&reg->host.hchn[i].hcintmaskn, hcintmsk.d32);
 
 	/* Unmask interrupt and configure DMA mode */
 	gahbcfg.glblintrmsk = 1;
 	gahbcfg.hbstlen = DMA_BURST_INCR8;
 	gahbcfg.dmaen = 1;
-	writel(gahbcfg.d32, &reg->core.gahbcfg);
+	write32(&reg->core.gahbcfg, gahbcfg.d32);
 
 	DWC2_INST(controller)->hprt0 = &reg->host.hprt;
 
@@ -152,7 +152,7 @@ static int dwc2_disconnected(UsbDevHc *controller)
 	dwc2_reg_t *reg = DWC2_REG(controller);
 	hprt_t hprt;
 
-	hprt.d32 = readl(&reg->host.hprt);
+	hprt.d32 = read32(&reg->host.hprt);
 	return !(hprt.prtena && hprt.prtconnsts);
 }
 
@@ -175,11 +175,11 @@ wait_for_complete(UsbEndpoint *ep, uint32_t ch_num)
 	 */
 	do {
 		udelay(5);
-		hcint.d32 = readl(&reg->host.hchn[ch_num].hcintn);
-		hctsiz.d32 = readl(&reg->host.hchn[ch_num].hctsizn);
+		hcint.d32 = read32(&reg->host.hchn[ch_num].hcintn);
+		hctsiz.d32 = read32(&reg->host.hchn[ch_num].hctsizn);
 
 		if (hcint.chhltd) {
-			writel(hcint.d32, &reg->host.hchn[ch_num].hcintn);
+			write32(&reg->host.hchn[ch_num].hcintn, hcint.d32);
 			if (hcint.xfercomp || hcint.ack)
 				return hctsiz.xfersize;
 			else if (hcint.nak || hcint.frmovrun)
@@ -200,7 +200,7 @@ wait_for_complete(UsbEndpoint *ep, uint32_t ch_num)
 			return -HCSTAT_DISCONNECTED;
 	} while (timeout--);
 	/* Release the channel when hit timeout condition */
-	hcchar.d32 = readl(&reg->host.hchn[ch_num].hccharn);
+	hcchar.d32 = read32(&reg->host.hchn[ch_num].hccharn);
 	if (hcchar.chen) {
 		/*
 		 * Programming the HCCHARn register with the chdis and
@@ -209,16 +209,16 @@ wait_for_complete(UsbEndpoint *ep, uint32_t ch_num)
 		 * interrupt.
 		 */
 		 hcchar.chdis = 1;
-		 writel(hcchar.d32, &reg->host.hchn[ch_num].hccharn);
+		 write32(&reg->host.hchn[ch_num].hccharn, hcchar.d32);
 		 do {
-			hcchar.d32 = readl(&reg->host.hchn[ch_num].hccharn);
+			hcchar.d32 = read32(&reg->host.hchn[ch_num].hccharn);
 		 } while (hcchar.chen);
 
 	}
 
 	/* Clear all pending interrupt flags */
 	hcint.d32 = ~0;
-	writel(hcint.d32, &reg->host.hchn[ch_num].hcintn);
+	write32(&reg->host.hchn[ch_num].hcintn, hcint.d32);
 
 	return -HCSTAT_TIMEOUT;
 }
@@ -284,10 +284,10 @@ dwc2_do_xfer(UsbEndpoint *ep, int size, int pid, ep_dir_t dir,
 	if (dwc2_disconnected(ep->dev->controller))
 		return -HCSTAT_DISCONNECTED;
 
-	writel(hctsiz.d32, &reg->host.hchn[ch_num].hctsizn);
-	writel((uint32_t)(uintptr_t)aligned_buf,
-		&reg->host.hchn[ch_num].hcdman);
-	writel(hcchar.d32, &reg->host.hchn[ch_num].hccharn);
+	write32(&reg->host.hchn[ch_num].hctsizn, hctsiz.d32);
+	write32(&reg->host.hchn[ch_num].hcdman,
+		(uint32_t)(uintptr_t)aligned_buf);
+	write32(&reg->host.hchn[ch_num].hccharn, hcchar.d32);
 
 	ret = wait_for_complete(ep, ch_num);
 
@@ -304,7 +304,7 @@ dwc2_do_xfer(UsbEndpoint *ep, int size, int pid, ep_dir_t dir,
 	}
 
 	/* Save data toggle */
-	hctsiz.d32 = readl(&reg->host.hchn[ch_num].hctsizn);
+	hctsiz.d32 = read32(&reg->host.hchn[ch_num].hctsizn);
 	ep->toggle = hctsiz.pid;
 
 	if (ret < 0) {
@@ -327,11 +327,11 @@ dwc2_split_transfer(UsbEndpoint *ep, int size, int pid, ep_dir_t dir,
 	hcsplit.hubaddr = split->hubaddr;
 	hcsplit.prtaddr = split->hubport;
 	hcsplit.spltena = 1;
-	writel(hcsplit.d32, &reg->host.hchn[ch_num].hcspltn);
+	write32(&reg->host.hchn[ch_num].hcspltn, hcsplit.d32);
 
 	/* Wait for next frame boundary */
 	do {
-		hfnum.d32 = readl(&reg->host.hfnum);
+		hfnum.d32 = read32(&reg->host.hfnum);
 
 		if (dwc2_disconnected(ep->dev->controller)) {
 			ret = -HCSTAT_DISCONNECTED;
@@ -347,7 +347,7 @@ dwc2_split_transfer(UsbEndpoint *ep, int size, int pid, ep_dir_t dir,
 
 	hcsplit.spltena = 1;
 	hcsplit.compsplt = 1;
-	writel(hcsplit.d32, &reg->host.hchn[ch_num].hcspltn);
+	write32(&reg->host.hchn[ch_num].hcspltn, hcsplit.d32);
 	ep->toggle = pid;
 
 	if (dir == EPDIR_OUT)
@@ -366,7 +366,7 @@ out:
 	/* Clear hcsplit reg */
 	hcsplit.spltena = 0;
 	hcsplit.compsplt = 0;
-	writel(hcsplit.d32, &reg->host.hchn[ch_num].hcspltn);
+	write32(&reg->host.hchn[ch_num].hcspltn, hcsplit.d32);
 
 	if (ret < 0)
 		return ret;
@@ -500,8 +500,8 @@ static uint32_t dwc2_intr_get_timestamp(intr_queue_t *q)
 	dwc_ctrl_t *dwc2 = DWC2_INST(controller);
 	dwc2_reg_t *reg = DWC2_REG(controller);
 
-	hfnum.d32 = readl(&reg->host.hfnum);
-	hprt.d32 = readl(dwc2->hprt0);
+	hfnum.d32 = read32(&reg->host.hfnum);
+	hprt.d32 = read32(dwc2->hprt0);
 
 	/*
 	 * hfnum.frnum increments when a new SOF is transmitted on

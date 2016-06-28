@@ -38,8 +38,8 @@ static void sdhci_reset(SdhciHost *host, uint8_t mask)
 
 	/* Wait max 100 ms */
 	timeout = 100;
-	sdhci_writeb(host, mask, SDHCI_SOFTWARE_RESET);
-	while (sdhci_readb(host, SDHCI_SOFTWARE_RESET) & mask) {
+	sdhci_write8(host, mask, SDHCI_SOFTWARE_RESET);
+	while (sdhci_read8(host, SDHCI_SOFTWARE_RESET) & mask) {
 		if (timeout == 0) {
 			printf("Reset 0x%x never completed.\n", (int)mask);
 			return;
@@ -55,14 +55,14 @@ static void sdhci_cmd_done(SdhciHost *host, MmcCommand *cmd)
 	if (cmd->resp_type & MMC_RSP_136) {
 		/* CRC is stripped so we need to do some shifting. */
 		for (i = 0; i < 4; i++) {
-			cmd->response[i] = sdhci_readl(host,
+			cmd->response[i] = sdhci_read32(host,
 					SDHCI_RESPONSE + (3-i)*4) << 8;
 			if (i != 3)
-				cmd->response[i] |= sdhci_readb(host,
+				cmd->response[i] |= sdhci_read8(host,
 						SDHCI_RESPONSE + (3-i)*4-1);
 		}
 	} else {
-		cmd->response[0] = sdhci_readl(host, SDHCI_RESPONSE);
+		cmd->response[0] = sdhci_read32(host, SDHCI_RESPONSE);
 	}
 }
 
@@ -73,9 +73,9 @@ static void sdhci_transfer_pio(SdhciHost *host, MmcData *data)
 	for (i = 0; i < data->blocksize; i += 4) {
 		offs = data->dest + i;
 		if (data->flags == MMC_DATA_READ)
-			*(uint32_t *)offs = sdhci_readl(host, SDHCI_BUFFER);
+			*(uint32_t *)offs = sdhci_read32(host, SDHCI_BUFFER);
 		else
-			sdhci_writel(host, *(uint32_t *)offs, SDHCI_BUFFER);
+			sdhci_write32(host, *(uint32_t *)offs, SDHCI_BUFFER);
 	}
 }
 
@@ -88,15 +88,15 @@ static int sdhci_transfer_data(SdhciHost *host, MmcData *data,
 	rdy = SDHCI_INT_SPACE_AVAIL | SDHCI_INT_DATA_AVAIL;
 	mask = SDHCI_DATA_AVAILABLE | SDHCI_SPACE_AVAILABLE;
 	do {
-		stat = sdhci_readl(host, SDHCI_INT_STATUS);
+		stat = sdhci_read32(host, SDHCI_INT_STATUS);
 		if (stat & SDHCI_INT_ERROR) {
 			printf("Error detected in status(0x%X)!\n", stat);
 			return -1;
 		}
 		if (stat & rdy) {
-			if (!(sdhci_readl(host, SDHCI_PRESENT_STATE) & mask))
+			if (!(sdhci_read32(host, SDHCI_PRESENT_STATE) & mask))
 				continue;
-			sdhci_writel(host, rdy, SDHCI_INT_STATUS);
+			sdhci_write32(host, rdy, SDHCI_INT_STATUS);
 			sdhci_transfer_pio(host, data);
 			data->dest += data->blocksize;
 			if (++block >= data->blocks)
@@ -206,10 +206,10 @@ static int sdhci_setup_adma(SdhciHost *host, MmcData *data)
 	}
 
 	if (host->dma64)
-		sdhci_writel(host, (uint32_t)host->adma64_descs,
+		sdhci_write32(host, (uint32_t)host->adma64_descs,
 			     SDHCI_ADMA_ADDRESS);
 	else
-		sdhci_writel(host, (uint32_t)host->adma_descs,
+		sdhci_write32(host, (uint32_t)host->adma_descs,
 			     SDHCI_ADMA_ADDRESS);
 
 	return 0;
@@ -224,13 +224,13 @@ static int sdhci_complete_adma(SdhciHost *host, MmcCommand *cmd)
 
 	retry = 10000; /* Command should be done in way less than 10 ms. */
 	while (--retry) {
-		stat = sdhci_readl(host, SDHCI_INT_STATUS);
+		stat = sdhci_read32(host, SDHCI_INT_STATUS);
 		if (stat & mask)
 			break;
 		udelay(1);
 	}
 
-	sdhci_writel(host, SDHCI_INT_RESPONSE, SDHCI_INT_STATUS);
+	sdhci_write32(host, SDHCI_INT_RESPONSE, SDHCI_INT_STATUS);
 
 	if (retry && !(stat & SDHCI_INT_ERROR)) {
 		/* Command OK, let's wait for data transfer completion. */
@@ -240,13 +240,13 @@ static int sdhci_complete_adma(SdhciHost *host, MmcCommand *cmd)
 		/* Transfer should take 10 seconds tops. */
 		retry = 10 * 1000 * 1000;
 		while (--retry) {
-			stat = sdhci_readl(host, SDHCI_INT_STATUS);
+			stat = sdhci_read32(host, SDHCI_INT_STATUS);
 			if (stat & mask)
 				break;
 			udelay(1);
 		}
 
-		sdhci_writel(host, stat, SDHCI_INT_STATUS);
+		sdhci_write32(host, stat, SDHCI_INT_STATUS);
 		if (retry && !(stat & SDHCI_INT_ERROR)) {
 			sdhci_cmd_done(host, cmd);
 			return 0;
@@ -254,7 +254,7 @@ static int sdhci_complete_adma(SdhciHost *host, MmcCommand *cmd)
 	}
 
 	printf("%s: transfer error, stat %#x, adma error %#x, retry %d\n",
-	       __func__, stat, sdhci_readl(host, SDHCI_ADMA_ERROR), retry);
+	       __func__, stat, sdhci_read32(host, SDHCI_ADMA_ERROR), retry);
 
 	sdhci_reset(host, SDHCI_RESET_CMD);
 	sdhci_reset(host, SDHCI_RESET_DATA);
@@ -278,7 +278,7 @@ static int sdhci_send_command(MmcCtrlr *mmc_ctrl, MmcCommand *cmd,
 	/* Wait max 1 s */
 	timeout = 1000;
 
-	sdhci_writel(host, SDHCI_INT_ALL_MASK, SDHCI_INT_STATUS);
+	sdhci_write32(host, SDHCI_INT_ALL_MASK, SDHCI_INT_STATUS);
 	mask = SDHCI_CMD_INHIBIT | SDHCI_DATA_INHIBIT;
 
 	/* We shouldn't wait for data inihibit for stop commands, even
@@ -286,11 +286,11 @@ static int sdhci_send_command(MmcCtrlr *mmc_ctrl, MmcCommand *cmd,
 	if (cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION)
 		mask &= ~SDHCI_DATA_INHIBIT;
 
-	while (sdhci_readl(host, SDHCI_PRESENT_STATE) & mask) {
+	while (sdhci_read32(host, SDHCI_PRESENT_STATE) & mask) {
 		if (timeout == 0) {
 			printf("Controller never released inhibit bit(s), "
 			       "present state %#8.8x.\n",
-			       sdhci_readl(host, SDHCI_PRESENT_STATE));
+			       sdhci_read32(host, SDHCI_PRESENT_STATE));
 			return MMC_COMM_ERR;
 		}
 		timeout--;
@@ -319,7 +319,7 @@ static int sdhci_send_command(MmcCtrlr *mmc_ctrl, MmcCommand *cmd,
 	if (data) {
 		uint16_t mode = 0;
 
-		sdhci_writew(host, SDHCI_MAKE_BLKSZ(SDHCI_DEFAULT_BOUNDARY_ARG,
+		sdhci_write16(host, SDHCI_MAKE_BLKSZ(SDHCI_DEFAULT_BOUNDARY_ARG,
 						    data->blocksize),
 			     SDHCI_BLOCK_SIZE);
 
@@ -330,7 +330,7 @@ static int sdhci_send_command(MmcCtrlr *mmc_ctrl, MmcCommand *cmd,
 			mode |= SDHCI_TRNS_BLK_CNT_EN |
 				SDHCI_TRNS_MULTI | SDHCI_TRNS_ACMD12;
 
-		sdhci_writew(host, data->blocks, SDHCI_BLOCK_COUNT);
+		sdhci_write16(host, data->blocks, SDHCI_BLOCK_COUNT);
 
 		if (host->host_caps & MMC_AUTO_CMD12) {
 			if (sdhci_setup_adma(host, data))
@@ -338,18 +338,18 @@ static int sdhci_send_command(MmcCtrlr *mmc_ctrl, MmcCommand *cmd,
 
 			mode |= SDHCI_TRNS_DMA;
 		}
-		sdhci_writew(host, mode, SDHCI_TRANSFER_MODE);
+		sdhci_write16(host, mode, SDHCI_TRANSFER_MODE);
 	}
 
-	sdhci_writel(host, cmd->cmdarg, SDHCI_ARGUMENT);
-	sdhci_writew(host, SDHCI_MAKE_CMD(cmd->cmdidx, flags), SDHCI_COMMAND);
+	sdhci_write32(host, cmd->cmdarg, SDHCI_ARGUMENT);
+	sdhci_write16(host, SDHCI_MAKE_CMD(cmd->cmdidx, flags), SDHCI_COMMAND);
 
 	if (data && (host->host_caps & MMC_AUTO_CMD12))
 		return sdhci_complete_adma(host, cmd);
 
 	start = time_us(0);
 	do {
-		stat = sdhci_readl(host, SDHCI_INT_STATUS);
+		stat = sdhci_read32(host, SDHCI_INT_STATUS);
 		if (stat & SDHCI_INT_ERROR)
 			break;
 
@@ -367,7 +367,7 @@ static int sdhci_send_command(MmcCtrlr *mmc_ctrl, MmcCommand *cmd,
 
 	if ((stat & (SDHCI_INT_ERROR | mask)) == mask) {
 		sdhci_cmd_done(host, cmd);
-		sdhci_writel(host, mask, SDHCI_INT_STATUS);
+		sdhci_write32(host, mask, SDHCI_INT_STATUS);
 	} else
 		ret = -1;
 
@@ -377,8 +377,8 @@ static int sdhci_send_command(MmcCtrlr *mmc_ctrl, MmcCommand *cmd,
 	if (host->quirks & SDHCI_QUIRK_WAIT_SEND_CMD)
 		udelay(1000);
 
-	stat = sdhci_readl(host, SDHCI_INT_STATUS);
-	sdhci_writel(host, SDHCI_INT_ALL_MASK, SDHCI_INT_STATUS);
+	stat = sdhci_read32(host, SDHCI_INT_STATUS);
+	sdhci_write32(host, SDHCI_INT_ALL_MASK, SDHCI_INT_STATUS);
 
 	if (!ret)
 		return 0;
@@ -395,7 +395,7 @@ static int sdhci_set_clock(SdhciHost *host, unsigned int clock)
 {
 	unsigned int div, clk, timeout;
 
-	sdhci_writew(host, 0, SDHCI_CLOCK_CONTROL);
+	sdhci_write16(host, 0, SDHCI_CLOCK_CONTROL);
 
 	if (clock == 0)
 		return 0;
@@ -423,7 +423,7 @@ static int sdhci_set_clock(SdhciHost *host, unsigned int clock)
 		host->set_clock(host, div);
 
 	if (clock == MMC_CLOCK_200MHZ) {
-		sdhci_writew(host, SDHCI_CTRL_UHS_SDR104
+		sdhci_write16(host, SDHCI_CTRL_UHS_SDR104
 			| SDHCI_CTRL_VDD_180 | SDHCI_CTRL_DRV_TYPE_A
 			, SDHCI_HOST_CONTROL2);
 	}
@@ -431,11 +431,11 @@ static int sdhci_set_clock(SdhciHost *host, unsigned int clock)
 	clk |= ((div & SDHCI_DIV_HI_MASK) >> SDHCI_DIV_MASK_LEN)
 		<< SDHCI_DIVIDER_HI_SHIFT;
 	clk |= SDHCI_CLOCK_INT_EN;
-	sdhci_writew(host, clk, SDHCI_CLOCK_CONTROL);
+	sdhci_write16(host, clk, SDHCI_CLOCK_CONTROL);
 
 	/* Wait max 20 ms */
 	timeout = 20;
-	while (!((clk = sdhci_readw(host, SDHCI_CLOCK_CONTROL))
+	while (!((clk = sdhci_read16(host, SDHCI_CLOCK_CONTROL))
 		& SDHCI_CLOCK_INT_STABLE)) {
 		if (timeout == 0) {
 			printf("Internal clock never stabilised.\n");
@@ -446,7 +446,7 @@ static int sdhci_set_clock(SdhciHost *host, unsigned int clock)
 	}
 
 	clk |= SDHCI_CLOCK_CARD_EN;
-	sdhci_writew(host, clk, SDHCI_CLOCK_CONTROL);
+	sdhci_write16(host, clk, SDHCI_CLOCK_CONTROL);
 	return 0;
 }
 
@@ -501,16 +501,16 @@ static void sdhci_set_power(SdhciHost *host, unsigned short power)
 	}
 
 	if (pwr == 0) {
-		sdhci_writeb(host, 0, SDHCI_POWER_CONTROL);
+		sdhci_write8(host, 0, SDHCI_POWER_CONTROL);
 		return;
 	}
 
 	if (host->quirks & SDHCI_QUIRK_NO_SIMULT_VDD_AND_POWER)
-		sdhci_writeb(host, pwr, SDHCI_POWER_CONTROL);
+		sdhci_write8(host, pwr, SDHCI_POWER_CONTROL);
 
 	pwr |= SDHCI_POWER_ON;
 
-	sdhci_writeb(host, pwr, SDHCI_POWER_CONTROL);
+	sdhci_write8(host, pwr, SDHCI_POWER_CONTROL);
 }
 
 static void sdhci_set_ios(MmcCtrlr *mmc_ctrlr)
@@ -531,7 +531,7 @@ static void sdhci_set_ios(MmcCtrlr *mmc_ctrlr)
 			sdhci_set_power(host, MMC_VDD_165_195_SHIFT);
 
 	/* Set bus width */
-	ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
+	ctrl = sdhci_read8(host, SDHCI_HOST_CONTROL);
 	if (mmc_ctrlr->bus_width == 8) {
 		ctrl &= ~SDHCI_CTRL_4BITBUS;
 		if ((host->version & SDHCI_SPEC_VER_MASK) >= SDHCI_SPEC_300)
@@ -561,7 +561,7 @@ static void sdhci_set_ios(MmcCtrlr *mmc_ctrlr)
 			ctrl |= SDHCI_CTRL_ADMA32;
 	}
 
-	sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
+	sdhci_write8(host, ctrl, SDHCI_HOST_CONTROL);
 }
 
 /* Prepare SDHCI controller to be initialized */
@@ -575,9 +575,9 @@ static int sdhci_pre_init(SdhciHost *host)
 			return rv;
 	}
 
-	host->version = sdhci_readw(host, SDHCI_HOST_VERSION) & 0xff;
+	host->version = sdhci_read16(host, SDHCI_HOST_VERSION) & 0xff;
 
-	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
+	caps = sdhci_read32(host, SDHCI_CAPABILITIES);
 
 	if (caps & SDHCI_CAN_DO_ADMA2)
 		host->host_caps |= MMC_AUTO_CMD12;
@@ -656,24 +656,24 @@ static int sdhci_init(SdhciHost *host)
 	if (host->quirks & SDHCI_QUIRK_NO_CD) {
 		unsigned int status;
 
-		sdhci_writel(host, SDHCI_CTRL_CD_TEST_INS | SDHCI_CTRL_CD_TEST,
+		sdhci_write32(host, SDHCI_CTRL_CD_TEST_INS | SDHCI_CTRL_CD_TEST,
 			SDHCI_HOST_CONTROL);
 
-		status = sdhci_readl(host, SDHCI_PRESENT_STATE);
+		status = sdhci_read32(host, SDHCI_PRESENT_STATE);
 		while ((!(status & SDHCI_CARD_PRESENT)) ||
 		    (!(status & SDHCI_CARD_STATE_STABLE)) ||
 		    (!(status & SDHCI_CARD_DETECT_PIN_LEVEL)))
-			status = sdhci_readl(host, SDHCI_PRESENT_STATE);
+			status = sdhci_read32(host, SDHCI_PRESENT_STATE);
 	}
 
 	/* Enable only interrupts served by the SD controller */
-	sdhci_writel(host, SDHCI_INT_DATA_MASK | SDHCI_INT_CMD_MASK,
+	sdhci_write32(host, SDHCI_INT_DATA_MASK | SDHCI_INT_CMD_MASK,
 		     SDHCI_INT_ENABLE);
 	/* Mask all sdhci interrupt sources */
-	sdhci_writel(host, 0x0, SDHCI_SIGNAL_ENABLE);
+	sdhci_write32(host, 0x0, SDHCI_SIGNAL_ENABLE);
 
 	/* Set timeout to maximum, shouldn't happen if everything's right. */
-	sdhci_writeb(host, 0xe, SDHCI_TIMEOUT_CONTROL);
+	sdhci_write8(host, 0xe, SDHCI_TIMEOUT_CONTROL);
 
 	udelay(10000);
 	return 0;
@@ -685,7 +685,7 @@ static int sdhci_update(BlockDevCtrlrOps *me)
 		(me, SdhciHost, mmc_ctrlr.ctrlr.ops);
 
 	if (host->removable) {
-		int present = (sdhci_readl(host, SDHCI_PRESENT_STATE) &
+		int present = (sdhci_read32(host, SDHCI_PRESENT_STATE) &
 			       SDHCI_CARD_PRESENT) != 0;
 
 		if (!present) {

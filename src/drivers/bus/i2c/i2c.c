@@ -20,7 +20,7 @@
 #include "base/algorithm.h"
 #include "drivers/bus/i2c/i2c.h"
 
-int i2c_readb(I2cOps *ops, uint8_t chip, uint8_t reg, uint8_t *data)
+int i2c_read8(I2cOps *ops, uint8_t chip, uint8_t reg, uint8_t *data)
 {
 	I2cSeg seg[2];
 
@@ -36,7 +36,7 @@ int i2c_readb(I2cOps *ops, uint8_t chip, uint8_t reg, uint8_t *data)
 	return ops->transfer(ops, seg, ARRAY_SIZE(seg));
 }
 
-int i2c_writeb(I2cOps *ops, uint8_t chip, uint8_t reg, uint8_t data)
+int i2c_write8(I2cOps *ops, uint8_t chip, uint8_t reg, uint8_t data)
 {
 	I2cSeg seg;
 	uint8_t buf[] = {reg, data};
@@ -49,7 +49,7 @@ int i2c_writeb(I2cOps *ops, uint8_t chip, uint8_t reg, uint8_t data)
 	return ops->transfer(ops, &seg, 1);
 }
 
-int i2c_readw(I2cOps *ops, uint8_t chip, uint8_t reg, uint16_t *data)
+int i2c_read16(I2cOps *ops, uint8_t chip, uint8_t reg, uint16_t *data)
 {
 	I2cSeg seg[2];
 	int ret;
@@ -69,7 +69,7 @@ int i2c_readw(I2cOps *ops, uint8_t chip, uint8_t reg, uint16_t *data)
 	return ret;
 }
 
-int i2c_writew(I2cOps *ops, uint8_t chip, uint8_t reg, uint16_t data)
+int i2c_write16(I2cOps *ops, uint8_t chip, uint8_t reg, uint16_t data)
 {
 	I2cSeg seg;
 	uint8_t buf[3] = {reg, data >> 8, data & 0xFF};

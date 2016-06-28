@@ -319,33 +319,33 @@ struct sdhci_host {
 	void (*set_clock)(SdhciHost *host, unsigned int div);
 };
 
-static inline void sdhci_writel(SdhciHost *host, uint32_t val, int reg)
+static inline void sdhci_write32(SdhciHost *host, uint32_t val, int reg)
 {
-	writel(val, host->ioaddr + reg);
+	write32(host->ioaddr + reg, val);
 }
 
-static inline void sdhci_writew(SdhciHost *host, uint16_t val, int reg)
+static inline void sdhci_write16(SdhciHost *host, uint16_t val, int reg)
 {
-	writew(val, host->ioaddr + reg);
+	write16(host->ioaddr + reg, val);
 }
 
-static inline void sdhci_writeb(SdhciHost *host, uint8_t val, int reg)
+static inline void sdhci_write8(SdhciHost *host, uint8_t val, int reg)
 {
-	writeb(val, host->ioaddr + reg);
+	write8(host->ioaddr + reg, val);
 }
-static inline uint32_t sdhci_readl(SdhciHost *host, int reg)
+static inline uint32_t sdhci_read32(SdhciHost *host, int reg)
 {
-	return readl(host->ioaddr + reg);
-}
-
-static inline uint16_t sdhci_readw(SdhciHost *host, int reg)
-{
-	return readw(host->ioaddr + reg);
+	return read32(host->ioaddr + reg);
 }
 
-static inline uint8_t sdhci_readb(SdhciHost *host, int reg)
+static inline uint16_t sdhci_read16(SdhciHost *host, int reg)
 {
-	return readb(host->ioaddr + reg);
+	return read16(host->ioaddr + reg);
+}
+
+static inline uint8_t sdhci_read8(SdhciHost *host, int reg)
+{
+	return read8(host->ioaddr + reg);
 }
 
 void add_sdhci(SdhciHost *host);

@@ -36,8 +36,8 @@ enum {
 static int as3722_set_bit(I2cOps *bus, uint8_t chip, uint8_t reg, uint8_t bit)
 {
 	uint8_t val;
-	if (i2c_readb(bus, chip, reg, &val) ||
-	    i2c_writeb(bus, chip, reg, val | bit))
+	if (i2c_read8(bus, chip, reg, &val) ||
+	    i2c_write8(bus, chip, reg, val | bit))
 		return -1;
 	return 0;
 }
@@ -60,7 +60,7 @@ static int as3722_power_off(PowerOps *me)
 
 static int as3722_set_reg(As3722Pmic *pmic, uint8_t reg, uint8_t value)
 {
-	return i2c_writeb(pmic->bus, pmic->chip, reg, value);
+	return i2c_write8(pmic->bus, pmic->chip, reg, value);
 }
 
 As3722Pmic *new_as3722_pmic(I2cOps *bus, uint8_t chip)

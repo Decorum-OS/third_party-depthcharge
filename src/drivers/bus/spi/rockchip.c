@@ -111,7 +111,7 @@ static int rockchip_spi_wait_till_not_busy(RkSpi *bus)
 	RkSpiRegs *regs = bus->reg_addr;
 
 	while (delay--) {
-		if (!(readl(&regs->sr) & 0x01))
+		if (!(read32(&regs->sr) & 0x01))
 			return 0;
 		udelay(1);
 	}
@@ -144,17 +144,17 @@ static int do_xfer(RkSpi *bus, void *in, const void *out, uint32_t size)
 	uint8_t *out_buf = (uint8_t *)out;
 
 	while (size) {
-		uint32_t sr = readl(&regs->sr);
+		uint32_t sr = read32(&regs->sr);
 		int xferred = 0;	// in either (or both) directions
 
 		if (out_buf && !(sr & SR_TF_FULL)) {
-			writel(*out_buf, &regs->txdr);
+			write32(&regs->txdr, *out_buf);
 			out_buf++;
 			xferred = 1;
 		}
 
 		if (in_buf && !(sr & SR_RF_EMPT)) {
-			*in_buf = readl(&regs->rxdr) & 0xff;
+			*in_buf = read32(&regs->rxdr) & 0xff;
 			in_buf++;
 			xferred = 1;
 		}
@@ -188,15 +188,15 @@ static int spi_transfer(SpiOps *me, void *in, const void *out, uint32_t size)
 	while (size) {
 		unsigned int dataframes = MIN(size, 0xffff);
 
-		writel(CONTROLLER_DISABLE, &regs->enr);
+		write32(&regs->enr, CONTROLLER_DISABLE);
 
-		writel(dataframes - 1, &regs->ctrlr1);
+		write32(&regs->ctrlr1, dataframes - 1);
 
 		// Disable transmitter and receiver as needed to avoid
 		// sending or reading spurious bits.
 		set_transfer_mode(regs, in, out);
 
-		writel(CONTROLLER_ENABLE, &regs->enr);
+		write32(&regs->enr, CONTROLLER_ENABLE);
 
 		res = do_xfer(bus, in, out, dataframes);
 		if (res < 0)
@@ -211,7 +211,7 @@ static int spi_transfer(SpiOps *me, void *in, const void *out, uint32_t size)
 		size -= dataframes;
 	}
 
-	writel(CONTROLLER_DISABLE, &regs->enr);
+	write32(&regs->enr, CONTROLLER_DISABLE);
 	return res < 0 ? res : 0;
 
 }
@@ -223,7 +223,7 @@ static int spi_start(SpiOps *me)
 	RkSpiRegs *regs = bus->reg_addr;
 
 	spi_info("spi:: start\n");
-	writel(1, &regs->ser);
+	write32(&regs->ser, 1);
 	return res;
 }
 
@@ -234,7 +234,7 @@ static int spi_stop(SpiOps *me)
 	RkSpiRegs *regs = bus->reg_addr;
 
 	spi_info("spi:: stop\n");
-	writel(0, &regs->ser);
+	write32(&regs->ser, 0);
 	return res;
 }
 

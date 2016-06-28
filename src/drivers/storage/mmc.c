@@ -53,7 +53,7 @@ int mmc_busy_wait_io(volatile uint32_t *address, uint32_t *output,
 
 	if (!output)
 		output = &value;
-	for (; *output & io_mask; *output = readl(address)) {
+	for (; *output & io_mask; *output = read32(address)) {
 		if (time_us(start) > timeout_ms * 1000)
 			return -1;
 	}
@@ -68,7 +68,7 @@ int mmc_busy_wait_io_until(volatile uint32_t *address, uint32_t *output,
 
 	if (!output)
 		output = &value;
-	for (; !(*output & io_mask); *output = readl(address)) {
+	for (; !(*output & io_mask); *output = read32(address)) {
 		if (time_us(start) > timeout_ms * 1000)
 			return -1;
 	}

@@ -33,14 +33,14 @@ dwc2_rh_port_status_changed(UsbDev *const dev, const int port)
 	int changed;
 	dwc_ctrl_t *const dwc2 = DWC2_INST(dev->controller);
 
-	hprt.d32 = readl(dwc2->hprt0);
+	hprt.d32 = read32(dwc2->hprt0);
 	changed = hprt.prtconndet;
 
 	/* Clear connect detect flag */
 	if (changed) {
 		hprt.d32 &= HPRT_W1C_MASK;
 		hprt.prtconndet = 1;
-		writel(hprt.d32, dwc2->hprt0);
+		write32(dwc2->hprt0, hprt.d32);
 	}
 	return changed;
 }
@@ -51,7 +51,7 @@ dwc2_rh_port_connected(UsbDev *const dev, const int port)
 	hprt_t hprt;
 	dwc_ctrl_t *const dwc2 = DWC2_INST(dev->controller);
 
-	hprt.d32 = readl(dwc2->hprt0);
+	hprt.d32 = read32(dwc2->hprt0);
 	return hprt.prtconnsts;
 }
 
@@ -61,7 +61,7 @@ dwc2_rh_port_in_reset(UsbDev *const dev, const int port)
 	hprt_t hprt;
 	dwc_ctrl_t *const dwc2 = DWC2_INST(dev->controller);
 
-	hprt.d32 = readl(dwc2->hprt0);
+	hprt.d32 = read32(dwc2->hprt0);
 	return hprt.prtrst;
 }
 
@@ -71,7 +71,7 @@ dwc2_rh_port_enabled(UsbDev *const dev, const int port)
 	hprt_t hprt;
 	dwc_ctrl_t *const dwc2 = DWC2_INST(dev->controller);
 
-	hprt.d32 = readl(dwc2->hprt0);
+	hprt.d32 = read32(dwc2->hprt0);
 	return hprt.prtena;
 }
 
@@ -81,7 +81,7 @@ dwc2_rh_port_speed(UsbDev *const dev, const int port)
 	hprt_t hprt;
 	dwc_ctrl_t *const dwc2 = DWC2_INST(dev->controller);
 
-	hprt.d32 = readl(dwc2->hprt0);
+	hprt.d32 = read32(dwc2->hprt0);
 	if (hprt.prtena) {
 		switch (hprt.prtspd) {
 		case PRTSPD_HIGH:
@@ -101,24 +101,24 @@ dwc2_rh_reset_port(UsbDev *const dev, const int port)
 	hprt_t hprt;
 	dwc_ctrl_t *const dwc2 = DWC2_INST(dev->controller);
 
-	hprt.d32 = readl(dwc2->hprt0);
+	hprt.d32 = read32(dwc2->hprt0);
 	hprt.d32 &= HPRT_W1C_MASK;
 	hprt.prtrst = 1;
-	writel(hprt.d32, dwc2->hprt0);
+	write32(dwc2->hprt0, hprt.d32);
 
 	/* Wait a bit while reset is active. */
 	mdelay(50);
 
 	/* Deassert reset. */
 	hprt.prtrst = 0;
-	writel(hprt.d32, dwc2->hprt0);
+	write32(dwc2->hprt0, hprt.d32);
 
 	/*
 	 * If reset and speed enum success the DWC2 core will set enable bit
 	 * after port reset bit is deasserted
 	 */
 	mdelay(1);
-	hprt.d32 = readl(dwc2->hprt0);
+	hprt.d32 = read32(dwc2->hprt0);
 	usb_debug("%s reset port ok, hprt = 0x%08x\n", __func__, hprt.d32);
 
 	if (!hprt.prtena) {
@@ -137,10 +137,10 @@ dwc2_rh_enable_port(UsbDev *const dev, const int port)
 	dwc_ctrl_t *const dwc2 = DWC2_INST(dev->controller);
 
 	/* Power on the port */
-	hprt.d32 = readl(dwc2->hprt0);
+	hprt.d32 = read32(dwc2->hprt0);
 	hprt.d32 &= HPRT_W1C_MASK;
 	hprt.prtpwr = 1;
-	writel(hprt.d32, dwc2->hprt0);
+	write32(dwc2->hprt0, hprt.d32);
 	return 0;
 }
 
@@ -150,13 +150,13 @@ dwc2_rh_disable_port(UsbDev *const dev, const int port)
 	hprt_t hprt;
 	dwc_ctrl_t *const dwc2 = DWC2_INST(dev->controller);
 
-	hprt.d32 = readl(dwc2->hprt0);
+	hprt.d32 = read32(dwc2->hprt0);
 	hprt.d32 &= HPRT_W1C_MASK;
 	/* Disable the port*/
 	hprt.prtena = 1;
 	/* Power off the port */
 	hprt.prtpwr = 0;
-	writel(hprt.d32, dwc2->hprt0);
+	write32(dwc2->hprt0, hprt.d32);
 	return 0;
 }
 
@@ -186,6 +186,6 @@ dwc2_rh_init(UsbDev *dev)
 
 	generic_hub_init(dev, 1, &dwc2_rh_ops);
 	usb_debug("dwc2_rh_init HPRT 0x%08x p = %p\n ",
-		  readl(dwc2->hprt0), dwc2->hprt0);
+		  read32(dwc2->hprt0), dwc2->hprt0);
 	usb_debug("DWC2: root hub init done\n");
 }

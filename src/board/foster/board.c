@@ -221,7 +221,7 @@ static int ryu_backlight_update(DisplayOps *me, uint8_t enable)
 	}
 
 	for (i = 0; i < size; ++i) {
-		i2c_writeb(&backlight_i2c->ops, 0x2c, current->reg,
+		i2c_write8(&backlight_i2c->ops, 0x2c, current->reg,
 				current->val);
 		++current;
 	}

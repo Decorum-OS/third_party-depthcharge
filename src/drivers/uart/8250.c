@@ -202,13 +202,13 @@ Uart8250Io *new_uart_8250_io(uint16_t base)
 static uint8_t read_reg_mem(Uart8250 *me, int index)
 {
 	Uart8250Mem *uart = container_of(me, Uart8250Mem, uart);
-	return readb((uint8_t *)uart->base + index * uart->stride);
+	return read8((uint8_t *)uart->base + index * uart->stride);
 }
 
 static void write_reg_mem(Uart8250 *me, uint8_t val, int index)
 {
 	Uart8250Mem *uart = container_of(me, Uart8250Mem, uart);
-	writeb(val, (uint8_t *)uart->base + index * uart->stride);
+	write8((uint8_t *)uart->base + index * uart->stride, val);
 }
 
 Uart8250Mem *new_uart_8250_mem(uintptr_t base, int stride)
@@ -225,13 +225,13 @@ Uart8250Mem *new_uart_8250_mem(uintptr_t base, int stride)
 static uint8_t read_reg_mem32(Uart8250 *me, int index)
 {
 	Uart8250Mem32 *uart = container_of(me, Uart8250Mem32, uart);
-	return (uint8_t)readl((uint8_t *)uart->base + index * sizeof(uint32_t));
+	return (uint8_t)read32((uint8_t *)uart->base + index * sizeof(uint32_t));
 }
 
 static void write_reg_mem32(Uart8250 *me, uint8_t val, int index)
 {
 	Uart8250Mem32 *uart = container_of(me, Uart8250Mem32, uart);
-	writel(val, (uint8_t *)uart->base + index * sizeof(uint32_t));
+	write32((uint8_t *)uart->base + index * sizeof(uint32_t), val);
 }
 
 Uart8250Mem32 *new_uart_8250_mem32(uintptr_t base)

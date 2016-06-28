@@ -42,10 +42,10 @@ static void crport_handshake(void *phy, uint32_t data, uint32_t cmd)
 	uint32_t *phyreg1 = (uint32_t *)(phy + 0x18);
 	uint32_t usec = 100;
 
-	writel(data | cmd, phyreg0);
+	write32(phyreg0, data | cmd);
 
 	do {	/* wait until hardware sets acknowledge bit */
-		if (readl(phyreg1) & (0x1 << 0))
+		if (read32(phyreg1) & (0x1 << 0))
 			break;
 		udelay(1);
 	} while (usec-- > 0);
@@ -55,10 +55,10 @@ static void crport_handshake(void *phy, uint32_t data, uint32_t cmd)
 
 	usec = 100;
 
-	writel(data, phyreg0);
+	write32(phyreg0, data);
 
 	do {	/* wait until hardware clears acknowledge bit */
-		if (!(readl(phyreg1) & (0x1 << 0)))
+		if (!(read32(phyreg1) & (0x1 << 0)))
 			break;
 		udelay(1);
 	} while (usec-- > 0);

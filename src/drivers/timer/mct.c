@@ -102,12 +102,12 @@ uint64_t timer_raw_value(void)
 		(struct mct_regs *)(uintptr_t)CONFIG_DRIVER_TIMER_MCT_ADDRESS;
 
 	if (!enabled) {
-		writel(readl(&mct->g_tcon) | (0x1 << 8), &mct->g_tcon);
+		write32(&mct->g_tcon, read32(&mct->g_tcon) | (0x1 << 8));
 		enabled = 1;
 	}
 
-	uint64_t upper = readl(&mct->g_cnt_u);
-	uint64_t lower = readl(&mct->g_cnt_l);
+	uint64_t upper = read32(&mct->g_cnt_u);
+	uint64_t lower = read32(&mct->g_cnt_l);
 
 	return (upper << 32) | lower;
 }

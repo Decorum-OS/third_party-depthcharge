@@ -85,13 +85,13 @@ void gdb_message_encode_bytes(GdbMessage *message, const void *data, int length)
 	die_if(message->used + length * 2 > message->size, output_overrun);
 	const mmio_word_t *aligned =
 		(mmio_word_t *)ALIGN_DOWN((uintptr_t)data, sizeof(*aligned));
-	mmio_word_t word = be32toh(readl(aligned++));
+	mmio_word_t word = be32toh(read32(aligned++));
 	while (length--) {
 		uint8_t byte = (word >> ((((void *)aligned - data) - 1) * 8));
 		message->buf[message->used++] = to_hex(byte >> 4);
 		message->buf[message->used++] = to_hex(byte & 0xf);
 		if (length && ++data == (void *)aligned)
-			word = be32toh(readl(aligned++));
+			word = be32toh(read32(aligned++));
 	}
 }
 
@@ -103,13 +103,13 @@ void gdb_message_decode_bytes(const GdbMessage *message, int offset,
 	mmio_word_t *aligned =
 		(mmio_word_t *)ALIGN_DOWN((uintptr_t)data, sizeof(*aligned));
 	int shift = ((void *)(aligned + 1) - data) * 8;
-	mmio_word_t word = be32toh(readl(aligned)) >> shift;
+	mmio_word_t word = be32toh(read32(aligned)) >> shift;
 	while (length--) {
 		word <<= 8;
 		word |= from_hex(message->buf[offset++]) << 4;
 		word |= from_hex(message->buf[offset++]);
 		if (++data - (void *)aligned == sizeof(*aligned))
-			writel(htobe32(word), aligned++);
+			write32(aligned++, htobe32(word));
 	}
 	if (data != (void *)aligned) {
 		shift = ((void *)(aligned + 1) - data) * 8;
