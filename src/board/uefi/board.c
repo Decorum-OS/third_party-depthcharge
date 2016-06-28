@@ -24,6 +24,8 @@
 
 #include "board/board.h"
 #include "board/board_helpers.h"
+#include "drivers/keyboard/keyboard.h"
+#include "drivers/power/power.h"
 
 // Force these to acceptable values for now.
 PUB_STAT(flag_write_protect, 1)
@@ -31,3 +33,8 @@ PUB_STAT(flag_recovery, 0)
 PUB_STAT(flag_developer_mode, 1)
 PUB_STAT(flag_lid_open, 1)
 PUB_STAT(flag_power, 0)
+
+PUB_ARR(trusted_keyboards, (KeyboardOps *)NULL)
+PUB_ARR(untrusted_keyboards, (KeyboardOps *)NULL)
+
+PUB_STAT(power, (PowerOps *)NULL)
