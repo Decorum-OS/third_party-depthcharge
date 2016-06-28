@@ -58,3 +58,8 @@ config DRIVER_TIMER_ROCKCHIP_ADDRESS
 	hex "Rockchip timer base address"
 	depends on DRIVER_TIMER_ROCKCHIP
 	default 0xff810020
+
+
+config DRIVER_TIMER_UEFI
+	bool "A timer driver which calls into UEFI"
+	default n
