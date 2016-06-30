@@ -37,41 +37,11 @@
 
 #include <elf.h>
 #include <stdint.h>
+#include <stddef.h>
 
-typedef int size_t;
-
-void _uefi_handoff_relocate(uintptr_t ldbase, Elf64_Dyn *dyn)
+void _uefi_handoff_relocate(uintptr_t ldbase, Elf64_Rela *rel, size_t relsz)
 {
-	size_t relsz = 0, relent = 0;
-	Elf64_Rel *rel = 0;
-
-	for (int i = 0; dyn[i].d_tag != DT_NULL; i++) {
-		switch (dyn[i].d_tag) {
-		case DT_RELA:
-			rel = (Elf64_Rel*)((uintptr_t)dyn[i].d_un.d_ptr +
-                                           ldbase);
-			break;
-
-		case DT_RELASZ:
-			relsz = dyn[i].d_un.d_val;
-			break;
-
-		case DT_RELAENT:
-			relent = dyn[i].d_un.d_val;
-			break;
-
-		default:
-			break;
-		}
-	}
-
-        if (!rel && relent == 0)
-                return;
-
-	if (!rel || relent == 0)
-		return;
-
-	while (relsz > 0) {
+	while (relsz >= sizeof(*rel)) {
 		// Apply the relocs.
 		switch (Elf64_R_Type(rel->r_info)) {
 		case R_X86_64_NONE:
@@ -84,8 +54,7 @@ void _uefi_handoff_relocate(uintptr_t ldbase, Elf64_Dyn *dyn)
 		default:
 			break;
 		}
-		rel = (Elf64_Rel*)((char *)rel + relent);
-		relsz -= relent;
+		rel++;
+		relsz -= sizeof(*rel);
 	}
-	return;
 }

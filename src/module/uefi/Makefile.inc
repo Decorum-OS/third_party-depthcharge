@@ -27,4 +27,6 @@ module-y += uefi
 mod-uefi-title = "UEFI chain loader"
 mod-uefi-y += uefi.c
 mod-uefi-libs += $(COMMON_OBJECTS) $(uefi_handoff-objs)
+mod-uefi-ldopts += -Wl,-znocombreloc -Wl,-Bsymbolic -pie
+mod-uefi-ldopts += -Wl,-Bsymbolic-functions -Wl,--undefined=_entry
 mod-uefi-ldscript := $(cursrcdir)/uefi.ldscript
