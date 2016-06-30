@@ -37,7 +37,7 @@ handoff_common_asm:
 
 	// Setup new stack.
 	leaq dc_stack_buffer(%rip), %rsp
-	addq CONFIG_STACK_SIZE, %rsp
+	addq $CONFIG_STACK_SIZE, %rsp
 
 	// Continue handoff in C.
 	jmp handoff_common
