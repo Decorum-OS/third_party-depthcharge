@@ -35,12 +35,7 @@ depthcharge-$(CONFIG_NV_STORAGE_FAKE) += nvstorage_fake.c
 depthcharge-$(CONFIG_NV_STORAGE_FLASH) += nvstorage_flash.c
 depthcharge-y += switches.c
 depthcharge-y += time.c
-
-ifeq ($(CONFIG_MOCK_TPM),y)
-depthcharge-y += tpm_stub.c
-else
 depthcharge-y += tpm.c
-endif
 
 ifeq ($(CONFIG_EC_SOFTWARE_SYNC),y)
 depthcharge-y += ec.c
