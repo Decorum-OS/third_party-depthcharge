@@ -17,3 +17,7 @@
 config DRIVER_CONSOLE_UART
 	bool "Provide a console over the debug UART"
 	default n
+
+config DRIVER_CONSOLE_UEFI
+	bool "Provide a console which calls back into UEFI"
+	default n

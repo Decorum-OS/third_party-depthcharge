@@ -18,3 +18,4 @@
 depthcharge-y += console.c
 depthcharge-y += keyboard.c
 depthcharge-$(CONFIG_DRIVER_CONSOLE_UART) += uart.c
+depthcharge-$(CONFIG_DRIVER_CONSOLE_UEFI) += uefi.c
