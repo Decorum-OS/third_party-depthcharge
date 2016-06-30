@@ -33,6 +33,10 @@ void handoff_common(void)
 	// Do handoff method specific work, if any.
 	handoff_special();
 
+	// Run any generic initialization functions that are compiled in.
+	if (run_init_funcs())
+		halt();
+
 	module_main();
 	halt();
 }
