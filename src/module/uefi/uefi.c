@@ -22,19 +22,6 @@
 
 #include <stdint.h>
 
-#include "uefi/Uefi.h"
-
-#define _XSTR(x) #x
-#define XSTR(x) _XSTR(x)
-
-extern EFI_HANDLE _uefi_handoff_image_handle;
-extern EFI_SYSTEM_TABLE *_uefi_handoff_system_table;
-
 void module_main(void)
 {
-	EFI_SYSTEM_TABLE *sys = _uefi_handoff_system_table;
-
-        SIMPLE_TEXT_OUTPUT_INTERFACE *ConOut = sys->ConOut;
-	ConOut->OutputString(ConOut,
-		L"\n\r\n\rStarting " XSTR(__MODULE_TITLE__) " from EFI...\r\n");
 }
