@@ -163,9 +163,21 @@ typedef struct {
 } Elf32_Rel;
 
 typedef struct {
+	uint32_t r_offset;
+	uint32_t r_info;
+	uint32_t r_addend;
+} Elf32_Rela;
+
+typedef struct {
 	uint64_t r_offset;
 	uint64_t r_info;
 } Elf64_Rel;
+
+typedef struct {
+	uint64_t r_offset;
+	uint64_t r_info;
+	uint64_t r_addend;
+} Elf64_Rela;
 
 static inline uint32_t Elf64_R_Type(uint64_t i)
 {
