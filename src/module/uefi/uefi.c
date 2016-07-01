@@ -21,7 +21,12 @@
  */
 
 #include <stdint.h>
+#include <stdlib.h>
+
+#include "vboot/stages.h"
 
 void module_main(void)
 {
+	if (vboot_init())
+		halt();
 }
