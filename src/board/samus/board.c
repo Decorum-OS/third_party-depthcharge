@@ -45,12 +45,12 @@
 #include "drivers/gpio/lynxpoint_lp.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/ps2.h"
+#include "drivers/layout/coreboot.h"
 #include "drivers/power/pch.h"
 #include "drivers/sound/i2s.h"
 #include "drivers/sound/route.h"
 #include "drivers/sound/rt5677.h"
 #include "drivers/storage/flash.h"
-#include "drivers/storage/fmap.h"
 #include "drivers/tpm/lpc.h"
 #include "drivers/tpm/tpm.h"
 #include "drivers/uart/8250.h"
@@ -105,12 +105,7 @@ static BdwI2s *i2s_enable(int ssp)
 }
 
 PRIV_DYN(flash, &new_mem_mapped_flash(0xff800000, 0x800000)->ops);
-PRIV_DYN(flash_storage, &new_flash_storage(get_flash())->ops);
-
-PRIV_DYN(fmap_media, new_fmap_storage_media(get_flash_storage(),
-					    CONFIG_FMAP_OFFSET))
-
-PUB_DYN(storage_gbb, &new_fmap_storage(get_fmap_media(), "GBB")->ops)
+PUB_DYN(_coreboot_storage, &new_flash_storage(get_flash())->ops);
 
 static int board_setup(void)
 {

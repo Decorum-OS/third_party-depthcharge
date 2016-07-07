@@ -1,5 +1,5 @@
 ##
-## Copyright 2012 Google Inc.
+## Copyright 2015 Google Inc.
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -15,22 +15,4 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-subdirs-y += blockdev
-subdirs-y += bus
-subdirs-y += console
-subdirs-y += dma
-subdirs-y += ec
-subdirs-y += flash
-subdirs-y += gpio
-subdirs-y += keyboard
-subdirs-y += layout
-subdirs-y += net
-subdirs-y += power
-subdirs-y += ram
-subdirs-y += sound
-subdirs-y += storage
-subdirs-y += timer
-subdirs-y += tpm
-subdirs-y += uart
-subdirs-y += usb
-subdirs-y += video
+depthcharge-$(CONFIG_DRIVER_LAYOUT_COREBOOT) += coreboot.c

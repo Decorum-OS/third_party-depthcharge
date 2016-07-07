@@ -22,6 +22,7 @@ source src/drivers/ec/cros/Kconfig
 source src/drivers/flash/Kconfig
 source src/drivers/gpio/Kconfig
 source src/drivers/keyboard/Kconfig
+source src/drivers/layout/Kconfig
 source src/drivers/power/Kconfig
 source src/drivers/sound/Kconfig
 source src/drivers/storage/Kconfig

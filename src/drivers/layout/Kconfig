@@ -1,5 +1,5 @@
 ##
-## Copyright 2012 Google Inc.
+## Copyright 2016 Google Inc.  All rights reserved.
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -12,25 +12,17 @@
 ##
 ## You should have received a copy of the GNU General Public License
 ## along with this program; if not, write to the Free Software
-## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-##
+## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-subdirs-y += blockdev
-subdirs-y += bus
-subdirs-y += console
-subdirs-y += dma
-subdirs-y += ec
-subdirs-y += flash
-subdirs-y += gpio
-subdirs-y += keyboard
-subdirs-y += layout
-subdirs-y += net
-subdirs-y += power
-subdirs-y += ram
-subdirs-y += sound
-subdirs-y += storage
-subdirs-y += timer
-subdirs-y += tpm
-subdirs-y += uart
-subdirs-y += usb
-subdirs-y += video
+choice
+	prompt "Layout driver"
+	default DRIVER_LAYOUT_NONE
+
+config DRIVER_LAYOUT_NONE
+	bool "No layout driver"
+
+config DRIVER_LAYOUT_COREBOOT
+	bool "Find firmware components based on a coreboot layout"
+	select DRIVER_STORAGE_FMAP
+
+endchoice
