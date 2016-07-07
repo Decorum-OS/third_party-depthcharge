@@ -24,7 +24,7 @@
 
 #include "arch/x86/amd64/handoff/handoff.h"
 #include "base/fwdb.h"
-#include "uefi/edk.h"
+#include "uefi/uefi.h"
 
 extern EFI_SYSTEM_TABLE *_uefi_handoff_system_table;
 extern EFI_HANDLE _uefi_handoff_image_handle;

@@ -26,13 +26,12 @@
  */
 
 #include "base/container_of.h"
+#include "base/fwdb.h"
 #include "base/init_funcs.h"
 #include "base/keycodes.h"
 #include "base/list.h"
 #include "drivers/console/console.h"
-#include "uefi/edk.h"
-
-extern EFI_SYSTEM_TABLE *_uefi_handoff_system_table;
+#include "uefi/uefi.h"
 
 typedef struct {
 	Console console;
@@ -113,7 +112,9 @@ static int uefi_console_get_char(ConsoleInputOps *me)
 
 static int uefi_console_init(void)
 {
-	EFI_SYSTEM_TABLE *sys = _uefi_handoff_system_table;
+	EFI_SYSTEM_TABLE *sys = uefi_system_table_ptr();
+	if (!sys)
+		return 1;
 
 	static UefiConsole uefi = {
 		.console = {
