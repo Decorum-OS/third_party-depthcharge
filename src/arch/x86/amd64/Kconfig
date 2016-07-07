@@ -25,23 +25,4 @@
 ## SUCH DAMAGE.
 ##
 
-choice
-	prompt "X86 Version"
-	depends on ARCH_X86
-	default ARCH_X86_IA32
-	help
-	  Version of the x86 architecture
-
-config ARCH_X86_IA32
-	bool "legacy 32 bit x86, aka IA32"
-
-config ARCH_X86_AMD64
-	bool "64 bit x86, aka amd64"
-
-endchoice
-
-if ARCH_X86_AMD64
-
-source src/arch/x86/amd64/Kconfig
-
-endif
+source src/arch/x86/amd64/handoff/Kconfig

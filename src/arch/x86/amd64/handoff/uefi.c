@@ -20,8 +20,38 @@
  * MA 02111-1307 USA
  */
 
+#include <stdlib.h>
+
 #include "arch/x86/amd64/handoff/handoff.h"
+#include "base/fwdb.h"
+#include "uefi/Uefi.h"
+
+extern EFI_SYSTEM_TABLE *_uefi_handoff_system_table;
 
 void handoff_special(void)
 {
+	EFI_BOOT_SERVICES *boot_services =
+		_uefi_handoff_system_table->BootServices;
+
+	EFI_ALLOCATE_PAGES allocate_pages = boot_services->AllocatePages;
+
+	// Since we're throwing away the FWDB at boot, we don't need to worry
+	// about where it gets stuck, except that it can't overlay where the
+	// OS expects to go. If it does, we can move it after exiting boot
+	// services later on.
+	EFI_PHYSICAL_ADDRESS fwdb_addr = 0;
+
+	EFI_STATUS status = allocate_pages(
+		AllocateAnyPages, EfiLoaderData,
+		CONFIG_UEFI_HANDOFF_FWDB_4K_PAGES, &fwdb_addr);
+
+	// If something bad happens, we're not yet in a state to deal with
+	// it. For now we'll halt to prevent anything bad from happening later.
+
+	if (status != EFI_SUCCESS)
+		halt();
+
+	if (fwdb_create_db((void *)(uintptr_t)fwdb_addr,
+			   CONFIG_UEFI_HANDOFF_FWDB_4K_PAGES * 4096))
+		halt();
 }
