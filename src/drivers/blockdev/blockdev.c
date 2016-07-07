@@ -20,7 +20,7 @@
  * MA 02111-1307 USA
  */
 
-#include "drivers/storage/blockdev.h"
+#include "drivers/blockdev/blockdev.h"
 
 ListNode fixed_block_devices;
 ListNode removable_block_devices;

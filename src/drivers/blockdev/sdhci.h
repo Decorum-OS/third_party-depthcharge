@@ -23,14 +23,14 @@
  * Back ported to the 8xx platform (from the 8260 platform) by
  * Murray.Jensen@cmst.csiro.au, 27-Jan-01.
  */
-#ifndef __DRIVER_STORAGE_SDHCI_H__
-#define __DRIVER_STORAGE_SDHCI_H__
+#ifndef __DRIVERS_BLOCKDEV_SDHCI_H__
+#define __DRIVERS_BLOCKDEV_SDHCI_H__
 
 #include <pci.h>
 #include <stdint.h>
 
 #include "base/io.h"
-#include "drivers/storage/mmc.h"
+#include "drivers/blockdev/mmc.h"
 
 /*
  * Controller registers
@@ -362,4 +362,4 @@ SdhciHost *new_mem_sdhci_host(void *ioaddr,
 			      int clock_min,
 			      int clock_max);
 
-#endif
+#endif /* __DRIVERS_BLOCKDEV_SDHCI_H__ */

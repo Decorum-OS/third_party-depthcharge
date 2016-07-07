@@ -19,13 +19,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#ifndef __DRIVERS_STORAGE_EXYNOS_MSHC_H__
-#define __DRIVERS_STORAGE_EXYNOS_MSHC_H__
+#ifndef __DRIVERS_BLOCKDEV_EXYNOS_MSHC_H__
+#define __DRIVERS_BLOCKDEV_EXYNOS_MSHC_H__
 
 #include <stdint.h>
 
-#include "drivers/storage/blockdev.h"
-#include "drivers/storage/mmc.h"
+#include "drivers/blockdev/blockdev.h"
+#include "drivers/blockdev/mmc.h"
 
 /*  Control Register  Register */
 #define CTRL_RESET	(0x1 << 0)
@@ -180,5 +180,5 @@ typedef struct MshciHost {
 MshciHost *new_mshci_host(uintptr_t ioaddr, uint32_t src_hz, int bus_width,
 			  int removable, uint32_t clksel_val);
 
-#endif /* __DRIVERS_STORAGE_EXYNOS_MSHC_H__ */
+#endif /* __DRIVERS_BLOCKDEV_EXYNOS_MSHC_H__ */
 

@@ -21,7 +21,7 @@
  */
 
 #include "base/xalloc.h"
-#include "drivers/storage/sdhci.h"
+#include "drivers/blockdev/sdhci.h"
 
 /* Initialize an SDHCI port with memory address */
 SdhciHost *new_mem_sdhci_host(void *ioaddr, int platform_info,

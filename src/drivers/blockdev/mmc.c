@@ -34,7 +34,7 @@
 #include "base/io.h"
 #include "base/time.h"
 #include "base/xalloc.h"
-#include "drivers/storage/mmc.h"
+#include "drivers/blockdev/mmc.h"
 
 /* Set block count limit because of 16 bit register limit on some hardware*/
 #ifndef CONFIG_SYS_MMC_MAX_BLK_COUNT

@@ -25,11 +25,11 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __DRIVERS_STORAGE_MMC_H__
-#define __DRIVERS_STORAGE_MMC_H__
+#ifndef __DRIVERS_BLOCKDEV_MMC_H__
+#define __DRIVERS_BLOCKDEV_MMC_H__
 
-#include "drivers/storage/blockdev.h"
-#include "drivers/storage/bouncebuf.h"
+#include "drivers/blockdev/blockdev.h"
+#include "drivers/blockdev/bouncebuf.h"
 
 #define SD_VERSION_SD		0x20000
 #define SD_VERSION_2		(SD_VERSION_SD | 0x20)
@@ -303,4 +303,4 @@ extern int __mmc_debug, __mmc_trace;
 		while (__mmc_trace) { printf(format); break; }
 #define mmc_error(format...) printf("mmc: ERROR: " format)
 
-#endif /* __DRIVERS_STORAGE_MMC_H__ */
+#endif /* __DRIVERS_BLOCKDEV_MMC_H__ */

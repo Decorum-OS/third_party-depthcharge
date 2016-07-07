@@ -33,9 +33,9 @@
 #include "base/io.h"
 #include "base/time.h"
 #include "base/xalloc.h"
-#include "drivers/storage/ahci.h"
-#include "drivers/storage/ata.h"
-#include "drivers/storage/blockdev.h"
+#include "drivers/blockdev/ahci.h"
+#include "drivers/blockdev/ata.h"
+#include "drivers/blockdev/blockdev.h"
 
 typedef struct SataDrive {
 	BlockDev dev;

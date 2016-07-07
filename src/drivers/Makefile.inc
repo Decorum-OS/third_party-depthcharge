@@ -15,6 +15,7 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
+subdirs-y += blockdev
 subdirs-y += bus
 subdirs-y += console
 subdirs-y += dma
@@ -26,7 +27,6 @@ subdirs-y += net
 subdirs-y += power
 subdirs-y += ram
 subdirs-y += sound
-subdirs-y += storage
 subdirs-y += timer
 subdirs-y += tpm
 subdirs-y += uart

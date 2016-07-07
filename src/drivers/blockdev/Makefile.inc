@@ -18,13 +18,13 @@
 depthcharge-$(CONFIG_DRIVER_AHCI) += ahci.c
 depthcharge-y += bdev_stream.c
 depthcharge-y += blockdev.c
-depthcharge-$(CONFIG_DRIVER_STORAGE_MMC) += mmc.c
-depthcharge-$(CONFIG_DRIVER_STORAGE_MMC_DW) += dw_mmc.c
-depthcharge-$(CONFIG_DRIVER_STORAGE_MMC_ROCKCHIP) += rk_mmc.c
-depthcharge-$(CONFIG_DRIVER_STORAGE_MMC_TEGRA) += tegra_mmc.c bouncebuf.c
-depthcharge-$(CONFIG_DRIVER_STORAGE_MSHC_S5P) += s5p_mshc.c
-depthcharge-$(CONFIG_DRIVER_STORAGE_SDHCI) += sdhci.c mem_sdhci.c
-depthcharge-$(CONFIG_DRIVER_STORAGE_SDHCI_PCI) += pci_sdhci.c
-depthcharge-$(CONFIG_DRIVER_STORAGE_USB) += usb.c
+depthcharge-$(CONFIG_DRIVER_BLOCKDEV_MMC) += mmc.c
+depthcharge-$(CONFIG_DRIVER_BLOCKDEV_MMC_DW) += dw_mmc.c
+depthcharge-$(CONFIG_DRIVER_BLOCKDEV_MMC_ROCKCHIP) += rk_mmc.c
+depthcharge-$(CONFIG_DRIVER_BLOCKDEV_MMC_TEGRA) += tegra_mmc.c bouncebuf.c
+depthcharge-$(CONFIG_DRIVER_BLOCKDEV_MSHC_S5P) += s5p_mshc.c
+depthcharge-$(CONFIG_DRIVER_BLOCKDEV_SDHCI) += sdhci.c mem_sdhci.c
+depthcharge-$(CONFIG_DRIVER_BLOCKDEV_SDHCI_PCI) += pci_sdhci.c
+depthcharge-$(CONFIG_DRIVER_BLOCKDEV_USB) += usb.c
 
 libc-$(CONFIG_USB_MSC) += usbmsc.c

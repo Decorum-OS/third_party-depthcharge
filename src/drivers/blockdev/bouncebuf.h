@@ -23,8 +23,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __DRIVERS_STORAGE_BOUNCEBUF_H__
-#define __DRIVERS_STORAGE_BOUNCEBUF_H__
+#ifndef __DRIVERS_BLOCKDEV_BOUNCEBUF_H__
+#define __DRIVERS_BLOCKDEV_BOUNCEBUF_H__
 
 #include <stddef.h>
 #include <stdint.h>
@@ -101,4 +101,4 @@ int bounce_buffer_stop(struct bounce_buffer *state);
 #define ARCH_DMA_MINALIGN (DMA_MINALIGN)
 #endif
 
-#endif // __DRIVERS_STORAGE_BOUNCEBUF_H__
+#endif // __DRIVERS_BLOCKDEV_BOUNCEBUF_H__

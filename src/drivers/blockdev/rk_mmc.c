@@ -20,7 +20,7 @@
 #include <stdint.h>
 
 #include "base/io.h"
-#include "drivers/storage/dw_mmc.h"
+#include "drivers/blockdev/dw_mmc.h"
 #include "drivers/gpio/rockchip.h"
 
 struct rk3288_cru_reg {

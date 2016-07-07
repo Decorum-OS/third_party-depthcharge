@@ -20,8 +20,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __DRIVERS_STORAGE_BLOCKDEV_H__
-#define __DRIVERS_STORAGE_BLOCKDEV_H__
+#ifndef __DRIVERS_BLOCKDEV_BLOCKDEV_H__
+#define __DRIVERS_BLOCKDEV_BLOCKDEV_H__
 
 #include <stdint.h>
 
@@ -70,4 +70,4 @@ typedef struct BlockDevCtrlr {
 extern ListNode fixed_block_dev_controllers;
 extern ListNode removable_block_dev_controllers;
 
-#endif /* __DRIVERS_STORAGE_BLOCKDEV_H__ */
+#endif /* __DRIVERS_BLOCKDEV_BLOCKDEV_H__ */

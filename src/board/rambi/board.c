@@ -28,6 +28,8 @@
 #include "board/board.h"
 #include "board/board_helpers.h"
 #include "board/rambi/device_nvs.h"
+#include "drivers/blockdev/blockdev.h"
+#include "drivers/blockdev/sdhci.h"
 #include "drivers/bus/i2c/designware.h"
 #include "drivers/bus/i2s/baytrail/max98090.h"
 #include "drivers/ec/cros/lpc.h"
@@ -41,8 +43,6 @@
 #include "drivers/power/pch.h"
 #include "drivers/sound/i2s.h"
 #include "drivers/sound/max98090.h"
-#include "drivers/storage/blockdev.h"
-#include "drivers/storage/sdhci.h"
 #include "drivers/tpm/lpc.h"
 #include "drivers/uart/8250.h"
 

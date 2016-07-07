@@ -26,11 +26,11 @@
 
 #include "base/init_funcs.h"
 #include "base/xalloc.h"
+#include "drivers/blockdev/blockdev.h"
+#include "drivers/blockdev/usb.h"
+#include "drivers/blockdev/usbdisk.h"
+#include "drivers/blockdev/usbmsc.h"
 #include "drivers/bus/usb/usb.h"
-#include "drivers/storage/blockdev.h"
-#include "drivers/storage/usb.h"
-#include "drivers/storage/usbdisk.h"
-#include "drivers/storage/usbmsc.h"
 
 typedef struct UsbDrive {
 	BlockDev dev;

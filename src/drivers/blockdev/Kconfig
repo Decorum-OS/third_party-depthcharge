@@ -18,44 +18,44 @@ config DRIVER_AHCI
 	bool "AHCI driver"
 	default n
 
-config DRIVER_STORAGE_MMC
+config DRIVER_BLOCKDEV_MMC
 	bool "Board-specific SD/MMC storage Driver"
 	default n
         help
           For platforms with SD/MMC card readers not on USB bus.
 
-config DRIVER_STORAGE_MMC_DW
-	depends on DRIVER_STORAGE_MMC
+config DRIVER_BLOCKDEV_MMC_DW
+	depends on DRIVER_BLOCKDEV_MMC
 	bool "DesignWare MMC driver"
 	default n
 
-config DRIVER_STORAGE_MMC_ROCKCHIP
-        select DRIVER_STORAGE_MMC_DW
+config DRIVER_BLOCKDEV_MMC_ROCKCHIP
+        select DRIVER_BLOCKDEV_MMC_DW
         bool "ROCKCHIP MMC driver"
         default n
 
-config DRIVER_STORAGE_MMC_TEGRA
-	depends on DRIVER_STORAGE_MMC
+config DRIVER_BLOCKDEV_MMC_TEGRA
+	depends on DRIVER_BLOCKDEV_MMC
 	bool "NVIDIA Tegra MMC driver"
 	default n
 
-config DRIVER_STORAGE_MSHC_S5P
-	depends on  DRIVER_STORAGE_MMC
+config DRIVER_BLOCKDEV_MSHC_S5P
+	depends on  DRIVER_BLOCKDEV_MMC
 	bool "S5P MSHC/MMC driver"
 	default n
 
-config DRIVER_STORAGE_SDHCI
-	depends on DRIVER_STORAGE_MMC
+config DRIVER_BLOCKDEV_SDHCI
+	depends on DRIVER_BLOCKDEV_MMC
 	bool "SDHCI specification compliant eMMC/SD driver"
 	default n
 
-config DRIVER_STORAGE_SDHCI_PCI
+config DRIVER_BLOCKDEV_SDHCI_PCI
 	depends on ARCH_X86
-	depends on DRIVER_STORAGE_SDHCI
+	depends on DRIVER_BLOCKDEV_SDHCI
 	bool "PCI SDHCI based eMMC/SD driver"
 	default n
 
-config DRIVER_STORAGE_USB
+config DRIVER_BLOCKDEV_USB
 	depends on USB
 	bool "USB based storage"
 	default n

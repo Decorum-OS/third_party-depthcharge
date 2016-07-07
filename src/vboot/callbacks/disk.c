@@ -25,8 +25,8 @@
 #include <vboot_api.h>
 
 #include "base/xalloc.h"
-#include "drivers/storage/blockdev.h"
-#include "drivers/storage/bdev_stream.h"
+#include "drivers/blockdev/blockdev.h"
+#include "drivers/blockdev/bdev_stream.h"
 
 static void setup_vb_disk_info(VbDiskInfo *disk, BlockDev *bdev)
 {

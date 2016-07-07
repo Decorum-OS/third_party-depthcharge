@@ -29,8 +29,8 @@
 
 #include "base/time.h"
 #include "base/xalloc.h"
-#include "drivers/storage/blockdev.h"
-#include "drivers/storage/sdhci.h"
+#include "drivers/blockdev/blockdev.h"
+#include "drivers/blockdev/sdhci.h"
 
 static void sdhci_reset(SdhciHost *host, uint8_t mask)
 {

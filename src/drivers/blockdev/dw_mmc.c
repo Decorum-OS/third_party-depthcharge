@@ -27,7 +27,7 @@
 
 #include "arch/cache.h"
 #include "base/xalloc.h"
-#include "drivers/storage/dw_mmc.h"
+#include "drivers/blockdev/dw_mmc.h"
 
 enum {
 	DwmmcMaxFreq = 52000000,

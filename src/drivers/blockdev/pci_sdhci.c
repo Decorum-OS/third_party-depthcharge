@@ -24,7 +24,7 @@
 #include <stdio.h>
 
 #include "base/xalloc.h"
-#include "drivers/storage/sdhci.h"
+#include "drivers/blockdev/sdhci.h"
 
 typedef struct {
 	SdhciHost sdhci_host;

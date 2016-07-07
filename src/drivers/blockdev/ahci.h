@@ -22,13 +22,13 @@
  * MA 02111-1307 USA
  *
  */
-#ifndef __DRIVERS_STORAGE_AHCI_H__
-#define __DRIVERS_STORAGE_AHCI_H__
+#ifndef __DRIVERS_BLOCKDEV_AHCI_H__
+#define __DRIVERS_BLOCKDEV_AHCI_H__
 
 #include <pci.h>
 #include <stdint.h>
 
-#include "drivers/storage/blockdev.h"
+#include "drivers/blockdev/blockdev.h"
 
 #define AHCI_PCI_BAR		0x24
 #define AHCI_MAX_SG		56 /* hardware max is 64K */
@@ -192,4 +192,4 @@ typedef struct AhciCtrlr {
 
 AhciCtrlr *new_ahci_ctrlr(pcidev_t dev);
 
-#endif /* __DRIVERS_STORAGE_AHCI_H__ */
+#endif /* __DRIVERS_BLOCKDEV_AHCI_H__ */

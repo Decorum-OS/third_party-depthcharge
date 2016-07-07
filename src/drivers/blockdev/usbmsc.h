@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 coresystems GmbH
+ * Copyright (C) 2008-2010 coresystems GmbH
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,26 +25,41 @@
  * SUCH DAMAGE.
  */
 
-#ifndef __DRIVERS_STORAGE_USBDISK_H__
-#define __DRIVERS_STORAGE_USBDISK_H__
+#ifndef __DRIVERS_BLOCKDEV_USBMSC_H__
+#define __DRIVERS_BLOCKDEV_USBMSC_H__
 
-#include "usb.h"
+#include <stdint.h>
+#include <usb/usb.h>
 
-/**
- * To be implemented by libpayload-client. It's called by the USB stack
- * when a new USB storage device is found, so the client has the chance
- * to know about it.
- *
- * @param dev descriptor for the USB storage device
- */
-void __attribute__((weak)) usbdisk_create (UsbDev *dev);
+typedef struct {
+	unsigned int blocksize;
+	unsigned int numblocks;
+	UsbEndpoint *bulk_in;
+	UsbEndpoint *bulk_out;
+	uint8_t usbdisk_created;
+	int8_t ready;
+	uint8_t lun;
+	uint8_t num_luns;
+	void *data; // User defined data.
+} usbmsc_inst_t;
 
-/**
- * To be implemented by libpayload-client. It's called by the USB stack
- * when it finds out that a USB storage device is removed.
- *
- * @param dev descriptor for the USB storage device
- */
-void __attribute__((weak)) usbdisk_remove (UsbDev *dev);
+// Possible values for ready field.
+enum {
+	USB_MSC_DETACHED = -1, // Disk detached or out to lunch.
+	USB_MSC_NOT_READY = 0, // Disk not ready yet -- empty card reader.
+	USB_MSC_READY = 1,     // Disk ready to communicate.
+};
 
-#endif /* __DRIVERS_STORAGE_USBDISK_H__ */
+#define MSC_INST(dev) ((usbmsc_inst_t*)(dev)->data)
+
+typedef enum {
+	cbw_direction_data_in = 0x80,
+	cbw_direction_data_out = 0
+} cbw_direction;
+
+int readwrite_blocks_512(UsbDev *dev, int start, int n, cbw_direction dir,
+			 uint8_t *buf);
+int readwrite_blocks(UsbDev *dev, int start, int n, cbw_direction dir,
+		     uint8_t *buf);
+
+#endif /* __DRIVERS_BLOCKDEV_USBMSC_H__ */

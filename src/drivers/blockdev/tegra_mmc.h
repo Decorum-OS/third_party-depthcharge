@@ -21,13 +21,13 @@
  *
  */
 
-#ifndef __DRIVERS_STORAGE_TEGRA_MMC_H_
-#define __DRIVERS_STORAGE_TEGRA_MMC_H_
+#ifndef __DRIVERS_BLOCKDEV_TEGRA_MMC_H_
+#define __DRIVERS_BLOCKDEV_TEGRA_MMC_H_
 
 #include "base/io.h"
+#include "drivers/blockdev/blockdev.h"
+#include "drivers/blockdev/mmc.h"
 #include "drivers/gpio/gpio.h"
-#include "drivers/storage/blockdev.h"
-#include "drivers/storage/mmc.h"
 
 typedef struct {
 	uint32_t	sysad;		// _SYSTEM_ADDRESS_0
@@ -162,4 +162,4 @@ TegraMmcHost *new_tegra_mmc_host(uintptr_t ioaddr, int bus_width,
 				 int removable, GpioOps *card_detect,
 				 GpioOps *enable_power);
 
-#endif // __DRIVERS_STORAGE_TEGRA_MMC_H_
+#endif // __DRIVERS_BLOCKDEV_TEGRA_MMC_H_

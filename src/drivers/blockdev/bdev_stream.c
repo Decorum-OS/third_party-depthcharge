@@ -28,7 +28,7 @@
 #include "base/container_of.h"
 #include "base/die.h"
 #include "base/xalloc.h"
-#include "drivers/storage/bdev_stream.h"
+#include "drivers/blockdev/bdev_stream.h"
 
 static uint64_t bdev_stream_read(StreamOps *me, uint64_t count, void *buffer)
 {

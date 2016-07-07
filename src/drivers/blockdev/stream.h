@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Google Inc.
+ * Copyright 2014 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,20 +20,23 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __DRIVERS_STORAGE_BDEV_STREAM_H__
-#define __DRIVERS_STORAGE_BDEV_STREAM_H__
+#ifndef __DRIVERS_BLOCKDEV_STREAM_H__
+#define __DRIVERS_BLOCKDEV_STREAM_H__
 
-#include "drivers/storage/blockdev.h"
-#include "drivers/storage/stream.h"
+#include <stdint.h>
 
-typedef struct {
-	StreamOps stream;
+/*
+ * StreamOps is a single-use stream. You open it with a particular offset
+ * and size, and do successive reads to it until it is exhausted. The offset
+ * and size are in terms of physical parameters for the underlying medium and
+ * the size found in practice may be smaller, e.g., due to skipping bad blocks
+ * on NAND.
+ */
+typedef struct StreamOps {
+	uint64_t (*read)(struct StreamOps *me, uint64_t count,
+			 void *buffer);
+	void (*close)(struct StreamOps *me);
+} StreamOps;
 
-	BlockDev *bdev;
-	lba_t current_sector;
-	lba_t end_sector;
-} BdevStream;
+#endif /* __DRIVERS_BLOCKDEV_STREAM_H__ */
 
-StreamOps *new_bdev_stream(BlockDev *bdev, lba_t start, lba_t count);
-
-#endif /* __DRIVERS_STORAGE_BDEV_STREAM_H__ */

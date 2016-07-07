@@ -23,6 +23,9 @@
 #include "base/init_funcs.h"
 #include "board/board.h"
 #include "board/board_helpers.h"
+#include "drivers/blockdev/ahci.h"
+#include "drivers/blockdev/blockdev.h"
+#include "drivers/blockdev/sdhci.h"
 #include "drivers/flash/flash.h"
 #include "drivers/flash/memmapped.h"
 #include "drivers/gpio/fwdb.h"
@@ -30,9 +33,6 @@
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/ps2.h"
 #include "drivers/power/pch.h"
-#include "drivers/storage/sdhci.h"
-#include "drivers/storage/ahci.h"
-#include "drivers/storage/blockdev.h"
 #include "drivers/uart/8250.h"
 
 PUB_STAT(flag_write_protect, gpio_get(&fwdb_gpio_wpsw.ops))

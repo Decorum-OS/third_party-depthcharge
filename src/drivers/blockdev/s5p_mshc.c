@@ -30,8 +30,8 @@
 #include "base/io.h"
 #include "base/time.h"
 #include "base/xalloc.h"
-#include "drivers/storage/exynos_mshc.h"
-#include "drivers/storage/mmc.h"
+#include "drivers/blockdev/exynos_mshc.h"
+#include "drivers/blockdev/mmc.h"
 
 static void setbits32(uint32_t *data, uint32_t bits)
 {

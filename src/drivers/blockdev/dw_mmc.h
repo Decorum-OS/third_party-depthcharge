@@ -19,13 +19,13 @@
  *
  */
 
-#ifndef __DRIVERS_STORAGE_DW_MMC_H__
-#define __DRIVERS_STORAGE_DW_MMC_H__
+#ifndef __DRIVERS_BLOCKDEV_DW_MMC_H__
+#define __DRIVERS_BLOCKDEV_DW_MMC_H__
 
 #include "base/io.h"
 #include "drivers/gpio/gpio.h"
-#include "drivers/storage/blockdev.h"
-#include "drivers/storage/mmc.h"
+#include "drivers/blockdev/blockdev.h"
+#include "drivers/blockdev/mmc.h"
 
 #define DWMCI_CTRL		0x000
 #define	DWMCI_PWREN		0x004
@@ -222,4 +222,4 @@ static inline void *dwmci_get_ioaddr(DwmciHost *host, int reg)
 DwmciHost *new_dwmci_host(uintptr_t ioaddr, uint32_t src_hz,
 				int bus_width, int removable,
 				GpioOps *card_detect, uint32_t clksel_val);
-#endif /* __DRIVERS_STORAGE_DW_MMC_H__ */
+#endif /* __DRIVERS_BLOCKDEV_DW_MMC_H__ */

@@ -20,12 +20,12 @@
  * MA 02111-1307 USA
  *
  */
-#ifndef __DRIVERS_STORAGE_USB_H__
-#define __DRIVERS_STORAGE_USB_H__
+#ifndef __DRIVERS_BLOCKDEV_USB_H__
+#define __DRIVERS_BLOCKDEV_USB_H__
 
-#include "drivers/storage/blockdev.h"
+#include "drivers/blockdev/blockdev.h"
 
 extern ListNode usb_drives;
 extern int num_usb_drives;
 
-#endif /* __DRIVERS_STORAGE_USB_H__ */
+#endif /* __DRIVERS_BLOCKDEV_USB_H__ */
