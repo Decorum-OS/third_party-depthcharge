@@ -25,6 +25,7 @@
 
 #include "drivers/keyboard/keyboard.h"
 #include "drivers/power/power.h"
+#include "drivers/storage/storage.h"
 #include "drivers/uart/uart.h"
 
 /*
@@ -84,5 +85,15 @@ int board_flag_power(void);
 // Whether the EC is running the RW portion of its firmware.
 int board_flag_ec_in_rw(void);
 
+/*
+ * This group of functions return storage objects which provide access to
+ * different bits of information which are needed during boot. These might
+ * be additional pieces of firmware, or blocks of data like the GBB which
+ * firmware acts on. The storage objects should be combined together to
+ * abstract away the actual media storing the data, and any data structures
+ * which map out the media into smaller components.
+ */
+
+StorageOps *board_storage_gbb(void);
 
 #endif /* __BOARD_BOARD_H__ */
