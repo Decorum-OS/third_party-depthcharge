@@ -17,4 +17,12 @@
 
 subdirs-y += edk
 
-depthcharge-y += uefi.c
+UEFI_ARCH-$(CONFIG_ARCH_ARM_V7) = Arm
+UEFI_ARCH-$(CONFIG_ARCH_ARM_V8) = AArch64
+UEFI_ARCH-$(CONFIG_ARCH_X86_AMD64) = X64
+UEFI_ARCH-$(CONFIG_ARCH_X86_IA32) = Ia32
+UEFI_ARCH = $(UEFI_ARCH-y)
+
+UEFI_ARCH_SUPPORTED = $(findstring y,$(patsubst %,y,$(UEFI_ARCH)))
+
+depthcharge-$(UEFI_ARCH_SUPPORTED) += uefi.c
