@@ -26,8 +26,7 @@
 #include "base/die.h"
 #include "base/lzma/lzma.h"
 #include "board/board.h"
-#include "drivers/flash/flash.h"
-#include "image/fmap.h"
+#include "drivers/storage/storage.h"
 
 uint32_t VbExIsShutdownRequested(void)
 {
@@ -91,26 +90,8 @@ VbError_t VbExRegionRead(VbCommonParams *cparams,
 		return VBERROR_INVALID_PARAMETER;
 	}
 
-	static FmapArea area;
-
-	if (!area.size) {
-		if (fmap_find_area("GBB", &area)) {
-			printf("Couldn't find the GBB.\n");
-			return VBERROR_INVALID_GBB;
-		}
-	}
-
-	if (offset + size > area.size) {
-		printf("Region read at offset %#x of size %#x exceeds %#x, "
-		       "the size of the region.\n", offset, size, area.size);
-		return VBERROR_INVALID_PARAMETER;
-	}
-
-	void *data = flash_read(area.offset + offset, size);
-	if (!data)
+	if (storage_read(board_storage_gbb(), buf, offset, size))
 		return VBERROR_UNKNOWN;
-
-	memcpy(buf, data, size);
 
 	return VBERROR_SUCCESS;
 }

@@ -23,49 +23,53 @@
 #include <gbb_header.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-#include "drivers/flash/flash.h"
-#include "image/fmap.h"
+#include "base/xalloc.h"
+#include "board/board.h"
+#include "drivers/storage/storage.h"
 #include "vboot/util/gbb.h"
 
-const char *gbb_read_hwid(size_t *hwid_size)
+const char *gbb_read_hwid(size_t *hwid_size_ptr)
 {
 	static const char *hwid;
 	if (hwid)
 		return hwid;
 
-	FmapArea area;
-	if (fmap_find_area("GBB", &area)) {
-		printf("Couldn't find the GBB.\n");
-		return NULL;
-	}
+	StorageOps *gbb = board_storage_gbb();
 
 	typedef member_typeof(GoogleBinaryBlockHeader, hwid_offset)
 		hwid_offset_t;
-	size_t hwid_offset_offset =
-		offsetof(GoogleBinaryBlockHeader, hwid_offset) + area.offset;
-	hwid_offset_t *offset_ptr =
-		flash_read(hwid_offset_offset, sizeof(*offset_ptr));
-	if (!offset_ptr) {
-		printf("Failed to read hwid offset.\n");
-		return NULL;
-	}
-	hwid_offset_t offset = *offset_ptr;
-
 	typedef member_typeof(GoogleBinaryBlockHeader, hwid_size)
 		hwid_size_t;
+	size_t hwid_offset_offset =
+		offsetof(GoogleBinaryBlockHeader, hwid_offset);
 	size_t hwid_size_offset =
-		offsetof(GoogleBinaryBlockHeader, hwid_size) + area.offset;
-	hwid_size_t *size_ptr =
-		flash_read(hwid_size_offset, sizeof(*size_ptr));
-	if (!size_ptr) {
-		printf("Failed to read hwid size.\n");
+		offsetof(GoogleBinaryBlockHeader, hwid_size);
+
+	hwid_offset_t hwid_offset;
+	if (storage_read(gbb, &hwid_offset, hwid_offset_offset,
+			 sizeof(hwid_offset))) {
+		printf("Failed to read HWID offset.\n");
 		return NULL;
 	}
-	hwid_size_t size = *size_ptr;
 
-	if (hwid_size)
-		*hwid_size = size;
+	hwid_size_t hwid_size;
+	if (storage_read(gbb, &hwid_size, hwid_size_offset,
+			 sizeof(hwid_size))) {
+		printf("Failed to read HWID size.\n");
+		return NULL;
+	}
 
-	return flash_read(area.offset + offset, size);
+	if (hwid_size_ptr)
+		*hwid_size_ptr = hwid_size;
+
+	hwid = xmalloc(hwid_size);
+	if (storage_read(gbb, (void *)hwid, hwid_offset, hwid_size)) {
+		printf("Failed to read HWID from the GBB.\n");
+		free((void *)hwid);
+		return NULL;
+	}
+
+	return hwid;
 }
