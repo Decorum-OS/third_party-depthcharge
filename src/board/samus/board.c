@@ -49,6 +49,8 @@
 #include "drivers/sound/i2s.h"
 #include "drivers/sound/route.h"
 #include "drivers/sound/rt5677.h"
+#include "drivers/storage/flash.h"
+#include "drivers/storage/fmap.h"
 #include "drivers/tpm/lpc.h"
 #include "drivers/tpm/tpm.h"
 #include "drivers/uart/8250.h"
@@ -102,13 +104,21 @@ static BdwI2s *i2s_enable(int ssp)
 		&broadwell_alc5677_settings);
 }
 
+PRIV_DYN(flash, &new_mem_mapped_flash(0xff800000, 0x800000)->ops);
+PRIV_DYN(flash_storage, &new_flash_storage(get_flash())->ops);
+
+PRIV_DYN(fmap_media, new_fmap_storage_media(get_flash_storage(),
+					    CONFIG_FMAP_OFFSET))
+
+PUB_DYN(storage_gbb, &new_fmap_storage(get_fmap_media(), "GBB")->ops)
+
 static int board_setup(void)
 {
 	CrosEcLpcBus *cros_ec_lpc_bus =
 		new_cros_ec_lpc_bus(CROS_EC_LPC_BUS_GENERIC);
 	cros_ec_set_bus(&cros_ec_lpc_bus->ops);
 
-	flash_set_ops(&new_mem_mapped_flash(0xff800000, 0x800000)->ops);
+	flash_set_ops(get_flash());
 
 	AhciCtrlr *ahci = new_ahci_ctrlr(PCI_DEV(0, 31, 2));
 	list_insert_after(&ahci->ctrlr.list_node, &fixed_block_dev_controllers);
