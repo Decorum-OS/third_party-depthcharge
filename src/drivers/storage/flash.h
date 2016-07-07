@@ -20,29 +20,18 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __DRIVERS_STORAGE_STORAGE_H__
-#define __DRIVERS_STORAGE_STORAGE_H__
+#ifndef __DRIVERS_STORAGE_FLASH_H__
+#define __DRIVERS_STORAGE_FLASH_H__
 
-#include <stddef.h>
-#include <stdint.h>
+#include "drivers/storage/storage.h"
+#include "drivers/flash/flash.h"
 
-typedef struct StorageOps {
-	int (*read)(struct StorageOps *me, void *buffer,
-		    uint64_t offset, size_t size);
-	int (*write)(struct StorageOps *me, const void *buffer,
-		     uint64_t offset, size_t size);
-} StorageOps;
+typedef struct {
+	StorageOps ops;
 
-static inline int storage_read(StorageOps *me, void *buffer,
-			       uint64_t offset, size_t size)
-{
-	return me->read(me, buffer, offset, size);
-}
+	FlashOps *flash;
+} FlashStorage;
 
-static inline int storage_write(StorageOps *me, const void *buffer,
-				uint64_t offset, size_t size)
-{
-	return me->write(me, buffer, offset, size);
-}
+FlashStorage *new_flash_storage(FlashOps *flash);
 
-#endif /* __DRIVERS_STORAGE_STORAGE_H__ */
+#endif /* __DRIVERS_STORAGE_FLASH_H__ */

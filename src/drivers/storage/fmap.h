@@ -20,29 +20,32 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __DRIVERS_STORAGE_STORAGE_H__
-#define __DRIVERS_STORAGE_STORAGE_H__
+#ifndef __DRIVERS_STORAGE_FMAP_H__
+#define __DRIVERS_STORAGE_FMAP_H__
 
-#include <stddef.h>
 #include <stdint.h>
 
-typedef struct StorageOps {
-	int (*read)(struct StorageOps *me, void *buffer,
-		    uint64_t offset, size_t size);
-	int (*write)(struct StorageOps *me, const void *buffer,
-		     uint64_t offset, size_t size);
-} StorageOps;
+#include "drivers/storage/storage.h"
+#include "image/fmap.h"
 
-static inline int storage_read(StorageOps *me, void *buffer,
-			       uint64_t offset, size_t size)
-{
-	return me->read(me, buffer, offset, size);
-}
+typedef struct {
+	StorageOps *base;
+	const uint32_t fmap_offset;
 
-static inline int storage_write(StorageOps *me, const void *buffer,
-				uint64_t offset, size_t size)
-{
-	return me->write(me, buffer, offset, size);
-}
+	const Fmap *fmap;
+} FmapStorageMedia;
 
-#endif /* __DRIVERS_STORAGE_STORAGE_H__ */
+typedef struct {
+	StorageOps ops;
+
+	FmapStorageMedia *media;
+	const char *name;
+
+	const FmapArea *area;
+} FmapStorage;
+
+FmapStorageMedia *new_fmap_storage_media(StorageOps *base,
+					 uint32_t fmap_offset);
+FmapStorage *new_fmap_storage(FmapStorageMedia *media, const char *name);
+
+#endif /* __DRIVERS_STORAGE_FMAP_H__ */

@@ -20,29 +20,40 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __DRIVERS_STORAGE_STORAGE_H__
-#define __DRIVERS_STORAGE_STORAGE_H__
+#include <string.h>
 
-#include <stddef.h>
-#include <stdint.h>
+#include "base/container_of.h"
+#include "base/die.h"
+#include "base/xalloc.h"
+#include "drivers/storage/flash.h"
 
-typedef struct StorageOps {
-	int (*read)(struct StorageOps *me, void *buffer,
-		    uint64_t offset, size_t size);
-	int (*write)(struct StorageOps *me, const void *buffer,
-		     uint64_t offset, size_t size);
-} StorageOps;
+static int flash_storage_read(StorageOps *me, void *buffer,
+			      uint64_t offset, size_t size)
+{
+	FlashStorage *storage = container_of(me, FlashStorage, ops);
 
-static inline int storage_read(StorageOps *me, void *buffer,
+	void *result = storage->flash->read(storage->flash, offset, size);
+	if (!result)
+		return 1;
+
+	memcpy(buffer, result, size);
+	return 0;
+}
+
+static int flash_storage_write(StorageOps *me, const void *buffer,
 			       uint64_t offset, size_t size)
 {
-	return me->read(me, buffer, offset, size);
+	die("Flash storage writes not implemented!");
 }
 
-static inline int storage_write(StorageOps *me, const void *buffer,
-				uint64_t offset, size_t size)
+FlashStorage *new_flash_storage(FlashOps *flash)
 {
-	return me->write(me, buffer, offset, size);
-}
+	FlashStorage *storage = xzalloc(sizeof(*storage));
 
-#endif /* __DRIVERS_STORAGE_STORAGE_H__ */
+	storage->ops.read = &flash_storage_read;
+	storage->ops.write = &flash_storage_write;
+
+	storage->flash = flash;
+
+	return storage;
+}
