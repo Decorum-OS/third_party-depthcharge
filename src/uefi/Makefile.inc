@@ -16,3 +16,5 @@
 ##
 
 subdirs-y += edk
+
+depthcharge-y += uefi.c
