@@ -27,6 +27,7 @@
 #include "uefi/edk.h"
 
 extern EFI_SYSTEM_TABLE *_uefi_handoff_system_table;
+extern EFI_HANDLE _uefi_handoff_image_handle;
 
 void handoff_special(void)
 {
@@ -53,5 +54,19 @@ void handoff_special(void)
 
 	if (fwdb_create_db((void *)(uintptr_t)fwdb_addr,
 			   CONFIG_UEFI_HANDOFF_FWDB_4K_PAGES * 4096))
+		halt();
+
+	FwdbEntry system_table_entry = {
+		.size = sizeof(_uefi_handoff_system_table),
+		.ptr = &_uefi_handoff_system_table,
+	};
+	if (fwdb_access("uefi_system_table", NULL, &system_table_entry))
+		halt();
+
+	FwdbEntry image_handle_entry = {
+		.size = sizeof(_uefi_handoff_image_handle),
+		.ptr = &_uefi_handoff_image_handle,
+	};
+	if (fwdb_access("uefi_image_handle", NULL, &image_handle_entry))
 		halt();
 }
