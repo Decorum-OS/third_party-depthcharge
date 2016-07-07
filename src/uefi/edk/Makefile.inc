@@ -15,4 +15,7 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-subdirs-y += edk
+UEFI_ARCH_INCLUDE-$(CONFIG_ARCH_X86_AMD64) = X64
+UEFI_ARCH_INCLUDE-$(CONFIG_ARCH_X86_IA32) = Ia32
+
+src-includes-y += $(UEFI_ARCH_INCLUDE-y)
