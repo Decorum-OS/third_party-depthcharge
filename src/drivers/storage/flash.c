@@ -46,12 +46,19 @@ static int flash_storage_write(StorageOps *me, const void *buffer,
 	die("Flash storage writes not implemented!");
 }
 
+static int flash_storage_size(StorageOps *me)
+{
+	FlashStorage *storage = container_of(me, FlashStorage, ops);
+	return storage->flash->size(storage->flash);
+}
+
 FlashStorage *new_flash_storage(FlashOps *flash)
 {
 	FlashStorage *storage = xzalloc(sizeof(*storage));
 
 	storage->ops.read = &flash_storage_read;
 	storage->ops.write = &flash_storage_write;
+	storage->ops.size = &flash_storage_size;
 
 	storage->flash = flash;
 

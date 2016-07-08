@@ -119,6 +119,16 @@ static int fmap_storage_write(StorageOps *me, const void *buffer,
 			     offset + storage->area->offset, size);
 }
 
+static int fmap_storage_size(StorageOps *me)
+{
+	FmapStorage *storage = container_of(me, FmapStorage, ops);
+
+	if (!storage->area && fmap_storage_find_area(storage))
+		return 1;
+
+	return storage->area->size;
+}
+
 FmapStorageMedia *new_fmap_storage_media(StorageOps *base,
 					 uint32_t fmap_offset)
 {
@@ -136,6 +146,7 @@ FmapStorage *new_fmap_storage(FmapStorageMedia *media, const char *name)
 
 	storage->ops.read = &fmap_storage_read;
 	storage->ops.write = &fmap_storage_write;
+	storage->ops.size = &fmap_storage_size;
 
 	storage->media = media;
 	storage->name = name;

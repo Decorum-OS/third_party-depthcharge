@@ -188,12 +188,23 @@ static int dcdir_storage_write(StorageOps *me, const void *buffer,
 			     storage->region_handle.offset + offset, size);
 }
 
+static int dcdir_storage_size(StorageOps *me)
+{
+	DcDirStorage *storage = container_of(me, DcDirStorage, ops);
+
+	if (!storage->media && dcdir_storage_init(storage, &storage->media))
+		return 1;
+
+	return storage->region_handle.size;
+}
+
 DcDirStorage *new_dcdir_storage(DcDirStorageOps *parent, const char *name)
 {
 	DcDirStorage *storage = xzalloc(sizeof(*storage));
 
 	storage->ops.read = &dcdir_storage_read;
 	storage->ops.write = &dcdir_storage_write;
+	storage->ops.size = &dcdir_storage_size;
 
 	storage->parent = parent;
 	storage->name = name;

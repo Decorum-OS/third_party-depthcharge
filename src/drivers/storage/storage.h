@@ -31,6 +31,7 @@ typedef struct StorageOps {
 		    uint64_t offset, size_t size);
 	int (*write)(struct StorageOps *me, const void *buffer,
 		     uint64_t offset, size_t size);
+	int (*size)(struct StorageOps *me);
 } StorageOps;
 
 static inline int storage_read(StorageOps *me, void *buffer,
@@ -43,6 +44,11 @@ static inline int storage_write(StorageOps *me, const void *buffer,
 				uint64_t offset, size_t size)
 {
 	return me->write(me, buffer, offset, size);
+}
+
+static inline int storage_size(StorageOps *me)
+{
+	return me->size(me);
 }
 
 #endif /* __DRIVERS_STORAGE_STORAGE_H__ */
