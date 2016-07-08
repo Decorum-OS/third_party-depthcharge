@@ -38,10 +38,12 @@
 #include "drivers/gpio/gpio.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/mkbp/keyboard.h"
+#include "drivers/layout/coreboot.h"
 #include "drivers/power/exynos.h"
 #include "drivers/sound/i2s.h"
 #include "drivers/sound/route.h"
 #include "drivers/sound/sound.h"
+#include "drivers/storage/flash.h"
 #include "drivers/tpm/slb9635_i2c.h"
 #include "drivers/tpm/tpm.h"
 #include "drivers/uart/s5p.h"
@@ -58,6 +60,12 @@ PUB_STAT(flag_lid_open, gpio_get(get_lid_gpio()))
 PUB_STAT(flag_power, !gpio_get(get_power_gpio()))
 PUB_STAT(flag_ec_in_rw, gpio_get(get_ec_in_rw_gpio()))
 
+PRIV_DYN(spi1, &new_exynos5_spi(0x12d30000)->ops)
+PRIV_DYN(spi2, &new_exynos5_spi(0x12d40000)->ops)
+
+PRIV_DYN(flash, &new_spi_flash(get_spi1())->ops);
+PUB_DYN(_coreboot_storage, &new_flash_storage(get_flash())->ops);
+
 static int board_setup(void)
 {
 	fit_set_compat("google,pit-rev3");
@@ -66,13 +74,10 @@ static int board_setup(void)
 
 	tpm_set_ops(&new_slb9635_i2c(&i2c9->ops, 0x20)->base.ops);
 
-	Exynos5Spi *spi1 = new_exynos5_spi(0x12d30000);
-	Exynos5Spi *spi2 = new_exynos5_spi(0x12d40000);
-
-	CrosEcSpiBus *cros_ec_spi_bus = new_cros_ec_spi_bus(&spi2->ops);
+	CrosEcSpiBus *cros_ec_spi_bus = new_cros_ec_spi_bus(get_spi2());
 	cros_ec_set_bus(&cros_ec_spi_bus->ops);
 
-	flash_set_ops(&new_spi_flash(&spi1->ops)->ops);
+	flash_set_ops(get_flash());
 
 	Exynos5I2s *i2s0 = new_exynos5_i2s_multi(0x03830000, 16, 2, 256);
 	I2sSource *i2s_source = new_i2s_source(&i2s0->ops, 48000, 2, 16000);

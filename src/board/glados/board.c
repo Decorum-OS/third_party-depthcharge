@@ -41,10 +41,12 @@
 #include "drivers/gpio/skylake.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/ps2.h"
+#include "drivers/layout/coreboot.h"
 #include "drivers/power/pch.h"
 #include "drivers/sound/gpio_pdm.h"
 #include "drivers/sound/route.h"
 #include "drivers/sound/ssm4567.h"
+#include "drivers/storage/flash.h"
 #include "drivers/tpm/lpc.h"
 #include "drivers/tpm/tpm.h"
 #include "drivers/uart/8250.h"
@@ -69,6 +71,10 @@ PUB_STAT(flag_lid_open, gpio_get(&fwdb_gpio_lidsw.ops))
 PUB_STAT(flag_power, gpio_get(&fwdb_gpio_pwrsw.ops))
 PUB_STAT(flag_ec_in_rw, gpio_get(get_ec_in_rw_gpio()))
 
+/* 16MB SPI Flash */
+PRIV_DYN(flash, &new_mem_mapped_flash(0xff000000, 0x1000000)->ops);
+PUB_DYN(_coreboot_storage, &new_flash_storage(get_flash())->ops);
+
 static int board_setup(void)
 {
 	/* MEC1322 Chrome EC */
@@ -76,8 +82,7 @@ static int board_setup(void)
 		new_cros_ec_lpc_bus(CROS_EC_LPC_BUS_MEC);
 	cros_ec_set_bus(&cros_ec_lpc_bus->ops);
 
-	/* 16MB SPI Flash */
-	flash_set_ops(&new_mem_mapped_flash(0xff000000, 0x1000000)->ops);
+	flash_set_ops(get_flash());
 
 	/* SPI TPM memory mapped to act like LPC TPM */
 	tpm_set_ops(&new_lpc_tpm((void *)(uintptr_t)0xfed40000)->ops);

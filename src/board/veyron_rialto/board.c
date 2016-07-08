@@ -39,8 +39,10 @@
 #include "drivers/gpio/gpio.h"
 #include "drivers/gpio/rockchip.h"
 #include "drivers/keyboard/dynamic.h"
+#include "drivers/layout/coreboot.h"
 #include "drivers/power/gpio_reset.h"
 #include "drivers/power/rk808.h"
+#include "drivers/storage/flash.h"
 #include "drivers/tpm/slb9635_i2c.h"
 #include "drivers/tpm/tpm.h"
 #include "drivers/uart/8250.h"
@@ -154,12 +156,16 @@ PUB_STAT(flag_lid_open, 1)
 PUB_STAT(flag_power, !gpio_get(get_power_gpio()))
 PUB_STAT(flag_ec_in_rw, gpio_get(get_ec_in_rw_gpio()))
 
+PRIV_DYN(spi2, &new_rockchip_spi(0xff130000)->ops)
+
+PRIV_DYN(flash, &new_spi_flash(get_spi2())->ops)
+PUB_DYN(_coreboot_storage, &new_flash_storage(get_flash())->ops)
+
 static int board_setup(void)
 {
 	RialtoDisplayOps *leds;
 
-	RkSpi *spi2 = new_rockchip_spi(0xff130000);
-	flash_set_ops(&new_spi_flash(&spi2->ops)->ops);
+	flash_set_ops(get_flash());
 
 	RkI2c *i2c1 = new_rockchip_i2c((void *)0xff140000);
 	tpm_set_ops(&new_slb9635_i2c(&i2c1->ops, 0x20)->base.ops);

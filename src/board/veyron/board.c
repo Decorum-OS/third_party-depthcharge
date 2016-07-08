@@ -38,11 +38,13 @@
 #include "drivers/gpio/rockchip.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/mkbp/keyboard.h"
+#include "drivers/layout/coreboot.h"
 #include "drivers/power/gpio_reset.h"
 #include "drivers/power/rk808.h"
 #include "drivers/sound/i2s.h"
 #include "drivers/sound/route.h"
 #include "drivers/sound/max98090.h"
+#include "drivers/storage/flash.h"
 #include "drivers/tpm/slb9635_i2c.h"
 #include "drivers/tpm/tpm.h"
 #include "drivers/uart/8250.h"
@@ -69,13 +71,17 @@ PUB_STAT(flag_lid_open, gpio_get(get_lid_gpio()))
 PUB_STAT(flag_power, !gpio_get(get_power_gpio()))
 PUB_STAT(flag_ec_in_rw, gpio_get(get_ec_in_rw_gpio()))
 
+PRIV_DYN(spi0, &new_rockchip_spi(0xff110000)->ops)
+PRIV_DYN(spi2, &new_rockchip_spi(0xff130000)->ops)
+
+PRIV_DYN(flash, &new_spi_flash(get_spi2())->ops)
+PUB_DYN(_coreboot_storage, &new_flash_storage(get_flash())->ops)
+
 static int board_setup(void)
 {
-	RkSpi *spi2 = new_rockchip_spi(0xff130000);
-	flash_set_ops(&new_spi_flash(&spi2->ops)->ops);
+	flash_set_ops(get_flash());
 
-	RkSpi *spi0 = new_rockchip_spi(0xff110000);
-	cros_ec_set_bus(&new_cros_ec_spi_bus(&spi0->ops)->ops);
+	cros_ec_set_bus(&new_cros_ec_spi_bus(get_spi0())->ops);
 	cros_ec_set_interrupt_gpio(get_ec_int_gpio_n());
 
 	RkI2c *i2c1 = new_rockchip_i2c((void *)0xff140000);

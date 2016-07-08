@@ -35,9 +35,11 @@
 #include "drivers/gpio/lynxpoint_lp.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/ps2.h"
+#include "drivers/layout/coreboot.h"
 #include "drivers/power/pch.h"
 #include "drivers/sound/pcat_beep.h"
 #include "drivers/sound/sound.h"
+#include "drivers/storage/flash.h"
 #include "drivers/tpm/lpc.h"
 #include "drivers/tpm/tpm.h"
 #include "drivers/uart/8250.h"
@@ -50,9 +52,12 @@ PUB_STAT(flag_lid_open, gpio_get(&fwdb_gpio_lidsw.ops))
 PUB_STAT(flag_power, gpio_get(&fwdb_gpio_pwrsw.ops))
 PUB_STAT(flag_ec_in_rw, gpio_get(&fwdb_gpio_ecinrw.ops))
 
+PRIV_DYN(flash, &new_mem_mapped_flash(0xff800000, 0x800000)->ops);
+PUB_DYN(_coreboot_storage, &new_flash_storage(get_flash())->ops);
+
 static int board_setup(void)
 {
-	flash_set_ops(&new_mem_mapped_flash(0xff800000, 0x800000)->ops);
+	flash_set_ops(get_flash());
 
 	sound_set_ops(&new_pcat_beep()->ops);
 

@@ -44,11 +44,13 @@
 #include "drivers/gpio/tegra.h"
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/mkbp/keyboard.h"
+#include "drivers/layout/coreboot.h"
 #include "drivers/power/as3722.h"
 #include "drivers/power/gpio_reset.h"
 #include "drivers/sound/i2s.h"
 #include "drivers/sound/max98090.h"
 #include "drivers/sound/tegra_ahub.h"
+#include "drivers/storage/flash.h"
 #include "drivers/tpm/slb9635_i2c.h"
 #include "drivers/tpm/tpm.h"
 #include "drivers/uart/8250.h"
@@ -147,22 +149,32 @@ PUB_STAT(flag_lid_open, gpio_get(get_lid_gpio()))
 PUB_STAT(flag_power, !gpio_get(get_power_gpio()))
 PUB_STAT(flag_ec_in_rw, gpio_get(&fwdb_gpio_ecinrw.ops))
 
+static TegraApbDmaController *build_dma_controller(void)
+{
+	void *dma_channel_bases[32];
+	for (int i = 0; i < ARRAY_SIZE(dma_channel_bases); i++) {
+		dma_channel_bases[i] =
+			(void *)((uintptr_t)0x60021000 + 0x40 * i);
+	}
+
+	return new_tegra_apb_dma((void *)0x60020000, dma_channel_bases,
+				 ARRAY_SIZE(dma_channel_bases));
+}
+PRIV_DYN(dma_controller, build_dma_controller())
+
+PRIV_DYN(spi1, &new_tegra_spi(0x7000d400, get_dma_controller(),
+			      APBDMA_SLAVE_SL2B1)->ops)
+PRIV_DYN(spi4, &new_tegra_spi(0x7000da00, get_dma_controller(),
+			      APBDMA_SLAVE_SL2B4)->ops)
+
+PRIV_DYN(flash, &new_spi_flash(get_spi4())->ops)
+PUB_DYN(_coreboot_storage, &new_flash_storage(get_flash())->ops)
+
 static int board_setup(void)
 {
         choose_devicetree_by_boardid();
 
-	void *dma_channel_bases[32];
-	for (int i = 0; i < ARRAY_SIZE(dma_channel_bases); i++)
-		dma_channel_bases[i] = (void *)((unsigned long)0x60021000 + 0x40 * i);
-
-	TegraApbDmaController *dma_controller =
-		new_tegra_apb_dma((void *)0x60020000, dma_channel_bases,
-				  ARRAY_SIZE(dma_channel_bases));
-
-	TegraSpi *spi4 = new_tegra_spi(0x7000da00, dma_controller,
-				       APBDMA_SLAVE_SL2B4);
-
-	flash_set_ops(&new_spi_flash(&spi4->ops)->ops);
+	flash_set_ops(get_flash());
 
 	TegraI2c *cam_i2c = new_tegra_i2c((void *)0x7000c500, 3,
 					  (void *)CLK_RST_U_RST_SET,
@@ -170,9 +182,6 @@ static int board_setup(void)
 					  CLK_U_I2C3);
 
 	tpm_set_ops(&new_slb9635_i2c(&cam_i2c->ops, 0x20)->base.ops);
-
-	TegraSpi *spi1 = new_tegra_spi(0x7000d400, dma_controller,
-				       APBDMA_SLAVE_SL2B1);
 
 	TegraAudioHubXbar *xbar = new_tegra_audio_hub_xbar(0x70300800);
 	TegraAudioHubApbif *apbif = new_tegra_audio_hub_apbif(0x70300000, 8);
@@ -192,7 +201,7 @@ static int board_setup(void)
 
 	sound_set_ops(&sound_route->ops);
 
-	cros_ec_set_bus(&new_cros_ec_spi_bus(&spi1->ops)->ops);
+	cros_ec_set_bus(&new_cros_ec_spi_bus(get_spi1())->ops);
 
 	// sdmmc4
 	TegraMmcHost *emmc = new_tegra_mmc_host(0x700b0600, 8, 0, NULL, NULL);

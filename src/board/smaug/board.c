@@ -39,11 +39,13 @@
 #include "drivers/gpio/gpio.h"
 #include "drivers/gpio/tegra210.h"
 #include "drivers/keyboard/dynamic.h"
+#include "drivers/layout/coreboot.h"
 #include "drivers/power/gpio_reset.h"
 #include "drivers/power/max77620.h"
 #include "drivers/sound/i2s.h"
 #include "drivers/sound/rt5677.h"
 #include "drivers/sound/tegra_ahub.h"
+#include "drivers/storage/flash.h"
 #include "drivers/tpm/slb9635_i2c.h"
 #include "drivers/tpm/tpm.h"
 #include "drivers/uart/8250.h"
@@ -135,25 +137,30 @@ PUB_STAT(flag_lid_open, 1)
 PUB_STAT(flag_power, !gpio_get(get_power_gpio()))
 PUB_STAT(flag_ec_in_rw, gpio_get(get_ec_in_rw_gpio()))
 
+static TegraApbDmaController *build_dma_controller(void)
+{
+	void *dma_channel_bases[32];
+	for (int i = 0; i < ARRAY_SIZE(dma_channel_bases); i++) {
+		dma_channel_bases[i] =
+			(void *)((uintptr_t)0x60021000 + 0x40 * i);
+	}
+
+	return new_tegra_apb_dma((void *)0x60020000, dma_channel_bases,
+				 ARRAY_SIZE(dma_channel_bases));
+}
+PRIV_DYN(dma_controller, build_dma_controller())
+
+PRIV_DYN(qspi, &new_tegra_spi(0x70410000, get_dma_controller(),
+			      APBDMA_SLAVE_QSPI)->ops)
+
+PRIV_DYN(flash, &new_spi_flash(get_qspi())->ops)
+PUB_DYN(_coreboot_storage, &new_flash_storage(get_flash())->ops)
+
 static int board_setup(void)
 {
 	flash_params_override();
 
-	void *dma_channel_bases[32];
-	for (int i = 0; i < ARRAY_SIZE(dma_channel_bases); i++)
-		dma_channel_bases[i] = (void *)((unsigned long)0x60021000
-						+ 0x40 * i);
-
-	TegraApbDmaController *dma_controller =
-		new_tegra_apb_dma((void *)0x60020000, dma_channel_bases,
-				  ARRAY_SIZE(dma_channel_bases));
-
-	TegraSpi *qspi = new_tegra_spi(0x70410000, dma_controller,
-				       APBDMA_SLAVE_QSPI);
-
-	SpiFlash *flash = new_spi_flash(&qspi->ops);
-
-	flash_set_ops(&flash->ops);
+	flash_set_ops(get_flash());
 
 	TegraI2c *gen3_i2c = new_tegra_i2c((void *)0x7000c500, 3,
 					   (void *)CLK_RST_U_RST_SET,
