@@ -24,7 +24,7 @@
 #include "board/board_helpers.h"
 #include "drivers/flash/memmapped.h"
 #include "drivers/keyboard/ps2.h"
-#include "drivers/layout/coreboot.h"
+#include "drivers/layout/dcdir.h"
 #include "drivers/power/pch.h"
 #include "drivers/storage/flash.h"
 #include "drivers/uart/8250.h"
@@ -37,7 +37,7 @@ PUB_ARR(trusted_keyboards, &new_ps2_keyboard()->ops)
 PUB_ARR(untrusted_keyboards, (KeyboardOps *)NULL)
 
 PRIV_DYN(flash, &new_mem_mapped_flash(0xff800000, 0x800000)->ops);
-PUB_DYN(_coreboot_storage, &new_flash_storage(get_flash())->ops);
+PUB_DYN(_dcdir_storage, &new_flash_storage(get_flash())->ops);
 
 PUB_STAT(flag_write_protect, 1)
 PUB_STAT(flag_recovery, 0)
