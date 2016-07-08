@@ -24,7 +24,10 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "base/xalloc.h"
+#include "board/board.h"
 #include "drivers/flash/flash.h"
+#include "drivers/storage/storage.h"
 #include "image/fmap.h"
 #include "net/uip.h"
 #include "netboot/params.h"
@@ -93,15 +96,22 @@ int netboot_params_read(uip_ipaddr_t **tftp_ip, char *cmd_line,
 	*bootfile = NULL;
 	*argsfile = NULL;
 
-	// Retrieve settings from the shared data area.
-	FmapArea shared_data;
-	if (fmap_find_area("SHARED_DATA", &shared_data)) {
-		printf("Couldn't find the shared data area.\n");
-		return 1;
+	static void *data;
+	if (!data) {
+		// Retrieve settings from the non volatile scratch space.
+		StorageOps *scratch = board_storage_nv_scratch();
+		int size = storage_size(scratch);
+		if (size < 0)
+			return 1;
+
+		data = xmalloc(size);
+		if (storage_read(scratch, data, 0, size) ||
+		    netboot_params_init(data, size)) {
+			free(data);
+			data = NULL;
+			return 1;
+		}
 	}
-	void *data = flash_read(shared_data.offset, shared_data.size);
-	if (netboot_params_init(data, shared_data.size))
-		return 1;
 
 	// Get TFTP server IP and file names from params if specified
 	param = netboot_params_val(NetbootParamIdTftpServerIp);
