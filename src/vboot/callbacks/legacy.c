@@ -31,51 +31,51 @@
 #include "base/cbfs/ram_media.h"
 #include "base/cleanup_funcs.h"
 #include "base/lzma/lzma.h"
+#include "base/xalloc.h"
+#include "board/board.h"
 #include "drivers/flash/flash.h"
+#include "drivers/storage/storage.h"
 #include "image/fmap.h"
 
 static void load_payload_and_run(struct cbfs_payload *payload);
 
 int VbExLegacy(void)
 {
-	FmapArea area;
+	StorageOps *legacy = board_storage_legacy();
+	int size = storage_size(legacy);
+	if (size < 0)
+		return 1;
+	void *legacy_buf = xmalloc(size);
+	if (storage_read(legacy, legacy_buf, 0, size)) {
+		free(legacy_buf);
+		return 1;
+	}
+
 	struct cbfs_media media;
-	void *data;
-	struct cbfs_payload *payload;
-	const char *area_name = "RW_LEGACY";
-
-	if (fmap_find_area(area_name, &area)) {
-		printf("Fmap region %s not found.\n", area_name);
-		return 1;
-	}
-	data = flash_read(area.offset, area.size);
-
-	if (data == NULL) {
-		printf("Could not read in legacy cbfs data.\n");
-		return 1;
-	}
-
-	if (init_cbfs_ram_media(&media, data, area.size)) {
+	if (init_cbfs_ram_media(&media, legacy_buf, size)) {
 		printf("Could not initialize legacy cbfs.\n");
+		free(legacy_buf);
 		return 1;
 	}
 
-	payload = cbfs_load_payload(&media, "payload");
+	struct cbfs_payload *payload = cbfs_load_payload(&media, "payload");
 
 	if (payload == NULL) {
 		printf("Could not find payload in legacy cbfs.\n");
+		free(legacy_buf);
 		return 1;
 	}
 
 	load_payload_and_run(payload);
 
-	/* Should never return unless there is an error. */
+	// Should never return unless there is an error.
+	free(legacy_buf);
 	return 1;
 }
 
 static void load_payload_and_run(struct cbfs_payload *payload)
 {
-	/* This is a minimalistic SELF parser.  */
+	// This is a minimalistic SELF parser.
 	struct cbfs_payload_segment *seg = &payload->segments;
 	char *base = (void *)seg;
 
