@@ -25,6 +25,8 @@
 
 #include <stdint.h>
 
+#include "drivers/storage/storage.h"
+
 /*
  * This structure is supposed to be an opaque handle to a directory in a
  * DcDir. For practical reasons the information is visible, but it's only for
@@ -40,9 +42,7 @@ typedef struct
 
 /*
  * This structure is filled in by the dcdir code to return information about
- * a requested region in a DcDir. This mechanism may change in the future to
- * make accessing the region a less manual process, and to avoid having to know
- * what storage medium the region is on and how that medium should be accessed.
+ * a requested region in a DcDir.
  */
 typedef struct
 {
@@ -56,12 +56,14 @@ typedef struct
  * The structure pointed to by dcdir will be filled in with information
  * pertaining to the root directory. It should be passed verbatim to other
  * functions to access the contents of the root directory, and should be
- * treated as if it was opaque. anchor_offset should be set to the offset of
- * the "anchor" strcture within the medium described by the dcdir.
+ * treated as if it was opaque. storage should provide at least a "read"
+ * function to access the media with the dcdir on it. anchor_offset should be
+ * set to the offset of the "anchor" strcture within the medium described by
+ * the dcdir.
  *
  * Returns 0 on success, non-zero on failure.
  */
-int dcdir_open_root(DcDir *dcdir, uint32_t anchor_offset);
+int dcdir_open_root(DcDir *dcdir, StorageOps *storage, uint32_t anchor_offset);
 
 /*
  * Open a subdirectory within a given parent directory.
@@ -69,23 +71,28 @@ int dcdir_open_root(DcDir *dcdir, uint32_t anchor_offset);
  * The structure pointed to by dcdir will be filled in with information
  * pertaining to the directory with the name "name". It should be passed
  * verbatim to other functions to access the contents of that directory, and
- * should be treated as if it was opaque. parent_dir should be set to point
- * to the parent directory which was filled in by some other dcdir function.
+ * should be treated as if it was opaque. storage should provide at least a
+ * "read" function to access the media with the dcdir on it. parent_dir
+ * should be set to point to the parent directory which was filled in by some
+ * other dcdir function.
  *
  * Returns 0 on success, non-zero on failure.
  */
-int dcdir_open_dir(DcDir *dcdir, DcDir *parent_dir, const char *name);
+int dcdir_open_dir(DcDir *dcdir, StorageOps *storage, DcDir *parent_dir,
+		   const char *name);
 
 /*
  * Open a region within a given parent directory.
  *
  * The structure pointed to by "region" will be filled in with information
- * pertaining to the region with the name "name". parent_dir should be set
- * to point to the parent directory which was filled in by some other dcdir
- * function.
+ * pertaining to the region with the name "name". storage should provide at
+ * least a "read" function to access the media with the dcdir on it.
+ * parent_dir should be set to point to the parent directory which was filled
+ * in by some other dcdir function.
  *
  * Returns 0 on success, non-zero on failure.
  */
-int dcdir_open_region(DcDirRegion *region, DcDir *parent_dir, const char *name);
+int dcdir_open_region(DcDirRegion *region, StorageOps *storage,
+		      DcDir *parent_dir, const char *name);
 
 #endif /* __BASE_DCDIR_H__ */

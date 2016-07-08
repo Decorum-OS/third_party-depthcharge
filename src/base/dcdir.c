@@ -27,53 +27,59 @@
 #include "base/algorithm.h"
 #include "base/dcdir.h"
 #include "base/dcdir_structs.h"
+#include "base/xalloc.h"
 #include "drivers/flash/flash.h"
 
-int dcdir_open_root(DcDir *dcdir, uint32_t anchor_offset)
+int dcdir_open_root(DcDir *dcdir, StorageOps *storage, uint32_t anchor_offset)
 {
-	DcDirAnchor *anchor = flash_read(anchor_offset, sizeof(DcDirAnchor));
+	DcDirAnchor anchor;
+	if (storage_read(storage, &anchor, anchor_offset, sizeof(anchor)))
+		return 1;
 
-	if (memcmp(anchor->signature, DcDirAnchorSignature,
+	if (memcmp(anchor.signature, DcDirAnchorSignature,
 		   DcDirAnchorSignatureSize)) {
 		printf("DcDir anchor signature mismatch.\n");
 		return 1;
 	}
 
-	if (anchor->major_version != 1) {
+	if (anchor.major_version != 1) {
 		printf("Incompatible DcDir version %d.\n",
-		       anchor->major_version);
+		       anchor.major_version);
 		return 1;
 	}
 
-	if (anchor->anchor_offset != anchor_offset) {
+	if (anchor.anchor_offset != anchor_offset) {
 		printf("DcDir anchor offset mismatch. "
 		       "Expected %#x, found %#x.\n",
-		       anchor_offset, anchor->anchor_offset);
+		       anchor_offset, anchor.anchor_offset);
 		return 1;
 	}
 
 	dcdir->offset = anchor_offset + sizeof(DcDirAnchor);
-	dcdir->base = anchor->root_base;
+	dcdir->base = anchor.root_base;
 
 	return 0;
 }
 
-static DcDirPointer *dcdir_find_in_dir(DcDir *dir, const char *name)
+static DcDirPointer *dcdir_find_in_dir(DcDir *dir, StorageOps *storage,
+				       const char *name)
 {
-	DcDirDirectoryHeader *header =
-		flash_read(dir->offset, sizeof(*header));
+	DcDirDirectoryHeader header;
 
-	if (memcmp(header->signature, DcDirDirectorySignature,
+	if (storage_read(storage, &header, dir->offset, sizeof(header)))
+		return NULL;
+
+	if (memcmp(header.signature, DcDirDirectorySignature,
 		   DcDirDirectorySignatureSize)) {
 		printf("DcDir directory signature mismatch.\n");
 		return NULL;
 	}
 
-	int size = ((header->size[0] << 0) +
-		    (header->size[1] << 8) +
-		    (header->size[2] << 16) + 1) * 8;
+	int size = ((header.size[0] << 0) +
+		    (header.size[1] << 8) +
+		    (header.size[2] << 16) + 1) * 8;
 
-	size -= sizeof(*header);
+	size -= sizeof(header);
 
 	if (size < 0) {
 		printf("Malformed DcDir directory found when looking up %s.\n",
@@ -81,7 +87,12 @@ static DcDirPointer *dcdir_find_in_dir(DcDir *dir, const char *name)
 		return NULL;
 	}
 
-	void *pointers = flash_read(dir->offset + sizeof(*header), size);
+	void *pointers = xmalloc(size);
+	if (storage_read(storage, pointers, dir->offset + sizeof(header),
+			 size)) {
+		free(pointers);
+		return NULL;
+	}
 
 	while (size > 0) {
 		uint64_t *ptr_name = pointers;
@@ -92,19 +103,25 @@ static DcDirPointer *dcdir_find_in_dir(DcDir *dir, const char *name)
 
 		size_t name_len = MIN(strlen(name), sizeof(*ptr_name));
 
-		if (!memcmp(name, ptr_name, name_len))
-			return gen_ptr;
+		if (!memcmp(name, ptr_name, name_len)) {
+			void *buf = xmalloc(ptr_size);
+			memcpy(buf, gen_ptr, ptr_size);
+			free(pointers);
+			return buf;
+		}
 
 		pointers = (uint8_t *)pointers + ptr_size;
 		size -= ptr_size;
 	}
 
+	free(pointers);
 	return NULL;
 }
 
-int dcdir_open_dir(DcDir *dcdir, DcDir *parent_dir, const char *name)
+int dcdir_open_dir(DcDir *dcdir, StorageOps *storage, DcDir *parent_dir,
+		   const char *name)
 {
-	DcDirPointer *ptr_ptr = dcdir_find_in_dir(parent_dir, name);
+	DcDirPointer *ptr_ptr =	dcdir_find_in_dir(parent_dir, storage, name);
 
 	if (!ptr_ptr)
 		return 1;
@@ -113,6 +130,7 @@ int dcdir_open_dir(DcDir *dcdir, DcDir *parent_dir, const char *name)
 	int type = ptr_ptr->type >> 1;
 
 	if (!directory) {
+		free(ptr_ptr);
 		printf("DcDir region is not a directory.\n");
 		return 1;
 	}
@@ -142,16 +160,19 @@ int dcdir_open_dir(DcDir *dcdir, DcDir *parent_dir, const char *name)
 	}
 	break;
 	default:
+		free(ptr_ptr);
 		printf("Unrecognized dcdir pointer type.");
 		return 1;
 	}
 
+	free(ptr_ptr);
 	return 0;
 }
 
-int dcdir_open_region(DcDirRegion *region, DcDir *parent_dir, const char *name)
+int dcdir_open_region(DcDirRegion *region, StorageOps *storage,
+		      DcDir *parent_dir, const char *name)
 {
-	DcDirPointer *ptr_ptr = dcdir_find_in_dir(parent_dir, name);
+	DcDirPointer *ptr_ptr = dcdir_find_in_dir(parent_dir, storage, name);
 
 	if (!ptr_ptr)
 		return 1;
@@ -160,6 +181,7 @@ int dcdir_open_region(DcDirRegion *region, DcDir *parent_dir, const char *name)
 	int type = ptr_ptr->type >> 1;
 
 	if (directory) {
+		free(ptr_ptr);
 		printf("DcDir region is a directory.\n");
 		return 1;
 	}
@@ -192,9 +214,11 @@ int dcdir_open_region(DcDirRegion *region, DcDir *parent_dir, const char *name)
 	}
 	break;
 	default:
+		free(ptr_ptr);
 		printf("Unrecognized dcdir pointer type.");
 		return 1;
 	}
 
+	free(ptr_ptr);
 	return 0;
 }
