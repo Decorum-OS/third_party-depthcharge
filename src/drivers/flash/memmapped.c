@@ -39,10 +39,17 @@ static void *mem_mapped_flash_read(FlashOps *me, uint32_t offset, uint32_t size)
 	return (void *)(uintptr_t)(flash->base + offset);
 }
 
+static int mem_mapped_flash_size(FlashOps *me)
+{
+	MemMappedFlash *flash = container_of(me, MemMappedFlash, ops);
+	return flash->size;
+}
+
 MemMappedFlash *new_mem_mapped_flash(uint32_t base, uint32_t size)
 {
 	MemMappedFlash *flash = xzalloc(sizeof(*flash));
 	flash->ops.read = &mem_mapped_flash_read;
+	flash->ops.size = &mem_mapped_flash_size;
 	flash->base = base;
 	flash->size = size;
 	return flash;

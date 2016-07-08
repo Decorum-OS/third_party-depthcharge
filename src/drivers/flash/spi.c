@@ -302,6 +302,12 @@ static int spi_flash_erase(FlashOps *me, uint32_t start, uint32_t size)
 	return offset;
 }
 
+static int spi_flash_size(FlashOps *me)
+{
+	SpiFlash *flash = container_of(me, SpiFlash, ops);
+	return flash->rom_size;
+}
+
 SpiFlash *new_spi_flash(SpiOps *spi)
 {
 	uint32_t rom_size = lib_sysinfo.spi_flash.size;
@@ -309,9 +315,10 @@ SpiFlash *new_spi_flash(SpiOps *spi)
 	uint8_t erase_cmd = lib_sysinfo.spi_flash.erase_cmd;
 
 	SpiFlash *flash = xzalloc(sizeof(*flash));
-	flash->ops.read = spi_flash_read;
-	flash->ops.write = spi_flash_write;
-	flash->ops.erase = spi_flash_erase;
+	flash->ops.read = &spi_flash_read;
+	flash->ops.write = &spi_flash_write;
+	flash->ops.erase = &spi_flash_erase;
+	flash->ops.size = &spi_flash_size;
 	flash->spi = spi;
 	// Provide sufficient alignment on the cache buffer so that the
 	// underlying SPI controllers can perform optimal DMA transfers.

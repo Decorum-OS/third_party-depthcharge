@@ -35,6 +35,8 @@ typedef struct FlashOps
 	/* Return the number of successfully erased bytes.
 	 * Offset and size must be erase_size-aligned. */
 	int (*erase)(struct FlashOps *me, uint32_t offset, uint32_t size);
+	/* Return the size of the flash storage in bytes. */
+	int (*size)(struct FlashOps *me);
 } FlashOps;
 
 /* Functions operating on flash_ops */
