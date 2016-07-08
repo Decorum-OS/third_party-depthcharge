@@ -14,6 +14,10 @@
 ## along with this program; if not, write to the Free Software
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
+config DRIVER_STORAGE_DCDIR
+	bool "Depthcharge directory storage driver"
+	default n
+
 config DRIVER_STORAGE_FLASH
 	bool "Storage driver which is backed by flash media"
 	default n
