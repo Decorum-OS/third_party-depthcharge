@@ -46,6 +46,7 @@
 #include "drivers/keyboard/dynamic.h"
 #include "drivers/keyboard/ps2.h"
 #include "drivers/layout/coreboot.h"
+#include "drivers/layout/dcdir.h"
 #include "drivers/power/pch.h"
 #include "drivers/sound/i2s.h"
 #include "drivers/sound/route.h"
@@ -106,6 +107,7 @@ static BdwI2s *i2s_enable(int ssp)
 
 PRIV_DYN(flash, &new_mem_mapped_flash(0xff800000, 0x800000)->ops);
 PUB_DYN(_coreboot_storage, &new_flash_storage(get_flash())->ops);
+PUB_DYN(_dcdir_storage, &new_flash_storage(get_flash())->ops);
 
 static int board_setup(void)
 {
