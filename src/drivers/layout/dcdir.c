@@ -28,6 +28,7 @@
 PRIV_DYN(root, &new_dcdir_storage_root(board__dcdir_storage(),
 				       6 * 1024 * 1024)->ops)
   PRIV_DYN(rw, &new_dcdir_storage_dir(get_root(), "RW")->ops)
+    PUB_DYN(storage_legacy, &new_dcdir_storage(get_rw(), "LEGACY")->ops)
     PUB_DYN(storage_nv_scratch, &new_dcdir_storage(get_rw(), "SCRATCH")->ops)
   PRIV_DYN(ro, &new_dcdir_storage_dir(get_root(), "RO")->ops)
     PUB_DYN(storage_gbb, &new_dcdir_storage(get_ro(), "GBB")->ops)
