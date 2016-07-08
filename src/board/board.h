@@ -95,5 +95,6 @@ int board_flag_ec_in_rw(void);
  */
 
 StorageOps *board_storage_gbb(void);
+StorageOps *board_storage_nv_scratch(void);
 
 #endif /* __BOARD_BOARD_H__ */

@@ -29,3 +29,5 @@ PRIV_DYN(fmap_media, new_fmap_storage_media(board__coreboot_storage(),
 					    CONFIG_FMAP_OFFSET))
 
 PUB_DYN(storage_gbb, &new_fmap_storage(get_fmap_media(), "GBB")->ops)
+PUB_DYN(storage_nv_scratch, &new_fmap_storage(get_fmap_media(),
+	"SHARED_DATA")->ops)
