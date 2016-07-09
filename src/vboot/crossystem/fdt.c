@@ -67,9 +67,9 @@ static int install_crossystem_data(DeviceTreeFixup *fixup, DeviceTree *tree)
 	} else if (CONFIG_NV_STORAGE_FLASH) {
 		dt_add_string_prop(node, "nonvolatile-context-storage","flash");
 		dt_add_u32_prop(node, "nonvolatile-context-offset",
-				nvstorage_flash_get_offet());
+				nvstorage_flash_get_offset());
 		dt_add_u32_prop(node, "nonvolatile-context-size",
-				nvstorage_flash_get_blob_size());
+				VBNV_BLOCK_SIZE);
 	}
 
 	int fw_index = vdat->firmware_index;

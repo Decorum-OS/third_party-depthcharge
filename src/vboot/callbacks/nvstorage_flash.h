@@ -23,11 +23,6 @@
 #ifndef __VBOOT_CALLBACKS_NVSTORAGE_FLASH__
 #define __VBOOT_CALLBACKS_NVSTORAGE_FLASH__
 
-/*
- * Note that this functions's return value could change within a single boot
- * sequence, never cache it, call this function each time explicitly.
- */
-int nvstorage_flash_get_offet(void);
-int nvstorage_flash_get_blob_size(void);
+int nvstorage_flash_get_offset(void);
 
-#endif
+#endif /* __VBOOT_CALLBACKS_NVSTORAGE_FLASH__ */

@@ -22,6 +22,7 @@
 
 #include <stdio.h>
 
+#include "board/board.h"
 #include "drivers/flash/flash.h"
 #include "image/fmap.h"
 #include "vboot_api.h"
@@ -47,135 +48,110 @@
  * This scheme expects the user space application to manage the allocated
  * block, erasing it and initializing the lowest blob with the current NVRAM
  * contents once it gets close to capacity.
- *
  */
 
-/* FMAP descriptor of the NVRAM area */
-static FmapArea nvram_area_descriptor;
-
-/* Offset of the actual NVRAM blob offset in the NVRAM block. */
+// Offset of the actual NVRAM blob offset in the NVRAM block.
 static int nvram_blob_offset;
 
-/* Local cache of the NVRAM blob. */
+// Local cache of the NVRAM blob.
 static uint8_t nvram_cache[VBNV_BLOCK_SIZE];
+
+static uint32_t nvram_area_size;
+static uint32_t nvram_area_offset;
+
+static int nvram_initialized;
 
 static int flash_nvram_init(void)
 {
-	int area_offset, prev_offset, size_limit;
-	static int vbnv_flash_is_initialized = 0;
-	uint8_t empty_nvram_block[sizeof(nvram_cache)];
-	uint8_t *nvram_area_in_flash;
-
-	if (vbnv_flash_is_initialized)
-		return 0;
-
-	if (fmap_find_area("RW_NVRAM", &nvram_area_descriptor)) {
+	FmapArea fmap_area;
+	if (fmap_find_area("RW_NVRAM", &fmap_area)) {
 		printf("%s: failed to find NVRAM area\n", __func__);
 		return -1;
 	}
+	nvram_area_size = fmap_area.size;
+	nvram_area_offset = fmap_area.offset;
 
-	nvram_area_in_flash = flash_read(nvram_area_descriptor.offset,
-					 nvram_area_descriptor.size);
-	if (!nvram_area_in_flash) {
+	uint8_t *data = flash_read(nvram_area_offset, nvram_area_size);
+	if (!data) {
 		printf("%s: failed to read NVRAM area\n", __func__);
 		return -1;
 	}
 
-	/* Prepare an empty NVRAM block to compare against. */
-	memset(empty_nvram_block, 0xff, sizeof(empty_nvram_block));
+	// Prepare an empty NVRAM block to compare against.
+	uint8_t empty_block[sizeof(nvram_cache)];
+	memset(empty_block, 0xff, sizeof(empty_block));
 
-	/*
-	 * Now find the first completely empty NVRAM blob. The actual NVRAM
-	 * blob will be right below it.
-	 */
-	size_limit = nvram_area_descriptor.size - sizeof(nvram_cache);
-	for (area_offset = 0, prev_offset = 0;
-	     area_offset <= size_limit;
-	     area_offset += sizeof(nvram_cache)) {
-		if (!memcmp(nvram_area_in_flash + area_offset,
-			    empty_nvram_block,
-			    sizeof(nvram_cache)))
+	// Find the first completely empty NVRAM blob. The actual NVRAM
+	// blob will be right below it.
+	int last_offset = 0;
+	const int size = sizeof(nvram_cache);
+	for (int offset = size; offset < nvram_area_size; offset += size) {
+		if (!memcmp(data + offset, empty_block, size))
 			break;
-		prev_offset = area_offset;
+		last_offset = offset;
 	}
 
-	memcpy(nvram_cache,
-	       nvram_area_in_flash + prev_offset,
-	       sizeof(nvram_cache));
-
-	nvram_blob_offset = prev_offset;
-	vbnv_flash_is_initialized = 1;
+	memcpy(nvram_cache, data + last_offset, size);
+	nvram_blob_offset = last_offset;
+	nvram_initialized = 1;
 	return 0;
 }
 
 VbError_t VbExNvStorageRead(uint8_t *buf)
 {
-	if (flash_nvram_init())
+	if (!nvram_initialized && flash_nvram_init())
 		return VBERROR_UNKNOWN;
 
 	memcpy(buf, nvram_cache, sizeof(nvram_cache));
 	return VBERROR_SUCCESS;
 }
 
-static VbError_t erase_nvram(void)
+static int erase_nvram(void)
 {
-	if (flash_nvram_init())
-		return VBERROR_UNKNOWN;
-
-	if (flash_erase(nvram_area_descriptor.offset,
-			nvram_area_descriptor.size) !=
-					nvram_area_descriptor.size)
-		return VBERROR_UNKNOWN;
-
-	return VBERROR_SUCCESS;
+	if (flash_erase(nvram_area_offset, nvram_area_size) != nvram_area_size)
+		return 1;
+	return 0;
 }
 
 VbError_t VbExNvStorageWrite(const uint8_t *buf)
 {
-	int i;
+	const int cache_size = sizeof(nvram_cache);
 
-	if (flash_nvram_init())
+	if (!nvram_initialized && flash_nvram_init())
 		return VBERROR_UNKNOWN;
 
-	/* Bail out if there have been no changes. */
-	if (!memcmp(buf, nvram_cache, sizeof(nvram_cache)))
+	// Bail out if there have been no changes.
+	if (!memcmp(buf, nvram_cache, cache_size))
 		return VBERROR_SUCCESS;
 
-	/* See if we can overwrite the current blob with the new one. */
-	for (i = 0; i < sizeof(nvram_cache); i++)
+	// See if we can overwrite the current blob with the new one.
+	int i;
+	for (i = 0; i < cache_size; i++)
 		if ((nvram_cache[i] & buf[i]) != buf[i])
 			break;
 
-	if (i != sizeof(nvram_cache)) {
-		int new_blob_offset;
-		/*
-		 * Won't be able to overwrite, need to use the next blob,
-		 * let's see if it is available.
-		 */
-		new_blob_offset = nvram_blob_offset + sizeof(nvram_cache);
-		if (new_blob_offset >= nvram_area_descriptor.size) {
-			printf("nvram is used up. deleting it to start over\n");
-			if (erase_nvram() != VBERROR_SUCCESS)
+	if (i != cache_size) {
+		// We won't be able to update the existing entry. Check if
+		// the next is available.
+		int new_offset = nvram_blob_offset + cache_size;
+		if (new_offset >= nvram_area_size) {
+			printf("Nvram is full, so erase it.\n");
+			if (erase_nvram())
 				return VBERROR_UNKNOWN;
-			new_blob_offset = 0;
+			new_offset = 0;
 		}
-		nvram_blob_offset = new_blob_offset;
+		nvram_blob_offset = new_offset;
 	}
 
-	if (flash_write(nvram_area_descriptor.offset + nvram_blob_offset,
-			sizeof(nvram_cache), buf) != sizeof(nvram_cache))
+	if (flash_write(nvram_area_offset + nvram_blob_offset,
+			cache_size, buf) != cache_size)
 		return VBERROR_UNKNOWN;
 
-	memcpy(nvram_cache, buf, sizeof(nvram_cache));
+	memcpy(nvram_cache, buf, cache_size);
 	return VBERROR_SUCCESS;
 }
 
-int nvstorage_flash_get_offet(void)
+int nvstorage_flash_get_offset(void)
 {
 	return nvram_blob_offset;
-}
-
-int nvstorage_flash_get_blob_size(void)
-{
-	return sizeof(nvram_cache);
 }
