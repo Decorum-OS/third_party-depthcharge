@@ -38,11 +38,21 @@
 #include "vboot/util/gbb.h"
 #include "vboot/util/vboot_handoff.h"
 
+static void install_id(void *dest, int dest_sz, const void *src, int src_sz)
+{
+	if (src_sz)
+		memcpy(dest, src, MIN(dest_sz, src_sz));
+}
+
 int crossystem_setup(void)
 {
+	if (common_params_init())
+		return 1;
+
 	chromeos_acpi_t *acpi_table = (chromeos_acpi_t *)lib_sysinfo.vdat_addr;
 	VbSharedDataHeader *vdat = (VbSharedDataHeader *)&acpi_table->vdat;
-	int size;
+
+	memcpy(vdat, cparams.shared_data_blob, cparams.shared_data_size);
 
 	if (vdat->magic != VB_SHARED_DATA_MAGIC) {
 		printf("Bad magic value in vboot shared data header.\n");
@@ -51,39 +61,28 @@ int crossystem_setup(void)
 
 	acpi_table->boot_reason = BOOT_REASON_OTHER;
 
-	int main_fw;
-	const char *fwid;
-	int fwid_size;
 	int fw_index = vdat->firmware_index;
-
-	fwid = get_fw_id(fw_index);
-
-	if (fwid == NULL) {
+	switch (fw_index) {
+	case VDAT_RW_A:
+		acpi_table->main_fw = BINF_RW_A;
+		break;
+	case VDAT_RW_B:
+		acpi_table->main_fw = BINF_RW_B;
+		break;
+	case VDAT_RECOVERY:
+		acpi_table->main_fw = BINF_RECOVERY;
+		break;
+	default:
 		printf("Unrecognized firmware index %d.\n", fw_index);
 		return 1;
 	}
 
-	fwid_size = get_fw_size(fw_index);
-
-	const struct {
-		int vdat_fw_index;
-		int main_fw_index;
-	} main_fw_arr[] = {
-		{ VDAT_RW_A, BINF_RW_A },
-		{ VDAT_RW_B, BINF_RW_B },
-		{ VDAT_RECOVERY, BINF_RECOVERY },
-	};
-
-	int i;
-	for (i = 0; i < ARRAY_SIZE(main_fw_arr); i++) {
-		if (fw_index == main_fw_arr[i].vdat_fw_index) {
-			main_fw = main_fw_arr[i].main_fw_index;
-			break;
-		}
-	}
-	assert(i < ARRAY_SIZE(main_fw_arr));
-
-	acpi_table->main_fw = main_fw;
+	if (fw_index == VDAT_RECOVERY)
+		acpi_table->main_fw_type = FIRMWARE_TYPE_RECOVERY;
+	else if (vdat->flags & VBSD_BOOT_DEV_SWITCH_ON)
+		acpi_table->main_fw_type = FIRMWARE_TYPE_DEVELOPER;
+	else
+		acpi_table->main_fw_type = FIRMWARE_TYPE_NORMAL;
 
 	// Use the value set by coreboot if we don't want to change it.
 	if (CONFIG_EC_SOFTWARE_SYNC) {
@@ -105,40 +104,31 @@ int crossystem_setup(void)
 		chsw |= CHSW_DEVELOPER_SWITCH;
 	acpi_table->chsw = chsw;
 
-	size_t hwid_size;
-	const char *hwid = gbb_read_hwid(&hwid_size);
-	size = MIN(hwid_size, sizeof(acpi_table->hwid));
-	memcpy(acpi_table->hwid, hwid, size);
+	size_t size;
+	const char *id = gbb_read_hwid(&size);
+	if (!id)
+		return 1;
+	install_id(acpi_table->hwid, sizeof(acpi_table->hwid), id, size);
 
-	size = MIN(fwid_size, sizeof(acpi_table->fwid));
-	memcpy(acpi_table->fwid, fwid, size);
+	id = firmware_id_for(fw_index, &size);
+	if (!id)
+		return 1;
 
-	size = get_ro_fw_size();
+	size_t smbios_size = MIN(size, strnlen(id, ACPI_FWID_SIZE));
+	uint8_t *dest = (uint8_t *)(uintptr_t)acpi_table->fwid_ptr;
+	memcpy(dest, id, smbios_size);
+	dest[smbios_size] = 0;
 
-	if (size) {
-		size = MIN(size, sizeof(acpi_table->frid));
-		memcpy(acpi_table->frid, get_ro_fw_id(), size);
-	}
+	install_id(acpi_table->fwid, sizeof(acpi_table->fwid), id, size);
 
-	if (main_fw == BINF_RECOVERY)
-		acpi_table->main_fw_type = FIRMWARE_TYPE_RECOVERY;
-	else if (vdat->flags & VBSD_BOOT_DEV_SWITCH_ON)
-		acpi_table->main_fw_type = FIRMWARE_TYPE_DEVELOPER;
-	else
-		acpi_table->main_fw_type = FIRMWARE_TYPE_NORMAL;
+	id = firmware_id_for(VDAT_RO, &size);
+	if (!id)
+		return 1;
+	install_id(acpi_table->frid, sizeof(acpi_table->frid), id, size);
 
 	acpi_table->recovery_reason = vdat->recovery_reason;
 
 	acpi_table->fmap_base = (uintptr_t)fmap_base();
-
-	size = MIN(fwid_size, strnlen(fwid, ACPI_FWID_SIZE));
-	uint8_t *dest = (uint8_t *)(uintptr_t)acpi_table->fwid_ptr;
-	memcpy(dest, fwid, size);
-	dest[size] = 0;
-
-	if (common_params_init())
-		return 1;
-	memcpy(vdat, cparams.shared_data_blob, cparams.shared_data_size);
 
 	return 0;
 }

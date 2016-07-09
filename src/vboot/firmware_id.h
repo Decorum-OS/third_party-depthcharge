@@ -23,6 +23,10 @@
 #ifndef __VBOOT_FIRMWARE_ID_H__
 #define __VBOOT_FIRMWARE_ID_H__
 
+#include <stddef.h>
+
+#include "drivers/storage/storage.h"
+
 enum {
 	VDAT_RW_A = 0x0,
 	VDAT_RW_B = 0x1,
@@ -31,25 +35,7 @@ enum {
 	VDAT_UNKNOWN = 0x100,
 };
 
-/* Get firmware details by vdat indexo */
-const char *get_fw_id(int index);
-int get_fw_size(int index);
-
-/* Get firmware id for a particular type - ro, rwa, rwb */
-const char *get_ro_fw_id(void);
-const char *get_rwa_fw_id(void);
-const char *get_rwb_fw_id(void);
-
-/* Get firmware size for a particular type - ro, rwa, rwb */
-int get_ro_fw_size(void);
-int get_rwa_fw_size(void);
-int get_rwb_fw_size(void);
-
-/*
- * Get firmware details for currently active fw type. It looks up vdat,
- * identifies fw_index and returns appropriate id and size for that index.
- */
-const char *get_active_fw_id(void);
-int get_active_fw_size(void);
+const char *firmware_id_for(int index, size_t *size_ptr);
+const char *firmware_id_active(size_t *size_ptr);
 
 #endif /* __VBOOT_FIRMWARE_ID_H__ */

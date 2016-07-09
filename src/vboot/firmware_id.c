@@ -20,135 +20,73 @@
  * MA 02111-1307 USA
  */
 
+#include <stdlib.h>
 #include <vboot_struct.h>
 
-#include "base/algorithm.h"
-#include "image/fmap.h"
+#include "base/xalloc.h"
+#include "board/board.h"
+#include "drivers/storage/storage.h"
 #include "vboot/firmware_id.h"
 #include "vboot/util/commonparams.h"
 
-static struct fwid {
-	int vdat_id;
-	const char *fw_name;
-	const char *fw_id;
-	int fw_size;
-	const char *id_err;
-} fw_fmap_ops[] = {
-	{VDAT_RW_A, "RW_FWID_A", NULL, 0, "RW A: ID NOT FOUND"},
-	{VDAT_RW_B, "RW_FWID_B", NULL, 0, "RW B: ID NOT FOUND"},
-	{VDAT_RECOVERY, "RO_FRID", NULL, 0, "RO: ID NOT FOUND"},
-};
-
-static void get_fw_details(struct fwid *entry)
+const char *firmware_id_for(int index, size_t *size)
 {
-	if (entry->fw_id)
-		return;
+	static const char *rwa;
+	static size_t rwa_size;
+	static const char *rwb;
+	static size_t rwb_size;
+	static const char *ro;
+	static size_t ro_size;
 
-	entry->fw_id = fmap_find_string(entry->fw_name, &entry->fw_size);
-
-	if (entry->fw_id == NULL)
-		entry->fw_id = entry->id_err;
-}
-
-static struct fwid *get_fw_entry(int index)
-{
-	int i;
-
-	for (i = 0; i < ARRAY_SIZE(fw_fmap_ops); i++) {
-		if (fw_fmap_ops[i].vdat_id == index)
-			break;
+	StorageOps *storage;
+	const char **id_ptr;
+	size_t *size_ptr;
+	switch (index) {
+	case VDAT_RW_A:
+		storage = board_storage_fwid_rwa();
+		id_ptr = &rwa;
+		size_ptr = &rwa_size;
+		break;
+	case VDAT_RW_B:
+		storage = board_storage_fwid_rwb();
+		id_ptr = &rwb;
+		size_ptr = &rwb_size;
+		break;
+	case VDAT_RECOVERY:
+		storage = board_storage_fwid_ro();
+		id_ptr = &ro;
+		size_ptr = &ro_size;
+		break;
+	default:
+		return NULL;
 	}
 
-	if (i == ARRAY_SIZE(fw_fmap_ops))
-		return NULL;
+	if (!*id_ptr) {
+		int ssize = storage_size(storage);
+		if (ssize < 1)
+			return NULL;
 
-	struct fwid *entry = &fw_fmap_ops[i];
+		void *data = xmalloc(ssize);
+		if (storage_read(storage, data, 0, ssize)) {
+			free(data);
+			return NULL;
+		}
 
-	get_fw_details(entry);
+		*id_ptr = data;
+		*size_ptr = ssize;
+	}
 
-	return entry;
+	if (size)
+		*size = *size_ptr;
+
+	return *id_ptr;
 }
 
-const char *get_fw_id(int index)
-{
-	struct fwid *entry = get_fw_entry(index);
-
-	if(entry == NULL)
-		return NULL;
-
-	return entry->fw_id;
-}
-
-int get_fw_size(int index)
-{
-	struct fwid *entry = get_fw_entry(index);
-
-	if (entry == NULL)
-		return 0;
-
-	return entry->fw_size;
-}
-
-const char *get_ro_fw_id(void)
-{
-	return get_fw_id(VDAT_RECOVERY);
-}
-
-const char *get_rwa_fw_id(void)
-{
-	return get_fw_id(VDAT_RW_A);
-}
-
-const char *get_rwb_fw_id(void)
-{
-	return get_fw_id(VDAT_RW_B);
-}
-
-int get_ro_fw_size(void)
-{
-	return get_fw_size(VDAT_RECOVERY);
-}
-
-int get_rwa_fw_size(void)
-{
-	return get_fw_size(VDAT_RW_A);
-}
-
-int get_rwb_fw_size(void)
-{
-	return get_fw_size(VDAT_RW_B);
-}
-
-static VbSharedDataHeader *get_vdat(void)
+const char *firmware_id_active(size_t *size)
 {
 	if (common_params_init())
 		return NULL;
 
-	return cparams.shared_data_blob;
-}
-
-static inline int get_active_fw_index(VbSharedDataHeader *vdat)
-{
-	int fw_index = VDAT_UNKNOWN;
-
-	if (vdat)
-		fw_index = vdat->firmware_index;
-
-	return fw_index;
-}
-
-const char *get_active_fw_id(void)
-{
-	VbSharedDataHeader *vdat = get_vdat();
-	int fw_index = get_active_fw_index(vdat);
-
-	return get_fw_id(fw_index);
-}
-
-int get_active_fw_size(void)
-{
-	VbSharedDataHeader *vdat = get_vdat();
-	int fw_index = get_active_fw_index(vdat);
-
-	return get_fw_size(fw_index);
+	VbSharedDataHeader *vdat = cparams.shared_data_blob;
+	return firmware_id_for(vdat->firmware_index, size);
 }

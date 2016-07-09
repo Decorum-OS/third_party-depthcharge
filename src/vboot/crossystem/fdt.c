@@ -73,19 +73,17 @@ static int install_crossystem_data(DeviceTreeFixup *fixup, DeviceTree *tree)
 	}
 
 	int fw_index = vdat->firmware_index;
-	const char *fwid;
-	int fwid_size;
 
-	fwid = get_fw_id(fw_index);
-
+	size_t fwid_size;
+	const char *fwid = firmware_id_for(fw_index, &fwid_size);
 	if (fwid == NULL) {
-		printf("Unrecognized firmware index %d.\n", fw_index);
+		printf("No firmware ID for %d.\n", fw_index);
 		return 1;
 	}
+	char *fwid_copy = xmalloc(fwid_size);
+	memcpy(fwid_copy, fwid, fwid_size);
 
-	fwid_size = get_fw_size(fw_index);
-
-	dt_add_bin_prop(node, "firmware-version", (char *)fwid, fwid_size);
+	dt_add_bin_prop(node, "firmware-version", fwid_copy, fwid_size);
 
 	if (fw_index == VDAT_RECOVERY)
 		dt_add_string_prop(node, "firmware-type", "recovery");
@@ -96,11 +94,15 @@ static int install_crossystem_data(DeviceTreeFixup *fixup, DeviceTree *tree)
 
 	dt_add_u32_prop(node, "fmap-offset", CONFIG_FMAP_OFFSET);
 
-	int ro_fw_size = get_ro_fw_size();
+	fwid_size = 0;
+	fwid = firmware_id_for(VDAT_RO, &fwid_size);
 
-	if (ro_fw_size)
+	if (fwid_size) {
+		fwid_copy = xmalloc(fwid_size);
+		memcpy(fwid_copy, fwid, fwid_size);
 		dt_add_bin_prop(node, "readonly-firmware-version",
-				(char *)get_ro_fw_id(), ro_fw_size);
+				fwid_copy, fwid_size);
+	}
 
 	GoogleBinaryBlockHeader *gbb = cparams.gbb_data;
 	if (memcmp(gbb->signature, GBB_SIGNATURE, GBB_SIGNATURE_SIZE)) {

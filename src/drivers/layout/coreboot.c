@@ -29,6 +29,9 @@ PRIV_DYN(fmap_media, new_fmap_storage_media(board__coreboot_storage(),
 					    CONFIG_FMAP_OFFSET))
 
 PUB_DYN(storage_gbb, &new_fmap_storage(get_fmap_media(), "GBB")->ops)
+PUB_DYN(storage_fwid_ro, &new_fmap_storage(get_fmap_media(), "RO_FRID")->ops)
+PUB_DYN(storage_fwid_rwa, &new_fmap_storage(get_fmap_media(), "RW_FWID_A")->ops)
+PUB_DYN(storage_fwid_rwb, &new_fmap_storage(get_fmap_media(), "RW_FWID_B")->ops)
 PUB_DYN(storage_legacy, &new_fmap_storage(get_fmap_media(), "RW_LEGACY")->ops)
 PUB_DYN(storage_nv_scratch, &new_fmap_storage(get_fmap_media(),
 	"SHARED_DATA")->ops)

@@ -151,11 +151,14 @@ VbError_t VbExDisplayDebugInfo(const char *info_str)
 	print_string(info_str);
 
 	print_string("read-only firmware id: ");
-	print_string_newline(get_ro_fw_id());
+	const char *id = firmware_id_for(VDAT_RO, NULL);
+	if (!id)
+		id = "NOT FOUND";
+	print_string_newline(id);
 
 	print_string("active firmware id: ");
-	const char *id = get_active_fw_id();
-	if (id == NULL)
+	id = firmware_id_active(NULL);
+	if (!id)
 		id = "NOT FOUND";
 	print_string_newline(id);
 
