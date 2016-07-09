@@ -78,8 +78,10 @@ class Gbb(DerivedArea):
                 return data.read()
 
     def log_get_additional_properties(self):
-        return [name for name, val in Gbb.AllFlags.iteritems()
-                if val & self._flags]
+        props = ["hwid=\"%s\"" % self._hwid]
+        props.extend([name for name, val in Gbb.AllFlags.iteritems()
+                      if val & self._flags])
+        return props
 
     def log_area_content(self, indent):
         child_areas = {
