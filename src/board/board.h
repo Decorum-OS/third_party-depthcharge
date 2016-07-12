@@ -94,12 +94,16 @@ int board_flag_ec_in_rw(void);
  * which map out the media into smaller components.
  */
 
-StorageOps *board_storage_gbb(void);
-StorageOps *board_storage_legacy(void);
-StorageOps *board_storage_nv_scratch(void);
 StorageOps *board_storage_fwid_rwa(void);
 StorageOps *board_storage_fwid_rwb(void);
 StorageOps *board_storage_fwid_ro(void);
+StorageOps *board_storage_gbb(void);
+StorageOps *board_storage_legacy(void);
+StorageOps *board_storage_nv_scratch(void);
+StorageOps *board_storage_vblock_a(void);
+StorageOps *board_storage_vblock_b(void);
 StorageOps *board_storage_vboot_nvstorage(void);
+StorageOps *board_storage_verified_a(void);
+StorageOps *board_storage_verified_b(void);
 
 #endif /* __BOARD_BOARD_H__ */

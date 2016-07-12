@@ -24,6 +24,7 @@ config DRIVER_LAYOUT_NONE
 config DRIVER_LAYOUT_COREBOOT
 	bool "Find firmware components based on a coreboot layout"
 	select DRIVER_STORAGE_FMAP
+	select DRIVER_STORAGE_SECTION_INDEX
 
 config DRIVER_LAYOUT_DCDIR
 	bool "Find firmware components based on a standard dcdir layout"
