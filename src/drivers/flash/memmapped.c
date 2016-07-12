@@ -39,6 +39,19 @@ static void *mem_mapped_flash_read(FlashOps *me, uint32_t offset, uint32_t size)
 	return (void *)(uintptr_t)(flash->base + offset);
 }
 
+static int mem_mapped_flash_write(FlashOps *me, const void *buffer,
+				  uint32_t offset, uint32_t size)
+{
+	printf("Memory mapped flash doesn't support writes.\n");
+	return 1;
+}
+
+static int mem_mapped_flash_erase(FlashOps *me, uint32_t offset, uint32_t size)
+{
+	printf("Memory mapped flash doesn't support erasing.\n");
+	return 1;
+}
+
 static int mem_mapped_flash_size(FlashOps *me)
 {
 	MemMappedFlash *flash = container_of(me, MemMappedFlash, ops);
@@ -49,6 +62,8 @@ MemMappedFlash *new_mem_mapped_flash(uint32_t base, uint32_t size)
 {
 	MemMappedFlash *flash = xzalloc(sizeof(*flash));
 	flash->ops.read = &mem_mapped_flash_read;
+	flash->ops.write = &mem_mapped_flash_write;
+	flash->ops.erase = &mem_mapped_flash_erase;
 	flash->ops.size = &mem_mapped_flash_size;
 	flash->base = base;
 	flash->size = size;
