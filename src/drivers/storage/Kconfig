@@ -25,3 +25,7 @@ config DRIVER_STORAGE_FLASH
 config DRIVER_STORAGE_FMAP
 	bool "Storage driver which is relative to a particular FMAP area"
 	default n
+
+config DRIVER_STORAGE_SECTION_INDEX
+	bool "Storage driver which is relative to an entry in a section index"
+	default n
