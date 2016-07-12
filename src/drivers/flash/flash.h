@@ -27,20 +27,17 @@
 
 typedef struct FlashOps
 {
-	/* Return a pointer to the read data in the flash driver cache. */
+	// Return a pointer to the read data in the flash driver cache.
 	void *(*read)(struct FlashOps *me, uint32_t offset, uint32_t size);
-	/* Return the number of successfully written bytes */
 	int (*write)(struct FlashOps *me, const void *buffer,
 		     uint32_t offset, uint32_t size);
-	/* Return the number of successfully erased bytes.
-	 * Offset and size must be erase_size-aligned. */
+	// Offset and size must be erase_size-aligned.
 	int (*erase)(struct FlashOps *me, uint32_t offset, uint32_t size);
-	/* Return the size of the flash storage in bytes. */
 	int (*size)(struct FlashOps *me);
 } FlashOps;
 
-/* Functions operating on flash_ops */
 void flash_set_ops(FlashOps *ops);
+
 void *flash_read(uint32_t offset, uint32_t size);
 int flash_write(uint32_t offset, uint32_t size, const void *buffer);
 int flash_erase(uint32_t offset, uint32_t size);

@@ -108,7 +108,7 @@ VbError_t VbExNvStorageRead(uint8_t *buf)
 
 static int erase_nvram(void)
 {
-	if (flash_erase(nvram_area_offset, nvram_area_size) != nvram_area_size)
+	if (flash_erase(nvram_area_offset, nvram_area_size))
 		return 1;
 	return 0;
 }
@@ -143,8 +143,7 @@ VbError_t VbExNvStorageWrite(const uint8_t *buf)
 		nvram_blob_offset = new_offset;
 	}
 
-	if (flash_write(nvram_area_offset + nvram_blob_offset,
-			cache_size, buf) != cache_size)
+	if (flash_write(nvram_area_offset + nvram_blob_offset, cache_size, buf))
 		return VBERROR_UNKNOWN;
 
 	memcpy(nvram_cache, buf, cache_size);
