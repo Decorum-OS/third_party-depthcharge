@@ -21,10 +21,11 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 
+#include "base/xalloc.h"
 #include "board/board.h"
-#include "drivers/flash/flash.h"
-#include "image/fmap.h"
+#include "drivers/storage/storage.h"
 #include "vboot_api.h"
 
 /*
@@ -56,24 +57,19 @@ static int nvram_blob_offset;
 // Local cache of the NVRAM blob.
 static uint8_t nvram_cache[VBNV_BLOCK_SIZE];
 
-static uint32_t nvram_area_size;
-static uint32_t nvram_area_offset;
-
-static int nvram_initialized;
+static StorageOps *nvram_storage;
+static int nvram_storage_size;
 
 static int flash_nvram_init(void)
 {
-	FmapArea fmap_area;
-	if (fmap_find_area("RW_NVRAM", &fmap_area)) {
-		printf("%s: failed to find NVRAM area\n", __func__);
+	StorageOps *storage = board_storage_vboot_nvstorage();
+	nvram_storage_size = storage_size(nvram_storage);
+	if (nvram_storage_size < 0)
 		return -1;
-	}
-	nvram_area_size = fmap_area.size;
-	nvram_area_offset = fmap_area.offset;
 
-	uint8_t *data = flash_read(nvram_area_offset, nvram_area_size);
-	if (!data) {
-		printf("%s: failed to read NVRAM area\n", __func__);
+	uint8_t *data = xmalloc(nvram_storage_size);
+	if (storage_read(nvram_storage, data, 0, nvram_storage_size)) {
+		free(data);
 		return -1;
 	}
 
@@ -82,42 +78,36 @@ static int flash_nvram_init(void)
 	memset(empty_block, 0xff, sizeof(empty_block));
 
 	// Find the first completely empty NVRAM blob. The actual NVRAM
-	// blob will be right below it.
+	// blob will be right before it.
 	int last_offset = 0;
 	const int size = sizeof(nvram_cache);
-	for (int offset = size; offset < nvram_area_size; offset += size) {
+	for (int offset = size; offset < nvram_storage_size; offset += size) {
 		if (!memcmp(data + offset, empty_block, size))
 			break;
 		last_offset = offset;
 	}
 
-	memcpy(nvram_cache, data + last_offset, size);
+	nvram_storage = storage;
 	nvram_blob_offset = last_offset;
-	nvram_initialized = 1;
+	memcpy(nvram_cache, data + last_offset, size);
+	free(data);
 	return 0;
 }
 
 VbError_t VbExNvStorageRead(uint8_t *buf)
 {
-	if (!nvram_initialized && flash_nvram_init())
+	if (!nvram_storage && flash_nvram_init())
 		return VBERROR_UNKNOWN;
 
 	memcpy(buf, nvram_cache, sizeof(nvram_cache));
 	return VBERROR_SUCCESS;
 }
 
-static int erase_nvram(void)
-{
-	if (flash_erase(nvram_area_offset, nvram_area_size))
-		return 1;
-	return 0;
-}
-
 VbError_t VbExNvStorageWrite(const uint8_t *buf)
 {
 	const int cache_size = sizeof(nvram_cache);
 
-	if (!nvram_initialized && flash_nvram_init())
+	if (!nvram_storage && flash_nvram_init())
 		return VBERROR_UNKNOWN;
 
 	// Bail out if there have been no changes.
@@ -134,16 +124,22 @@ VbError_t VbExNvStorageWrite(const uint8_t *buf)
 		// We won't be able to update the existing entry. Check if
 		// the next is available.
 		int new_offset = nvram_blob_offset + cache_size;
-		if (new_offset >= nvram_area_size) {
-			printf("Nvram is full, so erase it.\n");
-			if (erase_nvram())
+		if (new_offset >= nvram_storage_size) {
+			// Nvram is full, so erase it.
+			uint8_t *empty = xmalloc(nvram_storage_size);
+			memset(empty, 0xff, nvram_storage_size);
+			if (storage_write(nvram_storage, empty, 0,
+					  nvram_storage_size)) {
+				free(empty);
 				return VBERROR_UNKNOWN;
+			}
+			free(empty);
 			new_offset = 0;
 		}
 		nvram_blob_offset = new_offset;
 	}
 
-	if (flash_write(nvram_area_offset + nvram_blob_offset, cache_size, buf))
+	if (storage_write(nvram_storage, buf, nvram_blob_offset, cache_size))
 		return VBERROR_UNKNOWN;
 
 	memcpy(nvram_cache, buf, cache_size);
