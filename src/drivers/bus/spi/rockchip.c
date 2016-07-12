@@ -170,7 +170,8 @@ static int do_xfer(RkSpi *bus, void *in, const void *out, uint32_t size)
 	return 0;
 }
 
-static int spi_transfer(SpiOps *me, void *in, const void *out, uint32_t size)
+static int rockchip_spi_transfer(SpiOps *me, void *in, const void *out,
+				 uint32_t size)
 {
 	int res = 0;
 	RkSpi *bus = container_of(me, RkSpi, ops);
@@ -216,7 +217,7 @@ static int spi_transfer(SpiOps *me, void *in, const void *out, uint32_t size)
 
 }
 
-static int spi_start(SpiOps *me)
+static int rockchip_spi_start(SpiOps *me)
 {
 	int res = 0;
 	RkSpi *bus = container_of(me, RkSpi, ops);
@@ -227,7 +228,7 @@ static int spi_start(SpiOps *me)
 	return res;
 }
 
-static int spi_stop(SpiOps *me)
+static int rockchip_spi_stop(SpiOps *me)
 {
 	int res = 0;
 	RkSpi *bus = container_of(me, RkSpi, ops);
@@ -244,8 +245,8 @@ RkSpi *new_rockchip_spi(uintptr_t reg_addr)
 
 	bus = xzalloc(sizeof(*bus));
 	bus->reg_addr = (void *)reg_addr;
-	bus->ops.start = &spi_start;
-	bus->ops.stop = &spi_stop;
-	bus->ops.transfer = &spi_transfer;
+	bus->ops.start = &rockchip_spi_start;
+	bus->ops.stop = &rockchip_spi_stop;
+	bus->ops.transfer = &rockchip_spi_transfer;
 	return bus;
 }

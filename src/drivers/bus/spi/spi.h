@@ -28,4 +28,20 @@ typedef struct SpiOps
 	int (*stop)(struct SpiOps *me);
 } SpiOps;
 
+static inline int spi_start(SpiOps *me)
+{
+	return me->start(me);
+}
+
+static inline int spi_transfer(SpiOps *me, void *in, const void *out,
+			       uint32_t size)
+{
+	return me->transfer(me, in, out, size);
+}
+
+static inline int spi_stop(SpiOps *me)
+{
+	return me->stop(me);
+}
+
 #endif /* __DRIVERS_BUS_SPI_SPI_H__ */
