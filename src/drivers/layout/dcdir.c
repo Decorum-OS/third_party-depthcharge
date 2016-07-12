@@ -25,15 +25,21 @@
 #include "drivers/layout/dcdir.h"
 #include "drivers/storage/dcdir.h"
 
-PRIV_DYN(root, &new_dcdir_storage_root(board__dcdir_storage(),
-				       6 * 1024 * 1024)->ops)
-  PRIV_DYN(rw, &new_dcdir_storage_dir(get_root(), "RW")->ops)
-    PUB_DYN(storage_legacy, &new_dcdir_storage(get_rw(), "LEGACY")->ops)
-    PUB_DYN(storage_nv_scratch, &new_dcdir_storage(get_rw(), "SCRATCH")->ops)
-    PRIV_DYN(rw_a, &new_dcdir_storage_dir(get_rw(), "A")->ops)
-      PUB_DYN(storage_fwid_rwa, &new_dcdir_storage(get_rw_a(), "FWID")->ops)
-    PRIV_DYN(rw_b, &new_dcdir_storage_dir(get_rw(), "B")->ops)
-      PUB_DYN(storage_fwid_rwb, &new_dcdir_storage(get_rw_b(), "FWID")->ops)
-  PRIV_DYN(ro, &new_dcdir_storage_dir(get_root(), "RO")->ops)
-    PUB_DYN(storage_fwid_ro, &new_dcdir_storage(get_ro(), "FWID")->ops)
-    PUB_DYN(storage_gbb, &new_dcdir_storage(get_ro(), "GBB")->ops)
+PRIV_DYN(root, new_dcdir_storage_root(board__dcdir_storage(), 6 * 1024 * 1024))
+  PRIV_DYN(rw, new_dcdir_storage_dir(&get_root()->ops, "RW"))
+    PRIV_DYN(rw_legacy, new_dcdir_storage(&get_rw()->dc_ops, "LEGACY"))
+    PRIV_DYN(rw_scratch, new_dcdir_storage(&get_rw()->dc_ops, "SCRATCH"))
+    PRIV_DYN(rw_a, new_dcdir_storage_dir(&get_rw()->dc_ops, "A"))
+      PRIV_DYN(rw_a_fwid, new_dcdir_storage(&get_rw_a()->dc_ops, "FWID"))
+    PRIV_DYN(rw_b, new_dcdir_storage_dir(&get_rw()->dc_ops, "B"))
+      PRIV_DYN(rw_b_fwid, new_dcdir_storage(&get_rw_b()->dc_ops, "FWID"))
+  PRIV_DYN(ro, new_dcdir_storage_dir(&get_root()->ops, "RO"))
+    PRIV_DYN(ro_fwid, new_dcdir_storage(&get_ro()->dc_ops, "FWID"))
+    PRIV_DYN(ro_gbb, new_dcdir_storage(&get_ro()->dc_ops, "GBB"))
+
+PUB_DYN(storage_fwid_ro, &get_ro_fwid()->ops)
+PUB_DYN(storage_fwid_rwa, &get_rw_a_fwid()->ops)
+PUB_DYN(storage_fwid_rwb, &get_rw_b_fwid()->ops)
+PUB_DYN(storage_gbb, &get_ro_gbb()->ops)
+PUB_DYN(storage_legacy, &get_rw_legacy()->ops)
+PUB_DYN(storage_nv_scratch, &get_rw_scratch()->ops)

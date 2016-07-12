@@ -49,13 +49,15 @@ typedef struct {
 } DcDirStorageRoot;
 
 struct DcDirStorageDir {
-	DcDirStorageOps ops;
+	StorageOps ops;
+	DcDirStorageOps dc_ops;
 
 	DcDirStorageOps *parent;
 	const char *name;
 
+	StorageOps *media;
 	DcDir dir_handle;
-	int opened;
+	DcDirRegion raw_region;
 };
 typedef struct DcDirStorageDir DcDirStorageDir;
 

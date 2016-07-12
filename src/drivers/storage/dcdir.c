@@ -48,8 +48,8 @@ static int dcdir_storage_root_init_dir(DcDirStorageOps *me, StorageOps **media,
 	if (!root->opened && dcdir_storage_init_root(root))
 		return 1;
 
-	if (dcdir_open_dir(&dir->dir_handle, *media, &root->root_handle,
-			   dir->name)) {
+	if (dcdir_open_dir_raw(&dir->dir_handle, &dir->raw_region, *media,
+			       &root->root_handle, dir->name)) {
 		return 1;
 	}
 
@@ -95,20 +95,20 @@ static int dcdir_storage_init_dir(DcDirStorageDir *dir, StorageOps **media)
 	if (dir->parent->open_dir(dir->parent, media, dir))
 		return 1;
 
-	dir->opened = 1;
+	dir->media = *media;
 	return 0;
 }
 
 static int dcdir_storage_dir_init_dir(DcDirStorageOps *me, StorageOps **media,
 				      DcDirStorageDir *dir)
 {
-	DcDirStorageDir *this_dir = container_of(me, DcDirStorageDir, ops);
+	DcDirStorageDir *this_dir = container_of(me, DcDirStorageDir, dc_ops);
 
-	if (!this_dir->opened && dcdir_storage_init_dir(this_dir, media))
+	if (!this_dir->media && dcdir_storage_init_dir(this_dir, media))
 		return 1;
 
-	if (dcdir_open_dir(&dir->dir_handle, *media, &this_dir->dir_handle,
-			   dir->name)) {
+	if (dcdir_open_dir_raw(&dir->dir_handle, &dir->raw_region, *media,
+			       &this_dir->dir_handle, dir->name)) {
 		return 1;
 	}
 
@@ -119,9 +119,9 @@ static int dcdir_storage_dir_init_region(DcDirStorageOps *me,
 					 StorageOps **media,
 					 DcDirStorage *region)
 {
-	DcDirStorageDir *this_dir = container_of(me, DcDirStorageDir, ops);
+	DcDirStorageDir *this_dir = container_of(me, DcDirStorageDir, dc_ops);
 
-	if (!this_dir->opened && dcdir_storage_init_dir(this_dir, media))
+	if (!this_dir->media && dcdir_storage_init_dir(this_dir, media))
 		return 1;
 
 	if (dcdir_open_region(&region->region_handle, *media,
@@ -132,13 +132,51 @@ static int dcdir_storage_dir_init_region(DcDirStorageOps *me,
 	return 0;
 }
 
+static int dcdir_storage_dir_read(StorageOps *me, void *buffer,
+				  uint64_t offset, size_t size)
+{
+	DcDirStorageDir *dir = container_of(me, DcDirStorageDir, ops);
+
+	if (!dir->media && dcdir_storage_init_dir(dir, &dir->media))
+		return 1;
+
+	if (offset + size > dir->raw_region.size) {
+		printf("Read beyond the bounds of dcdir directory.\n");
+		return 1;
+	}
+
+	return storage_read(dir->media, buffer,
+			    dir->raw_region.offset + offset, size);
+}
+
+static int dcdir_storage_dir_write(StorageOps *me, const void *buffer,
+				   uint64_t offset, size_t size)
+{
+	printf("Writing to a dcdir directory is not supported.\n");
+	return 1;
+}
+
+static int dcdir_storage_dir_size(StorageOps *me)
+{
+	DcDirStorageDir *dir = container_of(me, DcDirStorageDir, ops);
+
+	if (!dir->media && dcdir_storage_init_dir(dir, &dir->media))
+		return -1;
+
+	return dir->raw_region.size;
+}
+
 DcDirStorageDir *new_dcdir_storage_dir(DcDirStorageOps *parent,
 				       const char *name)
 {
 	DcDirStorageDir *dir = xzalloc(sizeof(*dir));
 
-	dir->ops.open_dir = &dcdir_storage_dir_init_dir;
-	dir->ops.open_region = &dcdir_storage_dir_init_region;
+	dir->dc_ops.open_dir = &dcdir_storage_dir_init_dir;
+	dir->dc_ops.open_region = &dcdir_storage_dir_init_region;
+
+	dir->ops.read = &dcdir_storage_dir_read;
+	dir->ops.write = &dcdir_storage_dir_write;
+	dir->ops.size = &dcdir_storage_dir_size;
 
 	dir->parent = parent;
 	dir->name = name;
