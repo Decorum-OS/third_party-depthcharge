@@ -99,6 +99,8 @@ StorageOps *board_storage_fwid_rwb(void);
 StorageOps *board_storage_fwid_ro(void);
 StorageOps *board_storage_gbb(void);
 StorageOps *board_storage_legacy(void);
+StorageOps *board_storage_main_fw_a(void);
+StorageOps *board_storage_main_fw_b(void);
 StorageOps *board_storage_nv_scratch(void);
 StorageOps *board_storage_vblock_a(void);
 StorageOps *board_storage_vblock_b(void);
