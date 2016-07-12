@@ -41,7 +41,8 @@ int start_module(const void *compressed_image, uint32_t size)
 						     CONFIG_KERNEL_SIZE);
 
 	// Decompress the trampoline itself.
-	uint32_t out_size = ulzman(&_binary_trampoline_start, size,
+	uint32_t out_size = ulzman(&_binary_trampoline_start,
+				   (uintptr_t)&_binary_trampoline_size,
 				   (unsigned char *)elf,
 				   decomp_end - &_tramp_end);
 	if (!out_size) {
