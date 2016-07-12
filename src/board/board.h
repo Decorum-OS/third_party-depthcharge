@@ -94,6 +94,10 @@ int board_flag_ec_in_rw(void);
  * which map out the media into smaller components.
  */
 
+StorageOps *board_storage_ec_a(int devidx);
+StorageOps *board_storage_ec_b(int devidx);
+StorageOps *board_storage_ec_hash_a(int devidx);
+StorageOps *board_storage_ec_hash_b(int devidx);
 StorageOps *board_storage_fwid_rwa(void);
 StorageOps *board_storage_fwid_rwb(void);
 StorageOps *board_storage_fwid_ro(void);

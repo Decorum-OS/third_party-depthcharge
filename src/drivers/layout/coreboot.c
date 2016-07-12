@@ -20,6 +20,8 @@
  * MA 02111-1307 USA
  */
 
+#include "base/algorithm.h"
+#include "base/die.h"
 #include "board/board.h"
 #include "board/board_helpers.h"
 #include "drivers/layout/coreboot.h"
@@ -51,3 +53,87 @@ PUB_DYN(storage_vboot_nvstorage, &new_fmap_storage(get_fmap_media(),
 						   "RW_NVRAM")->ops)
 PUB_DYN(storage_verified_a, &get_main_a_index()->ops)
 PUB_DYN(storage_verified_b, &get_main_b_index()->ops)
+
+
+
+typedef StorageOps *EcStorageCache[CONFIG_MAX_EC_DEV_IDX + 1];
+
+
+
+static StorageOps *board_storage_ec_hash(EcStorageCache *cache,
+					 SectionIndexStorage *index, int devidx)
+{
+	die_if(devidx > ARRAY_SIZE(*cache),
+	       "EC devidx %d is out of bounds.\n", devidx);
+
+	if (!(*cache)[devidx]) {
+		(*cache)[devidx] = &new_section_index_entry_storage(
+			index, devidx + 1)->ops;
+	}
+
+	return (*cache)[devidx];
+}
+
+StorageOps *board_storage_ec_hash_a(int devidx)
+{
+	static EcStorageCache ec_hashes;
+	return board_storage_ec_hash(&ec_hashes, get_main_a_index(), devidx);
+}
+
+StorageOps *board_storage_ec_hash_b(int devidx)
+{
+	static EcStorageCache ec_hashes;
+	return board_storage_ec_hash(&ec_hashes, get_main_b_index(), devidx);
+}
+
+
+
+static StorageOps *board_storage_ec(EcStorageCache *cache,
+				    const char *name, int devidx)
+{
+	die_if(devidx > ARRAY_SIZE(*cache),
+	       "EC devidx %d is out of bounds.\n", devidx);
+
+	if (!(*cache)[devidx]) {
+		FmapStorage *fmap_area =
+			new_fmap_storage(get_fmap_media(), name);
+		SectionIndexStorage *index =
+			new_section_index_storage(&fmap_area->ops);
+		SectionIndexEntryStorage *entry =
+			new_section_index_entry_storage(index, 0);
+
+		(*cache)[devidx] = &entry->ops;
+	}
+
+	return (*cache)[devidx];
+}
+
+StorageOps *board_storage_ec_a(int devidx)
+{
+	static EcStorageCache ecs;
+
+	const char *name;
+	if (devidx == 0)
+		name = "EC_MAIN_A";
+	else if (devidx == 1)
+		name = "PD_MAIN_A";
+
+	die_if(!name, "Unrecognized devidx %d.\n", devidx);
+
+	return board_storage_ec(&ecs, name, devidx);
+}
+
+StorageOps *board_storage_ec_b(int devidx)
+{
+	static EcStorageCache ecs;
+
+	const char *name;
+	if (devidx == 0)
+		name = "EC_MAIN_B";
+	else if (devidx == 1)
+		name = "PD_MAIN_B";
+
+	die_if(!name, "Unrecognized devidx %d.\n", devidx);
+
+	return board_storage_ec(&ecs, name, devidx);
+}
