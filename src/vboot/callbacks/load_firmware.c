@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,62 +20,40 @@
  * MA 02111-1307 USA
  */
 
-#include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <vboot_api.h>
 
-#include "drivers/flash/flash.h"
-#include "image/fmap.h"
-#include "image/index.h"
+#include "base/xalloc.h"
+#include "board/board.h"
+#include "drivers/storage/storage.h"
 
 VbError_t VbExHashFirmwareBody(VbCommonParams *cparams,
 			       uint32_t firmware_index)
 {
-	const char *area_name = NULL;
+	StorageOps *fw;
 
-	switch (firmware_index) {
-	case VB_SELECT_FIRMWARE_A:
-		area_name = "FW_MAIN_A";
-		break;
-	case VB_SELECT_FIRMWARE_B:
-		area_name = "FW_MAIN_B";
-		break;
-	default:
+	if (firmware_index == VB_SELECT_FIRMWARE_A) {
+		fw = board_storage_verified_a();
+	} else if (firmware_index == VB_SELECT_FIRMWARE_B) {
+		fw = board_storage_verified_b();
+	} else {
 		printf("Unrecognized firmware index %d.\n", firmware_index);
 		return VBERROR_UNKNOWN;
 	}
 
-	FmapArea area;
-	if (fmap_find_area(area_name, &area)) {
-		printf("Fmap region %s not found.\n", area_name);
+	int size = storage_size(fw);
+	if (size < 0)
+		return VBERROR_UNKNOWN;
+
+	void *data = xmalloc(size);
+
+	if (storage_read(fw, data, 0, size)) {
+		free(data);
 		return VBERROR_UNKNOWN;
 	}
-
-	void *data;
-	uint32_t size;
-	/*
-	 * The device trees used by depthcharge all contain the 'with_index'
-	 * propery in the RW sections of the flash. That means each RW section
-	 * has a book keeping header which keeps track of the size and offset
-	 * of each firmware component.
-	 */
-	const SectionIndex *index = index_from_fmap(&area);
-	if (!index)
-		return VBERROR_UNKNOWN;
-
-	size = sizeof(SectionIndex) +
-		index->count * sizeof(SectionIndexEntry);
-	for (int i = 0; i < index->count; i++)
-		size += (index->entries[i].size + 3) & ~3;
-
-	if (area.size < size) {
-		printf("Bad RW index size.\n");
-		return VBERROR_UNKNOWN;
-	}
-	data = flash_read(area.offset, size);
 
 	VbUpdateFirmwareBodyHash(cparams, data, size);
-
+	free(data);
 	return VBERROR_SUCCESS;
 }

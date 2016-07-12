@@ -25,6 +25,7 @@
 #include <vboot_api.h>
 #include <vboot_nvstorage.h>
 
+#include "base/xalloc.h"
 #include "base/power.h"
 #include "base/timestamp.h"
 #include "board/board.h"
@@ -132,32 +133,38 @@ int vboot_do_init_out_flags(uint32_t out_flags)
 
 int vboot_select_firmware(void)
 {
-	VbSelectFirmwareParams fparams = {
-		.verification_block_A = NULL,
-		.verification_block_B = NULL,
-		.verification_size_A = 0,
-		.verification_size_B = 0
-	};
-
-	// Set up the fparams structure.
-	FmapArea vblock_a, vblock_b;
-	if (fmap_find_area("VBLOCK_A", &vblock_a) ||
-	    fmap_find_area("VBLOCK_B", &vblock_b)) {
-		printf("Couldn't find one of the vblocks.\n");
-		return 1;
-	}
-	fparams.verification_block_A =
-		flash_read(vblock_a.offset, vblock_a.size);
-	fparams.verification_size_A = vblock_a.size;
-	fparams.verification_block_B =
-		flash_read(vblock_b.offset, vblock_b.size);
-	fparams.verification_size_B = vblock_b.size;
-
 	if (common_params_init())
 		return 1;
 
+	StorageOps *storage_a = board_storage_vblock_a();
+	StorageOps *storage_b = board_storage_vblock_b();
+
+	int size_a = storage_size(storage_a);
+	int size_b = storage_size(storage_b);
+	if (size_a < 0 || size_b < 0)
+		return 1;
+
+	void *vblock_a = xmalloc(size_a);
+	void *vblock_b = xmalloc(size_b);
+
+	if (storage_read(storage_a, vblock_a, 0, size_a) ||
+	    storage_read(storage_b, vblock_b, 0, size_b)) {
+		free(vblock_a);
+		free(vblock_b);
+		return 1;
+	}
+
+	VbSelectFirmwareParams fparams = {
+		.verification_block_A = vblock_a,
+		.verification_block_B = vblock_b,
+		.verification_size_A = size_a,
+		.verification_size_B = size_b
+	};
+
 	printf("Calling VbSelectFirmware().\n");
 	VbError_t res = VbSelectFirmware(&cparams, &fparams);
+	free(vblock_a);
+	free(vblock_b);
 	if (res != VBERROR_SUCCESS) {
 		printf("VbSelectFirmware returned %d, "
 		       "Doing a cold reboot.\n", res);
