@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 Samsung Electronics
- * Copyright 2013 Google Inc. All rights reserved.
+ * Copyright 2016 Google Inc. All rights reserved.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -41,265 +41,164 @@ typedef enum {
 	ReadId = 0x9f
 } SpiFlashCommands;
 
+
+
+static int spi_flash_start(SpiFlash *flash)
+{
+	while (time_us(flash->last_command_time) < 10)
+	{;}
+	return spi_start(flash->spi);
+}
+
+static int spi_flash_stop(SpiFlash *flash)
+{
+	flash->last_command_time = time_us(0);
+	return spi_stop(flash->spi);
+}
+
+
+
+static int spi_flash_command(SpiFlash *flash, void *cmd, uint32_t cmd_size)
+{
+	if (spi_flash_start(flash))
+		return 1;
+
+	if (spi_transfer(flash->spi, NULL, cmd, cmd_size)) {
+		spi_flash_stop(flash);
+		return 1;
+	}
+
+	return spi_flash_stop(flash);
+}
+
+static int spi_flash_read_command(SpiFlash *flash,
+				  void *cmd, uint32_t cmd_size,
+				  void *buf, uint32_t size)
+{
+	if (spi_flash_start(flash))
+		return 1;
+
+	if (spi_transfer(flash->spi, NULL, cmd, cmd_size) ||
+	    spi_transfer(flash->spi, buf, NULL, size)) {
+		spi_flash_stop(flash);
+		return 1;
+	}
+
+	return spi_flash_stop(flash);
+}
+
+static int spi_flash_write_command(SpiFlash *flash,
+				   void *cmd, uint32_t cmd_size,
+				   const void *buf, uint32_t size)
+{
+	if (spi_flash_start(flash))
+		return 1;
+
+	if (spi_transfer(flash->spi, NULL, cmd, cmd_size) ||
+	    spi_transfer(flash->spi, NULL, buf, size)) {
+		spi_flash_stop(flash);
+		return 1;
+	}
+
+	return spi_flash_stop(flash);
+}
+
+
+
+static int wait_for_wip(SpiFlash *flash)
+{
+	const uint32_t FlashStatusWip = 1 << 0;
+
+	uint64_t start_time = time_us(0);
+	do {
+		uint8_t cmd = ReadSr1Command;
+		uint8_t status;
+		if (spi_flash_read_command(flash, &cmd, sizeof(cmd),
+					   &status, sizeof(status)))
+			return 1;
+
+		if (!(status & FlashStatusWip))
+			return 0;
+
+		if (time_us(start_time) > 2 * 1000 * 1000) {
+			printf("Timeout waiting for WIP to clear.\n");
+			return 1;
+		}
+
+		udelay(10);
+	} while (1);
+}
+
+
+
 static void *spi_flash_read(FlashOps *me, uint32_t offset, uint32_t size)
 {
 	SpiFlash *flash = container_of(me, SpiFlash, ops);
-	uint8_t *data = flash->cache + offset;
-
 	assert(offset + size <= flash->rom_size);
 
-	if (flash->spi->start(flash->spi)) {
-		printf("%s: Failed to start flash transaction.\n", __func__);
+	uint32_t cmd = htobe32((ReadCommand << 24) | offset);
+	uint8_t *data = flash->cache + offset;
+	if (spi_flash_read_command(flash, &cmd, sizeof(cmd), data, size))
 		return NULL;
-	}
-
-	uint32_t command = swap_bytes32((ReadCommand << 24) | offset);
-
-	if (flash->spi->transfer(flash->spi, NULL, &command, sizeof(command))) {
-		printf("%s: Failed to send read command.\n", __func__);
-		flash->spi->stop(flash->spi);
-		return NULL;
-	}
-
-	if (flash->spi->transfer(flash->spi, data, NULL, size)) {
-		printf("%s: Failed to receive %u bytes.\n", __func__, size);
-		flash->spi->stop(flash->spi);
-		return NULL;
-	}
-
-	if (flash->spi->stop(flash->spi)) {
-		printf("%s: Failed to stop transaction.\n", __func__);
-		return NULL;
-	}
 
 	return data;
 }
-
-/* Generate a 10 us 'CS inactive' pulse. */
-static int toggle_cs(SpiFlash *flash, const char *phase)
-{
-	if (flash->spi->stop(flash->spi)) {
-		printf("%s: Failed to stop after %s.\n", __func__, phase);
-		return -1;
-	}
-
-	udelay(10); /* 10 us is plenty of time. */
-
-	if (flash->spi->start(flash->spi)) {
-		printf("%s: Failed to start after %s.\n", __func__, phase);
-		return -1;
-	}
-
-	return 0;
-}
-
-/* Allow up to 2s for a transaction to complete
- * This value is used for both write and erase */
-#define POLL_INTERVAL_US 10
-#define MAX_POLL_CYCLES (2000000/POLL_INTERVAL_US)
-#define SPI_FLASH_STATUS_WIP (1 << 0)
-#define SPANSION_FLASH_ERASE_ERR (1 << 5)
-#define SPANSION_FLASH_PROG_ERR (1 << 6)
-#define SPANSION_FLASH_ERR (SPANSION_FLASH_PROG_ERR | \
-				SPANSION_FLASH_ERASE_ERR)
-
-#define SPANSION_ID		0x01
-
-/*
- * Check if a programming/erase error occurred.
- */
-static int check_error(SpiFlash *flash, uint8_t status)
-{
-	uint8_t id[6];	/* worst-case scenario for Spansion */
-	uint8_t cmd = ReadId;
-
-	if (flash->spi->transfer(flash->spi, NULL, &cmd, sizeof(cmd))) {
-		printf("%s: Failed to send register read command.\n",
-		       __func__);
-		return -1;
-	}
-
-	if (flash->spi->transfer(flash->spi, &id, NULL, sizeof(id))) {
-		printf("%s: Failed to send register read command.\n",
-		       __func__);
-		return -1;
-	}
-
-	switch(id[0]) {
-	case SPANSION_ID:
-		/* For now, assume all Spansion chips we care about act
-		   the same with regards to error checking. */
-		if (status & SPANSION_FLASH_ERR)
-			return -1;
-		break;
-	default:
-		break;
-	}
-
-	return 0;
-}
-
-/*
- * Poll device status register until write/erase operation has completed or
- * timed out. Returns zero on success.
- */
-static int operation_failed(SpiFlash *flash, const char *opname)
-{
-	uint8_t value;
-	int i = 0;
-
-	if (toggle_cs(flash, opname))
-		return -1;
-
-	value = ReadSr1Command;
-	if (flash->spi->transfer(flash->spi, NULL, &value, sizeof(value))) {
-		printf("%s: Failed to send register read command.\n",
-		       __func__);
-		return -1;
-	}
-
-	while (i++ < MAX_POLL_CYCLES) {
-		if (flash->spi->transfer(flash->spi, &value,
-					 NULL, sizeof(value))) {
-			printf("%s: Failed to read status after %d cycles.\n",
-			       __func__, i);
-			return -1;
-		}
-
-		if (!(value & SPI_FLASH_STATUS_WIP)) {
-			if (check_error(flash, value)) {
-				printf("%s: status %#x after %d cycles.\n",
-				       __func__, value, i);
-				return -1;
-			}
-			return 0;
-		}
-
-		udelay(POLL_INTERVAL_US);
-	}
-	printf("%s: timeout waiting for %s completion\n", __func__, opname);
-	return -1;
-}
-
-/*
- * Write or erase the flash. To write, pass a buffer and size; to erase,
- * pass null for the buffer.
- * This function is guaranteed to be invoked with data not spanning across
- * writeable/erasable boundaries (page size/block size).
- */
-static int spi_flash_modify(SpiFlash *flash, const void *buffer,
-			    uint32_t offset, uint32_t size, uint8_t opcode,
-			    const char *opname)
-{
-	union {
-		uint8_t bytes[4]; // We're using 3 byte addresses.
-		uint32_t whole;
-	} command;
-
-	int stop_needed = 0;
-	uint32_t rv = -1;
-
-	do {
-		/* Each write or erase command requires a 'write enable' (WREN)
-		 * first. */
-		if (flash->spi->start(flash->spi)) {
-			printf("%s: Failed to start WREN transaction.\n",
-			       __func__);
-			break;
-		}
-
-		command.bytes[0] = WriteEnableCommand;
-		if (flash->spi->transfer(flash->spi, NULL, &command, 1)) {
-			printf("%s: Failed to send write enable command.\n",
-			       __func__);
-			stop_needed = 1;
-			break;
-		}
-
-		/*
-		 * CS needs to be deasserted before any other command can be
-		 * issued after WREN.
-		 */
-		if (toggle_cs(flash, "WREN"))
-			break;
-
-		stop_needed = 1;
-		command.whole = swap_bytes32((opcode << 24) | offset);
-		if (flash->spi->transfer(flash->spi, NULL, &command, 4)) {
-			printf("%s: Failed to send %s command.\n",
-			       __func__, opname);
-			break;
-		}
-
-		if (buffer &&
-		    flash->spi->transfer(flash->spi, NULL, buffer, size)) {
-			printf("%s: Failed to write data.\n", __func__);
-			break;
-		}
-
-		stop_needed = 1;
-		if (!operation_failed(flash, opname))
-			rv = size;
-
-	} while(0);
-
-	if (stop_needed && flash->spi->stop(flash->spi))
-		printf("%s: Failed to stop.\n", __func__);
-
-	return rv;
-}
-
-#define SPI_FLASH_WRITE_PAGE_LIMIT (1 << 8)
-#define SPI_WRITE_PAGE_MASK (~(SPI_FLASH_WRITE_PAGE_LIMIT - 1))
 
 static int spi_flash_write(FlashOps *me, const void *buffer,
 				uint32_t offset, uint32_t size)
 {
 	SpiFlash *flash = container_of(me, SpiFlash, ops);
-	uint32_t written = 0;
-
 	assert(offset + size <= flash->rom_size);
+	const uint32_t PageSize = 256;
+	const uint32_t OffsetMask = PageSize - 1;
 
-	/* Write in chunks guaranteed not to cross page boundaries, */
+	const uint8_t *buf8 = buffer;
+
 	while (size) {
-		uint32_t write_size, page_offset;
+		const uint32_t write_size = PageSize - (size & ~OffsetMask);
 
-		page_offset = offset & ~SPI_WRITE_PAGE_MASK;
-		write_size = (page_offset + size) > SPI_FLASH_WRITE_PAGE_LIMIT ?
-			SPI_FLASH_WRITE_PAGE_LIMIT - page_offset : size;
+		uint8_t wen_cmd = WriteEnableCommand;
+		uint32_t command = htobe32((WriteCommand << 24) | offset);
 
-		if (spi_flash_modify(flash, buffer, offset, write_size,
-				     WriteCommand, "write") !=
-		    write_size)
-			break;
+		if (spi_flash_command(flash, &wen_cmd, sizeof(wen_cmd)) ||
+		    spi_flash_write_command(flash, &command, sizeof(command),
+					    buf8, write_size) ||
+		    wait_for_wip(flash)) {
+			return 1;
+		}
 
+		buf8 += write_size;
 		offset += write_size;
 		size -= write_size;
-		buffer = (char *)buffer + write_size;
-		written += write_size;
 	}
 
-	return written;
+	return 0;
 }
 
 static int spi_flash_erase(FlashOps *me, uint32_t start, uint32_t size)
 {
 	SpiFlash *flash = container_of(me, SpiFlash, ops);
-	uint32_t sector_size = flash->sector_size;
+	assert(start + size <= flash->rom_size);
+	const uint32_t sector_size = flash->sector_size;
 
 	if ((start % sector_size) || (size % sector_size)) {
-		printf("%s: Erase not %u aligned, start=%u size=%u\n",
-		       __func__, sector_size, start, size);
-		return -1;
+		printf("Erase not %d aligned, start = %d, size = %d\n",
+		       sector_size, start, size);
+		return 1;
 	}
-	assert(start + size <= flash->rom_size);
-	int offset;
-	for (offset = 0; offset < size; offset += sector_size) {
-		if (spi_flash_modify(flash, NULL, start + offset, 0,
-				     flash->erase_cmd, "erase"))
-			break;
+
+	for (int offset = 0; offset < size; offset += sector_size) {
+		uint8_t wen_cmd = WriteEnableCommand;
+		uint32_t command = htobe32((flash->erase_cmd << 24) | offset);
+
+		if (spi_flash_command(flash, &wen_cmd, sizeof(wen_cmd)) ||
+		    spi_flash_command(flash, &command, sizeof(command)) ||
+		    wait_for_wip(flash)) {
+			return 1;
+		}
 	}
-	return offset;
+
+	return 0;
 }
 
 static int spi_flash_size(FlashOps *me)

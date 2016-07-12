@@ -39,6 +39,7 @@ typedef struct
 	uint8_t erase_cmd;
 	uint32_t sector_size;
 	uint32_t rom_size;
+	uint64_t last_command_time;
 } SpiFlash;
 
 SpiFlash *new_spi_flash(SpiOps *spi);
