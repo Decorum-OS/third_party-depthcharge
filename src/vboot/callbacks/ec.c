@@ -24,13 +24,13 @@
 #include <stdio.h>
 #include <vboot_api.h>
 
+#include "base/algorithm.h"
 #include "base/time.h"
 #include "base/timestamp.h"
+#include "base/xalloc.h"
 #include "board/board.h"
 #include "drivers/ec/cros/ec.h"
 #include "drivers/flash/flash.h"
-#include "image/fmap.h"
-#include "image/index.h"
 
 int VbExTrustEC(int devidx)
 {
@@ -131,34 +131,53 @@ VbError_t VbExEcHashRW(int devidx, const uint8_t **hash, int *hash_size)
 VbError_t VbExEcGetExpectedRW(int devidx, enum VbSelectFirmware_t select,
 			      const uint8_t **image, int *image_size)
 {
-	const char *name;
+	typedef struct {
+		const uint8_t *image;
+		int size;
+	} Ec;
+	typedef Ec EcCache[CONFIG_MAX_EC_DEV_IDX + 1];
+	static EcCache cache_a, cache_b;
 
-	switch (select) {
-	case VB_SELECT_FIRMWARE_A:
-		name = (devidx == 0 ? "EC_MAIN_A" : "PD_MAIN_A");
-		break;
-	case VB_SELECT_FIRMWARE_B:
-		name = (devidx == 0 ? "EC_MAIN_B" : "PD_MAIN_B");
-		break;
-	default:
-		printf("Unrecognized EC firmware requested.\n");
+	if (devidx > ARRAY_SIZE(cache_a)) {
+		printf("EC devidx %d is greater than the max of %d.\n",
+		       devidx, CONFIG_MAX_EC_DEV_IDX);
 		return VBERROR_UNKNOWN;
 	}
 
-	FmapArea area;
-	if (fmap_find_area(name, &area)) {
-		printf("Didn't find section %s in the fmap.\n", name);
+	StorageOps *ec;
+	EcCache *cache;
+	if (select == VB_SELECT_FIRMWARE_A) {
+		ec = board_storage_ec_a(devidx);
+		cache = &cache_a;
+	} else if (select == VB_SELECT_FIRMWARE_B) {
+		ec = board_storage_ec_b(devidx);
+		cache = &cache_b;
+	}
+
+	if (!cache) {
+		printf("Unrecognized EC has select value %d.\n", select);
 		return VBERROR_UNKNOWN;
 	}
 
-	uint32_t size;
-	*image = index_subsection(&area, 0, &size);
-	*image_size = size;
-	if (!*image)
-		return VBERROR_UNKNOWN;
+	Ec *vals = &(*cache)[devidx];
 
-	printf("EC-RW firmware address, size are %p, %d.\n",
-		*image, *image_size);
+	if (!vals->image) {
+		int size = storage_size(ec);
+		if (size < 0)
+			return VBERROR_UNKNOWN;
+
+		void *data = xmalloc(size);
+		if (storage_read(ec, data, 0, size)) {
+			free(data);
+			return VBERROR_UNKNOWN;
+		}
+
+		vals->size = size;
+		vals->image = data;
+	}
+
+	*image = vals->image;
+	*image_size = vals->size;
 
 	return VBERROR_SUCCESS;
 }
@@ -206,46 +225,53 @@ static VbError_t ec_protect_rw(int devidx, int protect)
 VbError_t VbExEcGetExpectedRWHash(int devidx, enum VbSelectFirmware_t select,
 				  const uint8_t **hash, int *hash_size)
 {
-	const char *name;
+	typedef struct {
+		const uint8_t *hash;
+		int size;
+	} EcHash;
+	typedef EcHash EcHashCache[CONFIG_MAX_EC_DEV_IDX + 1];
+	static EcHashCache cache_a, cache_b;
 
-	switch (select) {
-	case VB_SELECT_FIRMWARE_A:
-		name = "FW_MAIN_A";
-		break;
-	case VB_SELECT_FIRMWARE_B:
-		name = "FW_MAIN_B";
-		break;
-	default:
-		printf("Unrecognized EC hash requested.\n");
+	if (devidx > ARRAY_SIZE(cache_a)) {
+		printf("EC devidx %d is greater than the max of %d.\n",
+		       devidx, CONFIG_MAX_EC_DEV_IDX);
 		return VBERROR_UNKNOWN;
 	}
 
-	FmapArea area;
-	if (fmap_find_area(name, &area)) {
-		printf("Didn't find section %s in the fmap.\n", name);
+	StorageOps *ec_hash;
+	EcHashCache *cache;
+	if (select == VB_SELECT_FIRMWARE_A) {
+		ec_hash = board_storage_ec_hash_a(devidx);
+		cache = &cache_a;
+	} else if (select == VB_SELECT_FIRMWARE_B) {
+		ec_hash = board_storage_ec_hash_b(devidx);
+		cache = &cache_b;
+	}
+
+	if (!cache) {
+		printf("Unrecognized EC has select value %d.\n", select);
 		return VBERROR_UNKNOWN;
 	}
 
-	uint32_t size;
+	EcHash *hash_vals = &(*cache)[devidx];
 
-	/*
-	 * Assume the hash is subsection (devidx+1) in the main firmware.  This
-	 * is currently true (see for example, board/samus/fmap.dts), but
-	 * fragile as all heck.
-	 *
-	 * TODO(rspangler@chromium.org): More robust way of locating the hash.
-	 * Subsections should really have names/tags, not just indices.
-	 */
-	*hash = index_subsection(&area, devidx + 1, &size);
-	*hash_size = size;
-	if (!*hash) {
-		printf("Didn't find precalculated hash subsection %d.\n",
-		       devidx + 1);
-		return VBERROR_UNKNOWN;
+	if (!hash_vals->hash) {
+		int size = storage_size(ec_hash);
+		if (size < 0)
+			return VBERROR_UNKNOWN;
+
+		void *data = xmalloc(size);
+		if (storage_read(ec_hash, data, 0, size)) {
+			free(data);
+			return VBERROR_UNKNOWN;
+		}
+
+		hash_vals->size = size;
+		hash_vals->hash = data;
 	}
 
-	printf("EC-RW hash address, size are %p, %d.\n",
-		*hash, *hash_size);
+	*hash = hash_vals->hash;
+	*hash_size = hash_vals->size;
 
 	printf("Hash = ");
 	for (int i = 0; i < *hash_size; i++)
