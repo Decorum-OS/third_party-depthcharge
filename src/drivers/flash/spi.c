@@ -175,6 +175,12 @@ static int spi_flash_write(FlashOps *me, const void *buffer,
 	return 0;
 }
 
+static int spi_flash_erase_size(FlashOps *me)
+{
+	SpiFlash *flash = container_of(me, SpiFlash, ops);
+	return flash->sector_size;
+}
+
 static int spi_flash_erase(FlashOps *me, uint32_t start, uint32_t size)
 {
 	SpiFlash *flash = container_of(me, SpiFlash, ops);
@@ -216,6 +222,7 @@ SpiFlash *new_spi_flash(SpiOps *spi)
 	SpiFlash *flash = xzalloc(sizeof(*flash));
 	flash->ops.read = &spi_flash_read;
 	flash->ops.write = &spi_flash_write;
+	flash->ops.erase_size = &spi_flash_erase_size;
 	flash->ops.erase = &spi_flash_erase;
 	flash->ops.size = &spi_flash_size;
 	flash->spi = spi;

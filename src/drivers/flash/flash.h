@@ -31,6 +31,7 @@ typedef struct FlashOps
 	void *(*read)(struct FlashOps *me, uint32_t offset, uint32_t size);
 	int (*write)(struct FlashOps *me, const void *buffer,
 		     uint32_t offset, uint32_t size);
+	int (*erase_size)(struct FlashOps *me);
 	// Offset and size must be erase_size-aligned.
 	int (*erase)(struct FlashOps *me, uint32_t offset, uint32_t size);
 	int (*size)(struct FlashOps *me);
