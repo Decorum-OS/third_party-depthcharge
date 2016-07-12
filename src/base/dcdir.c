@@ -118,8 +118,9 @@ static DcDirPointer *dcdir_find_in_dir(DcDir *dir, StorageOps *storage,
 	return NULL;
 }
 
-int dcdir_open_dir(DcDir *dcdir, StorageOps *storage, DcDir *parent_dir,
-		   const char *name)
+int dcdir_open_dir_raw(DcDir *dcdir, DcDirRegion *raw,
+		       StorageOps *storage, DcDir *parent_dir,
+		       const char *name)
 {
 	DcDirPointer *ptr_ptr =	dcdir_find_in_dir(parent_dir, storage, name);
 
@@ -148,6 +149,11 @@ int dcdir_open_dir(DcDir *dcdir, StorageOps *storage, DcDir *parent_dir,
 			(ptr1->offset[1] << 8) +
 			(ptr1->offset[2] << 16);
 		dcdir->base = 0;
+
+		raw->size =
+			(ptr1->length[0] << 0) +
+			(ptr1->length[1] << 8) +
+			(ptr1->length[2] << 16) + 1;
 	}
 	break;
 	case DcDirBase32Offset32Length32:
@@ -157,6 +163,8 @@ int dcdir_open_dir(DcDir *dcdir, StorageOps *storage, DcDir *parent_dir,
 
 		dcdir->offset = parent_offset + ptr2->offset + ptr2->base;
 		dcdir->base = ptr2->base;
+
+		raw->size = ptr2->length + 1;
 	}
 	break;
 	default:
@@ -165,8 +173,17 @@ int dcdir_open_dir(DcDir *dcdir, StorageOps *storage, DcDir *parent_dir,
 		return 1;
 	}
 
+	raw->offset = dcdir->offset;
+
 	free(ptr_ptr);
 	return 0;
+}
+
+int dcdir_open_dir(DcDir *dcdir, StorageOps *storage, DcDir *parent_dir,
+		   const char *name)
+{
+	DcDirRegion raw;
+	return dcdir_open_dir_raw(dcdir, &raw, storage, parent_dir, name);
 }
 
 int dcdir_open_region(DcDirRegion *region, StorageOps *storage,

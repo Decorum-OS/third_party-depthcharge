@@ -76,10 +76,17 @@ int dcdir_open_root(DcDir *dcdir, StorageOps *storage, uint32_t anchor_offset);
  * should be set to point to the parent directory which was filled in by some
  * other dcdir function.
  *
+ * The "_raw" version of this function works the same way, but it also
+ * records the offset and size of the sub directory region itself in the
+ * DcDirRegion structure pointed to by raw_region.
+ *
  * Returns 0 on success, non-zero on failure.
  */
 int dcdir_open_dir(DcDir *dcdir, StorageOps *storage, DcDir *parent_dir,
 		   const char *name);
+int dcdir_open_dir_raw(DcDir *dcdir, DcDirRegion *raw_region,
+		       StorageOps *storage, DcDir *parent_dir,
+		       const char *name);
 
 /*
  * Open a region within a given parent directory.
