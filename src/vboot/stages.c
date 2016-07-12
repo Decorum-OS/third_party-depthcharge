@@ -33,8 +33,6 @@
 #include "drivers/blockdev/blockdev.h"
 #include "drivers/flash/flash.h"
 #include "drivers/keyboard/keyboard.h"
-#include "image/fmap.h"
-#include "image/index.h"
 #include "module/module.h"
 #include "module/symbols.h"
 #include "vboot/boot.h"
@@ -175,26 +173,28 @@ int vboot_select_firmware(void)
 	enum VbSelectFirmware_t select = fparams.selected_firmware;
 
 	// If an RW firmware was selected, start it.
-	if (select == VB_SELECT_FIRMWARE_A || select == VB_SELECT_FIRMWARE_B) {
-		const char *name;
-		if (select == VB_SELECT_FIRMWARE_A)
-			name = "FW_MAIN_A";
-		else
-			name = "FW_MAIN_B";
+	StorageOps *next_fw = NULL;
+	if (select == VB_SELECT_FIRMWARE_A)
+		next_fw = board_storage_main_fw_a();
+	else if (select == VB_SELECT_FIRMWARE_B)
+		next_fw = board_storage_main_fw_b();
 
-		FmapArea rw_area;
-		if (fmap_find_area(name, &rw_area)) {
-			printf("Didn't find section %s in the fmap.\n", name);
+	if (next_fw) {
+		int image_size = storage_size(next_fw);
+		if (image_size < 0)
+			return 1;
+
+		void *image = xmalloc(image_size);
+		if (storage_read(next_fw, image, 0, image_size)) {
+			free(image);
 			return 1;
 		}
 
-		uint32_t image_size;
-		const void *image = index_subsection(&rw_area, 0, &image_size);
-		if (!image)
+		if (start_module(image, image_size)) {
+			free(image);
 			return 1;
-
-		if (start_module(image, image_size))
-			return 1;
+		}
+		free(image);
 	}
 
 	return 0;
