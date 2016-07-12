@@ -100,5 +100,6 @@ StorageOps *board_storage_nv_scratch(void);
 StorageOps *board_storage_fwid_rwa(void);
 StorageOps *board_storage_fwid_rwb(void);
 StorageOps *board_storage_fwid_ro(void);
+StorageOps *board_storage_vboot_nvstorage(void);
 
 #endif /* __BOARD_BOARD_H__ */

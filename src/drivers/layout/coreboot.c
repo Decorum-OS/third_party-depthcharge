@@ -35,3 +35,5 @@ PUB_DYN(storage_fwid_rwb, &new_fmap_storage(get_fmap_media(), "RW_FWID_B")->ops)
 PUB_DYN(storage_legacy, &new_fmap_storage(get_fmap_media(), "RW_LEGACY")->ops)
 PUB_DYN(storage_nv_scratch, &new_fmap_storage(get_fmap_media(),
 	"SHARED_DATA")->ops)
+PUB_DYN(storage_vboot_nvstorage, &new_fmap_storage(get_fmap_media(),
+	"RW_NVRAM")->ops)
