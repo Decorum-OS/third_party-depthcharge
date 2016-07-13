@@ -16,7 +16,6 @@
 ##
 
 depthcharge-y += fmap.c
-depthcharge-y += index.c
 
 
 

@@ -36,8 +36,4 @@ typedef struct SectionIndex {
 	SectionIndexEntry entries[0];
 } __attribute__ ((packed)) SectionIndex;
 
-const SectionIndex *index_from_fmap(const FmapArea *area);
-const void *index_subsection(const FmapArea *area, const int entry,
-			     uint32_t *entry_size);
-
 #endif /* __IMAGE_INDEX_H__ */
