@@ -44,11 +44,7 @@ typedef struct Fmap {
 	FmapArea areas[0];
 } __attribute__ ((packed)) Fmap;
 
-#define FMAP_SIGNATURE "__FMAP__"
-
-const int fmap_find_area(const char *name, FmapArea *area);
-const char *fmap_find_string(const char *name, int *size);
-
-const Fmap *fmap_base(void);
+int fmap_check_signature(const Fmap *fmap);
+int fmap_find_area(const Fmap *fmap, const char *name, const FmapArea **area);
 
 #endif /* __IMAGE_FMAP_H__ */

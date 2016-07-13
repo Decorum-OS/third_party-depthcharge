@@ -20,74 +20,25 @@
  * MA 02111-1307 USA
  */
 
-#include <assert.h>
-#include <stdint.h>
+#include <string.h>
 
-#include "base/init_funcs.h"
-#include "drivers/flash/flash.h"
 #include "image/fmap.h"
 
-static const Fmap *main_fmap;
-
-static int fmap_check_signature(void)
+int fmap_check_signature(const Fmap *fmap)
 {
-	return memcmp(main_fmap->signature, (uint8_t *)FMAP_SIGNATURE,
-		      sizeof(main_fmap->signature));
+	return memcmp(fmap->signature, (const uint8_t *)"__FMAP__",
+		      sizeof(fmap->signature));
 }
 
-static void fmap_init(void)
+int fmap_find_area(const Fmap *fmap, const char *name, const FmapArea **area)
 {
-	static int init_done = 0;
-
-	if (init_done)
-		return;
-
-	main_fmap = flash_read(CONFIG_FMAP_OFFSET, sizeof(Fmap));
-	if (!main_fmap)
-		halt();
-	if (fmap_check_signature()) {
-		printf("Bad signature on the FMAP.\n");
-		halt();
-	}
-	uint32_t fmap_size = sizeof(Fmap) +
-		main_fmap->nareas * sizeof(FmapArea);
-	main_fmap = flash_read(CONFIG_FMAP_OFFSET, fmap_size);
-	if (!main_fmap)
-		halt();
-
-	init_done = 1;
-	return;
-}
-
-const Fmap *fmap_base(void)
-{
-	fmap_init();
-	return main_fmap;
-}
-
-const int fmap_find_area(const char *name, FmapArea *area)
-{
-	fmap_init();
-	for (int i = 0; i < main_fmap->nareas; i++) {
-		const FmapArea *cur = &(main_fmap->areas[i]);
+	for (int i = 0; i < fmap->nareas; i++) {
+		const FmapArea *cur = &(fmap->areas[i]);
 		if (!strncmp(name, (const char *)cur->name,
 				sizeof(cur->name))) {
-			memcpy(area, cur, sizeof(FmapArea));
+			*area = cur;
 			return 0;
 		}
 	}
 	return 1;
-}
-
-const char *fmap_find_string(const char *name, int *size)
-{
-	assert(size);
-
-	FmapArea area;
-	if (fmap_find_area(name, &area)) {
-		*size = 0;
-		return NULL;
-	}
-	*size = area.size;
-	return flash_read(area.offset, area.size);
 }

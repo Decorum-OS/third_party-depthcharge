@@ -41,8 +41,7 @@ static int fmap_storage_find_fmap(FmapStorageMedia *media)
 		return 1;
 	}
 
-	if (memcmp(fmap->signature, (uint8_t *)FMAP_SIGNATURE,
-		   sizeof(fmap->signature))) {
+	if (fmap_check_signature(fmap)) {
 		free(fmap);
 		printf("Bad signature on the FMAP.\n");
 		return 1;
@@ -71,18 +70,12 @@ static int fmap_storage_find_area(FmapStorage *storage)
 	if (!storage->media->fmap && fmap_storage_find_fmap(storage->media))
 		return 1;
 
-	const Fmap *fmap = storage->media->fmap;
-	for (int i = 0; i < fmap->nareas; i++) {
-		const FmapArea *cur = &(fmap->areas[i]);
-		if (!strncmp(storage->name, (const char *)cur->name,
-			     sizeof(cur->name))) {
-			storage->area = cur;
-			return 0;
-		}
+	if (fmap_find_area(storage->media->fmap, storage->name,
+			   &storage->area)) {
+		printf("Couldn't find FMAP area %s.\n", storage->name);
+		return 1;
 	}
-
-	printf("Couldn't find FMAP area %s.\n", storage->name);
-	return 1;
+	return 0;
 }
 
 static int fmap_storage_read(StorageOps *me, void *buffer,
