@@ -128,7 +128,8 @@ int crossystem_setup(void)
 
 	acpi_table->recovery_reason = vdat->recovery_reason;
 
-	acpi_table->fmap_base = (uintptr_t)fmap_base();
+	acpi_table->fmap_base = (uint32_t)(-CONFIG_IMAGE_SIZE_KB * 1024) +
+				CONFIG_FMAP_OFFSET;
 
 	return 0;
 }
