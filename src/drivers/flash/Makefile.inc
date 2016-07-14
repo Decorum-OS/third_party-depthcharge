@@ -15,7 +15,6 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-depthcharge-$(CONFIG_DRIVER_FLASH) += flash.c
 depthcharge-$(CONFIG_DRIVER_FLASH_MEMMAPPED) += memmapped.c
 depthcharge-$(CONFIG_DRIVER_FLASH_SPI) += spi.c
 

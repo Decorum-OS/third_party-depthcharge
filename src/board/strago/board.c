@@ -81,8 +81,6 @@ static int board_setup(void)
   #endif
 #endif
 
-	flash_set_ops(get_flash());
-
 	tpm_set_ops(&new_lpc_tpm((void *)0xfed40000)->ops);
 
 	SdhciHost *emmc, *sd;

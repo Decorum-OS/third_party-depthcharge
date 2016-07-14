@@ -37,11 +37,31 @@ typedef struct FlashOps
 	int (*size)(struct FlashOps *me);
 } FlashOps;
 
-void flash_set_ops(FlashOps *ops);
+static inline void *flash_read(FlashOps *me, uint32_t offset, uint32_t size)
+{
+	return me->read(me, offset, size);
+}
 
-void *flash_read(uint32_t offset, uint32_t size);
-int flash_write(uint32_t offset, uint32_t size, const void *buffer);
-int flash_erase(uint32_t offset, uint32_t size);
+static inline int flash_write(FlashOps *me, const void *buffer,
+			      uint32_t offset, uint32_t size)
+{
+	return me->write(me, buffer, offset, size);
+}
+
+static inline int flash_erase_size(FlashOps *me)
+{
+	return me->erase_size(me);
+}
+
+static inline int flash_erase(FlashOps *me, uint32_t offset, uint32_t size)
+{
+	return me->erase(me, offset, size);
+}
+
+static inline int flash_size(FlashOps *me)
+{
+	return me->size(me);
+}
 
 
 #endif /* __DRIVERS_FLASH_FLASH_H__ */

@@ -57,8 +57,6 @@ PUB_DYN(_coreboot_storage, &new_flash_storage(get_flash())->ops);
 
 static int board_setup(void)
 {
-	flash_set_ops(get_flash());
-
 	sound_set_ops(&new_pcat_beep()->ops);
 
 	AhciCtrlr *ahci = new_ahci_ctrlr(PCI_DEV(0, 31, 2));

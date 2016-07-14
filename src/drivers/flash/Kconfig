@@ -16,14 +16,8 @@
 
 config DRIVER_FLASH_MEMMAPPED
 	bool "Memory mapped flash"
-	select DRIVER_FLASH
 	default n
 
 config DRIVER_FLASH_SPI
 	bool "SPI based flash"
-	select DRIVER_FLASH
-	default n
-
-config DRIVER_FLASH
-	bool
 	default n

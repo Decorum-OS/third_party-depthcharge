@@ -79,8 +79,6 @@ PUB_DYN(_coreboot_storage, &new_flash_storage(get_flash())->ops)
 
 static int board_setup(void)
 {
-	flash_set_ops(get_flash());
-
 	cros_ec_set_bus(&new_cros_ec_spi_bus(get_spi0())->ops);
 	cros_ec_set_interrupt_gpio(get_ec_int_gpio_n());
 

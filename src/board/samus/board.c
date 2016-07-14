@@ -115,8 +115,6 @@ static int board_setup(void)
 		new_cros_ec_lpc_bus(CROS_EC_LPC_BUS_GENERIC);
 	cros_ec_set_bus(&cros_ec_lpc_bus->ops);
 
-	flash_set_ops(get_flash());
-
 	AhciCtrlr *ahci = new_ahci_ctrlr(PCI_DEV(0, 31, 2));
 	list_insert_after(&ahci->ctrlr.list_node, &fixed_block_dev_controllers);
 

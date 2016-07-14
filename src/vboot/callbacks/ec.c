@@ -30,7 +30,6 @@
 #include "base/xalloc.h"
 #include "board/board.h"
 #include "drivers/ec/cros/ec.h"
-#include "drivers/flash/flash.h"
 
 int VbExTrustEC(int devidx)
 {

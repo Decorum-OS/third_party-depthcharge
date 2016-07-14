@@ -31,7 +31,6 @@
 #include "board/board.h"
 #include "boot/commandline.h"
 #include "drivers/blockdev/blockdev.h"
-#include "drivers/flash/flash.h"
 #include "drivers/keyboard/keyboard.h"
 #include "module/module.h"
 #include "module/symbols.h"

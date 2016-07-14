@@ -30,7 +30,6 @@
 
 #include "base/algorithm.h"
 #include "board/board.h"
-#include "image/fmap.h"
 #include "vboot/crossystem/crossystem.h"
 #include "vboot/firmware_id.h"
 #include "vboot/util/acpi.h"

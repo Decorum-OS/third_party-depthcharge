@@ -33,9 +33,7 @@
 #include "base/lzma/lzma.h"
 #include "base/xalloc.h"
 #include "board/board.h"
-#include "drivers/flash/flash.h"
 #include "drivers/storage/storage.h"
-#include "image/fmap.h"
 
 static void load_payload_and_run(struct cbfs_payload *payload);
 

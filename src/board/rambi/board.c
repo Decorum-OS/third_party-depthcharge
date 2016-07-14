@@ -80,8 +80,6 @@ static int board_setup(void)
 		new_cros_ec_lpc_bus(CROS_EC_LPC_BUS_GENERIC);
 	cros_ec_set_bus(&cros_ec_lpc_bus->ops);
 
-	flash_set_ops(get_flash());
-
 	/* Setup sound components */
 	uintptr_t lpe_mmio = nvs->lpe_bar0;
 	if (!nvs->lpe_en) {

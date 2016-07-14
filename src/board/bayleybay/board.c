@@ -50,8 +50,6 @@ PUB_DYN(_coreboot_storage, &new_flash_storage(get_flash())->ops);
 
 static int board_setup(void)
 {
-	flash_set_ops(get_flash());
-
 	AhciCtrlr *ahci = new_ahci_ctrlr(PCI_DEV(0, 19, 0));
 	list_insert_after(&ahci->ctrlr.list_node, &fixed_block_dev_controllers);
 

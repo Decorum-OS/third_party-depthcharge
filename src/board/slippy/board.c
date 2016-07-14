@@ -64,8 +64,6 @@ static int board_setup(void)
 		new_cros_ec_lpc_bus(CROS_EC_LPC_BUS_GENERIC);
 	cros_ec_set_bus(&cros_ec_lpc_bus->ops);
 
-	flash_set_ops(get_flash());
-
 	HdaCodec *codec = new_hda_codec();
 	sound_set_ops(&codec->ops);
 

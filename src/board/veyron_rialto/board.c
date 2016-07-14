@@ -165,8 +165,6 @@ static int board_setup(void)
 {
 	RialtoDisplayOps *leds;
 
-	flash_set_ops(get_flash());
-
 	RkI2c *i2c1 = new_rockchip_i2c((void *)0xff140000);
 	tpm_set_ops(&new_slb9635_i2c(&i2c1->ops, 0x20)->base.ops);
 

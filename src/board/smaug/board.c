@@ -160,8 +160,6 @@ static int board_setup(void)
 {
 	flash_params_override();
 
-	flash_set_ops(get_flash());
-
 	TegraI2c *gen3_i2c = new_tegra_i2c((void *)0x7000c500, 3,
 					   (void *)CLK_RST_U_RST_SET,
 					   (void *)CLK_RST_U_RST_CLR,

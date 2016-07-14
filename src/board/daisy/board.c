@@ -90,8 +90,6 @@ static int board_setup(void)
 
 	tpm_set_ops(&new_slb9635_i2c(&i2c3->ops, 0x20)->base.ops);
 
-	flash_set_ops(get_flash());
-
 	Exynos5I2s *i2s1 = new_exynos5_i2s(0x12d60000, 16, 2, 256);
 	I2sSource *i2s_source = new_i2s_source(&i2s1->ops, 48000, 2, 16000);
 	SoundRoute *sound_route = new_sound_route(&i2s_source->ops);

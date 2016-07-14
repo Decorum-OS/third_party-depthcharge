@@ -129,8 +129,6 @@ static int board_setup(void)
 {
 	choose_devicetree_by_boardid();
 
-	flash_set_ops(get_flash());
-
 	/* Foster has no TPM */
 	no_tpm_ops.xmit = &no_tpm_xmit;
 	tpm_set_ops(&no_tpm_ops);

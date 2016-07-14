@@ -187,8 +187,6 @@ static int board_setup(void)
 		return 1;
 	}
 
-	flash_set_ops(get_flash());
-
 	TegraI2c *cam_i2c = new_tegra_i2c((void *)0x7000c500, 3,
 					  (void *)CLK_RST_U_RST_SET,
 					  (void *)CLK_RST_U_RST_CLR,

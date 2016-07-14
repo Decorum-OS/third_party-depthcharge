@@ -24,8 +24,6 @@
 #include <stdio.h>
 
 #include "base/fwdb.h"
-#include "drivers/flash/flash.h"
-#include "image/fmap.h"
 #include "module/symbols.h"
 #include "vboot/util/commonparams.h"
 

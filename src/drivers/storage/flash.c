@@ -35,7 +35,7 @@ static int flash_storage_read(StorageOps *me, void *buffer,
 {
 	FlashStorage *storage = container_of(me, FlashStorage, ops);
 
-	void *result = storage->flash->read(storage->flash, offset, size);
+	void *result = flash_read(storage->flash, offset, size);
 	if (!result)
 		return 1;
 
@@ -52,7 +52,7 @@ static int flash_storage_write(StorageOps *me, const void *buffer,
 		return 1;
 	}
 
-	const int64_t erase_size = storage->flash->erase_size(storage->flash);
+	const int64_t erase_size = flash_erase_size(storage->flash);
 	if (erase_size < 0)
 		return 1;
 	// Make sure the erase size is a power of 2.
@@ -76,8 +76,7 @@ static int flash_storage_write(StorageOps *me, const void *buffer,
 	     pos += erase_size) {
 
 		// Read the existing contents.
-		uint8_t *existing =
-			storage->flash->read(storage->flash, pos, erase_size);
+		uint8_t *existing = flash_read(storage->flash, pos, erase_size);
 		if (!existing)
 			return 1;
 		// Set up a pointer to data to write to this sector.
@@ -94,8 +93,8 @@ static int flash_storage_write(StorageOps *me, const void *buffer,
 			if ((original & new) != new) {
 				// A straight overwrite isn't possible, so
 				// we need to erase this sector.
-				if (storage->flash->erase(storage->flash,
-							  pos, erase_size))
+				if (flash_erase(storage->flash,
+						pos, erase_size))
 					return 1;
 				// We already erased, so we can stop now.
 				break;
@@ -118,8 +117,8 @@ static int flash_storage_write(StorageOps *me, const void *buffer,
 		}
 
 		// Actually do the write.
-		if (storage->flash->write(storage->flash, write_buf,
-					  write_pos, write_size)) {
+		if (flash_write(storage->flash, write_buf,
+				write_pos, write_size)) {
 			return 1;
 		}
 
@@ -135,7 +134,7 @@ static int flash_storage_write(StorageOps *me, const void *buffer,
 static int flash_storage_size(StorageOps *me)
 {
 	FlashStorage *storage = container_of(me, FlashStorage, ops);
-	return storage->flash->size(storage->flash);
+	return flash_size(storage->flash);
 }
 
 FlashStorage *new_flash_storage(FlashOps *flash)

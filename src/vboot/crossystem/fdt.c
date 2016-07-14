@@ -31,7 +31,6 @@
 
 #include "base/device_tree.h"
 #include "base/xalloc.h"
-#include "image/fmap.h"
 #include "vboot/callbacks/nvstorage_flash.h"
 #include "vboot/crossystem/crossystem.h"
 #include "vboot/firmware_id.h"

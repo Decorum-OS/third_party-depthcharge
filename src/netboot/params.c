@@ -26,9 +26,7 @@
 
 #include "base/xalloc.h"
 #include "board/board.h"
-#include "drivers/flash/flash.h"
 #include "drivers/storage/storage.h"
-#include "image/fmap.h"
 #include "net/uip.h"
 #include "netboot/params.h"
 
