@@ -34,8 +34,6 @@
 #include "drivers/bus/i2c/designware.h"
 #include "drivers/bus/i2c/i2c.h"
 #include "drivers/ec/cros/lpc.h"
-#include "drivers/flash/flash.h"
-#include "drivers/flash/memmapped.h"
 #include "drivers/gpio/fwdb.h"
 #include "drivers/gpio/gpio.h"
 #include "drivers/gpio/skylake.h"
@@ -46,7 +44,7 @@
 #include "drivers/sound/gpio_pdm.h"
 #include "drivers/sound/route.h"
 #include "drivers/sound/ssm4567.h"
-#include "drivers/storage/flash.h"
+#include "drivers/storage/x86_flash.h"
 #include "drivers/tpm/lpc.h"
 #include "drivers/tpm/tpm.h"
 #include "drivers/uart/8250.h"
@@ -71,9 +69,7 @@ PUB_STAT(flag_lid_open, gpio_get(&fwdb_gpio_lidsw.ops))
 PUB_STAT(flag_power, gpio_get(&fwdb_gpio_pwrsw.ops))
 PUB_STAT(flag_ec_in_rw, gpio_get(get_ec_in_rw_gpio()))
 
-/* 16MB SPI Flash */
-PRIV_DYN(flash, &new_mem_mapped_flash(0xff000000, 0x1000000)->ops);
-PUB_DYN(_coreboot_storage, &new_flash_storage(get_flash())->ops);
+PUB_DYN(_coreboot_storage, new_x86_flash_storage());
 
 static int board_setup(void)
 {

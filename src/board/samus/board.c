@@ -38,8 +38,6 @@
 #include "drivers/bus/i2s/broadwell/broadwell.h"
 #include "drivers/bus/i2s/i2s.h"
 #include "drivers/ec/cros/lpc.h"
-#include "drivers/flash/flash.h"
-#include "drivers/flash/memmapped.h"
 #include "drivers/gpio/fwdb.h"
 #include "drivers/gpio/gpio.h"
 #include "drivers/gpio/lynxpoint_lp.h"
@@ -51,7 +49,7 @@
 #include "drivers/sound/i2s.h"
 #include "drivers/sound/route.h"
 #include "drivers/sound/rt5677.h"
-#include "drivers/storage/flash.h"
+#include "drivers/storage/x86_flash.h"
 #include "drivers/tpm/lpc.h"
 #include "drivers/tpm/tpm.h"
 #include "drivers/uart/8250.h"
@@ -105,9 +103,9 @@ static BdwI2s *i2s_enable(int ssp)
 		&broadwell_alc5677_settings);
 }
 
-PRIV_DYN(flash, &new_mem_mapped_flash(0xff800000, 0x800000)->ops);
-PUB_DYN(_coreboot_storage, &new_flash_storage(get_flash())->ops);
-PUB_DYN(_dcdir_storage, &new_flash_storage(get_flash())->ops);
+PRIV_DYN(flash, new_x86_flash_storage())
+PUB_STAT(_coreboot_storage, get_flash())
+PUB_STAT(_dcdir_storage, get_flash())
 
 static int board_setup(void)
 {

@@ -24,11 +24,10 @@
 
 #include "board/board.h"
 #include "board/board_helpers.h"
-#include "drivers/flash/memmapped.h"
 #include "drivers/keyboard/keyboard.h"
 #include "drivers/layout/coreboot.h"
 #include "drivers/power/power.h"
-#include "drivers/storage/flash.h"
+#include "drivers/storage/x86_flash.h"
 
 // Force these to acceptable values for now.
 PUB_STAT(flag_write_protect, 1)
@@ -40,7 +39,6 @@ PUB_STAT(flag_power, 0)
 PUB_ARR(trusted_keyboards, (KeyboardOps *)NULL)
 PUB_ARR(untrusted_keyboards, (KeyboardOps *)NULL)
 
-PRIV_DYN(flash, &new_mem_mapped_flash(0xff800000, 0x800000)->ops);
-PUB_DYN(_coreboot_storage, &new_flash_storage(get_flash())->ops);
+PUB_DYN(_coreboot_storage, new_x86_flash_storage())
 
 PUB_STAT(power, (PowerOps *)NULL)

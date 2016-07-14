@@ -20,20 +20,23 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __DRIVERS_FLASH_MEMMAPPED_H__
-#define __DRIVERS_FLASH_MEMMAPPED_H__
+#ifndef __DRIVERS_STORAGE_MEMORY_H__
+#define __DRIVERS_STORAGE_MEMORY_H__
 
+#include <stddef.h>
 #include <stdint.h>
 
-#include "drivers/flash/flash.h"
+#include "drivers/storage/storage.h"
 
-typedef struct MemMappedFlash
+typedef struct MemoryStorage
 {
-	FlashOps ops;
-	uint32_t base;
-	uint32_t size;
-} MemMappedFlash;
+	StorageOps ops;
 
-MemMappedFlash *new_mem_mapped_flash(uint32_t base, uint32_t size);
+	uint8_t *data;
+	size_t size;
+} MemoryStorage;
 
-#endif /* __DRIVERS_FLASH_MEMMAPPED_H__ */
+MemoryStorage *new_memory_storage(void *data, size_t size);
+MemoryStorage *new_memory_ro_storage(void *data, size_t size);
+
+#endif /* __DRIVERS_STORAGE_MEMORY_H__ */

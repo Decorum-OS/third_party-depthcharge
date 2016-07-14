@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Google Inc.
+ * Copyright 2013 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,27 +20,18 @@
  * MA 02111-1307 USA
  */
 
-#include "board/board.h"
-#include "board/board_helpers.h"
-#include "drivers/keyboard/ps2.h"
-#include "drivers/layout/dcdir.h"
-#include "drivers/power/pch.h"
-#include "drivers/storage/x86_flash.h"
-#include "drivers/uart/8250.h"
+#ifndef __DRIVERS_STORAGE_X86_FLASH_H__
+#define __DRIVERS_STORAGE_X86_FLASH_H__
 
-PUB_STAT(power, &pch_power_ops);
+#include <stddef.h>
 
-PUB_DYN(debug_uart, &new_uart_8250_io(0x3f8)->uart.ops)
+#include "drivers/storage/memory.h"
 
-PUB_ARR(trusted_keyboards, &new_ps2_keyboard()->ops)
-PUB_ARR(untrusted_keyboards, (KeyboardOps *)NULL)
+static inline StorageOps *new_x86_flash_storage(void)
+{
+	const size_t image_bytes = CONFIG_IMAGE_SIZE_KB * 1024;
+	const uintptr_t image_base = (uint32_t)(-image_bytes);
+	return &new_memory_ro_storage((void *)image_base, image_bytes)->ops;
+}
 
-PUB_DYN(_dcdir_storage, new_x86_flash_storage())
-
-PUB_STAT(flag_write_protect, 1)
-PUB_STAT(flag_recovery, 0)
-PUB_STAT(flag_developer_mode, 1)
-PUB_STAT(flag_option_roms_loaded, 0)
-PUB_STAT(flag_lid_open, 1)
-PUB_STAT(flag_power, 0)
-PUB_STAT(flag_ec_in_rw, 0)
+#endif /* __DRIVERS_STORAGE_X86_FLASH_H__ */
