@@ -20,7 +20,8 @@ subdirs-y += cb fsp qemu trampoline uefi
 depthcharge-y += module.c
 
 DEFAULT_LDSCRIPT := $(cursrcdir)/module.ldscript
-NM_TO_DEFSYM_SED := $(cursrcdir)/nm_to_defsym.sed
+NM_TO_SYM_ARGS_SED := $(cursrcdir)/nm_to_sym_args.sed
+BIN_TO_O := $(cursrcdir)/bin_to_o.sh
 
 # These options are passed from .config to the linker script. When making
 # changes, update Kconfig as well.

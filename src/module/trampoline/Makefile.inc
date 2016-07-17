@@ -33,34 +33,27 @@ $(module_obj)/trampoline-%.elf: $(module_obj)/trampoline.elf
 # a particular address. This creates a .o file which can be linked into other
 # code, making the trampoline's binary ELF image available at run time.
 #
-# It does this in a couple ways. First, it performs an incremental link with
-# gcc and passes in the binary as an input. ld will create a section for it,
-# and will create symbols relative to that section which say where it starts
-# and what its size is. When the .bin.o is linked into another code, those
-# symbols let that code find the trampoline image so it can be loaded into
-# place.
+# It does this in a couple ways. First, it uses the bin_to_o utility script
+# to wrap the binary version of the trampoline in a .o file with symbols that
+# show where the binary image starts, stops, and its size.
 #
-# Also, this rule extracts symbols from the trampoline's elf file (before
-# stripping, compression, etc.) and injects them into the .bin.o using
-# --defsym options passed to ld. That means that the outer program will be
-# able to have references to symbols from the trampoline which will
-# become valid/populated when the trampoline is loaded.
+# Second, it extracts symbols from the trampoline's elf file (before
+# stripping, compression, etc.) and passes them to bin_to_o to be included in
+# the resulting .bin.o file. That means that the outer program will be
+# able to have references to symbols from the trampoline which will become
+# valid/populated when the trampoline is loaded, without having to have them
+# map to anything which is actually present before that.
 $(module_obj)/trampoline-%.bin.o: $(module_obj)/trampoline-%.bin \
 				  $(module_obj)/trampoline-%.elf \
-				  $$(NM_TO_DEFSYM_SED)
-	@printf "    CC         $(subst $(obj)/,,$@)\n"
-	$(Q)TEMPDIR=`mktemp -d -t trampoline.XXXXXXXX` && \
-		DEFSYM_OPTS=`nm --extern-only --radix=x --defined-only \
+				  $$(NM_TO_SYM_ARGS_SED) \
+				  $$(BIN_TO_O)
+	@printf "    BIN_TO_O   $(subst $(obj)/,,$@)\n"
+	$(Q)$(BIN_TO_O) $@ trampoline $(filter %.bin,$+) \
+		$$(nm --extern-only --radix=x --defined-only \
 			$(filter %.elf,$+) | \
-			sed -r -f $(NM_TO_DEFSYM_SED) | \
+			sed -r -f $(filter %.sed,$+) | \
 			tr '\n' ' ' \
-		` && \
-		cp $(filter %.bin,$+) "$${TEMPDIR}"/trampoline && \
-		pushd "$${TEMPDIR}" > /dev/null && \
-		$(CC) -Wl,--relocatable -Wl,-b,binary -fuse-ld=bfd -nostdlib \
-			-o $(abspath $@) -Xlinker trampoline $${DEFSYM_OPTS}; \
-		popd > /dev/null; \
-		rm -rf "$${TEMPDIR}"
+		)
 
 trampoline_bin_at = $(module_obj)/trampoline-$(1).bin.o
 trampoline_elf_at = $(module_obj)/trampoline-$(1).elf
