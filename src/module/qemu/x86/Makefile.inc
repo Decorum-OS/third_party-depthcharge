@@ -18,12 +18,7 @@
 module-y += qemu_x86_entry
 mod-qemu_x86_entry-title = "real mode entry point"
 mod-qemu_x86_entry-y += entry.S
-mod-qemu_x86_entry-libs += $(COMMON_OBJECTS) $(TRAMP_KS_BIN)
+mod-qemu_x86_entry-libs += $(COMMON_OBJECTS) $(TRAMP_KS)
 mod-qemu_x86_entry-ldscript := $(cursrcdir)/entry.ldscript
 mod-qemu_x86_entry-ldopts += -Wl,--relocatable -Wl,-d -Wl,--warn-common
 mod-qemu_x86_entry-ldopts += -Wl,--entry=_entry
-
-# Make the trampoline ELF easy to find for XIP linking.
-$(module_obj)/qemu_x86_entry.trampoline: $(TRAMP_KS_ELF)
-	@printf "    OBJCOPY    $(subst $(obj)/,,$@)\n"
-	$(Q)$(OBJCOPY) $< $@

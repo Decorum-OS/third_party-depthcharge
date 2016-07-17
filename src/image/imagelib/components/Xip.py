@@ -39,7 +39,6 @@ class Xip(DerivedArea):
         self._data = data
         self._image_base = 0
         self._extra_symbols = {}
-        self._just_symbols_files = []
         self.shrink()
 
     def symbols_append(self, name, value):
@@ -61,10 +60,6 @@ class Xip(DerivedArea):
         """
         self.symbols_extend(kwargs)
 
-    def just_symbols_file(self, f):
-        self.add_child(f)
-        self._just_symbols_files.append(f)
-
     def image_base(self, new_image_base):
         """Set the address the base of the image is mapped to."""
         self._image_base = new_image_base
@@ -84,17 +79,11 @@ class Xip(DerivedArea):
                 base=(self.placed_offset + self._image_base))
         objcopy = Objcopy()
         gcc = GccLd()
-        just_symbols_files = [just_symbol_file.write()
-                        for just_symbol_file in self._just_symbols_files]
         with FileHarness(None, None, linker_script,
-                         self._data.write(), *just_symbols_files) as files:
-            binary, elf, script, partial = files[0:4]
-            just_symbols_files = files[4:]
+                         self._data.write()) as files:
+            binary, elf, script, partial = files
             # Do the final link to prepare the image for its new home.
             args = [partial, "-T", script, "-Wl,--no-gc-sections"]
-            # Add in files which are just providing symbols.
-            for just_symbols_file in just_symbols_files:
-                args.append("-Wl,--just-symbols={}".format(just_symbols_file))
             # Add in the extra symbols we've been supplied.
             defsym_template = "-Wl,--defsym={name}={value:#x}"
             for name, value in self._extra_symbols.iteritems():

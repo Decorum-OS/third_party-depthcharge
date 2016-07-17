@@ -48,10 +48,7 @@ mod-cb_dev-ldopts = $(DONT_GC_NETBOOT)
 module-y += cb_readonly
 mod-cb_readonly-title = "read only payload"
 mod-cb_readonly-y += readonly.c $(CB_ARCH_CODE-y)
-mod-cb_readonly-libs += $(COMMON_OBJECTS) $(coreboot_handoff-objs)
-mod-cb_readonly-libs += $(TRAMP_KS_BIN)
-mod-cb_readonly-ldopts = -Wl,--just-symbols=$(TRAMP_KS_ELF)
-mod-cb_readonly-deps += $(TRAMP_KS_ELF)
+mod-cb_readonly-libs += $(COMMON_OBJECTS) $(coreboot_handoff-objs) $(TRAMP_KS)
 
 module-y += cb_dev_ro
 mod-cb_dev_ro-title = "read only developer payload"

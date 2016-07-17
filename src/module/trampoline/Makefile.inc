@@ -29,21 +29,43 @@ $(module_obj)/trampoline-%.elf: $(module_obj)/trampoline.elf
 	$(Q)$(OBJCOPY) $@.tmp $@ \
 		$(addprefix --keep-global-symbol=,$(TRAMPOLINE_GLOBALS))
 
-$(module_obj)/trampoline-%.bin.o: $(module_obj)/trampoline-%.bin
+# This rule creates a .bin.o for a version of the trampoline linked to run at
+# a particular address. This creates a .o file which can be linked into other
+# code, making the trampoline's binary ELF image available at run time.
+#
+# It does this in a couple ways. First, it performs an incremental link with
+# gcc and passes in the binary as an input. ld will create a section for it,
+# and will create symbols relative to that section which say where it starts
+# and what its size is. When the .bin.o is linked into another code, those
+# symbols let that code find the trampoline image so it can be loaded into
+# place.
+#
+# Also, this rule extracts symbols from the trampoline's elf file (before
+# stripping, compression, etc.) and injects them into the .bin.o using
+# --defsym options passed to ld. That means that the outer program will be
+# able to have references to symbols from the trampoline which will
+# become valid/populated when the trampoline is loaded.
+$(module_obj)/trampoline-%.bin.o: $(module_obj)/trampoline-%.bin \
+				  $(module_obj)/trampoline-%.elf \
+				  $$(NM_TO_DEFSYM_SED)
 	@printf "    CC         $(subst $(obj)/,,$@)\n"
 	$(Q)TEMPDIR=`mktemp -d -t trampoline.XXXXXXXX` && \
-		cp $+ "$${TEMPDIR}"/trampoline && \
+		DEFSYM_OPTS=`nm --extern-only --radix=x --defined-only \
+			$(filter %.elf,$+) | \
+			sed -r -f $(NM_TO_DEFSYM_SED) | \
+			tr '\n' ' ' \
+		` && \
+		cp $(filter %.bin,$+) "$${TEMPDIR}"/trampoline && \
 		pushd "$${TEMPDIR}" > /dev/null && \
 		$(CC) -Wl,--relocatable -Wl,-b,binary -fuse-ld=bfd -nostdlib \
-			-o $(abspath $@) -Xlinker trampoline; \
+			-o $(abspath $@) -Xlinker trampoline $${DEFSYM_OPTS}; \
 		popd > /dev/null; \
 		rm -rf "$${TEMPDIR}"
 
 trampoline_bin_at = $(module_obj)/trampoline-$(1).bin.o
 trampoline_elf_at = $(module_obj)/trampoline-$(1).elf
 
-TRAMP_KS_ELF = $(call trampoline_elf_at,$(CONFIG_KERNEL_START))
-TRAMP_KS_BIN = $(call trampoline_bin_at,$(CONFIG_KERNEL_START))
+TRAMP_KS = $(call trampoline_bin_at,$(CONFIG_KERNEL_START))
 
 module-y += trampoline
 mod-trampoline-y += trampoline.c

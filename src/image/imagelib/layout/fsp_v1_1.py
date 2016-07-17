@@ -105,7 +105,6 @@ class Image(RootDirectory):
         image_base = 4 * GB - size
         microcode = File(paths["microcode"])
         xip_entry = Xip(File(paths["entry"])).image_base(image_base)
-        xip_entry.just_symbols_file(File(paths["entry_trampoline"]))
 
         si_bios = Area(
             Directory("RW",

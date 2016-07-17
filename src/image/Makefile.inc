@@ -148,7 +148,6 @@ modules: $$(module_obj)/cb_dev.payload
 modules: $$(module_obj)/cb_netboot.payload
 
 modules: $$(module_obj)/fsp_v1_1_entry.mod
-modules: $$(module_obj)/fsp_v1_1_entry.trampoline
 modules: $$(module_obj)/fsp_v1_1_fw_sel.bin
 
 STANDARD_IMAGES=y
@@ -165,7 +164,6 @@ BUILD_IMAGE_LAYOUT_OPTS = \
 	--hwid=$(CONFIG_IMAGE_HWID)
 
 modules: $$(module_obj)/qemu_x86_entry.mod
-modules: $$(module_obj)/qemu_x86_entry.trampoline
 modules: $$(module_obj)/qemu_firmware_select.elf
 
 STANDARD_IMAGES=y

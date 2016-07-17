@@ -93,7 +93,6 @@ class Image(RootDirectory):
 
         backjump = Reljump()
         xip_entry = Xip(File(paths["entry"])).image_base(self.image_base)
-        xip_entry.just_symbols_file(File(paths["entry_trampoline"]))
         dcdir_table = DirectoryTable()
 
         super(Image, self).__init__(
