@@ -17,8 +17,7 @@
 
 $(module_obj)/%.efi: $(module_obj)/%.elf
 	@printf "    UEFIAPP    $(subst $(obj)/,,$@)\n"
-	$(Q)$(OBJCOPY) --target=efi-app-x86_64 --strip-debug \
-	               --remove-section=.hash $< $@
+	$(Q)$(OBJCOPY) --target=efi-app-x86_64 --strip-debug $< $@
 
 .PRECIOUS: $(module_obj)/%.efi
 
