@@ -18,6 +18,7 @@
 
 TRAMPOLINE_LDSCRIPT := $(cursrcdir)/trampoline.ldscript
 TRAMPOLINE_LDOPTS = -Wl,--entry=trampoline -Wl,--undefined=trampoline_stack
+TRAMPOLINE_GLOBALS = _tramp_start _tramp_end trampoline trampoline_stack
 
 $(module_obj)/trampoline-%.elf: $(module_obj)/trampoline.elf
 	@printf "    LD         $(subst $(obj)/,,$@)\n"
@@ -26,10 +27,7 @@ $(module_obj)/trampoline-%.elf: $(module_obj)/trampoline.elf
 		-o $@.tmp $+ $(TRAMPOLINE_LDOPTS) $(LIBGCC)
 	@printf "    OBJCOPY    $(subst $(obj)/,,$@)\n"
 	$(Q)$(OBJCOPY) $@.tmp $@ \
-		--keep-global-symbol=_tramp_start \
-		--keep-global-symbol=_tramp_end \
-		--keep-global-symbol=trampoline \
-		--keep-global-symbol=trampoline_stack
+		$(addprefix --keep-global-symbol=,$(TRAMPOLINE_GLOBALS))
 
 $(module_obj)/trampoline-%.bin.o: $(module_obj)/trampoline-%.bin
 	@printf "    CC         $(subst $(obj)/,,$@)\n"
