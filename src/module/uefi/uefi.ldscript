@@ -10,6 +10,7 @@ SECTIONS
 	. = ALIGN(4096);
 	.text : {
 		_start = .;
+		*(.text._entry)
 		*(.text)
 		*(.text.*)
 		. = ALIGN(16);
