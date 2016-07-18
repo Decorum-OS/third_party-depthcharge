@@ -110,3 +110,7 @@ config BOOTPLAN_FSP_ECS
 config BOOTPLAN_FSP_MODEL
 	string "Model name for this board"
 	depends on BOOTPLAN_FSP
+
+config BOOTPLAN_UEFI_MODEL
+	string "Model name for this board"
+	depends on BOOTPLAN_UEFI
