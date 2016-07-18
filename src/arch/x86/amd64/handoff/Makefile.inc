@@ -19,3 +19,8 @@ classes-y += uefi_handoff
 
 uefi_handoff-y += uefi_asm.S common_asm.S reloc.c
 uefi_handoff-y += uefi.c common.c
+
+classes-y += uefi_module_handoff
+
+uefi_module_handoff-y += uefi_module.S common_asm.S reloc.c
+uefi_module_handoff-y += module.c common.c
