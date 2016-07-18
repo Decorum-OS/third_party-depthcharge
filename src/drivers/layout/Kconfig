@@ -30,4 +30,8 @@ config DRIVER_LAYOUT_DCDIR
 	bool "Find firmware components based on a standard dcdir layout"
 	select DRIVER_STORAGE_DCDIR
 
+config DRIVER_LAYOUT_UEFI
+	bool "Layout when chainloading under UEFI"
+	select DRIVER_STORAGE_DCDIR
+
 endchoice

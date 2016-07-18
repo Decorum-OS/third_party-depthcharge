@@ -17,3 +17,4 @@
 
 depthcharge-$(CONFIG_DRIVER_LAYOUT_COREBOOT) += coreboot.c
 depthcharge-$(CONFIG_DRIVER_LAYOUT_DCDIR) += dcdir.c
+depthcharge-$(CONFIG_DRIVER_LAYOUT_UEFI) += uefi.c
