@@ -112,7 +112,7 @@ StorageOps *board_storage_ec_a(int devidx)
 {
 	static EcStorageCache ecs;
 
-	const char *name;
+	const char *name = NULL;
 	if (devidx == 0)
 		name = "EC_MAIN_A";
 	else if (devidx == 1)
@@ -127,7 +127,7 @@ StorageOps *board_storage_ec_b(int devidx)
 {
 	static EcStorageCache ecs;
 
-	const char *name;
+	const char *name = NULL;
 	if (devidx == 0)
 		name = "EC_MAIN_B";
 	else if (devidx == 1)
