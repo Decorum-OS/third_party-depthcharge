@@ -170,7 +170,7 @@ class Area(object):
         self._call_on_tree("post_min_size_hook")
 
         # Place Areas in their final positions.
-        self.place(0, self._size)
+        self.place(0, self.computed_min_size)
         self._ensure_params_are_set("placed_offset", "placed_size")
         self.log(log_file, "Areas placed")
         self._call_on_tree("post_place_hook")
