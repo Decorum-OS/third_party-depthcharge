@@ -27,7 +27,7 @@
 #include "drivers/keyboard/keyboard.h"
 #include "drivers/layout/coreboot.h"
 #include "drivers/power/power.h"
-#include "drivers/storage/x86_flash.h"
+#include "drivers/storage/fwdb.h"
 
 // Force these to acceptable values for now.
 PUB_STAT(flag_write_protect, 1)
@@ -39,6 +39,6 @@ PUB_STAT(flag_power, 0)
 PUB_ARR(trusted_keyboards, (KeyboardOps *)NULL)
 PUB_ARR(untrusted_keyboards, (KeyboardOps *)NULL)
 
-PUB_DYN(_coreboot_storage, new_x86_flash_storage())
+PUB_DYN(_uefi_ro_storage, new_fwdb_ro_storage("uefi_ro_image"))
 
 PUB_STAT(power, (PowerOps *)NULL)
