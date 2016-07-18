@@ -20,13 +20,31 @@
  * MA 02111-1307 USA
  */
 
-#include <stdint.h>
-#include <stdlib.h>
-
+#include "base/fwdb.h"
+#include "uefi/uefi.h"
 #include "vboot/stages.h"
+
+extern uint8_t _binary_ro_image_start;
+extern uint8_t _binary_ro_image_size;
+extern uint8_t ImageBase;
+
+static int prepare_fwdb_storage(void)
+{
+	FwdbEntry new_entry = {
+		.ptr = &_binary_ro_image_start,
+		.size = &_binary_ro_image_size - &ImageBase,
+	};
+	if (fwdb_access("uefi_ro_image", NULL, &new_entry))
+		return 1;
+
+	return 0;
+}
 
 void module_main(void)
 {
+	if (prepare_fwdb_storage())
+		halt();
+
 	if (vboot_init())
 		halt();
 }
