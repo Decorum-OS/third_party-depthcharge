@@ -173,9 +173,58 @@ endif # CONFIG_BOOTPLAN_QEMU_X86
 
 ifeq ($(CONFIG_BOOTPLAN_UEFI),y)
 
-image-y += uefi.efi
+image-y += uefi.efi uefi.rwa.bin uefi.rwb.bin
+image-y += uefi_dev.efi uefi_dev.rwa.bin uefi_dev.rwb.bin
+
+modules: $$(module_obj)/uefi_rw.mod
+modules: $$(module_obj)/uefi_dev_rw.mod
+
+.PHONY: modules
+$(addprefix $(image_obj)/,$(image-y)): modules
+
+$(addprefix $(image_obj)/,$(image-y)): $(build_image)
+
+# We'll add the layout and layout options manually, since we'll want to use
+# different ones depending on what part of the image we're making.
+BUILD_IMAGE_UEFI_COMMON_OPTS = \
+	--model=$(CONFIG_BOOTPLAN_UEFI_MODEL)
+
+BUILD_IMAGE_UEFI_RO_COMMON_OPTS = \
+	$(BUILD_IMAGE_UEFI_COMMON_OPTS) \
+	--hwid=$(CONFIG_IMAGE_HWID)
+
+$(image_obj)/uefi.ro.bin: $(build_image)
+	@printf "    BUILD_IMAGE $(subst $(obj)/,,$@)\n"
+	$(Q)$(BUILD_IMAGE) uefi_ro $(BUILD_IMAGE_UEFI_RO_COMMON_OPTS)
+
+$(image_obj)/uefi_dev.ro.bin: $(build_image)
+	@printf "    BUILD_IMAGE $(subst $(obj)/,,$@)\n"
+	$(Q)$(BUILD_IMAGE) uefi_ro $(BUILD_IMAGE_UEFI_RO_COMMON_OPTS) --dev
+
+
+$(image_obj)/uefi.rwa.bin:
+	@printf "    BUILD_IMAGE $(subst $(obj)/,,$@)\n"
+	$(Q)$(BUILD_IMAGE) uefi_rw $(BUILD_IMAGE_UEFI_COMMON_OPTS)
+
+$(image_obj)/uefi_dev.rwa.bin:
+	@printf "    BUILD_IMAGE $(subst $(obj)/,,$@)\n"
+	$(Q)$(BUILD_IMAGE) uefi_rw $(BUILD_IMAGE_UEFI_COMMON_OPTS) --dev
+
+
+$(image_obj)/uefi.rwb.bin: $(image_obj)/uefi.rwa.bin
+	@printf "    CP         $(subst $(obj)/,,$@)\n"
+	$(Q)cp $< $@
+
+$(image_obj)/uefi_dev.rwb.bin: $(image_obj)/uefi_dev.rwa.bin
+	@printf "    CP         $(subst $(obj)/,,$@)\n"
+	$(Q)cp $< $@
+
 
 $(image_obj)/uefi.efi: $$(module_obj)/uefi.efi
+	@printf "    CP         $(subst $(obj)/,,$@)\n"
+	$(Q)cp $< $@
+
+$(image_obj)/uefi_dev.efi: $$(module_obj)/uefi_dev.efi
 	@printf "    CP         $(subst $(obj)/,,$@)\n"
 	$(Q)cp $< $@
 

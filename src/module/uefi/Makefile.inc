@@ -22,10 +22,49 @@ $(module_obj)/%.efi: $(module_obj)/%.elf
 .PRECIOUS: $(module_obj)/%.efi
 
 
+$(module_obj)/uefi.ro.bin.o: $$(image_obj)/uefi.ro.bin $$(BIN_TO_O)
+	@printf "    BIN_TO_O   $(subst $(obj)/,,$@)\n"
+	$(Q)$(BIN_TO_O) $@ ro_image $(filter %.bin,$+) \
+
+$(module_obj)/uefi_dev.ro.bin.o: $$(image_obj)/uefi_dev.ro.bin $$(BIN_TO_O)
+	@printf "    BIN_TO_O   $(subst $(obj)/,,$@)\n"
+	$(Q)$(BIN_TO_O) $@ ro_image $(filter %.bin,$+) \
+
+$(module_obj)/uefi_rw.mod: $(module_obj)/uefi_rw.elf
+	@printf "    OBJCOPY    $(subst $(obj)/,,$@)\n"
+	$(Q)$(OBJCOPY) $< $@ --output-target=binary
+
+$(module_obj)/uefi_dev_rw.mod: $(module_obj)/uefi_dev_rw.elf
+	@printf "    OBJCOPY    $(subst $(obj)/,,$@)\n"
+	$(Q)$(OBJCOPY) $< $@ --output-target=binary
+
 module-y += uefi
 mod-uefi-title = "UEFI chain loader"
 mod-uefi-y += uefi.c
 mod-uefi-libs += $(COMMON_OBJECTS) $(uefi_handoff-objs)
+mod-uefi-libs += $(module_obj)/uefi.ro.bin.o
 mod-uefi-ldopts += -Wl,-znocombreloc -Wl,-Bsymbolic -pie
 mod-uefi-ldopts += -Wl,-Bsymbolic-functions -Wl,--undefined=_entry
 mod-uefi-ldscript := $(cursrcdir)/uefi.ldscript
+
+module-y += uefi_dev
+mod-uefi_dev-title = $(mod-uefi-title)
+mod-uefi_dev-y = $(mod-uefi-y)
+mod-uefi_dev-libs += $(COMMON_OBJECTS) $(uefi_handoff-objs)
+mod-uefi_dev-libs += $(module_obj)/uefi_dev.ro.bin.o
+mod-uefi_dev-ldopts = $(mod-uefi-ldopts)
+mod-uefi_dev-ldscript = $(mod-uefi-ldscript)
+
+module-y += uefi_rw
+mod-uefi_rw-title = "UEFI chain loader RW"
+mod-uefi_rw-y += uefi_rw.c
+mod-uefi_rw-libs += $(COMMON_OBJECTS) $(uefi_module_handoff-objs)
+mod-uefi_rw-ldopts = $(mod-uefi-ldopts)
+mod-uefi_rw-ldscript = $(mod-uefi-ldscript)
+
+module-y += uefi_dev_rw
+mod-uefi_dev_rw-title = $(mod-uefi_rw-title)
+mod-uefi_dev_rw-y = $(mod-uefi_rw-y)
+mod-uefi_dev_rw-libs += $(mod-uefi_rw-libs)
+mod-uefi_dev_rw-ldopts = $(mod-uefi_rw-ldopts)
+mod-uefi_dev_rw-ldscript = $(mod-uefi_rw-ldscript)
