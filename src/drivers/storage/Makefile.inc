@@ -18,5 +18,6 @@
 depthcharge-$(CONFIG_DRIVER_STORAGE_DCDIR) += dcdir.c
 depthcharge-$(CONFIG_DRIVER_STORAGE_FLASH) += flash.c
 depthcharge-$(CONFIG_DRIVER_STORAGE_FMAP) += fmap.c
+depthcharge-$(CONFIG_DRIVER_STORAGE_FWDB) += fwdb.c
 depthcharge-$(CONFIG_DRIVER_STORAGE_MEMORY) += memory.c
 depthcharge-$(CONFIG_DRIVER_STORAGE_SECTION_INDEX) += section_index.c

@@ -26,6 +26,10 @@ config DRIVER_STORAGE_FMAP
 	bool "Storage driver which is relative to a particular FMAP area"
 	default n
 
+config DRIVER_STORAGE_FWDB
+	bool "Storage driver which is backed by a FWDB entry"
+	default n
+
 config DRIVER_STORAGE_MEMORY
 	bool "Memory backed storage"
 	default n
