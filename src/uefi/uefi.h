@@ -26,5 +26,6 @@
 #include "uefi/edk.h"
 
 EFI_SYSTEM_TABLE *uefi_system_table_ptr(void);
+int uefi_image_handle(EFI_HANDLE *handle);
 
 #endif /* __UEFI_UEFI_H__ */

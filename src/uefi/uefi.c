@@ -20,6 +20,7 @@
  * MA 02111-1307 USA
  */
 
+#include <assert.h>
 #include <stdio.h>
 #include <sys/types.h>
 
@@ -45,4 +46,33 @@ EFI_SYSTEM_TABLE *uefi_system_table_ptr(void)
 
 	ptr = *(EFI_SYSTEM_TABLE **)entry.ptr;
 	return ptr;
+}
+
+int uefi_image_handle(EFI_HANDLE *handle_ptr)
+{
+	assert(handle_ptr);
+
+	static EFI_HANDLE handle;
+	static int initialized;
+	if (initialized) {
+		*handle_ptr = handle;
+		return 0;
+	}
+
+	FwdbEntry entry;
+	if (fwdb_access("uefi_image_handle", &entry, NULL)) {
+		printf("UEFI image handle not found in FWDB.\n");
+		return 1;
+	}
+
+	if (entry.size != sizeof(handle)) {
+		printf("FWDB entry was not the expected size.\n");
+		return 1;
+	}
+
+	handle = *(EFI_HANDLE *)entry.ptr;
+	initialized = 1;
+
+	*handle_ptr = handle;
+	return 0;
 }
