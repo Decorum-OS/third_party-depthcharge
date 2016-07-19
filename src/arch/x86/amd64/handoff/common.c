@@ -38,5 +38,6 @@ void handoff_common(void)
 		halt();
 
 	module_main();
+	printf("Returned from module_main.\n");
 	halt();
 }
