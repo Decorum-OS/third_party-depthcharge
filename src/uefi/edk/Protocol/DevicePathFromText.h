@@ -16,6 +16,8 @@
 #ifndef __DEVICE_PATH_FROM_TEXT_PROTOCOL_H__
 #define __DEVICE_PATH_FROM_TEXT_PROTOCOL_H__
 
+#include <uefi/edk/Uefi/UefiBaseType.h>
+
 ///
 /// Device Path From Text protocol
 ///

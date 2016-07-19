@@ -19,6 +19,8 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #ifndef __EFI_DEVICE_PATH_PROTOCOL_H__
 #define __EFI_DEVICE_PATH_PROTOCOL_H__
 
+#include <uefi/edk/Uefi/UefiBaseType.h>
+
 #include <uefi/edk/Guid/PcAnsi.h>
 #include <uefi/edk/IndustryStandard/Bluetooth.h>
 #include <uefi/edk/IndustryStandard/Acpi60.h>
