@@ -24,31 +24,36 @@
 
 #include "base/xalloc.h"
 #include "base/fwdb.h"
-#include "uefi/edk/Protocol/DevicePath.h"
-#include "uefi/edk/Protocol/DevicePathFromText.h"
+#include "uefi/edk/Protocol/EfiShell.h"
 #include "uefi/edk/Protocol/EfiShellParameters.h"
+#include "uefi/edk/Protocol/SimpleFileSystem.h"
 #include "uefi/uefi.h"
 #include "vboot/stages.h"
+
+
 
 extern uint8_t _binary_ro_image_start;
 extern uint8_t _binary_ro_image_size;
 extern uint8_t ImageBase;
 
+
+
 static EFI_GUID shell_parameters_protocol_guid =
 	EFI_SHELL_PARAMETERS_PROTOCOL_GUID;
 
-static EFI_GUID device_path_from_text_guid =
-	EFI_DEVICE_PATH_FROM_TEXT_PROTOCOL_GUID;
+static EFI_GUID shell_protocol_guid = EFI_SHELL_PROTOCOL_GUID;
+
+
 
 static EFI_SHELL_PARAMETERS_PROTOCOL *get_shell_parameters(
-	EFI_BOOT_SERVICES *boot_services)
+	EFI_BOOT_SERVICES *bs)
 {
 	EFI_HANDLE handle;
 	if (uefi_image_handle(&handle))
 		return NULL;
 
 	EFI_SHELL_PARAMETERS_PROTOCOL *shell_params;
-	EFI_STATUS status = boot_services->HandleProtocol(
+	EFI_STATUS status = bs->HandleProtocol(
 		handle, &shell_parameters_protocol_guid,
 		(void **)&shell_params);
 
@@ -60,64 +65,87 @@ static EFI_SHELL_PARAMETERS_PROTOCOL *get_shell_parameters(
 	return shell_params;
 }
 
-static EFI_DEVICE_PATH_FROM_TEXT_PROTOCOL *get_dp_from_text_protocol(
-	EFI_BOOT_SERVICES *boot_services)
+static EFI_SHELL_PROTOCOL *get_shell_protocol(EFI_BOOT_SERVICES *bs)
 {
+	EFI_SHELL_PROTOCOL *shell_prot;
+
 	UINTN buf_size = 0;
-	EFI_HANDLE dummy_handle;
-	EFI_STATUS status = boot_services->LocateHandle(
-		ByProtocol, &device_path_from_text_guid, NULL,
-		&buf_size, &dummy_handle);
+	EFI_HANDLE dummy;
+	EFI_STATUS status = bs->LocateHandle(
+		ByProtocol, &shell_protocol_guid, NULL, &buf_size, &dummy);
 	if (status == EFI_NOT_FOUND) {
-		printf("No device path from text protocol handles found.\n");
+		printf("No shell protocol found.\n");
 		return NULL;
 	}
 	if (status != EFI_BUFFER_TOO_SMALL) {
-		printf("Error retrieving handles.\n");
+		printf("Error retrieving shell protocol handles.\n");
 		return NULL;
 	}
 
 	EFI_HANDLE *handles = xmalloc(buf_size);
 
-	status = boot_services->LocateHandle(
-		ByProtocol, &device_path_from_text_guid, NULL,
-		&buf_size, handles);
-	die_if(status != EFI_SUCCESS, "Failed to retrieve handles.\n");
-
-	EFI_DEVICE_PATH_FROM_TEXT_PROTOCOL *dp_from_text;
-	status = boot_services->HandleProtocol(
-		handles[0], &device_path_from_text_guid,
-		(void **)&dp_from_text);
-	free(handles);
+	status = bs->LocateHandle(ByProtocol, &shell_protocol_guid,
+				  NULL, &buf_size, handles);
 	if (status != EFI_SUCCESS) {
-		printf("Failed to open device path from text protocol.\n");
+		printf("Failed to retrieve shell protocol handles.\n");
 		return NULL;
 	}
-	return dp_from_text;
+
+	int handle_count = buf_size / sizeof(dummy);
+	if (handle_count > 1)
+		printf("More than one shell found?\n");
+	EFI_HANDLE handle = handles[0];
+	free(handles);
+
+	status = bs->HandleProtocol(handle, &shell_protocol_guid,
+				    (void **)&shell_prot);
+	if (status != EFI_SUCCESS) {
+		printf("Failed to retrieve shell protocol.\n");
+		return NULL;
+	}
+
+	return shell_prot;
 }
 
-static int insert_dp_from_argv(EFI_BOOT_SERVICES *boot_services,
-			       EFI_DEVICE_PATH_FROM_TEXT_PROTOCOL *dp_from_text,
-			       EFI_SHELL_PARAMETERS_PROTOCOL *shell_params,
-			       int idx, const char *name)
+
+
+static int insert_file_into_fwdb(EFI_SHELL_PROTOCOL *shell_prot,
+				 SHELL_FILE_HANDLE file, const char *name)
 {
-	EFI_DEVICE_PATH_PROTOCOL *dp_prot =
-		dp_from_text->ConvertTextToDevicePath(shell_params->Argv[idx]);
-	if (!dp_prot) {
-		printf("Failed to convert argv[%d] to device path.\n", idx);
+	UINT64 size;
+	EFI_STATUS status = shell_prot->GetFileSize(file, &size);
+	if (status != EFI_SUCCESS) {
+		printf("Failed to get file size.\n");
 		return 1;
 	}
-	FwdbEntry entry = {
-		.ptr = dp_prot,
-		.size = sizeof(*dp_prot)
-	};
-	if (fwdb_access(name, NULL, &entry)) {
-		boot_services->FreePool(dp_prot);
+
+	FwdbEntry entry = { .ptr = NULL, .size = size };
+	if (fwdb_access(name, NULL, &entry) || fwdb_access(name, &entry, NULL))
+		return 1;
+
+	UINTN buffer_size = size;
+	status = shell_prot->ReadFile(file, &buffer_size, entry.ptr);
+	if (status != EFI_SUCCESS) {
+		printf("Failed to read file.\n");
 		return 1;
 	}
-	boot_services->FreePool(dp_prot);
 
 	return 0;
+}
+
+static int insert_file_name_into_fwdb(EFI_SHELL_PROTOCOL *shell_prot,
+				      CHAR16 *file_name, const char *name)
+{
+	SHELL_FILE_HANDLE file;
+	EFI_STATUS status = shell_prot->OpenFileByName(
+		file_name, &file, EFI_FILE_MODE_READ);
+	if (status != EFI_SUCCESS) {
+		printf("Failed to open read/write image.\n");
+		return 1;
+	}
+	int ret = insert_file_into_fwdb(shell_prot, file, name);
+	shell_prot->CloseFile(file);
+	return ret;
 }
 
 static int prepare_fwdb_storage(void)
@@ -129,17 +157,15 @@ static int prepare_fwdb_storage(void)
 	if (fwdb_access("uefi_ro_image", NULL, &ro_image_entry))
 		return 1;
 
-	EFI_SYSTEM_TABLE *system_table = uefi_system_table_ptr();
-	if (!system_table)
+	EFI_SYSTEM_TABLE *st = uefi_system_table_ptr();
+	if (!st)
 		return 1;
-	EFI_BOOT_SERVICES *boot_services = system_table->BootServices;
+	EFI_BOOT_SERVICES *bs = st->BootServices;
 
-	EFI_SHELL_PARAMETERS_PROTOCOL *shell_params =
-		get_shell_parameters(boot_services);
-	EFI_DEVICE_PATH_FROM_TEXT_PROTOCOL *dp_from_text =
-		get_dp_from_text_protocol(boot_services);
+	EFI_SHELL_PARAMETERS_PROTOCOL *shell_params = get_shell_parameters(bs);
+	EFI_SHELL_PROTOCOL *shell_prot = get_shell_protocol(bs);
 
-	if (!shell_params || !dp_from_text)
+	if (!shell_params || !shell_prot)
 		return 1;
 
 	if (shell_params->Argc != 3) {
@@ -148,10 +174,10 @@ static int prepare_fwdb_storage(void)
 		return 1;
 	}
 
-	if (insert_dp_from_argv(boot_services, dp_from_text, shell_params,
-				1, "uefi_rw_a_image") ||
-	    insert_dp_from_argv(boot_services, dp_from_text, shell_params,
-				2, "uefi_rw_b_image")) {
+	if (insert_file_name_into_fwdb(shell_prot, shell_params->Argv[1],
+				       "uefi_rw_a_image") ||
+	    insert_file_name_into_fwdb(shell_prot, shell_params->Argv[2],
+				       "uefi_rw_b_image")) {
 		return 1;
 	}
 
