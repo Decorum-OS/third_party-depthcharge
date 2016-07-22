@@ -40,5 +40,7 @@ PUB_ARR(trusted_keyboards, (KeyboardOps *)NULL)
 PUB_ARR(untrusted_keyboards, (KeyboardOps *)NULL)
 
 PUB_DYN(_uefi_ro_storage, new_fwdb_ro_storage("uefi_ro_image"))
+PUB_DYN(_uefi_rw_a_storage, new_fwdb_ro_storage("uefi_rw_a_image"))
+PUB_DYN(_uefi_rw_b_storage, new_fwdb_ro_storage("uefi_rw_b_image"))
 
 PUB_STAT(power, (PowerOps *)NULL)
