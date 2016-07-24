@@ -20,10 +20,12 @@
  * MA 02111-1307 USA
  */
 
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <vboot_api.h>
 
+#include "base/algorithm.h"
 #include "base/xalloc.h"
 #include "board/board.h"
 #include "drivers/storage/storage.h"
@@ -46,14 +48,24 @@ VbError_t VbExHashFirmwareBody(VbCommonParams *cparams,
 	if (size < 0)
 		return VBERROR_UNKNOWN;
 
-	void *data = xmalloc(size);
+	size_t chunk_size = MIN(64 * 1024, size);
+	void *data = xmalloc(chunk_size);
 
-	if (storage_read(fw, data, 0, size)) {
-		free(data);
-		return VBERROR_UNKNOWN;
+	uint64_t offset = 0;
+	while (size) {
+		if (storage_read(fw, data, offset, chunk_size)) {
+			free(data);
+			return VBERROR_UNKNOWN;
+		}
+
+		VbUpdateFirmwareBodyHash(cparams, data, chunk_size);
+
+		offset += chunk_size;
+		size -= chunk_size;
+		// Process as much as we did last time, or whatever is left.
+		chunk_size = MIN(chunk_size, size);
 	}
 
-	VbUpdateFirmwareBodyHash(cparams, data, size);
 	free(data);
 	return VBERROR_SUCCESS;
 }
