@@ -32,9 +32,9 @@ struct DcDirStorageDir;
 struct DcDirStorage;
 
 typedef struct DcDirStorageOps {
-	int (*open_dir)(struct DcDirStorageOps *me, StorageOps **media,
+	int (*open_dir)(struct DcDirStorageOps *me,
 			struct DcDirStorageDir *dir);
-	int (*open_region)(struct DcDirStorageOps *me, StorageOps **media,
+	int (*open_region)(struct DcDirStorageOps *me,
 			   struct DcDirStorage *region);
 } DcDirStorageOps;
 
