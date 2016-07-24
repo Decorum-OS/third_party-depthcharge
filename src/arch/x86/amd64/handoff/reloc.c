@@ -39,22 +39,21 @@
 #include <stdint.h>
 #include <stddef.h>
 
-void _uefi_handoff_relocate(uintptr_t ldbase, Elf64_Rela *rel, size_t relsz)
+void _uefi_handoff_relocate(uintptr_t ldbase, Elf64_Rela rel[], size_t relsz)
 {
-	while (relsz >= sizeof(*rel)) {
+	int count = relsz / sizeof(rel[0]);
+	for (int i = 0; i < count; i++) {
 		// Apply the relocs.
-		switch (Elf64_R_Type(rel->r_info)) {
+		switch (Elf64_R_Type(rel[i].r_info)) {
 		case R_X86_64_NONE:
 			break;
 
 		case R_X86_64_RELATIVE:
-			*(uintptr_t *)(ldbase + rel->r_offset) += ldbase;
+			*(uintptr_t *)(ldbase + rel[i].r_offset) += ldbase;
 			break;
 
 		default:
 			break;
 		}
-		rel++;
-		relsz -= sizeof(*rel);
 	}
 }
