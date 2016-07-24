@@ -215,6 +215,24 @@ typedef struct {
 	} d_un;
 } Elf64_Dyn;
 
+typedef struct {
+	uint32_t st_name;
+	uint32_t st_value;
+	uint32_t st_size;
+	uint8_t st_info;
+	uint8_t st_other;
+	uint16_t st_shndx;
+} Elf32_Sym;
+
+typedef struct {
+	uint32_t st_name;
+	uint8_t st_info;
+	uint8_t st_other;
+	uint16_t st_shndx;
+	uint64_t st_value;
+	uint64_t st_size;
+} Elf64_Sym;
+
 void elf_load(Elf32_Ehdr *ehdr);
 void elf_start(Elf32_Ehdr *ehdr, void *param) __attribute__((noreturn));
 int elf_check_header(Elf32_Ehdr *ehdr);
