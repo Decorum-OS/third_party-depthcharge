@@ -39,7 +39,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
-void _uefi_handoff_relocate(uintptr_t ldbase, Elf64_Rela rel[], size_t relsz)
+void _uefi_handoff_relocate(uintptr_t ldbase, Elf64_Sym symtab[],
+			    Elf64_Rela rel[], size_t relsz)
 {
 	int count = relsz / sizeof(rel[0]);
 	for (int i = 0; i < count; i++) {
@@ -50,6 +51,12 @@ void _uefi_handoff_relocate(uintptr_t ldbase, Elf64_Rela rel[], size_t relsz)
 
 		case R_X86_64_RELATIVE:
 			*(uintptr_t *)(ldbase + rel[i].r_offset) += ldbase;
+			break;
+
+		case R_X86_64_64:
+			*(uintptr_t *)(ldbase + rel[i].r_offset) =
+				symtab[Elf64_R_Sym(rel[i].r_info)].st_value +
+				ldbase;
 			break;
 
 		default:

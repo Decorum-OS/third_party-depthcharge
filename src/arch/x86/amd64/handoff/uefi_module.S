@@ -44,9 +44,10 @@ _entry:
 	push %rdi
 
 	lea ImageBase(%rip), %rdi
-	lea _reloc_start(%rip), %rsi
-	lea _reloc_end(%rip), %rdx
-	sub %rsi, %rdx
+	lea _dynsym_start(%rip), %rsi
+	lea _reloc_start(%rip), %rdx
+	lea _reloc_end(%rip), %rcx
+	sub %rdx, %rcx
 
 	call _uefi_handoff_relocate
 
