@@ -42,6 +42,12 @@ SECTIONS
 		_end = .;
 	}
 
+	.dynsym : {
+		_dynsym_start = .;
+		KEEP(*(.dynsym))
+		_dynsym_end = .;
+	}
+
 	/* Throw away everything we didn't list explicitly above. */
 	/DISCARD/ : {
 		*(*)
