@@ -34,18 +34,17 @@ SECTIONS
 		*(.got.plt)
 		*(.got)
 		*(.data*)
-		/*
-		 * The EFI loader doesn't seem to like a .bss section, so we
-		 * stick it all into .data:
-		 */
-		*(.bss*)
-		_end = .;
 	}
 
 	.dynsym : {
 		_dynsym_start = .;
 		KEEP(*(.dynsym))
 		_dynsym_end = .;
+	}
+
+	.bss : {
+		*(.bss*)
+		_end = .;
 	}
 
 	/* Throw away everything we didn't list explicitly above. */
