@@ -10,7 +10,7 @@
  * the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * but without any warranty; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
@@ -20,14 +20,9 @@
  * MA 02111-1307 USA
  */
 
-#include "module/uefi/fwdb.h"
-#include "vboot/stages.h"
+#ifndef __MODULE_UEFI_FWDB_H__
+#define __MODULE_UEFI_FWDB_H__
 
-void module_main(void)
-{
-	if (uefi_prepare_fwdb_storage())
-		halt();
+int uefi_prepare_fwdb_storage(void);
 
-	if (vboot_init())
-		halt();
-}
+#endif /* __MODULE_UEFI_FWDB_H__ */

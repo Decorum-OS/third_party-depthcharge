@@ -32,7 +32,7 @@ $(module_obj)/uefi_dev.ro.bin.o: $$(image_obj)/uefi_dev.ro.bin $$(BIN_TO_O)
 
 module-y += uefi
 mod-uefi-title = "UEFI chain loader"
-mod-uefi-y += uefi.c
+mod-uefi-y += uefi.c fwdb.c
 mod-uefi-libs += $(COMMON_OBJECTS) $(uefi_handoff-objs)
 mod-uefi-libs += $(module_obj)/uefi.ro.bin.o
 mod-uefi-ldopts += -Wl,-znocombreloc -Wl,-Bsymbolic -pie
