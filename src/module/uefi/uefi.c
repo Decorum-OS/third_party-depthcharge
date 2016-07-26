@@ -20,7 +20,10 @@
  * MA 02111-1307 USA
  */
 
+#include "board/board.h"
+#include "module/module.h"
 #include "module/uefi/fwdb.h"
+#include "module/uefi/module.h"
 #include "vboot/stages.h"
 
 void module_main(void)
@@ -29,5 +32,10 @@ void module_main(void)
 		halt();
 
 	if (vboot_init())
+		halt();
+
+	UefiDcModule *rwa = new_uefi_dc_module(board_storage_main_fw_a());
+	UefiDcModule *rwb = new_uefi_dc_module(board_storage_main_fw_b());
+	if (vboot_select_firmware(&rwa->ops, &rwb->ops))
 		halt();
 }
