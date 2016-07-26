@@ -20,6 +20,10 @@
  * MA 02111-1307 USA
  */
 
+#include "vboot/stages.h"
+
 void module_main(void)
 {
+	if (vboot_select_and_load_kernel())
+		halt();
 }
