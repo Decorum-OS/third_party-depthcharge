@@ -22,6 +22,7 @@ depthcharge-y += module.c
 DEFAULT_LDSCRIPT := $(cursrcdir)/module.ldscript
 NM_TO_SYM_ARGS_SED := $(cursrcdir)/nm_to_sym_args.sed
 BIN_TO_O := $(cursrcdir)/bin_to_o.sh
+LZMA_PY := $(cursrcdir)/lzma.py
 
 # These options are passed from .config to the linker script. When making
 # changes, update Kconfig as well.
@@ -54,7 +55,7 @@ $(module_obj)/%.bin: $(module_obj)/%.elf
 	@printf "    STRIP      $(subst $(obj)/,,$<)\n"
 	$(Q)$(STRIP) -o $@.tmp $<
 	@printf "    LZMA       $(subst $(obj)/,,$@)\n"
-	$(Q)$(LZMA) --stdout $@.tmp > $@
+	$(Q)$(LZMA_PY) $@.tmp $@
 
 .PRECIOUS: $(module_obj)/%.elf $(module_obj)/%.map $(module_obj)/%.bin
 
