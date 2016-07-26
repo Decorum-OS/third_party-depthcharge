@@ -53,6 +53,10 @@ config MOCK_TPM
 	  development, or when the current TPM is known to be broken somehow.
 	  THIS SHOULD NOT BE LEFT ON FOR PRODUCTION DEVICES.
 
+config DISABLE_LEGACY_BOOT
+	bool "Disable the legacy boot feature"
+	default n
+
 choice
 	prompt "Type of nonvolatile storage"
 	help

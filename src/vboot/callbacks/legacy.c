@@ -39,21 +39,26 @@ static void load_payload_and_run(struct cbfs_payload *payload);
 
 int VbExLegacy(void)
 {
+	if (CONFIG_DISABLE_LEGACY_BOOT) {
+		printf("Legacy boot disabled.\n");
+		return VBERROR_UNKNOWN;
+	}
+
 	StorageOps *legacy = board_storage_legacy();
 	int size = storage_size(legacy);
 	if (size < 0)
-		return 1;
+		return VBERROR_UNKNOWN;
 	void *legacy_buf = xmalloc(size);
 	if (storage_read(legacy, legacy_buf, 0, size)) {
 		free(legacy_buf);
-		return 1;
+		return VBERROR_UNKNOWN;
 	}
 
 	struct cbfs_media media;
 	if (init_cbfs_ram_media(&media, legacy_buf, size)) {
 		printf("Could not initialize legacy cbfs.\n");
 		free(legacy_buf);
-		return 1;
+		return VBERROR_UNKNOWN;
 	}
 
 	struct cbfs_payload *payload = cbfs_load_payload(&media, "payload");
@@ -61,14 +66,14 @@ int VbExLegacy(void)
 	if (payload == NULL) {
 		printf("Could not find payload in legacy cbfs.\n");
 		free(legacy_buf);
-		return 1;
+		return VBERROR_UNKNOWN;
 	}
 
 	load_payload_and_run(payload);
 
 	// Should never return unless there is an error.
 	free(legacy_buf);
-	return 1;
+	return VBERROR_UNKNOWN;
 }
 
 static void load_payload_and_run(struct cbfs_payload *payload)
