@@ -24,18 +24,7 @@ NM_TO_SYM_ARGS_SED := $(cursrcdir)/nm_to_sym_args.sed
 BIN_TO_O := $(cursrcdir)/bin_to_o.sh
 LZMA_PY := $(cursrcdir)/lzma.py
 
-# These options are passed from .config to the linker script. When making
-# changes, update Kconfig as well.
-link_config_options := \
-	KERNEL_START \
-	KERNEL_SIZE \
-	BASE_ADDRESS
-
-# Kconfig options intended for the linker.
-$(foreach option,$(link_config_options), \
-	$(eval LINK_FLAGS += -Wl,--defsym=$(option)=$$(CONFIG_$(option))))
-
-
+LINK_FLAGS += -Wl,--defsym=BASE_ADDRESS=$(CONFIG_BASE_ADDRESS)
 
 module_obj := $(curobjdir)
 

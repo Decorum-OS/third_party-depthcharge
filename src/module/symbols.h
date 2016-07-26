@@ -31,8 +31,6 @@ extern uint8_t _start;
 extern uint8_t _end;
 extern uint8_t _tramp_start;
 extern uint8_t _tramp_end;
-extern uint8_t _kernel_start;
-extern uint8_t _kernel_end;
 extern uint8_t _init_funcs_start;
 extern uint8_t _init_funcs_end;
 

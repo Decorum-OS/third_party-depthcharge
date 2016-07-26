@@ -185,8 +185,8 @@ int vboot_select_and_load_kernel(void)
 	static char cmd_line_buf[2 * CmdLineSize];
 
 	VbSelectAndLoadKernelParams kparams = {
-		.kernel_buffer = &_kernel_start,
-		.kernel_buffer_size = &_kernel_end - &_kernel_start
+		.kernel_buffer = (void *)(uintptr_t)CONFIG_KERNEL_START,
+		.kernel_buffer_size = CONFIG_KERNEL_SIZE
 	};
 
 	if (common_params_init())

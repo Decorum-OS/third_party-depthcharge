@@ -25,22 +25,11 @@
  * SUCH DAMAGE.
  */
 
-/*
- * KERNEL_START, KERNEL_SIZE, BASE_ADDRESS, and GBB_COPY_SIZE come from KConfig
- */
-
 ENTRY(_entry)
 
 SECTIONS
 {
-	. = KERNEL_START;
-	_kernel_start = KERNEL_START;
-
-	. = KERNEL_START + KERNEL_SIZE;
-	_kernel_end = .;
-
-
-	/* The main portion of depthcharge. */
+	/* The main portion of depthcharge. BASE_ADDRESS comes from Kconfig. */
 	. = BASE_ADDRESS;
 
 	. = ALIGN(16);
