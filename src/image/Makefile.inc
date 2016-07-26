@@ -176,8 +176,8 @@ ifeq ($(CONFIG_BOOTPLAN_UEFI),y)
 image-y += uefi.efi uefi.rwa.bin uefi.rwb.bin
 image-y += uefi_dev.efi uefi_dev.rwa.bin uefi_dev.rwb.bin
 
-modules: $$(module_obj)/uefi_rw.mod
-modules: $$(module_obj)/uefi_dev_rw.mod
+modules: $$(module_obj)/uefi_rw.bin
+modules: $$(module_obj)/uefi_dev_rw.bin
 
 .PHONY: modules
 $(addprefix $(image_obj)/,$(image-y)): modules

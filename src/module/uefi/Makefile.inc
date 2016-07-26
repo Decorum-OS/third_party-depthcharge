@@ -30,14 +30,6 @@ $(module_obj)/uefi_dev.ro.bin.o: $$(image_obj)/uefi_dev.ro.bin $$(BIN_TO_O)
 	@printf "    BIN_TO_O   $(subst $(obj)/,,$@)\n"
 	$(Q)$(BIN_TO_O) $@ ro_image $(filter %.bin,$+) \
 
-$(module_obj)/uefi_rw.mod: $(module_obj)/uefi_rw.elf
-	@printf "    OBJCOPY    $(subst $(obj)/,,$@)\n"
-	$(Q)$(OBJCOPY) $< $@ --output-target=binary
-
-$(module_obj)/uefi_dev_rw.mod: $(module_obj)/uefi_dev_rw.elf
-	@printf "    OBJCOPY    $(subst $(obj)/,,$@)\n"
-	$(Q)$(OBJCOPY) $< $@ --output-target=binary
-
 module-y += uefi
 mod-uefi-title = "UEFI chain loader"
 mod-uefi-y += uefi.c

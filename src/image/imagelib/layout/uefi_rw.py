@@ -44,12 +44,12 @@ def add_arguments(parser):
 def prepare(options):
     gbb_flags = None
     paths = {
-        "dc_bin": "uefi_rw.mod",
+        "dc_bin": "uefi_rw.bin",
     }
 
     if options.dev:
         paths.update({
-            "dc_bin": "uefi_dev_rw.mod",
+            "dc_bin": "uefi_dev_rw.bin",
         })
 
     return Image(paths=paths, model=options.model)
