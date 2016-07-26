@@ -53,11 +53,6 @@ extern ListNode removable_block_devices;
 
 typedef struct BlockDevCtrlrOps {
 	int (*update)(struct BlockDevCtrlrOps *me);
-	/*
-	 * Check if a block device is owned by the ctrlr. 1 = success, 0 =
-	 * failure
-	 */
-	int (*is_bdev_owned)(struct BlockDevCtrlrOps *me, BlockDev *bdev);
 } BlockDevCtrlrOps;
 
 typedef struct BlockDevCtrlr {
