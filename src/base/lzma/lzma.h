@@ -46,4 +46,7 @@ size_t ulzman(const void *src, size_t srcn, void *dst, size_t dstn);
  */
 size_t ulzma(const void *src, void *dst);
 
+/* Return the decompressed size of the data stream in src. */
+ssize_t ulzma_expanded_size(const void *src, size_t srcn);
+
 #endif /* __BASE_LZMA_LZMA_H__ */

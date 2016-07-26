@@ -29,7 +29,10 @@ size_t ulzman(const void *src, size_t srcn, void *dst, size_t dstn)
 	unsigned char scratchpad[15980];
 
 	memcpy(properties, src, LZMA_PROPERTIES_SIZE);
-	memcpy(&outSize, src + LZMA_PROPERTIES_SIZE, sizeof(outSize));
+	ssize_t size = ulzma_expanded_size(src, srcn);
+	if (size < 0)
+		return 0;
+	outSize = size;
 	if (outSize > dstn)
 		outSize = dstn;
 	if (LzmaDecodeProperties(&state.Properties, properties,
@@ -56,4 +59,21 @@ size_t ulzman(const void *src, size_t srcn, void *dst, size_t dstn)
 size_t ulzma(const void *src, void *dst)
 {
 	return ulzman(src, (size_t)(-1), dst, (size_t)(-1));
+}
+
+ssize_t ulzma_expanded_size(const void *src, size_t srcn)
+{
+	uint64_t size;
+	if (srcn < LZMA_PROPERTIES_SIZE + sizeof(size)) {
+		printf("lzma: Truncated stream.\n");
+		return -1;
+	}
+	memcpy(&size, (const uint8_t *)src + LZMA_PROPERTIES_SIZE,
+	       sizeof(size));
+	if (size == ~(uint64_t)0) {
+		printf("lzma: Unknown lzma size.\n");
+		return -1;
+	}
+
+	return size;
 }
