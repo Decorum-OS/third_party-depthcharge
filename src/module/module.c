@@ -23,7 +23,9 @@
 #include <elf.h>
 #include <stdio.h>
 
+#include "base/container_of.h"
 #include "base/lzma/lzma.h"
+#include "base/xalloc.h"
 #include "module/module.h"
 #include "module/symbols.h"
 #include "module/trampoline/trampoline.h"
@@ -71,4 +73,32 @@ int start_module(const void *compressed_image, uint32_t size)
 
 	// We should never actually reach the end of this function.
 	return 0;
+}
+
+static int dc_module_default_start(DcModuleOps *me)
+{
+	DcModule *module = container_of(me, DcModule, ops);
+
+	int size = storage_size(module->storage);
+	if (size < 0)
+		return 1;
+
+	void *image = xmalloc(size);
+	if (storage_read(module->storage, image, 0, size)) {
+		free(image);
+		return 1;
+	}
+
+	start_module(image, size);
+	free(image);
+	// If we ever get back to this function, something didn't work.
+	return 1;
+}
+
+DcModule *new_dc_module(StorageOps *storage)
+{
+	DcModule *module = xzalloc(sizeof(*module));
+	module->ops.start = &dc_module_default_start;
+	module->storage = storage;
+	return module;
 }

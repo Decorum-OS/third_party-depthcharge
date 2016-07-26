@@ -23,6 +23,7 @@
 #include <stdlib.h>
 
 #include "base/timestamp.h"
+#include "board/board.h"
 #include "module/module.h"
 #include "vboot/stages.h"
 #include "vboot/util/commonparams.h"
@@ -38,7 +39,9 @@ void module_main(void)
 	timestamp_add_now(TS_RO_VB_SELECT_FIRMWARE);
 
 	// Select firmware.
-	if (vboot_select_firmware())
+	DcModule *rwa = new_dc_module(board_storage_main_fw_a());
+	DcModule *rwb = new_dc_module(board_storage_main_fw_b());
+	if (vboot_select_firmware(&rwa->ops, &rwb->ops))
 		halt();
 
 	timestamp_add_now(TS_RO_VB_SELECT_AND_LOAD_KERNEL);

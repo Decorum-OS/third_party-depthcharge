@@ -22,6 +22,7 @@
 
 #include <stdlib.h>
 
+#include "board/board.h"
 #include "module/module.h"
 #include "vboot/stages.h"
 
@@ -32,6 +33,8 @@ void module_main(void)
 		halt();
 
 	// Select firmware.
-	if (vboot_select_firmware())
+	DcModule *rwa = new_dc_module(board_storage_main_fw_a());
+	DcModule *rwb = new_dc_module(board_storage_main_fw_b());
+	if (vboot_select_firmware(&rwa->ops, &rwb->ops))
 		halt();
 }

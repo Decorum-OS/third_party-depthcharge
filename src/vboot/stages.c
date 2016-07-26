@@ -128,7 +128,7 @@ int vboot_do_init_out_flags(uint32_t out_flags)
 	return 0;
 }
 
-int vboot_select_firmware(void)
+int vboot_select_firmware(DcModuleOps *rwa, DcModuleOps *rwb)
 {
 	if (common_params_init())
 		return 1;
@@ -172,29 +172,10 @@ int vboot_select_firmware(void)
 	enum VbSelectFirmware_t select = fparams.selected_firmware;
 
 	// If an RW firmware was selected, start it.
-	StorageOps *next_fw = NULL;
 	if (select == VB_SELECT_FIRMWARE_A)
-		next_fw = board_storage_main_fw_a();
+		return dc_module_start(rwa);
 	else if (select == VB_SELECT_FIRMWARE_B)
-		next_fw = board_storage_main_fw_b();
-
-	if (next_fw) {
-		int image_size = storage_size(next_fw);
-		if (image_size < 0)
-			return 1;
-
-		void *image = xmalloc(image_size);
-		if (storage_read(next_fw, image, 0, image_size)) {
-			free(image);
-			return 1;
-		}
-
-		if (start_module(image, image_size)) {
-			free(image);
-			return 1;
-		}
-		free(image);
-	}
+		return dc_module_start(rwb);
 
 	return 0;
 }

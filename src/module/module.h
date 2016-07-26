@@ -25,10 +25,31 @@
 
 #include <stdint.h>
 
+#include "drivers/storage/storage.h"
+
 extern const char *module_title;
 
 void module_main(void);
 
+
 int start_module(const void *compressed_image, uint32_t size);
+
+
+typedef struct DcModuleOps {
+	int (*start)(struct DcModuleOps *me);
+} DcModuleOps;
+
+static inline int dc_module_start(DcModuleOps *me)
+{
+	return me->start(me);
+}
+
+typedef struct {
+	DcModuleOps ops;
+
+	StorageOps *storage;
+} DcModule;
+
+DcModule *new_dc_module(StorageOps *storage);
 
 #endif /* __MODULE_MODULE_H__ */
