@@ -55,6 +55,10 @@ config DRIVER_BLOCKDEV_SDHCI_PCI
 	bool "PCI SDHCI based eMMC/SD driver"
 	default n
 
+config DRIVER_BLOCKDEV_UEFI
+	bool "UEFI block IO wrapper"
+	default n
+
 config DRIVER_BLOCKDEV_USB
 	depends on USB
 	bool "USB based storage"
