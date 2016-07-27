@@ -22,8 +22,11 @@
 
 #include <stdint.h>
 
+#include "base/init_funcs.h"
+#include "base/list.h"
 #include "board/board.h"
 #include "board/board_helpers.h"
+#include "drivers/blockdev/uefi.h"
 #include "drivers/keyboard/keyboard.h"
 #include "drivers/layout/coreboot.h"
 #include "drivers/power/power.h"
@@ -44,3 +47,16 @@ PUB_DYN(_uefi_rw_a_storage, new_fwdb_ro_storage("uefi_rw_a_image"))
 PUB_DYN(_uefi_rw_b_storage, new_fwdb_ro_storage("uefi_rw_b_image"))
 
 PUB_STAT(power, (PowerOps *)NULL)
+
+static int board_setup(void)
+{
+	UefiBlockDevCtrlr *fixed = new_uefi_blockdev_ctrlr(0);
+	UefiBlockDevCtrlr *removable = new_uefi_blockdev_ctrlr(1);
+	list_insert_after(&fixed->ctrlr.list_node,
+			  &fixed_block_dev_controllers);
+	list_insert_after(&removable->ctrlr.list_node,
+			  &removable_block_dev_controllers);
+	return 0;
+}
+
+INIT_FUNC(board_setup);
