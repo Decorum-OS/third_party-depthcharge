@@ -33,6 +33,7 @@ depthcharge-$(CONFIG_NV_STORAGE_CROS_EC) += nvstorage_cros_ec.c
 depthcharge-$(CONFIG_NV_STORAGE_DISK) += nvstorage_disk.c
 depthcharge-$(CONFIG_NV_STORAGE_FAKE) += nvstorage_fake.c
 depthcharge-$(CONFIG_NV_STORAGE_FLASH) += nvstorage_flash.c
+depthcharge-$(CONFIG_NV_STORAGE_UEFI) += nvstorage_uefi.c
 depthcharge-y += switches.c
 depthcharge-y += time.c
 depthcharge-y += tpm.c

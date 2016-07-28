@@ -92,6 +92,11 @@ config NV_STORAGE_FAKE
 	  Nonvolatile storage is simulated using RAM and is re-initialized
 	  each boot.
 
+config NV_STORAGE_UEFI
+	bool "UEFI"
+	help
+	  Nonvolatile storage backed by UEFI's non-volatile variables.
+
 endchoice
 
 config NV_STORAGE_DISK_LBA
