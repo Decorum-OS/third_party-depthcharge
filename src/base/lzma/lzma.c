@@ -30,11 +30,12 @@ size_t ulzman(const void *src, size_t srcn, void *dst, size_t dstn)
 
 	memcpy(properties, src, LZMA_PROPERTIES_SIZE);
 	ssize_t size = ulzma_expanded_size(src, srcn);
-	if (size < 0)
+	if (size < -1)
 		return 0;
-	outSize = size;
-	if (outSize > dstn)
+	else if (size == -1 || size > dstn)
 		outSize = dstn;
+	else
+		outSize = size;
 	if (LzmaDecodeProperties(&state.Properties, properties,
 				 LZMA_PROPERTIES_SIZE) != LZMA_RESULT_OK) {
 		printf("lzma: Incorrect stream properties.\n");
@@ -66,7 +67,7 @@ ssize_t ulzma_expanded_size(const void *src, size_t srcn)
 	uint64_t size;
 	if (srcn < LZMA_PROPERTIES_SIZE + sizeof(size)) {
 		printf("lzma: Truncated stream.\n");
-		return -1;
+		return -2;
 	}
 	memcpy(&size, (const uint8_t *)src + LZMA_PROPERTIES_SIZE,
 	       sizeof(size));
