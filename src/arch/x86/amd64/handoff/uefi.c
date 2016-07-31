@@ -25,6 +25,7 @@
 #include "arch/x86/amd64/handoff/handoff.h"
 #include "base/fwdb.h"
 #include "uefi/uefi.h"
+#include "vboot/util/memory.h"
 
 extern EFI_SYSTEM_TABLE *_uefi_handoff_system_table;
 extern EFI_HANDLE _uefi_handoff_image_handle;
@@ -51,6 +52,9 @@ void handoff_special(void)
 
 	if (status != EFI_SUCCESS)
 		halt();
+
+	uint64_t fwdb_size = CONFIG_UEFI_HANDOFF_FWDB_4K_PAGES * 4 * 1024;
+	memory_mark_used(fwdb_addr, fwdb_addr + fwdb_size);
 
 	if (fwdb_create_db((void *)(uintptr_t)fwdb_addr,
 			   CONFIG_UEFI_HANDOFF_FWDB_4K_PAGES * 4096))
