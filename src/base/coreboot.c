@@ -32,6 +32,7 @@
 #include <sysinfo.h>
 
 #include "base/fwdb.h"
+#include "base/physmem.h"
 #include "vboot/util/vboot_handoff.h"
 
 struct sysinfo_t lib_sysinfo;
@@ -68,6 +69,36 @@ static void cb_parse_memory(void *ptr, struct sysinfo_t *info)
 		info->memrange[info->n_memranges].type = range->type;
 
 		info->n_memranges++;
+	}
+
+	E820MemRanges *e820_map = get_e820_mem_ranges();
+	if (!e820_map)
+		return;
+
+	if (lib_sysinfo.n_memranges > ARRAY_SIZE(e820_map->ranges))
+		return;
+
+	e820_map->num_ranges = info->n_memranges;
+	for (int i = 0; i < info->n_memranges; i++) {
+		struct memrange *range = &info->memrange[i];
+		E820MemRange *e820 = &e820_map->ranges[i];
+		e820->base = range->base;
+		e820->size = range->size;
+
+		switch (range->type) {
+		case CB_MEM_RAM:
+		case CB_MEM_RESERVED:
+		case CB_MEM_ACPI:
+		case CB_MEM_NVS:
+		case CB_MEM_UNUSABLE:
+			e820->type = range->type;
+			break;
+		case CB_MEM_TABLE:
+			e820->type = E820MemRange_Reserved;
+		default:
+			e820->type = E820MemRange_Unusable;
+		}
+		e820->handoff_tag = range->type;
 	}
 }
 

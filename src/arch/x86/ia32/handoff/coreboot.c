@@ -30,6 +30,7 @@
 
 #include "arch/x86/ia32/handoff/handoff.h"
 #include "base/fwdb.h"
+#include "base/physmem.h"
 #include "vboot/util/vboot_handoff.h"
 #include "vboot/util/memory.h"
 
@@ -42,6 +43,8 @@ void handoff_special(void)
 {
 	fwdb_create_db((void *)(uintptr_t)0x3000000, 0x1000000);
 	memory_mark_used(0x3000000, 0x4000000);
+
+	prepare_e820_mem_ranges();
 
 	// Get information from the coreboot tables if they exist.
 	if (cb_parse_header((void *)0, 0x1000, &lib_sysinfo))

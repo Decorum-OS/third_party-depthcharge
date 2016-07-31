@@ -31,6 +31,7 @@
 #include <sysinfo.h>
 
 #include "arch/arm/handoff/handoff.h"
+#include "base/physmem.h"
 
 extern uint64_t handoff_parameter;
 
@@ -92,6 +93,8 @@ static void post_sysinfo_scan_mmu_setup(void)
 void handoff_special(void)
 {
 	pre_sysinfo_scan_mmu_setup();
+
+	prepare_e820_mem_ranges();
 
 	// Get information from the coreboot tables if they exist.
 	cb_parse_header((void *)(uintptr_t)handoff_parameter, 1, &lib_sysinfo);

@@ -29,11 +29,14 @@
 #include <sysinfo.h>
 
 #include "arch/arm/handoff/handoff.h"
+#include "base/physmem.h"
 
 extern uint32_t handoff_parameter;
 
 void handoff_special(void)
 {
+	prepare_e820_mem_ranges();
+
 	// Get information from the coreboot tables if they exist.
 	cb_parse_header((void *)(uintptr_t)handoff_parameter, 1, &lib_sysinfo);
 }
