@@ -36,12 +36,6 @@
 struct sysinfo_t {
 	int n_memranges;
 
-	struct memrange {
-		unsigned long long base;
-		unsigned long long size;
-		unsigned int type;
-	} memrange[SYSINFO_MAX_MEM_RANGES];
-
 	uint32_t vbnv_start;
 	uint32_t vbnv_size;
 

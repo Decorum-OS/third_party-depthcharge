@@ -50,40 +50,20 @@ static void cb_parse_memory(void *ptr, struct sysinfo_t *info)
 {
 	struct cb_memory *mem = ptr;
 	int count = MEM_RANGE_COUNT(mem);
-	int i;
-
-	if (count > SYSINFO_MAX_MEM_RANGES)
-		count = SYSINFO_MAX_MEM_RANGES;
-
-	info->n_memranges = 0;
-
-	for (i = 0; i < count; i++) {
-		struct cb_memory_range *range = MEM_RANGE_PTR(mem, i);
-
-		info->memrange[info->n_memranges].base =
-		    cb_unpack64(range->start);
-
-		info->memrange[info->n_memranges].size =
-		    cb_unpack64(range->size);
-
-		info->memrange[info->n_memranges].type = range->type;
-
-		info->n_memranges++;
-	}
 
 	E820MemRanges *e820_map = get_e820_mem_ranges();
 	if (!e820_map)
 		return;
 
-	if (lib_sysinfo.n_memranges > ARRAY_SIZE(e820_map->ranges))
-		return;
+	if (count > ARRAY_SIZE(e820_map->ranges))
+		count = ARRAY_SIZE(e820_map->ranges);
 
-	e820_map->num_ranges = info->n_memranges;
-	for (int i = 0; i < info->n_memranges; i++) {
-		struct memrange *range = &info->memrange[i];
+	e820_map->num_ranges = count;
+	for (int i = 0; i < count; i++) {
+		struct cb_memory_range *range = MEM_RANGE_PTR(mem, i);
 		E820MemRange *e820 = &e820_map->ranges[i];
-		e820->base = range->base;
-		e820->size = range->size;
+		e820->base = cb_unpack64(range->start);
+		e820->size = cb_unpack64(range->size);
 
 		switch (range->type) {
 		case CB_MEM_RAM:
