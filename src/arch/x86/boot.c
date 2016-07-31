@@ -23,11 +23,11 @@
 #include <arch/msr.h>
 #include <assert.h>
 #include <stdio.h>
-#include <sysinfo.h>
 
 #include "arch/x86/boot.h"
 #include "base/algorithm.h"
 #include "base/cleanup_funcs.h"
+#include "base/physmem.h"
 #include "base/timestamp.h"
 #include "vboot/boot.h"
 
@@ -52,21 +52,25 @@ int boot_x86_linux(struct boot_params *boot_params, char *cmd_line, void *entry)
 		return 1;
 	}
 
-	unsigned num_entries = MIN(lib_sysinfo.n_memranges,
+	E820MemRanges *e820 = get_e820_mem_ranges();
+	if (!e820)
+		return 1;
+
+	unsigned num_entries = MIN(e820->num_ranges,
 				   ARRAY_SIZE(boot_params->e820_map));
-	if (num_entries < lib_sysinfo.n_memranges) {
+	if (num_entries < e820->num_ranges) {
 		printf("Warning: Limiting e820 map to %d entries.\n",
 			num_entries);
 	}
 	boot_params->e820_entries = num_entries;
 
 	for (int i = 0; i < num_entries; i++) {
-		struct memrange *memrange = &lib_sysinfo.memrange[i];
+		E820MemRange *range = &e820->ranges[i];
 		struct e820entry *entry = &boot_params->e820_map[i];
 
-		entry->addr = memrange->base;
-		entry->size = memrange->size;
-		entry->type = memrange->type;
+		entry->addr = range->base;
+		entry->size = range->size;
+		entry->type = range->type;
 	}
 
 	// Loader type is undefined.

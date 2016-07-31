@@ -37,6 +37,7 @@
 #include "arch/lib_helpers.h"
 #include "arch/mmu.h"
 #include "base/algorithm.h"
+#include "base/physmem.h"
 
 /* Maximum number of XLAT Tables available based on ttb buffer size */
 static unsigned int max_tables;
@@ -56,9 +57,9 @@ static const char * const tag_to_string[] = {
  * The usedmem_ranges is used to describe all the memory ranges that are
  * actually used by payload i.e. _start -> _end in linker script and the
  * coreboot tables. This is required for two purposes:
- * 1) During the pre_sysinfo_scan_mmu_setup, these are the only ranges
+ * 1) During the pre_e820_scan_mmu_setup, these are the only ranges
  * initialized in the page table as we do not know the entire memory map.
- * 2) During the post_sysinfo_scan_mmu_setup, these ranges are used to check if
+ * 2) During the post_e820_scan_mmu_setup, these ranges are used to check if
  * the DMA buffer is being placed in a sane location and does not overlap any of
  * the used mem ranges.
  */
@@ -420,7 +421,7 @@ struct mmu_new_range_prop {
  * Returns: 1 on success, 0 on error
  * ASSUMPTION: All the memory used by payload resides below the program
  * proper. If there is any memory used above the _end symbol, then it should be
- * marked as used memory in usedmem_ranges during the presysinfo_scan.
+ * marked as used memory in usedmem_ranges during the pre_e820_scan.
  */
 static int mmu_is_range_free(uint64_t r_base,
 			     uint64_t r_end)
@@ -611,29 +612,26 @@ static struct mmu_memrange *_mmu_add_fb_range(
  * Func: mmu_extract_ranges
  * Desc: Assumption is that coreboot tables have memranges in sorted
  * order. So, if there is an opportunity to combine ranges, we do that as
- * well. Memranges are initialized for both CB_MEM_RAM and CB_MEM_TABLE as
- * TYPE_NORMAL_MEM.
+ * well. Memranges are initialized for both E820MemRange_Ram and
+ * E820MemRange_Rserved as TYPE_NORMAL_MEM.
  */
-static void mmu_extract_ranges(struct memrange *cb_ranges,
-			       uint64_t ncb,
+static void mmu_extract_ranges(E820MemRanges *e820,
 			       struct mmu_ranges *mmu_ranges)
 {
-	int i = 0;
 	struct mmu_memrange *prev_range = NULL;
 
 	/* Extract memory ranges to be mapped */
-	for (; i < ncb; i++) {
-		switch (cb_ranges[i].type) {
-		case CB_MEM_RAM:
-		case CB_MEM_TABLE:
+	for (int i = 0; i < e820->num_ranges; i++) {
+		switch (e820->ranges[i].type) {
+		case E820MemRange_Ram:
+		case E820MemRange_Reserved:
 			if (prev_range && (prev_range->base + prev_range->size
-					   == cb_ranges[i].base)) {
-				prev_range->size += cb_ranges[i].size;
+					   == e820->ranges[i].base)) {
+				prev_range->size += e820->ranges[i].size;
 			} else {
-				prev_range = mmu_add_memrange(mmu_ranges,
-							      cb_ranges[i].base,
-							      cb_ranges[i].size,
-							      TYPE_NORMAL_MEM);
+				prev_range = mmu_add_memrange(
+					mmu_ranges, e820->ranges[i].base,
+					e820->ranges[i].size, TYPE_NORMAL_MEM);
 				if (prev_range == NULL)
 					mmu_error();
 			}
@@ -685,17 +683,19 @@ static void mmu_add_fb_range(struct mmu_ranges *mmu_ranges)
  * Desc: Initialize mmu_memranges based on the memranges obtained from coreboot
  * tables. Also, initialize dma memrange and xlat_addr for ttb buffer.
  */
-struct mmu_memrange *mmu_init_ranges_from_sysinfo(struct memrange *cb_ranges,
-						  uint64_t ncb,
-						  struct mmu_ranges *mmu_ranges)
+struct mmu_memrange *mmu_init_ranges_from_e820(struct mmu_ranges *mmu_ranges)
 {
 	struct mmu_memrange *dma_range;
 
 	/* Initialize mmu_ranges to contain no entries. */
 	mmu_ranges->used = 0;
 
-	/* Extract ranges from memrange in lib_sysinfo */
-	mmu_extract_ranges(cb_ranges, ncb, mmu_ranges);
+	E820MemRanges *e820 = get_e820_mem_ranges();
+	if (!e820)
+		mmu_error();
+
+	/* Extract ranges from the e820 table */
+	mmu_extract_ranges(e820, mmu_ranges);
 
 	/* Get a range for dma */
 	dma_range = mmu_add_dma_range(mmu_ranges);
@@ -710,14 +710,14 @@ struct mmu_memrange *mmu_init_ranges_from_sysinfo(struct memrange *cb_ranges,
 }
 
 /*
- * Func: mmu_presysinfo_memory_used
- * Desc: Initializes all the memory used for presysinfo page table
+ * Func: mmu_pre_e820_memory_used
+ * Desc: Initializes all the memory used for pre e820 page table
  * initialization and enabling of MMU. All these ranges are stored in
  * usedmem_ranges. usedmem_ranges plays an important role in selecting the dma
  * buffer as well since we check the dma buffer range against the used memory
  * ranges to prevent any overstepping.
  */
-void mmu_presysinfo_memory_used(uint64_t base, uint64_t size)
+void mmu_pre_e820_memory_used(uint64_t base, uint64_t size)
 {
 	uint64_t range_base;
 
@@ -729,7 +729,7 @@ void mmu_presysinfo_memory_used(uint64_t base, uint64_t size)
 	mmu_add_memrange(&usedmem_ranges, range_base, size, TYPE_NORMAL_MEM);
 }
 
-void mmu_presysinfo_enable(void)
+void mmu_pre_e820_enable(void)
 {
 	mmu_init(&usedmem_ranges);
 	mmu_enable();

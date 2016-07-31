@@ -188,14 +188,12 @@ void mmu_config_range(void *start, size_t size, uint64_t tag);
  * cb_ranges -> Memory ranges present in cb tables
  * mmu_ranges -> mmu_memranges initialized by this function
  */
-struct mmu_memrange* mmu_init_ranges_from_sysinfo(struct memrange *cb_ranges,
-						  uint64_t ncb,
-						  struct mmu_ranges *mmu_ranges);
+struct mmu_memrange* mmu_init_ranges_from_e820(struct mmu_ranges *mmu_ranges);
 
 /*
  * Functions for handling the initialization of memory ranges and enabling mmu
  * before coreboot tables are parsed
  */
-void mmu_presysinfo_memory_used(uint64_t base, uint64_t size);
-void mmu_presysinfo_enable(void);
+void mmu_pre_e820_memory_used(uint64_t base, uint64_t size);
+void mmu_pre_e820_enable(void);
 #endif // __ARCH_ARM64_MMU_H__

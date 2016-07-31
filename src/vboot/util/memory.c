@@ -20,11 +20,9 @@
  * MA 02111-1307 USA
  */
 
-#include <coreboot_tables.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <sysinfo.h>
 
 #include "base/ranges.h"
 #include "base/physmem.h"
@@ -71,25 +69,25 @@ int memory_wipe_unused(void)
 
 	// Process the memory map from coreboot.
 	ranges_init(&ranges);
-	for (int i = 0; i < lib_sysinfo.n_memranges; i++) {
-		struct memrange *range = &lib_sysinfo.memrange[i];
+	E820MemRanges *e820 = get_e820_mem_ranges();
+	if (!e820)
+		return 1;
+	for (int i = 0; i < e820->num_ranges; i++) {
+		E820MemRange *range = &e820->ranges[i];
 		uint64_t start = range->base;
 		uint64_t end = range->base + range->size;
 		switch (range->type) {
-		case CB_MEM_RAM:
+		case E820MemRange_Ram:
 			ranges_add(&ranges, start, end);
 			break;
-		case CB_MEM_RESERVED:
-		case CB_MEM_ACPI:
-		case CB_MEM_NVS:
-		case CB_MEM_UNUSABLE:
-		case CB_MEM_VENDOR_RSVD:
-		case CB_MEM_TABLE:
+		case E820MemRange_Reserved:
+		case E820MemRange_Acpi:
+		case E820MemRange_Nvs:
+		case E820MemRange_Unusable:
 			ranges_sub(&ranges, start, end);
 			break;
 		default:
-			printf("Unrecognized memory type %d!\n",
-				range->type);
+			printf("Unrecognized memory type %d!\n", range->type);
 			return 1;
 		}
 	}

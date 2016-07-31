@@ -26,6 +26,7 @@
 
 #include "base/device_tree.h"
 #include "base/init_funcs.h"
+#include "base/physmem.h"
 
 static int install_coreboot_data(DeviceTreeFixup *fixup, DeviceTree *tree)
 {
@@ -43,10 +44,15 @@ static int install_coreboot_data(DeviceTreeFixup *fixup, DeviceTree *tree)
 
 	dt_add_string_prop(coreboot_node, "compatible", "coreboot");
 
-	struct memrange *cbmem_range = NULL;
-	for (int i = lib_sysinfo.n_memranges - 1; i >= 0; i--) {
-		if (lib_sysinfo.memrange[i].type == CB_MEM_TABLE) {
-			cbmem_range = &lib_sysinfo.memrange[i];
+	E820MemRanges *e820 = get_e820_mem_ranges();
+	if (!e820)
+		return 1;
+
+	E820MemRange *cbmem_range = NULL;
+	for (int i = e820->num_ranges - 1; i >= 0; i--) {
+		E820MemRange *range = &e820->ranges[i];
+		if (range->handoff_tag == CB_MEM_TABLE) {
+			cbmem_range = range;
 			break;
 		}
 	}

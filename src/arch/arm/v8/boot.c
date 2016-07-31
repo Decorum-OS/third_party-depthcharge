@@ -20,10 +20,8 @@
  * MA 02111-1307 USA
  */
 
-#include <coreboot_tables.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sysinfo.h>
 
 #include "arch/arm/boot.h"
 #include "base/io.h"
@@ -59,9 +57,13 @@ struct {
 
 static void *get_kernel_reloc_addr(uint32_t load_offset)
 {
-	for (int i = 0; i < lib_sysinfo.n_memranges; i++) {
-		struct memrange *range = &lib_sysinfo.memrange[i];
-		if (range->type != CB_MEM_RAM)
+	E820MemRanges *e820 = get_e820_mem_ranges();
+	if (!e820)
+		return NULL;
+
+	for (int i = 0; i < e820->num_ranges; i++) {
+		E820MemRange *range = &e820->ranges[i];
+		if (range->type != E820MemRange_Ram)
 			continue;
 
 		uint64_t start = range->base;
@@ -84,7 +86,7 @@ static void *get_kernel_reloc_addr(uint32_t load_offset)
 	}
 
 	printf("ERROR: Cannot find enough continuous memory for kernel!\n");
-	return 0;
+	return NULL;
 }
 
 int boot_arm_linux(void *fdt, FitImageNode *kernel)

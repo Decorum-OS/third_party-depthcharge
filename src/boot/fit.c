@@ -27,6 +27,7 @@
 #include <sysinfo.h>
 
 #include "base/algorithm.h"
+#include "base/physmem.h"
 #include "base/ranges.h"
 #include "base/xalloc.h"
 #include "boot/fit.h"
@@ -261,13 +262,17 @@ static void update_mem_property(uint64_t start, uint64_t end, void *pdata)
 	params->data = data;
 }
 
-static void update_memory(DeviceTree *tree)
+static int update_memory(DeviceTree *tree)
 {
 	Ranges mem;
 	Ranges reserved;
 	DeviceTreeNode *node;
 	uint32_t addr_cells = 1, size_cells = 1;
 	dt_read_cell_props(tree->root, &addr_cells, &size_cells);
+
+	E820MemRanges *e820 = get_e820_mem_ranges();
+	if (!e820)
+		return 1;
 
 	// First remove all existing device_type="memory" nodes, then add ours.
 	list_for_each(node, tree->root->children, list_node) {
@@ -284,8 +289,8 @@ static void update_memory(DeviceTree *tree)
 	ranges_init(&mem);
 	ranges_init(&reserved);
 
-	for (int i = 0; i < lib_sysinfo.n_memranges; i++) {
-		struct memrange *range = &lib_sysinfo.memrange[i];
+	for (int i = 0; i < e820->num_ranges; i++) {
+		E820MemRange *range = &e820->ranges[i];
 		uint64_t start = range->base;
 		uint64_t end = range->base + range->size;
 
@@ -294,7 +299,7 @@ static void update_memory(DeviceTree *tree)
 		 * aligned, let's trim the regions such that unaligned padding
 		 * is added to reserved memory.
 		 */
-		if (range->type == CB_MEM_RAM) {
+		if (range->type == E820MemRange_Ram) {
 			uint64_t new_start = ALIGN_UP(start, 1 * MiB);
 			uint64_t new_end = ALIGN_DOWN(end, 1 * MiB);
 
@@ -328,6 +333,8 @@ static void update_memory(DeviceTree *tree)
 
 	// Assemble the final property and add it to the device tree.
 	dt_add_bin_prop(node, "reg", data, length);
+
+	return 0;
 }
 
 FitImageNode *fit_load(void *fit, char *cmd_line, DeviceTree **dt)
@@ -456,7 +463,8 @@ FitImageNode *fit_load(void *fit, char *cmd_line, DeviceTree **dt)
 		if (cmd_line)
 			update_chosen(*dt, cmd_line);
 
-		update_memory(*dt);
+		if (update_memory(*dt))
+			return NULL;
 
 		if (to_boot->ramdisk_node) {
 			if (to_boot->ramdisk_node->compression
