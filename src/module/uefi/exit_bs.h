@@ -10,7 +10,7 @@
  * the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * but without any warranty; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
@@ -20,13 +20,9 @@
  * MA 02111-1307 USA
  */
 
-#include "module/uefi/exit_bs.h"
-#include "vboot/stages.h"
+#ifndef __MODULE_UEFI_EXIT_BS_H__
+#define __MODULE_UEFI_EXIT_BS_H__
 
-void module_main(void)
-{
-	install_exit_boot_services_cleanup();
+void install_exit_boot_services_cleanup(void);
 
-	if (vboot_select_and_load_kernel())
-		halt();
-}
+#endif /* __MODULE_UEFI_EXIT_BS_H__ */

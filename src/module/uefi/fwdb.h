@@ -24,5 +24,6 @@
 #define __MODULE_UEFI_FWDB_H__
 
 int uefi_prepare_fwdb_storage(void);
+int uefi_prepare_fwdb_e820_map(void);
 
 #endif /* __MODULE_UEFI_FWDB_H__ */

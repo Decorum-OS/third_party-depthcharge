@@ -31,6 +31,9 @@ void module_main(void)
 	if (uefi_prepare_fwdb_storage())
 		halt();
 
+	if (uefi_prepare_fwdb_e820_map())
+		halt();
+
 	if (vboot_init())
 		halt();
 

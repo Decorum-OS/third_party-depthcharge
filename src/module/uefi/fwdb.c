@@ -20,15 +20,18 @@
  * MA 02111-1307 USA
  */
 
+#include <inttypes.h>
 #include <stdio.h>
 
 #include "base/xalloc.h"
 #include "base/fwdb.h"
+#include "base/physmem.h"
 #include "module/uefi/fwdb.h"
 #include "uefi/edk/Protocol/EfiShell.h"
 #include "uefi/edk/Protocol/EfiShellParameters.h"
 #include "uefi/edk/Protocol/SimpleFileSystem.h"
 #include "uefi/uefi.h"
+#include "vboot/util/memory.h"
 
 
 
@@ -181,5 +184,106 @@ int uefi_prepare_fwdb_storage(void)
 		return 1;
 	}
 
+	return 0;
+}
+
+
+int uefi_prepare_fwdb_e820_map(void)
+{
+	if (prepare_e820_mem_ranges())
+		return 1;
+
+	E820MemRanges *e820 = get_e820_mem_ranges();
+	if (!e820)
+		return 1;
+
+	EFI_SYSTEM_TABLE *system_table = uefi_system_table_ptr();
+	if (!system_table)
+		return 1;
+
+	EFI_BOOT_SERVICES *bs = system_table->BootServices;
+
+	UINTN size = 0;
+	UINTN map_key;
+	UINTN desc_size;
+	UINT32 desc_ver;
+	EFI_STATUS status = bs->GetMemoryMap(&size, NULL, &map_key,
+					     &desc_size, &desc_ver);
+	if (status != EFI_BUFFER_TOO_SMALL) {
+		printf("Failed to retrieve memory map size.\n");
+		return 1;
+	}
+
+	int num_descs = size / desc_size;
+	if (num_descs > ARRAY_SIZE(e820->ranges)) {
+		printf("Too many memory ranges to fit in the FWDB map.\n");
+		return 1;
+	}
+
+	if (desc_size < sizeof(EFI_MEMORY_DESCRIPTOR)) {
+		printf("Descriptor size is too small?\n");
+		return 1;
+	}
+
+	uint8_t *map_buf = xmalloc(size);
+
+	status = bs->GetMemoryMap(&size, (void *)map_buf, &map_key,
+				  &desc_size, &desc_ver);
+	if (status != EFI_SUCCESS) {
+		printf("Failed to retrieve memory map.\n");
+		free(map_buf);
+		return 1;
+	}
+
+	int num_ranges = 0;
+	for (int i = 0; i < num_descs; i++) {
+		EFI_MEMORY_DESCRIPTOR *desc =
+			(void *)(map_buf + i * desc_size);
+		E820MemRange *range = &e820->ranges[num_ranges];
+
+		range->base = desc->PhysicalStart;
+		range->size = desc->NumberOfPages * 4 * 1024;
+
+		if (range->size == 0)
+			continue;
+		num_ranges++;
+
+		switch (desc->Type) {
+		case EfiLoaderCode:
+		case EfiLoaderData:
+		case EfiBootServicesCode:
+		case EfiBootServicesData:
+			memory_mark_used(range->base,
+					 range->base + range->size);
+		case EfiConventionalMemory:
+			range->type = E820MemRange_Ram;
+			break;
+		case EfiReservedMemoryType:
+		case EfiRuntimeServicesCode:
+		case EfiRuntimeServicesData:
+		case EfiPalCode:
+		case EfiACPIMemoryNVS:
+			range->type = E820MemRange_Reserved;
+			break;
+		case EfiACPIReclaimMemory:
+			range->type = E820MemRange_Acpi;
+			break;
+		case EfiPersistentMemory:
+			range->type = E820MemRange_Nvs;
+			break;
+		case EfiUnusableMemory:
+			range->type = E820MemRange_Unusable;
+			break;
+		default:
+			printf("Warning: Memory range of type %#"PRIx32" "
+			       "marked as reserved.\n", desc->Type);
+			range->type = E820MemRange_Reserved;
+		}
+
+		range->handoff_tag = desc->Type;
+	}
+
+	e820->num_ranges = num_ranges;
+	free(map_buf);
 	return 0;
 }
