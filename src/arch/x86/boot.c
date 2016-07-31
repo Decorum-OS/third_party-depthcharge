@@ -44,10 +44,6 @@ int boot_x86_linux(struct boot_params *boot_params, char *cmd_line, void *entry)
 	// kernel as it's decompressed.
 	assert((uint8_t *)CmdLineBuff - (uint8_t *)ParamsBuff >=
 		sizeof(*boot_params));
-	memcpy(ParamsBuff, boot_params, sizeof(*boot_params));
-	boot_params = ParamsBuff;
-	strcpy(CmdLineBuff, cmd_line);
-	cmd_line = CmdLineBuff;
 
 	struct setup_header *hdr = &boot_params->hdr;
 
@@ -79,9 +75,12 @@ int boot_x86_linux(struct boot_params *boot_params, char *cmd_line, void *entry)
 	// Don't reload the data/code segments.
 	hdr->loadflags |= KEEP_SEGMENTS;
 
-	hdr->cmd_line_ptr = (uintptr_t)cmd_line;
+	hdr->cmd_line_ptr = (uintptr_t)CmdLineBuff;
 
 	run_cleanup_funcs(CleanupOnHandoff);
+
+	memcpy(ParamsBuff, boot_params, sizeof(*boot_params));
+	strcpy(CmdLineBuff, cmd_line);
 
 	puts("\nStarting kernel ...\n\n");
 	timestamp_add_now(TS_START_KERNEL);
@@ -97,7 +96,7 @@ int boot_x86_linux(struct boot_params *boot_params, char *cmd_line, void *entry)
 	"cli			\n"
 	"jmp *%[kernel_entry]	\n"
 	:: [kernel_entry]"a"(entry),
-	   [boot_params]"S"(boot_params),
+	   [boot_params]"S"(ParamsBuff),
 	   "b"(0), "D"(0)
 	);
 	return 0;
