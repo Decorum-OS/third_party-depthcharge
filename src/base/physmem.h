@@ -37,4 +37,27 @@
  */
 uint64_t arch_phys_memset(uint64_t s, int c, uint64_t n);
 
+enum {
+	E820MemRange_Ram = 1,
+	E820MemRange_Reserved = 2,
+	E820MemRange_Acpi = 3,
+	E820MemRange_Nvs = 4,
+	E820MemRange_Unusable = 5,
+};
+
+typedef struct {
+	uint64_t base;
+	uint64_t size;
+	uint32_t type;
+	uint32_t handoff_tag;
+} E820MemRange;
+
+typedef struct {
+	uint64_t num_ranges;
+	E820MemRange ranges[CONFIG_MAX_MEM_RANGES];
+} E820MemRanges;
+
+int prepare_e820_mem_ranges(void);
+E820MemRanges *get_e820_mem_ranges(void);
+
 #endif /* __BASE_PHYSMEM_H__ */

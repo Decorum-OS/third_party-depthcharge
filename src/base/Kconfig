@@ -23,3 +23,7 @@ config HEADLESS
        default n
        help
         "Set to 'y' for devices without display screens"
+
+config MAX_MEM_RANGES
+	int
+	default 32
