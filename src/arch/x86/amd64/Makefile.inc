@@ -15,6 +15,8 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
+depthcharge-y += boot.S
+depthcharge-y += gdt.c
 depthcharge-y += physmem.c
 
 subdirs-y += handoff

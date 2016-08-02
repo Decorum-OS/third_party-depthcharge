@@ -26,7 +26,7 @@
 #define _GDT_CS32_IDX_ 1
 #define _GDT_DS32_IDX_ 2
 
-#define gdt_idx_to_sel(index, rpl) ((((index) << 3) | (rpl & 0x3)) & 0xffff)
+#define gdt_idx_to_sel(index, rpl) ((((index) << 3) | ((rpl) & 0x3)) & 0xffff)
 
 #ifndef __ASSEMBLER__
 

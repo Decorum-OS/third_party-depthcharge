@@ -89,19 +89,5 @@ int boot_x86_linux(struct boot_params *boot_params, char *cmd_line, void *entry)
 	puts("\nStarting kernel ...\n\n");
 	timestamp_add_now(TS_START_KERNEL);
 
-	/*
-	 * Set %ebx, %ebp, and %edi to 0, %esi to point to the boot_params
-	 * structure, and then jump to the kernel. We assume that %cs is
-	 * 0x10, 4GB flat, and read/execute, and the data segments are 0x18,
-	 * 4GB flat, and read/write.
-	 */
-	__asm__ __volatile__ (
-	"movl $0, %%ebp		\n"
-	"cli			\n"
-	"jmp *%[kernel_entry]	\n"
-	:: [kernel_entry]"a"(entry),
-	   [boot_params]"S"(ParamsBuff),
-	   "b"(0), "D"(0)
-	);
-	return 0;
+	boot_x86_linux_start_kernel(ParamsBuff, entry);
 }

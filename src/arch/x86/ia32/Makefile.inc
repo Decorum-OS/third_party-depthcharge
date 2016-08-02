@@ -17,6 +17,7 @@
 
 subdirs-y += handoff preram temp_stack
 
+depthcharge-y += boot.c
 depthcharge-y += enter_trampoline.c
 libc-y += exception.c
 libc-y += exception_asm.S

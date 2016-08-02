@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,13 +20,28 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __ARCH_X86_BOOT_H__
-#define __ARCH_X86_BOOT_H__
+#ifndef __ARCH_X86_AMD64_GDT_H__
+#define __ARCH_X86_AMD64_GDT_H__
 
-#include "arch/x86/boot/bootparam.h"
+//TODO Set up 64 bit code and data descriptors.
 
-int boot_x86_linux(struct boot_params *boot_base, char *cmd_line, void *entry);
-void boot_x86_linux_start_kernel(
-	struct boot_params *params, void *entry) __attribute__((noreturn));
+#define _GDT_CS32_IDX_ 1
+#define _GDT_DS32_IDX_ 2
 
-#endif /* __ARCH_X86_BOOT_H__ */
+#define gdt_idx_to_sel(index, rpl) ((((index) << 3) | ((rpl) & 0x3)) & 0xffff)
+
+#ifndef __ASSEMBLER__
+
+enum {
+	GdtCs32Index = _GDT_CS32_IDX_,
+	GdtDs32Index = _GDT_DS32_IDX_,
+};
+
+#else /* !__ASSEMBLER__ */
+
+#define GDT_CS32_IDX _GDT_CS32_IDX_
+#define GDT_DS32_IDX _GDT_DS32_IDX_
+
+#endif
+
+#endif /* __ARCH_X86_AMD64_GDT_H__ */

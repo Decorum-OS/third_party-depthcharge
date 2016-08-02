@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -10,7 +10,7 @@
  * the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
- * but without any warranty; without even the implied warranty of
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
@@ -20,13 +20,25 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __ARCH_X86_BOOT_H__
-#define __ARCH_X86_BOOT_H__
+#include <stdlib.h>
 
-#include "arch/x86/boot/bootparam.h"
+#include "arch/x86/boot.h"
 
-int boot_x86_linux(struct boot_params *boot_base, char *cmd_line, void *entry);
-void boot_x86_linux_start_kernel(
-	struct boot_params *params, void *entry) __attribute__((noreturn));
-
-#endif /* __ARCH_X86_BOOT_H__ */
+void boot_x86_linux_start_kernel(struct boot_params *params, void *entry)
+{
+	/*
+	 * Set %ebx, %ebp, and %edi to 0, %esi to point to the boot_params
+	 * structure, and then jump to the kernel. We assume that %cs is
+	 * 0x10, 4GB flat, and read/execute, and the data segments are 0x18,
+	 * 4GB flat, and read/write.
+	 */
+	__asm__ __volatile__ (
+	"movl $0, %%ebp		\n"
+	"cli			\n"
+	"jmp *%[kernel_entry]	\n"
+	:: [kernel_entry]"a"(entry),
+	   [boot_params]"S"(params),
+	   "b"(0), "D"(0)
+	);
+	halt();
+}
