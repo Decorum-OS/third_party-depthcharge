@@ -23,7 +23,6 @@
 
 #include <pci.h>
 #include <stdint.h>
-#include <sysinfo.h>
 
 #include "base/init_funcs.h"
 #include "base/list.h"

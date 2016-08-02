@@ -23,7 +23,6 @@
 #include <endian.h>
 #include <stdio.h>
 #include <string.h>
-#include <sysinfo.h>
 #include <vboot_api.h>
 
 #include "arch/cache.h"

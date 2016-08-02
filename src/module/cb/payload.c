@@ -23,7 +23,6 @@
 
 #include <assert.h>
 #include <stdio.h>
-#include <sysinfo.h>
 #include <vboot_struct.h>
 
 #include "base/fwdb.h"

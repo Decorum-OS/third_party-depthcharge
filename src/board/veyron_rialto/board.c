@@ -18,7 +18,6 @@
  */
 
 #include <stdio.h>
-#include <sysinfo.h>
 
 #include "base/container_of.h"
 #include "base/init_funcs.h"
