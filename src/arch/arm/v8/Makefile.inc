@@ -15,15 +15,18 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-subdirs-y += handoff
+subdirs-y += handoff lib
 
 depthcharge-y += boot_asm.S
 depthcharge-y += boot.c
+libc-y += cache.c
+libc-y += cpu.S
 libc-y += exception.c
 libc-y += exception_asm.S
 libc-y += memcpy.S
 libc-y += memmove.S
 libc-y += memset.S
+libc-y += mmu.c
 depthcharge-y += physmem_arm.c
 
 gdb-y += gdb.c

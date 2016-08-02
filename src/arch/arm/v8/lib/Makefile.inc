@@ -1,5 +1,5 @@
 ##
-## Copyright 2013 Google Inc.
+## Copyright 2016 Google Inc.
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -15,28 +15,8 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 ##
 
-subdirs-y += handoff
-
-depthcharge-y += boot.c
-depthcharge-y += boot_asm.S
-
 libc-y += cache.c
-libc-y += cpu.S
-libc-y += eabi_compat.c
-depthcharge-y += enter_trampoline.c
-libc-y += exception.c
-libc-y += exception_asm.S
-libc-y += memcpy.S
-libc-y += memmove.S
-libc-y += memset.S
-depthcharge-y += physmem.c
-libc-y += virtual.c
-
-gdb-y += gdb.c
-
-src-includes-y += includes
-
-ARCH_ABI_FLAGS += -mthumb -march=armv7-a
-ARCH_ABI_FLAGS += -Wa,-mthumb -Wa,-mimplicit-it=always -Wa,-mno-warn-deprecated
-
-TC_ARCH = arm
+libc-y += clock.c
+libc-y += pstate.c
+libc-y += sysctrl.c
+libc-y += tlb.c

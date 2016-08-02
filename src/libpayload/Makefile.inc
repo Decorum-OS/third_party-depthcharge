@@ -32,7 +32,3 @@ classes-y += libc
 subdirs-y += drivers libc
 
 src-includes-y += include
-
-subdirs-$(CONFIG_ARCH_X86) += arch/x86
-subdirs-$(CONFIG_ARCH_ARM_V7) += arch/arm
-subdirs-$(CONFIG_ARCH_ARM_V8) += arch/arm64
