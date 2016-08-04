@@ -20,13 +20,10 @@
  * MA 02111-1307 USA
  */
 
-#include "module/uefi/exit_bs.h"
 #include "vboot/stages.h"
 
 void module_main(void)
 {
-	install_exit_boot_services_cleanup();
-
 	if (vboot_select_and_load_kernel())
 		halt();
 }

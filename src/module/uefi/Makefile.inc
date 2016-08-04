@@ -49,7 +49,7 @@ mod-uefi_dev-ldscript = $(mod-uefi-ldscript)
 
 module-y += uefi_rw
 mod-uefi_rw-title = "UEFI chain loader RW"
-mod-uefi_rw-y += uefi_rw.c exit_bs.c
+mod-uefi_rw-y += uefi_rw.c
 mod-uefi_rw-libs += $(COMMON_OBJECTS) $(uefi_module_handoff-objs)
 mod-uefi_rw-ldopts = $(mod-uefi-ldopts)
 mod-uefi_rw-ldscript = $(mod-uefi-ldscript)

@@ -24,11 +24,17 @@
 #include <stdio.h>
 #include <sys/types.h>
 
-#include "base/xalloc.h"
+#include "base/cleanup.h"
 #include "base/event.h"
 #include "base/fwdb.h"
 #include "base/list.h"
+#include "base/xalloc.h"
 #include "uefi/uefi.h"
+
+static int exit_boot_services_func(DcEvent *event)
+{
+	return uefi_exit_boot_services();
+}
 
 EFI_SYSTEM_TABLE *uefi_system_table_ptr(void)
 {
@@ -46,6 +52,14 @@ EFI_SYSTEM_TABLE *uefi_system_table_ptr(void)
 		printf("FWDB entry was not the expected size.\n");
 		return NULL;
 	}
+
+	static CleanupEvent exit_boot_services_cleanup = {
+		.event = {
+			.trigger = &exit_boot_services_func,
+		},
+		.types = CleanupOnHandoff,
+	};
+	cleanup_add(&exit_boot_services_cleanup);
 
 	ptr = *(EFI_SYSTEM_TABLE **)entry.ptr;
 	return ptr;
