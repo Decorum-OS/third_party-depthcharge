@@ -24,45 +24,13 @@
 #include <elf.h>
 #include <stdio.h>
 
-#include "base/xalloc.h"
 #include "base/cleanup.h"
 #include "module/uefi/exit_bs.h"
 #include "uefi/uefi.h"
 
 int exit_boot_services_func(DcEvent *event)
 {
-	EFI_SYSTEM_TABLE *system_table = uefi_system_table_ptr();
-	if (!system_table)
-		return 1;
-
-	EFI_BOOT_SERVICES *bs = system_table->BootServices;
-
-	EFI_HANDLE handle;
-	if (uefi_image_handle(&handle))
-		return 1;
-
-	UINTN size = 0;
-	UINTN map_key;
-	UINTN desc_size;
-	UINT32 desc_ver;
-	EFI_STATUS status = bs->GetMemoryMap(&size, NULL, &map_key,
-					     &desc_size, &desc_ver);
-	if (status != EFI_BUFFER_TOO_SMALL) {
-		printf("Failed to retrieve memory map size.\n");
-		return 1;
-	}
-	uint8_t *map_buf = xmalloc(size);
-	status = bs->GetMemoryMap(&size, (void *)map_buf, &map_key,
-				  &desc_size, &desc_ver);
-	free(map_buf);
-	if (status != EFI_SUCCESS) {
-		printf("Failed to retrieve memory map key.\n");
-		return 1;
-	}
-
-	status = bs->ExitBootServices(handle, map_key);
-
-	return (status == EFI_SUCCESS);
+	return uefi_exit_boot_services();
 }
 
 void install_exit_boot_services_cleanup(void)

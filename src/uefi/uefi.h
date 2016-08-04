@@ -23,9 +23,15 @@
 #ifndef __UEFI_UEFI_H__
 #define __UEFI_UEFI_H__
 
+#include "base/event.h"
 #include "uefi/edk.h"
 
 EFI_SYSTEM_TABLE *uefi_system_table_ptr(void);
 int uefi_image_handle(EFI_HANDLE *handle);
+
+int uefi_exit_boot_services(void);
+
+void uefi_add_exit_boot_services_event(DcEvent *event);
+void uefi_remove_exit_boot_services_event(DcEvent *event);
 
 #endif /* __UEFI_UEFI_H__ */

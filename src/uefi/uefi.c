@@ -24,7 +24,10 @@
 #include <stdio.h>
 #include <sys/types.h>
 
+#include "base/xalloc.h"
+#include "base/event.h"
 #include "base/fwdb.h"
+#include "base/list.h"
 #include "uefi/uefi.h"
 
 EFI_SYSTEM_TABLE *uefi_system_table_ptr(void)
@@ -75,4 +78,59 @@ int uefi_image_handle(EFI_HANDLE *handle_ptr)
 
 	*handle_ptr = handle;
 	return 0;
+}
+
+static ListNode exit_boot_services_events;
+
+int uefi_exit_boot_services(void)
+{
+	EFI_SYSTEM_TABLE *system_table = uefi_system_table_ptr();
+	if (!system_table)
+		return 1;
+
+	EFI_BOOT_SERVICES *bs = system_table->BootServices;
+
+	EFI_HANDLE handle;
+	if (uefi_image_handle(&handle))
+		return 1;
+
+	UINTN size = 0;
+	UINTN map_key;
+	UINTN desc_size;
+	UINT32 desc_ver;
+	EFI_STATUS status = bs->GetMemoryMap(&size, NULL, &map_key,
+					     &desc_size, &desc_ver);
+	if (status != EFI_BUFFER_TOO_SMALL) {
+		printf("Failed to retrieve memory map size.\n");
+		return 1;
+	}
+	uint8_t *map_buf = xmalloc(size);
+	status = bs->GetMemoryMap(&size, (void *)map_buf, &map_key,
+				  &desc_size, &desc_ver);
+	free(map_buf);
+	if (status != EFI_SUCCESS) {
+		printf("Failed to retrieve memory map key.\n");
+		return 1;
+	}
+
+	if (event_trigger_all(&exit_boot_services_events))
+		return 1;
+
+	status = bs->ExitBootServices(handle, map_key);
+	if (status != EFI_SUCCESS) {
+		printf("Failed to exit boot services.\n");
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+void uefi_add_exit_boot_services_event(DcEvent *event)
+{
+	list_insert_after(&event->list_node, &exit_boot_services_events);
+}
+
+void uefi_remove_exit_boot_services_event(DcEvent *event)
+{
+	list_remove(&event->list_node);
 }

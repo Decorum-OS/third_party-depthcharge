@@ -36,6 +36,8 @@
 typedef struct {
 	Console console;
 
+	DcEvent exit_bs;
+
 	uint16_t last_key;
 
 	EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *con_out;
@@ -110,6 +112,13 @@ static int uefi_console_get_char(ConsoleInputOps *me)
 	return last_key;
 }
 
+static int uefi_console_disable(DcEvent *event)
+{
+	UefiConsole *uefi = container_of(event, UefiConsole, exit_bs);
+	list_remove(&uefi->console.list_node);
+	return 0;
+}
+
 static int uefi_console_init(void)
 {
 	EFI_SYSTEM_TABLE *sys = uefi_system_table_ptr();
@@ -129,12 +138,16 @@ static int uefi_console_init(void)
 				.getchar = &uefi_console_get_char,
 			},
 		},
+		.exit_bs = {
+			.trigger = &uefi_console_disable
+		},
 	};
 
 	uefi.con_out = sys->ConOut;
 	uefi.con_in = sys->ConIn;
 
 	list_insert_after(&uefi.console.list_node, &console_list);
+	uefi_add_exit_boot_services_event(&uefi.exit_bs);
 
 	return 0;
 }
