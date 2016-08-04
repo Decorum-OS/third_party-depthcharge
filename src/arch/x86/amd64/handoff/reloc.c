@@ -35,13 +35,29 @@
     SUCH DAMAGE.
 */
 
+#include "base/die.h"
+#include "base/init_funcs.h"
+
 #include <elf.h>
 #include <stdint.h>
 #include <stddef.h>
 
+static uint32_t _uefi_handoff_unhandled_relocation_type;
+
+static int _uefi_report_unhandled_relocation(void)
+{
+	die_if(_uefi_handoff_unhandled_relocation_type != R_X86_64_NUM,
+	       "Unhandled relocation type %d!\n",
+	       _uefi_handoff_unhandled_relocation_type);
+	return 0;
+}
+
+INIT_FUNC(_uefi_report_unhandled_relocation);
+
 void _uefi_handoff_relocate(uintptr_t ldbase, Elf64_Sym symtab[],
 			    Elf64_Rela rel[], size_t relsz)
 {
+	uint32_t unhandled_reloc_type = R_X86_64_NUM;
 	int count = relsz / sizeof(rel[0]);
 	for (int i = 0; i < count; i++) {
 		// Apply the relocs.
@@ -60,7 +76,10 @@ void _uefi_handoff_relocate(uintptr_t ldbase, Elf64_Sym symtab[],
 			break;
 
 		default:
+			unhandled_reloc_type = Elf64_R_Type(rel[i].r_info);
 			break;
 		}
 	}
+
+	_uefi_handoff_unhandled_relocation_type = unhandled_reloc_type;
 }
