@@ -29,7 +29,7 @@
 #include "drivers/blockdev/uefi.h"
 #include "drivers/keyboard/keyboard.h"
 #include "drivers/layout/coreboot.h"
-#include "drivers/power/power.h"
+#include "drivers/power/uefi.h"
 #include "drivers/storage/fwdb.h"
 
 // Force these to acceptable values for now.
@@ -46,7 +46,7 @@ PUB_DYN(_uefi_ro_storage, new_fwdb_ro_storage("uefi_ro_image"))
 PUB_DYN(_uefi_rw_a_storage, new_fwdb_ro_storage("uefi_rw_a_image"))
 PUB_DYN(_uefi_rw_b_storage, new_fwdb_ro_storage("uefi_rw_b_image"))
 
-PUB_STAT(power, (PowerOps *)NULL)
+PUB_STAT(power, &uefi_power_ops)
 
 static int board_setup(void)
 {
