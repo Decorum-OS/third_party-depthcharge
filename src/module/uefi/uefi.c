@@ -41,4 +41,7 @@ void module_main(void)
 	UefiDcModule *rwb = new_uefi_dc_module(board_storage_main_fw_b());
 	if (vboot_select_firmware(&rwa->ops, &rwb->ops))
 		halt();
+
+	if (vboot_select_and_load_kernel())
+		halt();
 }
