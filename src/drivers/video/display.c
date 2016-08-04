@@ -23,31 +23,31 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "base/cleanup_funcs.h"
+#include "base/cleanup.h"
 #include "base/die.h"
 #include "drivers/video/display.h"
 
 static DisplayOps *display_ops;
 
-static int display_cleanup(struct CleanupFunc *cleanup, CleanupType type)
+static int display_cleanup(DcEvent *event)
 {
 	if (display_ops && display_ops->stop)
 		return display_ops->stop(display_ops);
 	return 0;
 }
 
-static CleanupFunc display_cleanup_func = {
-	.cleanup = &display_cleanup,
-	.types = CleanupOnHandoff,
-};
-
 void display_set_ops(DisplayOps *ops)
 {
 	die_if(display_ops, "%s: Display ops already set.\n", __func__);
 	display_ops = ops;
 
-	/* Call stop() when exiting depthcharge. */
-	list_insert_after(&display_cleanup_func.list_node, &cleanup_funcs);
+	static CleanupEvent cleanup = {
+		.event = { .trigger = &display_cleanup },
+		.types = CleanupOnHandoff | CleanupOnLegacy,
+	};
+
+	// Call stop() when exiting depthcharge.
+	cleanup_add(&cleanup);
 }
 
 int display_init(void)

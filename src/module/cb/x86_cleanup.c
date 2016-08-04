@@ -24,11 +24,11 @@
 #include <stdio.h>
 
 #include "arch/x86/cpu.h"
-#include "base/cleanup_funcs.h"
+#include "base/cleanup.h"
 #include "base/init_funcs.h"
 #include "base/io.h"
 
-static int x86_mtrr_cleanup(struct CleanupFunc *cleanup, CleanupType type)
+static int x86_mtrr_cleanup(DcEvent *event)
 {
 	/*
 	 * Un-cache the ROM so the kernel has one more MTRR available.
@@ -50,41 +50,48 @@ static int x86_mtrr_cleanup(struct CleanupFunc *cleanup, CleanupType type)
 
 static int x86_mtrr_cleanup_install(void)
 {
-	static CleanupFunc dev =
-	{
-		&x86_mtrr_cleanup,
-		CleanupOnHandoff | CleanupOnLegacy,
-		NULL
+	static CleanupEvent cleanup = {
+		.event = { .trigger = &x86_mtrr_cleanup },
+		.types = CleanupOnHandoff | CleanupOnLegacy,
 	};
 
-	list_insert_after(&dev.list_node, &cleanup_funcs);
+	cleanup_add(&cleanup);
+
 	return 0;
 }
 
 INIT_FUNC(x86_mtrr_cleanup_install);
 
-static int coreboot_finalize(struct CleanupFunc *cleanup, CleanupType type)
+static int coreboot_finalize_handoff(DcEvent *event)
 {
-	// Indicate legacy mode for coreboot fixups
-	if (type == CleanupOnLegacy)
-		outb(0xcc, 0xb2);
-
 	// Issue SMI to Coreboot to lock down ME and registers.
 	printf("Finalizing Coreboot\n");
 	outb(0xcb, 0xb2);
 	return 0;
 }
 
+static int coreboot_finalize_legacy(DcEvent *event)
+{
+	// Indicate legacy mode for coreboot fixups
+	outb(0xcc, 0xb2);
+
+	return coreboot_finalize_handoff(event);
+}
+
 static int coreboot_finalize_install(void)
 {
-	static CleanupFunc dev =
-	{
-		&coreboot_finalize,
-		CleanupOnHandoff | CleanupOnLegacy,
-		NULL
+	static CleanupEvent handoff = {
+		.event = { .trigger = &coreboot_finalize_handoff },
+		.types = CleanupOnHandoff,
 	};
+	cleanup_add(&handoff);
 
-	list_insert_after(&dev.list_node, &cleanup_funcs);
+	static CleanupEvent legacy = {
+		.event = { .trigger = &coreboot_finalize_legacy },
+		.types = CleanupOnHandoff | CleanupOnLegacy,
+	};
+	cleanup_add(&legacy);
+
 	return 0;
 }
 

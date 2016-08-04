@@ -23,7 +23,7 @@
 #ifndef __DRIVERS_TPM_LPC_H__
 #define __DRIVERS_TPM_LPC_H__
 
-#include "base/cleanup_funcs.h"
+#include "base/cleanup.h"
 #include "drivers/tpm/tpm.h"
 
 struct TpmRegs;
@@ -34,7 +34,7 @@ typedef struct {
 
 	int initialized;
 	TpmRegs *regs;
-	CleanupFunc cleanup;
+	CleanupEvent cleanup;
 } LpcTpm;
 
 LpcTpm *new_lpc_tpm(void *addr);

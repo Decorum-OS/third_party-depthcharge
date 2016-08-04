@@ -23,7 +23,7 @@
 #include <assert.h>
 #include <libpayload.h>
 
-#include "base/cleanup_funcs.h"
+#include "base/cleanup.h"
 #include "base/xalloc.h"
 #include "drivers/bus/usb/usb.h"
 
@@ -81,7 +81,7 @@ void set_usb_init_callback(UsbHostController *hc, UsbHcCallback *callback)
 	hc->init_callback = callback;
 }
 
-static int dc_usb_shutdown(struct CleanupFunc *cleanup, CleanupType type)
+static int dc_usb_shutdown(DcEvent *event)
 {
 	printf("Shutting down all USB controllers.\n");
 	usb_exit();
@@ -98,16 +98,15 @@ void dc_usb_initialize(void)
 		[UsbDwc2] = "DWC2"
 	};
 	static int need_init = 1;
-	static CleanupFunc cleanup = {
-		&dc_usb_shutdown,
-		CleanupOnHandoff | CleanupOnLegacy,
-		NULL
+	static CleanupEvent cleanup = {
+		.event = { .trigger = &dc_usb_shutdown },
+		.types = CleanupOnHandoff | CleanupOnLegacy,
 	};
 
 	if (need_init) {
 		usb_initialize();
 		need_init = 0;
-		list_insert_after(&cleanup.list_node, &cleanup_funcs);
+		cleanup_add(&cleanup);
 
 		UsbHostController *hc;
 		list_for_each(hc, usb_host_controllers, list_node) {

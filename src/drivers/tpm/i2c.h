@@ -39,7 +39,7 @@
 
 #include <stdint.h>
 
-#include "base/cleanup_funcs.h"
+#include "base/cleanup.h"
 #include "drivers/bus/i2c/i2c.h"
 #include "drivers/tpm/tpm.h"
 
@@ -68,7 +68,7 @@ typedef struct I2cTpm
 	int locality;
 
 	int initialized;
-	CleanupFunc cleanup;
+	CleanupEvent cleanup;
 } I2cTpm;
 
 void i2ctpm_fill_in(I2cTpm *tpm, I2cOps *bus, uint8_t addr,

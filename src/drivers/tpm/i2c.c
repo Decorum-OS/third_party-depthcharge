@@ -39,13 +39,14 @@
 #include <stdio.h>
 
 #include "base/time.h"
+#include "base/container_of.h"
 #include "drivers/bus/i2c/i2c.h"
 #include "drivers/tpm/i2c.h"
 #include "drivers/tpm/tpm.h"
 
-static int i2ctpm_close_cleanup(CleanupFunc *cleanup, CleanupType type)
+static int i2ctpm_close_cleanup(DcEvent *event)
 {
-	I2cTpm *tpm = cleanup->data;
+	I2cTpm *tpm = container_of(event, I2cTpm, cleanup.event);
 	return tpm->chip_ops.cleanup(&tpm->chip_ops);
 }
 
@@ -62,7 +63,7 @@ static int i2ctpm_init(I2cTpm *tpm)
 	if (tpm->chip_ops.init(&tpm->chip_ops))
 		return -1;
 
-	list_insert_after(&tpm->cleanup.list_node, &cleanup_funcs);
+	cleanup_add(&tpm->cleanup);
 
 	tpm->initialized = 1;
 
@@ -163,8 +164,7 @@ void i2ctpm_fill_in(I2cTpm *tpm, I2cOps *bus, uint8_t addr,
 	tpm->req_complete_val = req_complete_val;
 	tpm->req_canceled = req_canceled;
 
-	tpm->cleanup.cleanup = &i2ctpm_close_cleanup;
-	tpm->cleanup.types = CleanupOnReboot | CleanupOnPowerOff |
+	tpm->cleanup.event.trigger = &i2ctpm_close_cleanup;
+	tpm->cleanup.types = CleanupOnReboot | CleanupOnPoweroff |
 			     CleanupOnHandoff | CleanupOnLegacy;
-	tpm->cleanup.data = tpm;
 }

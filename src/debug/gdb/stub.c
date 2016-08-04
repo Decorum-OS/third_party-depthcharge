@@ -21,6 +21,7 @@
 #include <string.h>
 
 #include "base/algorithm.h"
+#include "base/cleanup.h"
 #include "debug/gdb/gdb.h"
 #include "debug/gdb/gdb_int.h"
 #include "drivers/console/console.h"
@@ -101,11 +102,24 @@ static Console gdb_console = {
 	}
 };
 
+static int gdb_cleanup_func(DcEvent *me)
+{
+	gdb_exit(1);
+	return 0;
+}
+
+static CleanupEvent gdb_cleanup = {
+	.event = { .trigger = &gdb_cleanup_func },
+	.types = CleanupOnReboot | CleanupOnPoweroff |
+		 CleanupOnHandoff | CleanupOnLegacy,
+};
+
 static void gdb_init(void)
 {
 	printf("Ready for GDB connection.\n");
 	gdb_arch_init();
 	list_insert_after(&gdb_console.list_node, &console_list);
+	cleanup_add(&gdb_cleanup);
 }
 
 void gdb_enter(void)
@@ -119,6 +133,8 @@ void gdb_exit(int8_t exit_status)
 {
 	if (!gdb_state.connected)
 		return;
+
+	cleanup_remove(&gdb_cleanup);
 
 	reply.used = 0;
 	gdb_message_add_string(&reply, "W");

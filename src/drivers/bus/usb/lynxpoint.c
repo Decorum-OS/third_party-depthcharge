@@ -22,12 +22,11 @@
 
 #include <assert.h>
 
-#include "base/cleanup_funcs.h"
+#include "base/cleanup.h"
 #include "base/init_funcs.h"
 #include "base/io.h"
 
-static int lynxpoint_route_to_xhci(struct CleanupFunc *cleanup,
-				   CleanupType type)
+static int lynxpoint_route_to_xhci(DcEvent *event)
 {
 	// Issue SMI to Coreboot to route all USB ports to XHCI.
 	printf("Routing USB ports to XHCI controller\n");
@@ -37,14 +36,12 @@ static int lynxpoint_route_to_xhci(struct CleanupFunc *cleanup,
 
 static int lynxpoint_route_to_xhci_install(void)
 {
-	static CleanupFunc dev =
-	{
-		&lynxpoint_route_to_xhci,
-		CleanupOnHandoff,
-		NULL
+	static CleanupEvent dev = {
+		.event = { .trigger = &lynxpoint_route_to_xhci },
+		.types = CleanupOnHandoff | CleanupOnLegacy,
 	};
 
-	list_insert_after(&dev.list_node, &cleanup_funcs);
+	cleanup_add(&dev);
 	return 0;
 }
 

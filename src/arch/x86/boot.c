@@ -26,7 +26,7 @@
 
 #include "arch/x86/boot.h"
 #include "base/algorithm.h"
-#include "base/cleanup_funcs.h"
+#include "base/cleanup.h"
 #include "base/physmem.h"
 #include "base/timestamp.h"
 #include "vboot/boot.h"
@@ -81,7 +81,7 @@ int boot_x86_linux(struct boot_params *boot_params, char *cmd_line, void *entry)
 
 	hdr->cmd_line_ptr = (uintptr_t)CmdLineBuff;
 
-	run_cleanup_funcs(CleanupOnHandoff);
+	cleanup_trigger(CleanupOnHandoff);
 
 	memcpy(ParamsBuff, boot_params, sizeof(*boot_params));
 	strcpy(CmdLineBuff, cmd_line);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,32 +20,28 @@
  * MA 02111-1307 USA
  */
 
-#include <assert.h>
-#include <stdio.h>
+#ifndef __BASE_CLEANUP_H__
+#define __BASE_CLEANUP_H__
 
-#include "base/cleanup.h"
-#include "board/board.h"
-#include "drivers/power/power.h"
+#include "base/event.h"
 
-int cold_reboot(void)
+typedef enum
 {
-	PowerOps *power_ops = board_power();
-	assert(power_ops->cold_reboot);
+	CleanupOnReboot = 0x1,
+	CleanupOnPoweroff = 0x2,
+	CleanupOnHandoff = 0x4,
+	CleanupOnLegacy = 0x8,
+} CleanupType;
 
-	if (cleanup_trigger(CleanupOnReboot))
-		return -1;
-
-	printf("Rebooting...\n");
-	return power_ops->cold_reboot(power_ops);
-}
-
-int power_off(void)
+typedef struct
 {
-	PowerOps *power_ops = board_power();
-	assert(power_ops->power_off);
+	DcEvent event;
+	CleanupType types;
+} CleanupEvent;
 
-	if (cleanup_trigger(CleanupOnPoweroff))
-		return -1;
+void cleanup_add(CleanupEvent *event);
+void cleanup_remove(CleanupEvent *event);
 
-	return power_ops->power_off(power_ops);
-}
+int cleanup_trigger(CleanupType type);
+
+#endif /* __BASE_CLEANUP_H__ */

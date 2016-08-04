@@ -20,7 +20,7 @@
 #define __DRIVERS_GPIO_SKYLAKE_H__
 
 #include <stdint.h>
-#include "base/cleanup_funcs.h"
+#include "base/cleanup.h"
 
 /*
  * There are 8 GPIO groups. GPP_A -> GPP_G and GPD. GPD is the special case
@@ -438,7 +438,7 @@ typedef struct GpioCfg {
 	/* Use to save and restore GPIO configuration */
 	uint32_t save_dw0;
 	uint32_t save_dw1;
-	CleanupFunc cleanup;
+	CleanupEvent cleanup;
 
 	int (*configure)(struct GpioCfg *, const struct pad_config *);
 } GpioCfg;

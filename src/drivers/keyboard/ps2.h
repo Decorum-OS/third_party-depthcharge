@@ -23,6 +23,7 @@
 #ifndef __DRIVERS_KEYBOARD_PS2_H__
 #define __DRIVERS_KEYBOARD_PS2_H__
 
+#include "base/cleanup.h"
 #include "drivers/keyboard/keyboard.h"
 
 typedef enum {
@@ -45,6 +46,8 @@ typedef struct {
 
 	Ps2KeyboardLayout layout;
 	Ps2KeyboardStatus status;
+
+	CleanupEvent cleanup;
 } Ps2Keyboard;
 
 Ps2Keyboard *new_ps2_keyboard(void);

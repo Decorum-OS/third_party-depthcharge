@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,30 +20,29 @@
  * MA 02111-1307 USA
  */
 
-#include <assert.h>
-#include <inttypes.h>
+#include "base/cleanup.h"
+#include "base/container_of.h"
 
-#include "base/cleanup_funcs.h"
-#include "base/time.h"
-#include "debug/gdb/gdb.h"
+static ListNode cleanup_events;
 
-ListNode cleanup_funcs;
-
-int run_cleanup_funcs(CleanupType type)
+void cleanup_add(CleanupEvent *event)
 {
-	int res = 0;
+	list_insert_after(&event->event.list_node, &cleanup_events);
+}
 
-	CleanupFunc *func;
-	list_for_each(func, cleanup_funcs, list_node) {
-		assert(func->cleanup);
-		if ((func->types & type))
-			res = func->cleanup(func, type) || res;
-	}
+void cleanup_remove(CleanupEvent *event)
+{
+	list_remove(&event->event.list_node);
+}
 
-	gdb_exit(type);
+int cleanup_trigger(CleanupType type)
+{
+	int ret = 0;
 
-	printf("Exiting depthcharge with code %d at timestamp: %"PRIu64"\n",
-	       type, time_us(0));
+	CleanupEvent *cleanup;
+	list_for_each(cleanup, cleanup_events, event.list_node)
+		if (cleanup->types & type)
+			ret = event_trigger(&cleanup->event) || ret;
 
-	return res;
+	return ret;
 }

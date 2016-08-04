@@ -22,7 +22,7 @@
 
 #include <stdint.h>
 
-#include "base/cleanup_funcs.h"
+#include "base/cleanup.h"
 #include "base/init_funcs.h"
 #include "base/io.h"
 
@@ -35,12 +35,12 @@ enum {
 	FIMD_WINCON_ENWIN_F = 1
 };
 
-static int disable_fimd_dma(struct CleanupFunc *cleanup, CleanupType type)
+static int disable_fimd_dma(DcEvent *event)
 {
-	uint8_t *regs = (uint8_t *)cleanup->data;
+	uintptr_t base = CONFIG_DRIVER_VIDEO_EXYNOS5_BASE;
 
-	uint32_t *fimd_vidcon0 = (uint32_t *)(regs + 0);
-	uint32_t *fimd_shadowcon = (uint32_t *)(regs + 0x34);
+	uint32_t *fimd_vidcon0 = (uint32_t *)(base + 0);
+	uint32_t *fimd_shadowcon = (uint32_t *)(base + 0x34);
 
 	// Disable video output and control signals.
 	uint32_t vidcon0 = read32(fimd_vidcon0);
@@ -53,15 +53,14 @@ static int disable_fimd_dma(struct CleanupFunc *cleanup, CleanupType type)
 	return 0;
 }
 
-CleanupFunc dma_cleanup = {
-	&disable_fimd_dma,
-	CleanupOnHandoff,
-	(void *)(uintptr_t)(CONFIG_DRIVER_VIDEO_EXYNOS5_BASE)
-};
-
 static int install_dma_cleanup(void)
 {
-	list_insert_after(&dma_cleanup.list_node, &cleanup_funcs);
+	static CleanupEvent dma_cleanup = {
+		.event = { .trigger = &disable_fimd_dma, },
+		.types = CleanupOnHandoff,
+	};
+
+	cleanup_add(&dma_cleanup);
 	return 0;
 }
 

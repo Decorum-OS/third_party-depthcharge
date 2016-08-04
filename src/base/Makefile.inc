@@ -18,7 +18,7 @@
 subdirs-y += cbfs libc lz4 lzma
 
 depthcharge-y += banner.c
-depthcharge-y += cleanup_funcs.c
+depthcharge-y += cleanup.c
 depthcharge-y += console.c
 depthcharge-y += coreboot.c
 depthcharge-y += dc_stack.c

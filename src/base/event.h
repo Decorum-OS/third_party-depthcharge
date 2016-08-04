@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,33 +20,29 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __BASE_CLEANUP_FUNCS_H__
-#define __BASE_CLEANUP_FUNCS_H__
+#ifndef __BASE_EVENT_H__
+#define __BASE_EVENT_H__
 
 #include "base/list.h"
 
-typedef enum CleanupType
-{
-	CleanupOnReboot = 0x1,
-	CleanupOnPowerOff = 0x2,
-	CleanupOnHandoff = 0x4,
-	CleanupOnLegacy = 0x8,
-} CleanupType;
-
-typedef struct CleanupFunc
-{
-	// A non-zero return value indicates an error.
-	int (*cleanup)(struct CleanupFunc *cleanup, CleanupType type);
-	// Under what circumstance(s) to call this function.
-	CleanupType types;
-	void *data;
+typedef struct DcEvent {
+	int (*trigger)(struct DcEvent *me);
 
 	ListNode list_node;
-} CleanupFunc;
+} DcEvent;
 
-extern ListNode cleanup_funcs;
+static inline int event_trigger(DcEvent *me)
+{
+	return me->trigger(me);
+}
 
-// Call all cleanup functions and report whether any had an error.
-int run_cleanup_funcs(CleanupType type);
+static inline int event_trigger_all(ListNode *head)
+{
+	int ret = 0;
+	DcEvent *event;
+	list_for_each(event, *head, list_node)
+		ret = event_trigger(event) || ret;
+	return ret;
+}
 
-#endif /* __BASE_CLEANUP_FUNCS_H__ */
+#endif /* __BASE_EVENT_H__ */

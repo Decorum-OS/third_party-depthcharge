@@ -25,11 +25,11 @@
 #include <stdio.h>
 
 #include "base/xalloc.h"
-#include "base/cleanup_funcs.h"
+#include "base/cleanup.h"
 #include "module/uefi/exit_bs.h"
 #include "uefi/uefi.h"
 
-int exit_boot_services_func(CleanupFunc *func, CleanupType type)
+int exit_boot_services_func(DcEvent *event)
 {
 	EFI_SYSTEM_TABLE *system_table = uefi_system_table_ptr();
 	if (!system_table)
@@ -65,14 +65,13 @@ int exit_boot_services_func(CleanupFunc *func, CleanupType type)
 	return (status == EFI_SUCCESS);
 }
 
-static CleanupFunc exit_boot_services_cleanup = {
-	.cleanup = &exit_boot_services_func,
-	.types = CleanupOnHandoff,
-	.data = NULL,
-};
-
 void install_exit_boot_services_cleanup(void)
 {
-	list_insert_after(&exit_boot_services_cleanup.list_node,
-			  &cleanup_funcs);
+	static CleanupEvent exit_boot_services_cleanup = {
+		.event = {
+			.trigger = &exit_boot_services_func,
+		},
+		.types = CleanupOnHandoff,
+	};
+	cleanup_add(&exit_boot_services_cleanup);
 }

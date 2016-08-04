@@ -28,7 +28,7 @@
 #include "arch/cache.h"
 #include "base/cbfs/cbfs.h"
 #include "base/cbfs/ram_media.h"
-#include "base/cleanup_funcs.h"
+#include "base/cleanup.h"
 #include "base/lzma/lzma.h"
 #include "base/xalloc.h"
 #include "board/board.h"
@@ -122,7 +122,7 @@ static void load_payload_and_run(struct cbfs_payload *payload)
 			printf("PARAMS: skipped\n");
 			break;
 		case PAYLOAD_SEGMENT_ENTRY:
-			run_cleanup_funcs(CleanupOnLegacy);
+			cleanup_trigger(CleanupOnLegacy);
 			cache_sync_instructions();
 			((EntryFunc)dst)();
 		default:

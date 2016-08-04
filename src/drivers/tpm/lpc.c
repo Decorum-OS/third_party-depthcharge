@@ -34,7 +34,8 @@
 #include <stdio.h>
 
 #include "base/algorithm.h"
-#include "base/cleanup_funcs.h"
+#include "base/cleanup.h"
+#include "base/container_of.h"
 #include "base/io.h"
 #include "base/time.h"
 #include "base/xalloc.h"
@@ -386,7 +387,7 @@ static uint32_t lpctpm_readresponse(LpcTpm *tpm, uint8_t *buffer, size_t *len)
 	return 0;
 }
 
-int lpctpm_close(LpcTpm *tpm)
+static int lpctpm_close(LpcTpm *tpm)
 {
 	uint8_t *access = &tpm->regs->localities[0].access;
 
@@ -402,9 +403,9 @@ int lpctpm_close(LpcTpm *tpm)
 	return 0;
 }
 
-int lpctpm_close_cleanup(CleanupFunc *cleanup, CleanupType type)
+static int lpctpm_close_cleanup(DcEvent *event)
 {
-	LpcTpm *tpm = cleanup->data;
+	LpcTpm *tpm = container_of(event, LpcTpm, cleanup.event);
 	return lpctpm_close(tpm);
 }
 
@@ -416,7 +417,7 @@ int lpctpm_close_cleanup(CleanupFunc *cleanup, CleanupType type)
  * Returns 0 on success (the device is found or was found during an earlier
  * invocation) or -1 if the device is not found.
  */
-int lpctpm_init(LpcTpm *tpm)
+static int lpctpm_init(LpcTpm *tpm)
 {
 	uint8_t *access = &tpm->regs->localities[0].access;
 	const char *device_name = "unknown";
@@ -473,15 +474,15 @@ int lpctpm_init(LpcTpm *tpm)
 	if (lpctpm_command_ready(tpm) < 0)
 		return -1;
 
-	list_insert_after(&tpm->cleanup.list_node, &cleanup_funcs);
+	cleanup_add(&tpm->cleanup);
 
 	tpm->initialized = 1;
 
 	return 0;
 }
 
-int lpctpm_xmit(TpmOps *me, const uint8_t *sendbuf, size_t send_size,
-		uint8_t *recvbuf, size_t *recv_len)
+static int lpctpm_xmit(TpmOps *me, const uint8_t *sendbuf, size_t send_size,
+		       uint8_t *recvbuf, size_t *recv_len)
 {
 	LpcTpm *tpm = container_of(me, LpcTpm, ops);
 
@@ -502,10 +503,9 @@ LpcTpm *new_lpc_tpm(void *addr)
 	LpcTpm *tpm = xzalloc(sizeof(*tpm));
 	tpm->ops.xmit = &lpctpm_xmit;
 	tpm->regs = addr;
-	tpm->cleanup.cleanup = &lpctpm_close_cleanup;
-	tpm->cleanup.types = CleanupOnReboot | CleanupOnPowerOff |
+	tpm->cleanup.event.trigger = &lpctpm_close_cleanup;
+	tpm->cleanup.types = CleanupOnReboot | CleanupOnPoweroff |
 			     CleanupOnHandoff | CleanupOnLegacy;
-	tpm->cleanup.data = tpm;
 
 	return tpm;
 }

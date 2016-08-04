@@ -29,7 +29,8 @@
 #include <stdint.h>
 
 #include "arch/io.h"
-#include "base/cleanup_funcs.h"
+#include "base/cleanup.h"
+#include "base/container_of.h"
 #include "base/keycodes.h"
 #include "base/time.h"
 #include "base/xalloc.h"
@@ -120,9 +121,9 @@ static void ps2_empty_buffer(Ps2Keyboard *keyboard)
 		keyboard->ops.get_char(&keyboard->ops);
 }
 
-static int ps2_disconnect(struct CleanupFunc *cleanup, CleanupType type)
+static int ps2_disconnect(struct DcEvent *event)
 {
-	Ps2Keyboard *keyboard = cleanup->data;
+	Ps2Keyboard *keyboard = container_of(event, Ps2Keyboard, cleanup.event);
 
 	ps2_empty_buffer(keyboard);
 
@@ -149,14 +150,7 @@ static void ps2_init(Ps2Keyboard *keyboard)
 
 	ps2_empty_buffer(keyboard);
 
-	CleanupFunc *disconnect = xzalloc(sizeof(*disconnect));
-	*disconnect = (CleanupFunc) {
-		.cleanup = &ps2_disconnect,
-		.types = CleanupOnHandoff | CleanupOnLegacy,
-		.data = keyboard
-	};
-
-	list_insert_after(&disconnect->list_node, &cleanup_funcs);
+	cleanup_add(&keyboard->cleanup);
 }
 
 static int ps2_have_char(KeyboardOps *me)
@@ -250,6 +244,9 @@ Ps2Keyboard *new_ps2_keyboard(void)
 	keyboard->ops.get_char = &ps2_get_char;
 	keyboard->ops.have_char = &ps2_have_char;
 	keyboard->layout = Ps2KeyboardLayout_Us;
+
+	keyboard->cleanup.event.trigger = &ps2_disconnect;
+	keyboard->cleanup.types = CleanupOnHandoff | CleanupOnLegacy;
 
 	return keyboard;
 }

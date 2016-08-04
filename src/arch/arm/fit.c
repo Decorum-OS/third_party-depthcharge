@@ -23,7 +23,7 @@
 #include <stdint.h>
 
 #include "arch/arm/boot.h"
-#include "base/cleanup_funcs.h"
+#include "base/cleanup.h"
 #include "base/device_tree.h"
 #include "base/xalloc.h"
 #include "boot/fit.h"
@@ -53,7 +53,7 @@ int boot(void *image, char *cmd_line, void *params, void *loader)
 	// Flatten it.
 	dt_flatten(tree, fdt);
 
-	run_cleanup_funcs(CleanupOnHandoff);
+	cleanup_trigger(CleanupOnHandoff);
 
 	return boot_arm_linux(fdt, kernel);
 }

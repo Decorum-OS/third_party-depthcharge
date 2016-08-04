@@ -27,7 +27,6 @@
 #include <vboot_api.h>
 #include <vboot_struct.h>
 
-#include "base/cleanup_funcs.h"
 #include "drivers/video/coreboot_fb.h"
 #include "drivers/video/display.h"
 #include "vboot/firmware_id.h"

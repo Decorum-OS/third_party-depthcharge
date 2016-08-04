@@ -19,7 +19,7 @@
 #include <stdint.h>
 
 #include "base/algorithm.h"
-#include "base/cleanup_funcs.h"
+#include "base/cleanup.h"
 #include "base/container_of.h"
 #include "base/io.h"
 #include "base/xalloc.h"
@@ -286,9 +286,9 @@ GpioCfg *new_skylake_gpio(int gpio_num)
 	return gpio;
 }
 
-static int skylake_gpio_cleanup(CleanupFunc *cleanup, CleanupType type)
+static int skylake_gpio_cleanup(DcEvent *event)
 {
-	GpioCfg *gpio = cleanup->data;
+	GpioCfg *gpio = container_of(event, GpioCfg, cleanup.event);
 	write32(&gpio->dw_regs[0], gpio->save_dw0);
 	write32(&gpio->dw_regs[1], gpio->save_dw1);
 	return 0;
@@ -301,10 +301,9 @@ static void register_skylake_gpio_cleanup(GpioCfg *gpio)
 	gpio->save_dw1 = read32(&gpio->dw_regs[1]);
 
 	/* Register callback to restore GPIO state on exit */
-	gpio->cleanup.cleanup = &skylake_gpio_cleanup;
+	gpio->cleanup.event.trigger = &skylake_gpio_cleanup;
 	gpio->cleanup.types = CleanupOnHandoff | CleanupOnLegacy;
-	gpio->cleanup.data = gpio;
-	list_insert_after(&gpio->cleanup.list_node, &cleanup_funcs);
+	cleanup_add(&gpio->cleanup);
 }
 
 GpioCfg *new_skylake_gpio_input(int gpio_num)
