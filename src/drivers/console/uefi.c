@@ -33,15 +33,21 @@
 #include "drivers/console/console.h"
 #include "uefi/uefi.h"
 
+#include <stdio.h>
+#include <string.h>
+
+EFI_GUID simple_text_input_ex_protocol_guid =
+	EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL_GUID;
+
 typedef struct {
 	Console console;
 
 	DcEvent exit_bs;
 
-	uint16_t last_key;
+	EFI_KEY_DATA last_key;
 
 	EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL *con_out;
-	EFI_SIMPLE_TEXT_INPUT_PROTOCOL *con_in;
+	EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *con_in;
 } UefiConsole;
 
 static void uefi_console_write(ConsoleOutputOps *me,
@@ -87,15 +93,15 @@ static int uefi_console_have_key(ConsoleInputOps *me)
 	UefiConsole *uefi = container_of(me, UefiConsole,
 					 console.trusted_input);
 
-	if (!uefi->last_key) {
-		EFI_INPUT_KEY key;
-		if (uefi->con_in->ReadKeyStroke(uefi->con_in, &key) !=
+	if (!uefi->last_key.Key.ScanCode && !uefi->last_key.Key.UnicodeChar) {
+		EFI_KEY_DATA key;
+		if (uefi->con_in->ReadKeyStrokeEx(uefi->con_in, &key) !=
 		    EFI_NOT_READY) {
-			uefi->last_key = key.UnicodeChar;
+			memcpy(&uefi->last_key, &key, sizeof(key));
 		}
 	}
 
-	return uefi->last_key != 0;
+	return uefi->last_key.Key.ScanCode || uefi->last_key.Key.UnicodeChar;
 }
 
 static int uefi_console_get_char(ConsoleInputOps *me)
@@ -106,10 +112,27 @@ static int uefi_console_get_char(ConsoleInputOps *me)
 	while (!me->havekey(me))
 	{;}
 
-	uint16_t last_key = uefi->last_key;
-	uefi->last_key = 0;
+	uint16_t key = 0;
+	switch (uefi->last_key.Key.ScanCode) {
+	case 0x1:
+		key = KEY_UP;
+		break;
+	case 0x2:
+		key = KEY_DOWN;
+		break;
+	case 0x3:
+		key = KEY_RIGHT;
+		break;
+	case 0x4:
+		key = KEY_LEFT;
+		break;
+	default:
+		key = uefi->last_key.Key.UnicodeChar;
+	}
 
-	return last_key;
+	memset(&uefi->last_key, 0, sizeof(uefi->last_key));
+
+	return key;
 }
 
 static int uefi_console_disable(DcEvent *event)
@@ -144,7 +167,15 @@ static int uefi_console_init(void)
 	};
 
 	uefi.con_out = sys->ConOut;
-	uefi.con_in = sys->ConIn;
+
+	EFI_BOOT_SERVICES *bs = sys->BootServices;
+	EFI_STATUS status = bs->HandleProtocol(
+		sys->ConsoleInHandle, &simple_text_input_ex_protocol_guid,
+		(void **)&uefi.con_in);
+	if (status != EFI_SUCCESS) {
+		printf("Failed to retrieve console input ex protocol.\n");
+		return 1;
+	}
 
 	list_insert_after(&uefi.console.list_node, &console_list);
 	uefi_add_exit_boot_services_event(&uefi.exit_bs);
