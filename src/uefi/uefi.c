@@ -94,6 +94,51 @@ int uefi_image_handle(EFI_HANDLE *handle_ptr)
 	return 0;
 }
 
+
+
+
+static UINTN uefi_memory_map_key;
+static int uefi_memory_map_key_set;
+
+int uefi_get_memory_map(unsigned *isize, EFI_MEMORY_DESCRIPTOR **imap,
+			unsigned *idesc_size, uint32_t *idesc_version)
+{
+	EFI_SYSTEM_TABLE *system_table = uefi_system_table_ptr();
+	if (!system_table)
+		return 1;
+
+	EFI_BOOT_SERVICES *bs = system_table->BootServices;
+
+	UINTN size = 0;
+	UINTN map_key;
+	UINTN desc_size;
+	UINT32 desc_ver;
+	EFI_STATUS status = bs->GetMemoryMap(&size, NULL, &map_key,
+					     &desc_size, &desc_ver);
+	if (status != EFI_BUFFER_TOO_SMALL) {
+		printf("Failed to retrieve memory map size.\n");
+		return 1;
+	}
+	*imap = xmalloc(size);
+	status = bs->GetMemoryMap(&size, *imap, &map_key,
+				  &desc_size, &desc_ver);
+	if (status != EFI_SUCCESS) {
+		printf("Failed to retrieve memory map key.\n");
+		free(*imap);
+		imap = NULL;
+		return 1;
+	}
+
+	*isize = size;
+	uefi_memory_map_key = map_key;
+	uefi_memory_map_key_set = 1;
+	*idesc_size = desc_size;
+	*idesc_version = desc_ver;
+	return 0;
+}
+
+
+
 static ListNode exit_boot_services_events;
 
 int uefi_exit_boot_services(void)
@@ -108,29 +153,18 @@ int uefi_exit_boot_services(void)
 	if (uefi_image_handle(&handle))
 		return 1;
 
-	UINTN size = 0;
-	UINTN map_key;
-	UINTN desc_size;
-	UINT32 desc_ver;
-	EFI_STATUS status = bs->GetMemoryMap(&size, NULL, &map_key,
-					     &desc_size, &desc_ver);
-	if (status != EFI_BUFFER_TOO_SMALL) {
-		printf("Failed to retrieve memory map size.\n");
+	unsigned size, desc_size;
+	uint32_t desc_version;
+	EFI_MEMORY_DESCRIPTOR *map;
+	if (!uefi_memory_map_key_set &&
+	    uefi_get_memory_map(&size, &map, &desc_size, &desc_version))
 		return 1;
-	}
-	uint8_t *map_buf = xmalloc(size);
-	status = bs->GetMemoryMap(&size, (void *)map_buf, &map_key,
-				  &desc_size, &desc_ver);
-	free(map_buf);
-	if (status != EFI_SUCCESS) {
-		printf("Failed to retrieve memory map key.\n");
-		return 1;
-	}
+	free(map);
 
 	if (event_trigger_all(&exit_boot_services_events))
 		return 1;
 
-	status = bs->ExitBootServices(handle, map_key);
+	EFI_STATUS status = bs->ExitBootServices(handle, uefi_memory_map_key);
 	if (status != EFI_SUCCESS) {
 		printf("Failed to exit boot services.\n");
 		return 1;

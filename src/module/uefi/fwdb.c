@@ -197,48 +197,31 @@ int uefi_prepare_fwdb_e820_map(void)
 	if (!e820)
 		return 1;
 
-	EFI_SYSTEM_TABLE *system_table = uefi_system_table_ptr();
-	if (!system_table)
-		return 1;
+	unsigned size = 0;
+	EFI_MEMORY_DESCRIPTOR *map;
+	unsigned desc_size;
+	uint32_t desc_ver;
 
-	EFI_BOOT_SERVICES *bs = system_table->BootServices;
-
-	UINTN size = 0;
-	UINTN map_key;
-	UINTN desc_size;
-	UINT32 desc_ver;
-	EFI_STATUS status = bs->GetMemoryMap(&size, NULL, &map_key,
-					     &desc_size, &desc_ver);
-	if (status != EFI_BUFFER_TOO_SMALL) {
-		printf("Failed to retrieve memory map size.\n");
+	if (uefi_get_memory_map(&size, &map, &desc_size, &desc_ver))
 		return 1;
-	}
 
 	int num_descs = size / desc_size;
 	if (num_descs > ARRAY_SIZE(e820->ranges)) {
 		printf("Too many memory ranges to fit in the FWDB map.\n");
+		free(map);
 		return 1;
 	}
 
 	if (desc_size < sizeof(EFI_MEMORY_DESCRIPTOR)) {
 		printf("Descriptor size is too small?\n");
-		return 1;
-	}
-
-	uint8_t *map_buf = xmalloc(size);
-
-	status = bs->GetMemoryMap(&size, (void *)map_buf, &map_key,
-				  &desc_size, &desc_ver);
-	if (status != EFI_SUCCESS) {
-		printf("Failed to retrieve memory map.\n");
-		free(map_buf);
+		free(map);
 		return 1;
 	}
 
 	int num_ranges = 0;
 	for (int i = 0; i < num_descs; i++) {
 		EFI_MEMORY_DESCRIPTOR *desc =
-			(void *)(map_buf + i * desc_size);
+			(void *)((uint8_t *)map + i * desc_size);
 		E820MemRange *range = &e820->ranges[num_ranges];
 
 		range->base = desc->PhysicalStart;
@@ -284,6 +267,6 @@ int uefi_prepare_fwdb_e820_map(void)
 	}
 
 	e820->num_ranges = num_ranges;
-	free(map_buf);
+	free(map);
 	return 0;
 }

@@ -29,6 +29,9 @@
 EFI_SYSTEM_TABLE *uefi_system_table_ptr(void);
 int uefi_image_handle(EFI_HANDLE *handle);
 
+int uefi_get_memory_map(unsigned *size, EFI_MEMORY_DESCRIPTOR **map,
+			unsigned *desc_size, uint32_t *desc_version);
+
 int uefi_exit_boot_services(void);
 
 void uefi_add_exit_boot_services_event(DcEvent *event);
