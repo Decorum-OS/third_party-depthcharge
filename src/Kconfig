@@ -54,6 +54,16 @@ config EXTRA_LINK_FLAGS
 	string "Extra flags for the compiler when linking"
 	default ""
 
+config HOSTED
+	default n
+	bool
+	help
+	  Whether depthcharge is hosted by some other piece of software. That
+	  might be, for instance, UEFI, or a running Linux kernel. This does
+	  not include situations where something else ran before depthcharge
+	  but surrendered control of the system to it when depthcharge started
+	  running.
+
 source src/arch/Kconfig
 
 source src/base/Kconfig
