@@ -24,7 +24,7 @@
 #include <stdio.h>
 
 #include "base/cleanup.h"
-#include "board/board.h"
+#include "drivers/board/board.h"
 #include "drivers/power/power.h"
 
 int cold_reboot(void)

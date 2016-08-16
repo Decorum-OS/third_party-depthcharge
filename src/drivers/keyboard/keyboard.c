@@ -21,7 +21,7 @@
  *
  */
 
-#include "board/board.h"
+#include "drivers/board/board.h"
 #include "drivers/keyboard/keyboard.h"
 
 void keyboard_prepare(void)

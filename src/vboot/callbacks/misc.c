@@ -25,7 +25,7 @@
 
 #include "base/die.h"
 #include "base/lzma/lzma.h"
-#include "board/board.h"
+#include "drivers/board/board.h"
 #include "drivers/storage/storage.h"
 
 uint32_t VbExIsShutdownRequested(void)

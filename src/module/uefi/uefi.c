@@ -20,7 +20,7 @@
  * MA 02111-1307 USA
  */
 
-#include "board/board.h"
+#include "drivers/board/board.h"
 #include "module/module.h"
 #include "module/uefi/fwdb.h"
 #include "module/uefi/module.h"

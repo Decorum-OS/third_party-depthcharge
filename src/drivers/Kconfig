@@ -15,6 +15,7 @@
 ## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 source src/drivers/blockdev/Kconfig
+source src/drivers/board/Kconfig
 source src/drivers/bus/Kconfig
 source src/drivers/console/Kconfig
 source src/drivers/dma/Kconfig

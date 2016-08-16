@@ -22,7 +22,7 @@
 
 #include <stdlib.h>
 
-#include "board/board.h"
+#include "drivers/board/board.h"
 #include "module/module.h"
 #include "vboot/stages.h"
 

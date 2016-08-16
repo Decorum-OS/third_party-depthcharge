@@ -1,0 +1,119 @@
+##
+## Copyright 2013 Google Inc.  All rights reserved.
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; version 2 of the License.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+
+menu "Board"
+
+config BOARD
+	string "Board name"
+
+config BOARD_DIR
+	string "Board directory"
+	default BOARD
+
+if BOARD_DIR = "auron"
+source src/drivers/board/auron/Kconfig
+endif
+if BOARD_DIR = "bayleybay"
+source src/drivers/board/bayleybay/Kconfig
+endif
+if BOARD_DIR = "bolt"
+source src/drivers/board/bolt/Kconfig
+endif
+if BOARD_DIR = "daisy"
+source src/drivers/board/daisy/Kconfig
+endif
+if BOARD_DIR = "falco"
+source src/drivers/board/falco/Kconfig
+endif
+if BOARD_DIR = "foster"
+source src/drivers/board/foster/Kconfig
+endif
+if BOARD_DIR = "gizmo"
+source src/drivers/board/gizmo/Kconfig
+endif
+if BOARD_DIR = "glados"
+source src/drivers/board/glados/Kconfig
+endif
+if BOARD_DIR = "jecht"
+source src/drivers/board/jecht/Kconfig
+endif
+if BOARD_DIR = "link"
+source src/drivers/board/link/Kconfig
+endif
+if BOARD_DIR = "nyan"
+source src/drivers/board/nyan/Kconfig
+endif
+if BOARD_DIR = "nyan_big"
+source src/drivers/board/nyan_big/Kconfig
+endif
+if BOARD_DIR = "nyan_blaze"
+source src/drivers/board/nyan_blaze/Kconfig
+endif
+if BOARD_DIR = "panther"
+source src/drivers/board/panther/Kconfig
+endif
+if BOARD_DIR = "peach_pit"
+source src/drivers/board/peach_pit/Kconfig
+endif
+if BOARD_DIR = "peppy"
+source src/drivers/board/peppy/Kconfig
+endif
+if BOARD_DIR = "qemu-x86"
+source src/drivers/board/qemu-x86/Kconfig
+endif
+if BOARD_DIR = "rambi"
+source src/drivers/board/rambi/Kconfig
+endif
+if BOARD_DIR = "rush"
+source src/drivers/board/rush/Kconfig
+endif
+if BOARD_DIR = "rush_ryu"
+source src/drivers/board/rush_ryu/Kconfig
+endif
+if BOARD_DIR = "samus"
+source src/drivers/board/samus/Kconfig
+endif
+if BOARD_DIR = "slippy"
+source src/drivers/board/slippy/Kconfig
+endif
+if BOARD_DIR = "smaug"
+source src/drivers/board/smaug/Kconfig
+endif
+if BOARD_DIR = "strago"
+source src/drivers/board/strago/Kconfig
+endif
+if BOARD_DIR = "uefi"
+source src/drivers/board/uefi/Kconfig
+endif
+if BOARD_DIR = "veyron_jerry"
+source src/drivers/board/veyron_jerry/Kconfig
+endif
+if BOARD_DIR = "veyron_mighty"
+source src/drivers/board/veyron_mighty/Kconfig
+endif
+if BOARD_DIR = "veyron_pinky"
+source src/drivers/board/veyron_pinky/Kconfig
+endif
+if BOARD_DIR = "veyron_rialto"
+source src/drivers/board/veyron_rialto/Kconfig
+endif
+if BOARD_DIR = "veyron_shark"
+source src/drivers/board/veyron_shark/Kconfig
+endif
+if BOARD_DIR = "veyron_speedy"
+source src/drivers/board/veyron_speedy/Kconfig
+endif
+endmenu

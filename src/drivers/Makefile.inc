@@ -16,6 +16,7 @@
 ##
 
 subdirs-y += blockdev
+subdirs-y += board
 subdirs-y += bus
 subdirs-y += console
 subdirs-y += dma

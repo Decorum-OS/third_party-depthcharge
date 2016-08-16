@@ -22,8 +22,8 @@
 
 #include <stdio.h>
 
-#include "board/board.h"
-#include "board/board_helpers.h"
+#include "drivers/board/board.h"
+#include "drivers/board/board_helpers.h"
 #include "drivers/layout/uefi.h"
 #include "drivers/storage/dcdir.h"
 

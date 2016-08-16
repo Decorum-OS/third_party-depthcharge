@@ -22,8 +22,8 @@
 
 #include "base/algorithm.h"
 #include "base/die.h"
-#include "board/board.h"
-#include "board/board_helpers.h"
+#include "drivers/board/board.h"
+#include "drivers/board/board_helpers.h"
 #include "drivers/layout/coreboot.h"
 #include "drivers/storage/fmap.h"
 #include "drivers/storage/section_index.h"

@@ -25,8 +25,8 @@
 #include "base/algorithm.h"
 #include "base/die.h"
 #include "base/xalloc.h"
-#include "board/board.h"
-#include "board/board_helpers.h"
+#include "drivers/board/board.h"
+#include "drivers/board/board_helpers.h"
 #include "drivers/layout/dcdir.h"
 #include "drivers/storage/dcdir.h"
 

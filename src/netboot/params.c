@@ -25,7 +25,7 @@
 #include <stdio.h>
 
 #include "base/xalloc.h"
-#include "board/board.h"
+#include "drivers/board/board.h"
 #include "drivers/storage/storage.h"
 #include "net/uip.h"
 #include "netboot/params.h"

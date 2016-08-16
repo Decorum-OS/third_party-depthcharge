@@ -67,7 +67,6 @@ config HOSTED
 source src/arch/Kconfig
 
 source src/base/Kconfig
-source src/board/Kconfig
 source src/boot/Kconfig
 source src/fastboot/Kconfig
 

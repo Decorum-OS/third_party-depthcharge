@@ -31,7 +31,7 @@
 #include "base/cleanup.h"
 #include "base/lzma/lzma.h"
 #include "base/xalloc.h"
-#include "board/board.h"
+#include "drivers/board/board.h"
 #include "drivers/storage/storage.h"
 
 static void load_payload_and_run(struct cbfs_payload *payload);

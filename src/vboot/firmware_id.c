@@ -24,7 +24,7 @@
 #include <vboot_struct.h>
 
 #include "base/xalloc.h"
-#include "board/board.h"
+#include "drivers/board/board.h"
 #include "drivers/storage/storage.h"
 #include "vboot/firmware_id.h"
 #include "vboot/util/commonparams.h"

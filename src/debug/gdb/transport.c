@@ -25,8 +25,8 @@
 #include "base/die.h"
 #include "base/io.h"
 #include "base/time.h"
-#include "board/board.h"
 #include "debug/gdb/gdb_int.h"
+#include "drivers/board/board.h"
 
 /* MMIO word size is not standardized, but *usually* 32 (even on ARM64) */
 typedef uint32_t mmio_word_t;

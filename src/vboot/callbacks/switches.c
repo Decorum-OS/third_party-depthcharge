@@ -22,7 +22,7 @@
 
 #include <vboot_api.h>
 
-#include "board/board.h"
+#include "drivers/board/board.h"
 
 /*
  * Return the state of the switches specified in request_mask.

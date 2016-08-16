@@ -27,7 +27,7 @@
 
 #include "base/algorithm.h"
 #include "base/xalloc.h"
-#include "board/board.h"
+#include "drivers/board/board.h"
 #include "drivers/storage/storage.h"
 
 VbError_t VbExHashFirmwareBody(VbCommonParams *cparams,

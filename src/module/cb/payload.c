@@ -28,7 +28,7 @@
 #include "base/fwdb.h"
 #include "base/init_funcs.h"
 #include "base/timestamp.h"
-#include "board/board.h"
+#include "drivers/board/board.h"
 #include "drivers/keyboard/keyboard.h"
 #include "module/module.h"
 #include "vboot/stages.h"

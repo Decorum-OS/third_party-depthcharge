@@ -27,7 +27,7 @@
 
 #include "base/init_funcs.h"
 #include "base/list.h"
-#include "board/board.h"
+#include "drivers/board/board.h"
 #include "drivers/console/console.h"
 #include "drivers/uart/uart.h"
 

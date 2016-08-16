@@ -26,7 +26,7 @@
 #include <stdlib.h>
 
 #include "base/xalloc.h"
-#include "board/board.h"
+#include "drivers/board/board.h"
 #include "drivers/storage/storage.h"
 #include "vboot/util/gbb.h"
 

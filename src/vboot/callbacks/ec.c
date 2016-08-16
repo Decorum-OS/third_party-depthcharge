@@ -28,7 +28,7 @@
 #include "base/time.h"
 #include "base/timestamp.h"
 #include "base/xalloc.h"
-#include "board/board.h"
+#include "drivers/board/board.h"
 #include "drivers/ec/cros/ec.h"
 
 int VbExTrustEC(int devidx)

@@ -23,7 +23,7 @@
 #include <stdlib.h>
 
 #include "base/timestamp.h"
-#include "board/board.h"
+#include "drivers/board/board.h"
 #include "module/module.h"
 #include "vboot/stages.h"
 #include "vboot/util/commonparams.h"
