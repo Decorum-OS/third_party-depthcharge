@@ -86,6 +86,12 @@ int boot_x86_linux(struct boot_params *boot_params, char *cmd_line,
 
 	memcpy(ParamsBuff, boot_params, sizeof(*boot_params));
 	strcpy(CmdLineBuff, cmd_line);
+	if (CONFIG_HOSTED) {
+		// Copy the kernel to where it's supposed to run from, now
+		// that we have total control of the system.
+		memcpy((void *)(uintptr_t)CONFIG_KERNEL_START,
+		       kernel, hdr->syssize * 16);
+	}
 
 	puts("\nStarting kernel ...\n\n");
 	timestamp_add_now(TS_START_KERNEL);

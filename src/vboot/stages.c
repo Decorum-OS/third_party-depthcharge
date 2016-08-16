@@ -184,9 +184,16 @@ int vboot_select_and_load_kernel(void)
 {
 	static char cmd_line_buf[2 * CmdLineSize];
 
-	VbSelectAndLoadKernelParams kparams = {
-		.kernel_buffer = (void *)(uintptr_t)CONFIG_KERNEL_START,
-		.kernel_buffer_size = CONFIG_KERNEL_SIZE
+	VbSelectAndLoadKernelParams kparams;
+	if (CONFIG_HOSTED) {
+		// If we're hosted, stay in our own address space for now.
+		static uint8_t hosted_kernel_buffer[CONFIG_KERNEL_SIZE];
+		kparams.kernel_buffer = hosted_kernel_buffer;
+		kparams.kernel_buffer_size = sizeof(hosted_kernel_buffer);
+	} else {
+		// If we're not hosted, set the kernel up in place.
+		kparams.kernel_buffer = (void *)(uintptr_t)CONFIG_KERNEL_START;
+		kparams.kernel_buffer_size = CONFIG_KERNEL_SIZE;
 	};
 
 	if (common_params_init())
