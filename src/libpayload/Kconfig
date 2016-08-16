@@ -65,8 +65,7 @@ config PCI
 
 config NVRAM
 	bool "Support for reading/writing NVRAM bytes"
-	depends on ARCH_X86 # for now
-	default y
+	default n
 
 config USB
 	bool "USB Support"

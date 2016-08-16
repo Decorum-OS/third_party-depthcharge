@@ -59,12 +59,14 @@ config DISABLE_LEGACY_BOOT
 
 choice
 	prompt "Type of nonvolatile storage"
+	default NV_STORAGE_FAKE
 	help
 	  Where depthcharge should keep vboot's nonvolatile storage.
 
 config NV_STORAGE_CMOS
 	bool "CMOS"
 	depends on ARCH_X86
+	select NVRAM
 	help
 	  The nonvolatile data is stored in CMOS.
 
