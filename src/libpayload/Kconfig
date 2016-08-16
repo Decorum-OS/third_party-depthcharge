@@ -40,7 +40,7 @@ menu "Console Options"
 
 config CBMEM_CONSOLE
 	bool "Send output to the in memory CBMEM console"
-	default y
+	default n
 
 config SERIAL_SET_SPEED
 	bool "Override the serial console baud rate"
@@ -54,7 +54,7 @@ config SERIAL_BAUD_RATE
 
 config VIDEO_CONSOLE
 	bool "See output on a video console"
-	default y
+	default n
 
 config COREBOOT_VIDEO_CONSOLE
 	bool "coreboot video console driver"
