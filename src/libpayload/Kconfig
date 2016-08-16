@@ -26,16 +26,6 @@
 ## SUCH DAMAGE.
 ##
 
-menu "Standard Libraries"
-
-config CBFS
-	bool "CBFS support"
-	default y
-	help
-	  CBFS is the archive format of coreboot
-
-endmenu
-
 menu "Console Options"
 
 config CBMEM_CONSOLE
