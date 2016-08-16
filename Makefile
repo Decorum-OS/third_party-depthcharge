@@ -18,7 +18,7 @@ src  = $(shell pwd)
 srck = $(src)/util/kconfig
 obj ?= $(src)/build
 objk = $(obj)/util/kconfig
-# Since we won't don't know what board to use and how to derive it isn't always
+# Since we won't don't know what config to use and how to derive it isn't always
 # the same, these should be called like functions.
 objb = $(obj)/$(1)
 tempconfig = $(call objb,$(1))/tempconfig
@@ -32,42 +32,42 @@ Q:=@
 .SILENT:
 endif
 
-DEFCONFIGS = $(wildcard $(src)/board/*/defconfig)
-BOARDS = $(sort						\
-	   $(patsubst $(src)/board/%,%,			\
-	     $(patsubst %/defconfig,%,$(DEFCONFIGS))	\
-	    )						\
-	  )
+DEFCONFIGS = $(wildcard $(src)/config/*/defconfig)
+CONFIGS = $(sort						\
+	    $(patsubst $(src)/config/%,%,			\
+	      $(patsubst %/defconfig,%,$(DEFCONFIGS))	\
+	     )						\
+	   )
 
 # If nothing is specified, print a usage message and stop.
 -usage-:
 	@printf "\n"
 	@printf "To build depthcharge, run $(MAKE) with one of the following targets:\n" | fold -s
 	@printf "\n"
-	@printf "all - Build all boards depthcharge knows about. This will probably require having multiple toolchains available.\n" | fold -s
+	@printf "all - Build all configs depthcharge knows about. This will probably require having multiple toolchains available.\n" | fold -s
 	@printf "clean - Delete the entire build directory.\n" | fold -s
-	@printf "clean-[board name] - Delete the build directory for board \"board name\".\n" | fold -s
-	@printf "[board name] - Build the board \"board name\".\n" | fold -s
+	@printf "clean-[config name] - Delete the build directory for config \"config name\".\n" | fold -s
+	@printf "[config name] - Build the config \"config name\".\n" | fold -s
 	@printf "\n"
 	@printf "You can specify multiple targets, but only one is advised when deleting build directories. You can override the build directory by setting the \"obj\" variable on the command line.\n" | fold -s
 	@printf "\n"
 	@printf "To see what commands are being run, set V=1 on the command line.\n"
 	@printf "\n"
-	@printf "Available boards: $(BOARDS)\n" | fold -s
+	@printf "Available configs: $(CONFIGS)\n" | fold -s
 	@printf "\n"
 
-# Build all boards.
-all: $(BOARDS)
+# Build all configs.
+all: $(CONFIGS)
 
 # Delete the entire build directory.
 clean:
 	$(Q)rm -rf $(obj)
 
-# Delete the build directory for a particular board.
-$(addprefix clean-,$(BOARDS)):
+# Delete the build directory for a particular config.
+$(addprefix clean-,$(CONFIGS)):
 	$(Q)rm -rf $(call objb,$(patsubst clean-%,%,$@))
 
-$(BOARDS):
+$(CONFIGS):
 	# Set up a staging dir for the config files
 	$(Q)rm -rf $(call tempconfig,$@) && mkdir -p $(call tempconfig,$@)
 	
@@ -76,7 +76,7 @@ $(BOARDS):
 	$(Q)$(MAKE) KCONFIG_SRC=$(srck) \
 		KCONFIG_OBJ=$(objk) \
 		DC_SRC=$(src) \
-		DC_CONFIG=$(src)/board/$@/defconfig \
+		DC_CONFIG=$(src)/config/$@/defconfig \
 		TARGET_DIR=$(call tempconfig,$@) \
 		Kconfig=$(src)/Kconfig \
 		-f $(src)/buildconfig.mk defconfig
@@ -93,7 +93,7 @@ $(BOARDS):
 		-f $(src)/engine.mk
 
 # kconfig can't handle doing two things at once, and mixing the output of
-# multiple boards makes it really hard to tell what's happening.
-.NOTPARALLEL: $(BOARDS)
+# multiple configs makes it really hard to tell what's happening.
+.NOTPARALLEL: $(CONFIGS)
 
-.PHONY: -usage- all clean $(addprefix clean-,$(BOARDS)) $(BOARDS)
+.PHONY: -usage- all clean $(addprefix clean-,$(CONFIGS)) $(CONFIGS)
