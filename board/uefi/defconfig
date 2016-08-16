@@ -4,6 +4,8 @@ CONFIG_ARCH_X86_AMD64=y
 
 CONFIG_EXTRA_CFLAGS="-fpie -fshort-wchar -mno-red-zone -DEFIAPI='__attribute__((ms_abi))'"
 
+CONFIG_HOSTED=y
+
 # Board
 CONFIG_BOARD="uefi"
 
