@@ -84,6 +84,7 @@ config USB
 
 config USB_UHCI
 	bool "Support for USB UHCI controllers"
+	default n
 	depends on USB && ARCH_X86
 	help
 	  Select this option if you are going to use USB 1.1 on an Intel based
@@ -91,6 +92,7 @@ config USB_UHCI
 
 config USB_OHCI
 	bool "Support for USB OHCI controllers"
+	default n
 	depends on USB
 	help
 	  Select this option if you are going to use USB 1.1 on a non-Intel based
@@ -98,12 +100,14 @@ config USB_OHCI
 
 config USB_EHCI
 	bool "Support for USB EHCI controllers"
+	default n
 	depends on USB
 	help
 	  Select this option if you want to use USB 2.0
 
 config USB_XHCI
 	bool "Support for USB xHCI controllers"
+	default n
 	depends on USB
 	help
 	  Select this option if you want to use USB 3.0
@@ -154,6 +158,7 @@ config USB_GEN_HUB
 	bool
 	default n if (!USB_HUB && !USB_XHCI)
 	default y if (USB_HUB || USB_XHCI)
+
 config USB_PCI
 	bool "Auto-scan PCI bus for USB host controllers"
 	depends on USB
