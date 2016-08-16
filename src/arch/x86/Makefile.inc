@@ -19,7 +19,7 @@ subdirs-$(CONFIG_ARCH_X86_IA32) += ia32
 subdirs-$(CONFIG_ARCH_X86_AMD64) += amd64
 
 depthcharge-y += boot.c
-libcbfs-$(CONFIG_CBFS) += rom_media.c
+libcbfs-y += rom_media.c
 depthcharge-y += sign_of_life.c
 depthcharge-y += util.S
 depthcharge-$(CONFIG_KERNEL_ZIMAGE) += zimage.c
