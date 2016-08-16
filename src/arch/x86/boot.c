@@ -37,7 +37,8 @@ static void * const CmdLineBuff = (void *)(uintptr_t)0x2000;
 static const uint32_t KernelV2Magic = 0x53726448;
 static const uint16_t MinProtocol = 0x0202;
 
-int boot_x86_linux(struct boot_params *boot_params, char *cmd_line, void *entry)
+int boot_x86_linux(struct boot_params *boot_params, char *cmd_line,
+		   void *kernel, uintptr_t entry_offset)
 {
 	// Move the boot_params structure and the command line to where Linux
 	// suggests and to where they'll be safe from being trampled by the
@@ -89,5 +90,6 @@ int boot_x86_linux(struct boot_params *boot_params, char *cmd_line, void *entry)
 	puts("\nStarting kernel ...\n\n");
 	timestamp_add_now(TS_START_KERNEL);
 
-	boot_x86_linux_start_kernel(ParamsBuff, entry);
+	uintptr_t entry_addr = CONFIG_KERNEL_START + entry_offset;
+	boot_x86_linux_start_kernel(ParamsBuff, (void *)entry_addr);
 }

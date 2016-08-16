@@ -54,5 +54,5 @@ int boot(void *kernel, char *cmd_line, void *params, void *loader)
 		memmove(kernel, (void *)pm_start, pm_size);
 	}
 
-	return boot_x86_linux(params, cmd_line, kernel);
+	return boot_x86_linux(params, cmd_line, kernel, 0);
 }

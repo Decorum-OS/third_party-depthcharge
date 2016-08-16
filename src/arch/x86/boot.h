@@ -25,7 +25,8 @@
 
 #include "arch/x86/boot/bootparam.h"
 
-int boot_x86_linux(struct boot_params *boot_base, char *cmd_line, void *entry);
+int boot_x86_linux(struct boot_params *boot_base, char *cmd_line,
+		   void *kernel, uintptr_t entry_offset);
 void boot_x86_linux_start_kernel(
 	struct boot_params *params, void *entry) __attribute__((noreturn));
 
