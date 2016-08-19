@@ -28,7 +28,9 @@
 #include "base/physmem.h"
 #include "module/uefi/fwdb.h"
 #include "uefi/edk/Protocol/EfiShell.h"
+#include "uefi/edk/Protocol/EfiShellInterface.h"
 #include "uefi/edk/Protocol/EfiShellParameters.h"
+#include "uefi/edk/Protocol/LoadedImage.h"
 #include "uefi/edk/Protocol/SimpleFileSystem.h"
 #include "uefi/uefi.h"
 #include "vboot/util/memory.h"
@@ -43,8 +45,12 @@ extern uint8_t ImageBase;
 
 static EFI_GUID shell_parameters_protocol_guid =
 	EFI_SHELL_PARAMETERS_PROTOCOL_GUID;
-
 static EFI_GUID shell_protocol_guid = EFI_SHELL_PROTOCOL_GUID;
+static EFI_GUID shell_interface_guid = SHELL_INTERFACE_PROTOCOL_GUID;
+
+static EFI_GUID file_info_guid = EFI_FILE_INFO_ID;
+static EFI_GUID loaded_image_protocol_guid = EFI_LOADED_IMAGE_PROTOCOL_GUID;
+static EFI_GUID simple_fs_protocol_guid = EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
 
 
 
@@ -66,6 +72,24 @@ static EFI_SHELL_PARAMETERS_PROTOCOL *get_shell_parameters(
 	}
 
 	return shell_params;
+}
+
+static EFI_SHELL_INTERFACE *get_shell_interface(EFI_BOOT_SERVICES *bs)
+{
+	EFI_HANDLE handle;
+	if (uefi_image_handle(&handle))
+		return NULL;
+
+	EFI_SHELL_INTERFACE *shell_int;
+	EFI_STATUS status = bs->HandleProtocol(
+		handle, &shell_interface_guid, (void **)&shell_int);
+
+	if (status != EFI_SUCCESS) {
+		printf("No shell interface found.\n");
+		return NULL;
+	}
+
+	return shell_int;
 }
 
 static EFI_SHELL_PROTOCOL *get_shell_protocol(EFI_BOOT_SERVICES *bs)
@@ -136,6 +160,47 @@ static int insert_file_into_fwdb(EFI_SHELL_PROTOCOL *shell_prot,
 	return 0;
 }
 
+static int insert_file_name_into_fwdb_from_fs(EFI_FILE_PROTOCOL *root,
+					      CHAR16 *file_name,
+					      const char *name)
+{
+	EFI_FILE_PROTOCOL *file;
+	EFI_STATUS status = root->Open(root, &file, file_name,
+				       EFI_FILE_MODE_READ, 0);
+	if (status != EFI_SUCCESS) {
+		printf("Failed to open file.\n");
+		return 1;
+	}
+
+	EFI_FILE_INFO file_info;
+	UINTN buf_size = sizeof(file_info);
+	status = file->GetInfo(file, &file_info_guid,
+			       &buf_size, &file_info);
+	if (status != EFI_SUCCESS) {
+		file->Close(file);
+		printf("Failed to get file size.\n");
+		return 1;
+	}
+
+	FwdbEntry entry = { .ptr = NULL, .size = file_info.FileSize };
+	if (fwdb_access(name, NULL, &entry) ||
+	    fwdb_access(name, &entry, NULL)) {
+		file->Close(file);
+		return 1;
+	}
+
+	buf_size = entry.size;
+	status = file->Read(file, &buf_size, entry.ptr);
+	if (status != EFI_SUCCESS) {
+		file->Close(file);
+		printf("Failed to read file.\n");
+		return 1;
+	}
+
+	file->Close(file);
+	return 0;
+}
+
 static int insert_file_name_into_fwdb(EFI_SHELL_PROTOCOL *shell_prot,
 				      CHAR16 *file_name, const char *name)
 {
@@ -165,23 +230,86 @@ int uefi_prepare_fwdb_storage(void)
 		return 1;
 	EFI_BOOT_SERVICES *bs = st->BootServices;
 
-	EFI_SHELL_PARAMETERS_PROTOCOL *shell_params = get_shell_parameters(bs);
 	EFI_SHELL_PROTOCOL *shell_prot = get_shell_protocol(bs);
+	EFI_SHELL_PARAMETERS_PROTOCOL *shell_params = NULL;
+	EFI_SHELL_INTERFACE *shell_int = NULL;
 
-	if (!shell_params || !shell_prot)
-		return 1;
+	if (shell_prot) {
+		printf("UEFI standard shell protocol found.\n");
 
-	if (shell_params->Argc != 3) {
-		printf("Bad number of arguments.\n");
-		printf("Usage: dc <rwa image> <rwb image>\n");
-		return 1;
-	}
+		shell_params = get_shell_parameters(bs);
+		if (!shell_params)
+			return 1;
 
-	if (insert_file_name_into_fwdb(shell_prot, shell_params->Argv[1],
-				       "uefi_rw_a_image") ||
-	    insert_file_name_into_fwdb(shell_prot, shell_params->Argv[2],
-				       "uefi_rw_b_image")) {
-		return 1;
+		if (shell_params->Argc != 3) {
+			printf("Bad number of arguments.\n");
+			printf("Usage: dc <rwa image> <rwb image>\n");
+			return 1;
+		}
+
+		if (insert_file_name_into_fwdb(
+			shell_prot, shell_params->Argv[1], "uefi_rw_a_image") ||
+		    insert_file_name_into_fwdb(
+			shell_prot, shell_params->Argv[2], "uefi_rw_b_image")) {
+			return 1;
+		}
+	} else {
+		printf("Falling back to non-standard shell "
+		       "interface protocol.\n");
+		shell_int = get_shell_interface(bs);
+
+		if (shell_int->Argc != 1) {
+			printf("Bad number of arguments.\n");
+			printf("Usage: dc\n");
+			printf("When using the non-standard interface, rwa "
+			       "and rwb are assumed to be on \n");
+			printf("the same device as the main depthcharge "
+			       "executable at the path \n");
+			printf("\\depthcharge\\rwa and \\depthcharge\\rwb.\n");
+			return 1;
+		}
+
+		EFI_HANDLE handle;
+		if (uefi_image_handle(&handle))
+			return 1;
+
+		EFI_LOADED_IMAGE_PROTOCOL *loaded_image;
+		EFI_STATUS status =
+			bs->HandleProtocol(handle, &loaded_image_protocol_guid,
+					   (void **)&loaded_image);
+		if (status != EFI_SUCCESS) {
+			printf("Failed to open loaded image protocol.\n");
+			return 1;
+		}
+
+		EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *simple_fs;
+		status = bs->HandleProtocol(loaded_image->DeviceHandle,
+					   &simple_fs_protocol_guid,
+					   (void **)&simple_fs);
+		if (status != EFI_SUCCESS) {
+			printf("Failed to open simple fs protocol.\n");
+			return 1;
+		}
+
+		EFI_FILE_PROTOCOL *root;
+		status = simple_fs->OpenVolume(simple_fs, &root);
+		if (status != EFI_SUCCESS) {
+			printf("Failed to open simple fs root.\n");
+			return 1;
+		}
+
+		int ret = insert_file_name_into_fwdb_from_fs(
+			root, L"depthcharge\\rwa", "uefi_rw_a_image");
+		ret = ret || insert_file_name_into_fwdb_from_fs(
+			root, L"depthcharge\\rwb", "uefi_rw_b_image");
+
+		status = root->Close(root);
+		if (status != EFI_SUCCESS) {
+			printf("Failed to close fs root.\n");
+			return 1;
+		}
+
+		return ret;
 	}
 
 	return 0;
