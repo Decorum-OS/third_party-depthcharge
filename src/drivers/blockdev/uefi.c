@@ -230,5 +230,7 @@ UefiBlockDevCtrlr *new_uefi_blockdev_ctrlr(int removable)
 	ctrlr->ctrlr.ops.update = &uefi_blockdev_ctrlr_update;
 	ctrlr->ctrlr.need_update = 1;
 
+	ctrlr->removable = removable;
+
 	return ctrlr;
 }
