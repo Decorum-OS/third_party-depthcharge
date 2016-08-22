@@ -333,30 +333,32 @@ int uefi_prepare_fwdb_e820_map(void)
 	if (uefi_get_memory_map(&size, &map, &desc_size, &desc_ver))
 		return 1;
 
-	int num_descs = size / desc_size;
-	if (num_descs > ARRAY_SIZE(e820->ranges)) {
-		printf("Too many memory ranges to fit in the FWDB map.\n");
-		free(map);
-		return 1;
-	}
-
 	if (desc_size < sizeof(EFI_MEMORY_DESCRIPTOR)) {
 		printf("Descriptor size is too small?\n");
 		free(map);
 		return 1;
 	}
 
+	int num_descs = size / desc_size;
 	int num_ranges = 0;
 	for (int i = 0; i < num_descs; i++) {
 		EFI_MEMORY_DESCRIPTOR *desc =
 			(void *)((uint8_t *)map + i * desc_size);
+
+		if (desc->NumberOfPages == 0)
+			continue;
+
+		if (num_ranges >= ARRAY_SIZE(e820->ranges)) {
+			printf("Too many memory ranges to fit in the "
+			       "FWDB map.\n");
+			free(map);
+			return 1;
+		}
 		E820MemRange *range = &e820->ranges[num_ranges];
 
 		range->base = desc->PhysicalStart;
 		range->size = desc->NumberOfPages * 4 * 1024;
 
-		if (range->size == 0)
-			continue;
 		num_ranges++;
 
 		switch (desc->Type) {
