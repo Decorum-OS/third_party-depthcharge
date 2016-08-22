@@ -25,5 +25,5 @@ config HEADLESS
         "Set to 'y' for devices without display screens"
 
 config MAX_MEM_RANGES
-	int
+	int "Max number of memory ranges"
 	default 32
